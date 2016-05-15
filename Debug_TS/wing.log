@@ -1,122 +1,117 @@
-﻿生成启动时间为 2016/5/13 21:26:26。
+﻿生成启动时间为 2016/5/16 7:15:50。
      1>项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\wing.vcxproj”在节点 2 上(Build 个目标)。
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I..\.. /I..\..\main /I..\..\Zend /I..\..\..\bindlib_w32 /I..\..\TSRM /Zi /nologo /W3 /WX- /O2 /Oy- /D ZEND_DEBUG=1 /D WIN32 /D NDEBUG /D _WINDOWS /D _USRDLL /D WING_EXPORTS /D COMPILE_DL_WING /D ZTS=1 /D ZEND_WIN32 /D PHP_WIN32 /D HAVE_WING=1 /D LIBZEND_EXPORTS /D _VC80_UPGRADE=0x0600 /D _WINDLL /D _MBCS /GF /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo".\Debug_TS\\" /Fd".\Debug_TS\vc110.pdb" /Gd /TC /analyze- /errorReport:prompt lib\library.c wing.c
-         library.c
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\xtgmath.h(111): warning C4602: #pragma pop_macro:“new”该标识符前面没有 #pragma push_macro
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\xtgmath.h(112): warning C4193: #pragma warning(pop) : 没有匹配的“#pragma warning(push)”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\xtgmath.h(113): warning C4161: #pragma pack(pop...) : 出栈的比入栈的多
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(28): error C2061: 语法错误: 标识符“acosf”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(28): error C2059: 语法错误:“;”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(28): error C2061: 语法错误: 标识符“asinf”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(29): error C2061: 语法错误: 标识符“atanf”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(29): error C2059: 语法错误:“;”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(29): error C2061: 语法错误: 标识符“atan2f”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(29): error C2061: 语法错误: 标识符“ceilf”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(30): error C2061: 语法错误: 标识符“cosf”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(30): error C2059: 语法错误:“;”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(30): error C2061: 语法错误: 标识符“coshf”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(30): error C2061: 语法错误: 标识符“expf”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(31): error C2061: 语法错误: 标识符“fabsf”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(31): error C2059: 语法错误:“;”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(31): error C2061: 语法错误: 标识符“floorf”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(31): error C2061: 语法错误: 标识符“fmodf”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(32): error C2061: 语法错误: 标识符“frexpf”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(32): error C2059: 语法错误:“;”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(32): error C2061: 语法错误: 标识符“ldexpf”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(32): error C2061: 语法错误: 标识符“logf”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(33): error C2061: 语法错误: 标识符“log10f”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(33): error C2059: 语法错误:“;”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(33): error C2061: 语法错误: 标识符“modff”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(33): error C2061: 语法错误: 标识符“powf”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(34): error C2061: 语法错误: 标识符“sinf”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(34): error C2059: 语法错误:“;”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(34): error C2061: 语法错误: 标识符“sinhf”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(34): error C2061: 语法错误: 标识符“sqrtf”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(35): error C2061: 语法错误: 标识符“tanf”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(35): error C2059: 语法错误:“;”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(35): error C2061: 语法错误: 标识符“tanhf”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(37): error C2061: 语法错误: 标识符“acosl”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(37): error C2059: 语法错误:“;”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(37): error C2061: 语法错误: 标识符“asinl”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(38): error C2061: 语法错误: 标识符“atanl”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(38): error C2059: 语法错误:“;”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(38): error C2061: 语法错误: 标识符“atan2l”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(38): error C2061: 语法错误: 标识符“ceill”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(39): error C2061: 语法错误: 标识符“cosl”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(39): error C2059: 语法错误:“;”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(39): error C2061: 语法错误: 标识符“coshl”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(39): error C2061: 语法错误: 标识符“expl”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(40): error C2061: 语法错误: 标识符“fabsl”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(40): error C2059: 语法错误:“;”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(40): error C2061: 语法错误: 标识符“floorl”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(40): error C2061: 语法错误: 标识符“fmodl”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(41): error C2061: 语法错误: 标识符“frexpl”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(41): error C2059: 语法错误:“;”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(41): error C2061: 语法错误: 标识符“ldexpl”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(41): error C2061: 语法错误: 标识符“logl”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(42): error C2061: 语法错误: 标识符“log10l”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(42): error C2059: 语法错误:“;”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(42): error C2061: 语法错误: 标识符“modfl”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(42): error C2061: 语法错误: 标识符“powl”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(43): error C2061: 语法错误: 标识符“sinl”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(43): error C2059: 语法错误:“;”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(43): error C2061: 语法错误: 标识符“sinhl”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(43): error C2061: 语法错误: 标识符“sqrtl”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(44): error C2061: 语法错误: 标识符“tanl”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(44): error C2059: 语法错误:“;”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(44): error C2061: 语法错误: 标识符“tanhl”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(46): error C2061: 语法错误: 标识符“abs”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(46): error C2059: 语法错误:“;”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(48): error C2061: 语法错误: 标识符“acos”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(48): error C2059: 语法错误:“;”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(48): error C2061: 语法错误: 标识符“asin”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(49): error C2061: 语法错误: 标识符“atan”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(49): error C2059: 语法错误:“;”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(49): error C2061: 语法错误: 标识符“atan2”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(49): error C2061: 语法错误: 标识符“ceil”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(50): error C2061: 语法错误: 标识符“cos”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(50): error C2059: 语法错误:“;”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(50): error C2061: 语法错误: 标识符“cosh”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(50): error C2061: 语法错误: 标识符“exp”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(51): error C2061: 语法错误: 标识符“fabs”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(51): error C2059: 语法错误:“;”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(51): error C2061: 语法错误: 标识符“floor”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(51): error C2061: 语法错误: 标识符“fmod”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(52): error C2061: 语法错误: 标识符“frexp”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(52): error C2059: 语法错误:“;”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(52): error C2061: 语法错误: 标识符“ldexp”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(52): error C2061: 语法错误: 标识符“log”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(53): error C2061: 语法错误: 标识符“log10”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(53): error C2059: 语法错误:“;”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(53): error C2061: 语法错误: 标识符“modf”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(53): error C2061: 语法错误: 标识符“pow”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(54): error C2061: 语法错误: 标识符“sin”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(54): error C2059: 语法错误:“;”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(54): error C2061: 语法错误: 标识符“sinh”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(54): error C2061: 语法错误: 标识符“sqrt”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(55): error C2061: 语法错误: 标识符“tan”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(55): error C2059: 语法错误:“;”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(55): error C2061: 语法错误: 标识符“tanh”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(57): error C2061: 语法错误: 标识符“hypot”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(57): error C2059: 语法错误:“;”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(57): error C2061: 语法错误: 标识符“hypotf”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cstdio(36): error C2054: 在“using”之后应输入“(”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cstdio(38): error C2061: 语法错误: 标识符“using”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cstdio(38): error C2054: 在“using”之后应输入“(”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cstdio(39): error C2061: 语法错误: 标识符“clearerr”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cstdio(39): error C2059: 语法错误:“;”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cstdio(39): error C2061: 语法错误: 标识符“fclose”
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cstdio(39): fatal error C1003: 错误计数超过 100；正在停止编译
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I"D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\zxing\cli\src" /I"D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\zxing\core\src\\" /I..\.. /I..\..\main /I..\..\Zend /I..\..\..\bindlib_w32 /I..\..\TSRM /Zi /nologo /W3 /WX- /O2 /Oy- /D ZEND_DEBUG=1 /D WIN32 /D NDEBUG /D _WINDOWS /D _USRDLL /D WING_EXPORTS /D COMPILE_DL_WING /D ZTS=1 /D ZEND_WIN32 /D PHP_WIN32 /D HAVE_WING=1 /D _VC80_UPGRADE=0x0600 /D _WINDLL /D _MBCS /GF /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo".\Debug_TS\\" /Fd".\Debug_TS\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt wing.c
          wing.c
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\xkeycheck.h(65): warning C4005: “inline”: 宏重定义
-                 D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\Zend/zend_config.w32.h(74) : 参见“inline”的前一个定义
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\xkeycheck.h(69): warning C4005: “restrict”: 宏重定义
-                 d:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\zend\zend.h(194) : 参见“restrict”的前一个定义
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\xkeycheck.h(87): fatal error C1189: #error :  The C Standard Library forbids macroizing keywords. Enable warning C4005 to find the forbidden macro.
-         正在生成代码...
-     1>已完成生成项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\wing.vcxproj”(Build 个目标)的操作 - 失败。
+     1>wing.c(1342): warning C4244: “=”: 从“double”转换到“DWORD”，可能丢失数据
+     1>wing.c(1372): warning C4018: “>=”: 有符号/无符号不匹配
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V110\Microsoft.CppBuild.targets(1137,5): warning MSB8012: TargetPath(D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\.\Debug_TS\wing.dll) does not match the Linker's OutputFile property value (D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\Debug_TS\php_wing.dll). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V110\Microsoft.CppBuild.targets(1139,5): warning MSB8012: TargetName(wing) does not match the Linker's OutputFile property value (php_wing). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"..\..\Debug_TS/php_wing.dll" /INCREMENTAL:NO /NOLOGO /LIBPATH:..\..\Debug_TS odbc32.lib odbccp32.lib php5ts_debug.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\Debug_TS\wing.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\Debug_TS\php_wing.lib" /MACHINE:X86 /SAFESEH /FORCE:MULTIPLE /DLL .\Debug_TS\library.obj
+         .\Debug_TS\ImageReaderSource.obj
+         .\Debug_TS\jpgd.obj
+         .\Debug_TS\lodepng.obj
+         .\Debug_TS\wing.obj
+         .\Debug_TS\zxing.obj
+     1>libcpmt.lib(locale.obj) : warning LNK4006: _ldexpf 已在 wing.obj 中定义；已忽略第二个定义
+     1>libcpmt.lib(locale.obj) : warning LNK4006: _ldexpl 已在 wing.obj 中定义；已忽略第二个定义
+     1>libcpmt.lib(wlocale.obj) : warning LNK4006: _ldexpf 已在 wing.obj 中定义；已忽略第二个定义
+     1>libcpmt.lib(wlocale.obj) : warning LNK4006: _ldexpl 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(ResultPoint.obj) : warning LNK4006: "float __cdecl sqrt(float)" (?sqrt@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(ResultPoint.obj) : warning LNK4006: _sqrtf 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(Detector.cpp.obj) : warning LNK4006: "float __cdecl sqrt(float)" (?sqrt@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(Detector.cpp.obj) : warning LNK4006: _sqrtf 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(Detector.cpp.obj) : warning LNK4006: _sqrtf 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(Detector.cpp.obj) : warning LNK4006: "float __cdecl abs(float)" (?abs@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(Detector.cpp.obj) : warning LNK4006: "float __cdecl floor(float)" (?floor@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(Detector.cpp.obj) : warning LNK4006: _fabsf 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(Detector.cpp.obj) : warning LNK4006: _floorf 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(FinderPatternFinder.obj) : warning LNK4006: "float __cdecl abs(float)" (?abs@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(FinderPatternFinder.obj) : warning LNK4006: "float __cdecl sqrt(float)" (?sqrt@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(FinderPatternFinder.obj) : warning LNK4006: _fabsf 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(FinderPatternFinder.obj) : warning LNK4006: _sqrtf 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(AlignmentPatternFinder.obj) : warning LNK4006: "float __cdecl abs(float)" (?abs@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(AlignmentPatternFinder.obj) : warning LNK4006: _fabsf 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(WhiteRectangleDetector.obj) : warning LNK4006: "float __cdecl sqrt(float)" (?sqrt@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(WhiteRectangleDetector.obj) : warning LNK4006: _sqrtf 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(LinesSampler.obj) : warning LNK4006: "float __cdecl abs(float)" (?abs@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(LinesSampler.obj) : warning LNK4006: _fabsf 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(FinderPattern.obj) : warning LNK4006: "float __cdecl abs(float)" (?abs@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(FinderPattern.obj) : warning LNK4006: _fabsf 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(AlignmentPattern.obj) : warning LNK4006: "float __cdecl abs(float)" (?abs@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(AlignmentPattern.obj) : warning LNK4006: _fabsf 已在 wing.obj 中定义；已忽略第二个定义
+         libqrencode.lib(qrencode.obj) : 找到 MSIL .netmodule 或使用 /GL 编译的模块；正在使用 /LTCG 重新启动链接；将 /LTCG 添加到链接命令行以改进链接器性能
+            正在创建库 .\Debug_TS\php_wing.lib 和对象 .\Debug_TS\php_wing.exp
+         正在生成代码
+         已完成代码的生成
+     1>libcpmt.lib(locale.obj) : warning LNK4006: _ldexpf 已在 wing.obj 中定义；已忽略第二个定义
+     1>libcpmt.lib(locale.obj) : warning LNK4006: _ldexpl 已在 wing.obj 中定义；已忽略第二个定义
+     1>libcpmt.lib(wlocale.obj) : warning LNK4006: _ldexpf 已在 wing.obj 中定义；已忽略第二个定义
+     1>libcpmt.lib(wlocale.obj) : warning LNK4006: _ldexpl 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(ResultPoint.obj) : warning LNK4006: "float __cdecl sqrt(float)" (?sqrt@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(ResultPoint.obj) : warning LNK4006: _sqrtf 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(Detector.cpp.obj) : warning LNK4006: "float __cdecl sqrt(float)" (?sqrt@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(Detector.cpp.obj) : warning LNK4006: _sqrtf 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(Detector.cpp.obj) : warning LNK4006: _sqrtf 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(Detector.cpp.obj) : warning LNK4006: "float __cdecl abs(float)" (?abs@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(Detector.cpp.obj) : warning LNK4006: "float __cdecl floor(float)" (?floor@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(Detector.cpp.obj) : warning LNK4006: _fabsf 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(Detector.cpp.obj) : warning LNK4006: _floorf 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(FinderPatternFinder.obj) : warning LNK4006: "float __cdecl abs(float)" (?abs@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(FinderPatternFinder.obj) : warning LNK4006: "float __cdecl sqrt(float)" (?sqrt@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(FinderPatternFinder.obj) : warning LNK4006: _fabsf 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(FinderPatternFinder.obj) : warning LNK4006: _sqrtf 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(AlignmentPatternFinder.obj) : warning LNK4006: "float __cdecl abs(float)" (?abs@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(AlignmentPatternFinder.obj) : warning LNK4006: _fabsf 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(WhiteRectangleDetector.obj) : warning LNK4006: "float __cdecl sqrt(float)" (?sqrt@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(WhiteRectangleDetector.obj) : warning LNK4006: _sqrtf 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(LinesSampler.obj) : warning LNK4006: "float __cdecl abs(float)" (?abs@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(LinesSampler.obj) : warning LNK4006: _fabsf 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(FinderPattern.obj) : warning LNK4006: "float __cdecl abs(float)" (?abs@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(FinderPattern.obj) : warning LNK4006: _fabsf 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(AlignmentPattern.obj) : warning LNK4006: "float __cdecl abs(float)" (?abs@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>libzxing.lib(AlignmentPattern.obj) : warning LNK4006: _fabsf 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximatran.obj) : warning LNK4006: _fabsf 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximatran.obj) : warning LNK4006: _acosf 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximatran.obj) : warning LNK4006: _cosf 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximatran.obj) : warning LNK4006: _floorf 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximatran.obj) : warning LNK4006: _fmodf 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximatran.obj) : warning LNK4006: _sinf 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximatran.obj) : warning LNK4006: _sqrtf 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximatran.obj) : warning LNK4006: "float __cdecl acos(float)" (?acos@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximatran.obj) : warning LNK4006: "float __cdecl cos(float)" (?cos@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximatran.obj) : warning LNK4006: "float __cdecl fabs(float)" (?fabs@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximatran.obj) : warning LNK4006: "float __cdecl floor(float)" (?floor@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximatran.obj) : warning LNK4006: "float __cdecl fmod(float,float)" (?fmod@@YAMMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximatran.obj) : warning LNK4006: "float __cdecl sin(float)" (?sin@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximatran.obj) : warning LNK4006: "float __cdecl sqrt(float)" (?sqrt@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximasel.obj) : warning LNK4006: _sqrtf 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximasel.obj) : warning LNK4006: "float __cdecl sqrt(float)" (?sqrt@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximasel.obj) : warning LNK4006: "float __cdecl pow(float,int)" (?pow@@YAMMH@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximatif.obj) : warning LNK4006: "double __cdecl pow(double,int)" (?pow@@YANNH@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximaint.obj) : warning LNK4006: _fabsf 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximaint.obj) : warning LNK4006: _cosf 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximaint.obj) : warning LNK4006: _expf 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximaint.obj) : warning LNK4006: _fmodf 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximaint.obj) : warning LNK4006: _powf 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximaint.obj) : warning LNK4006: _sinf 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximaint.obj) : warning LNK4006: _sqrtf 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximaint.obj) : warning LNK4006: "float __cdecl cos(float)" (?cos@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximaint.obj) : warning LNK4006: "float __cdecl exp(float)" (?exp@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximaint.obj) : warning LNK4006: "float __cdecl fabs(float)" (?fabs@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximaint.obj) : warning LNK4006: "float __cdecl fmod(float,float)" (?fmod@@YAMMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximaint.obj) : warning LNK4006: "float __cdecl pow(float,float)" (?pow@@YAMMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximaint.obj) : warning LNK4006: "float __cdecl sin(float)" (?sin@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximaint.obj) : warning LNK4006: "float __cdecl sqrt(float)" (?sqrt@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximath.obj) : warning LNK4006: _sqrtf 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximath.obj) : warning LNK4006: "float __cdecl sqrt(float)" (?sqrt@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximaexif.obj) : warning LNK4006: _logf 已在 wing.obj 中定义；已忽略第二个定义
+     1>cximage.lib(ximaexif.obj) : warning LNK4006: "float __cdecl log(float)" (?log@@YAMM@Z) 已在 wing.obj 中定义；已忽略第二个定义
+     1>..\..\Debug_TS/php_wing.dll : warning LNK4088: 因 /FORCE 选项生成了映像；映像可能不能运行
+         wing.vcxproj -> D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\.\Debug_TS\wing.dll
+     1>已完成生成项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\wing.vcxproj”(Build 个目标)的操作。
 
-生成失败。
+生成成功。
 
-已用时间 00:00:00.79
+已用时间 00:00:06.47

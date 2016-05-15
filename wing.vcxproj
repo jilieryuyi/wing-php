@@ -80,19 +80,20 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_TS|Win32'">
     <ClCompile>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <StringPooling>true</StringPooling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <Optimization>MaxSpeed</Optimization>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>..\..;..\..\main;..\..\Zend;..\..\..\bindlib_w32;..\..\TSRM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ZEND_DEBUG=1;WIN32;NDEBUG;_WINDOWS;_USRDLL;WING_EXPORTS;COMPILE_DL_WING;ZTS=1;ZEND_WIN32;PHP_WIN32;HAVE_WING=1;LIBZEND_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\zxing\cli\src;D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\zxing\core\src\;..\..;..\..\main;..\..\Zend;..\..\..\bindlib_w32;..\..\TSRM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ZEND_DEBUG=1;WIN32;NDEBUG;_WINDOWS;_USRDLL;WING_EXPORTS;COMPILE_DL_WING;ZTS=1;ZEND_WIN32;PHP_WIN32;HAVE_WING=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Debug_TS\</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>.\Debug_TS\wing.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>.\Debug_TS\</ObjectFileName>
       <ProgramDataBaseFileName>.\Debug_TS\</ProgramDataBaseFileName>
+      <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -117,6 +118,7 @@
       <ImportLibrary>.\Debug_TS\php_wing.lib</ImportLibrary>
       <AdditionalLibraryDirectories>..\..\Debug_TS;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>odbc32.lib;odbccp32.lib;php5ts_debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/FORCE:MULTIPLE %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_TS|Win32'">

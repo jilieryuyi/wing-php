@@ -112,7 +112,7 @@ PHP_FUNCTION(wing_thread_isalive){
 
 ZEND_FUNCTION(wing_wait_multi_objects){
 
-	zval *arr, **data;
+	/*zval *arr, **data;
     HashTable *arr_hash;
     HashPosition pointer;
     int array_count;
@@ -158,7 +158,8 @@ ZEND_FUNCTION(wing_wait_multi_objects){
 	//php_printf("b:%ld\n%ld\n\n",b,WAIT_FAILED);//
 
 	free(handle);
-	RETURN_LONG(b);
+	RETURN_LONG(b);*/
+	RETURN_NULL();
 }
 /**
  *@wait process进程等待
@@ -1133,7 +1134,7 @@ ZEND_FUNCTION(wing_qrencode){
 }
 
 ZEND_FUNCTION(wing_peek_message){
-	PostThreadMessageA(GetCurrentThreadId(),WM_USER+99,(WPARAM)"hello",(LPARAM)"word");
+	//PostThreadMessageA(GetCurrentThreadId(),WM_USER+99,(WPARAM)"hello",(LPARAM)"word");
 	MSG msg;
 	if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE|PM_QS_POSTMESSAGE|PM_QS_SENDMESSAGE)) 
     { 
@@ -1167,6 +1168,40 @@ ZEND_FUNCTION(wing_peek_message){
 	RETURN_NULL();
 }
 
+ZEND_FUNCTION(wing_get_message){
+	//PostThreadMessageA(GetCurrentThreadId(),WM_USER+99,(WPARAM)"hello",(LPARAM)"word");
+	MSG msg;
+	if (GetMessage(&msg, NULL, 0, 0)) 
+    { 
+       // if (msg.message == WM_QUIT) 
+		//{
+		//	RETURN_LONG(-1);
+		//	return;
+	//	}
+		//msg.message 区分消息类型
+		//msg.lParam;
+		//msg.wParam;
+		//msg.time;
+
+
+		
+                  array_init(return_value);
+                  add_assoc_string(return_value,"lParam",(char*)msg.lParam,1);
+				  add_assoc_string(return_value,"wParam",(char*)msg.wParam,1);
+                  add_assoc_long(return_value,"message",msg.message);
+				  add_assoc_long(return_value,"time",msg.time);
+
+				 // zend_printf("%ld\n",msg.time);
+				//  zend_printf("WM_QUIT=%ld\n",WM_QUIT);
+                 return;
+                 // zval_copy_ctor(&temp);
+                //  add_next_index_zval(return_value,&temp);
+                 // zval_dtor(p);
+
+    } 
+	
+	RETURN_NULL();
+}
 
 typedef struct _timer_thread_params{
 	DWORD thread_id;
@@ -1488,7 +1523,7 @@ const zend_function_entry wing_functions[] = {
 	PHP_FE(wing_set_event,NULL)
 	PHP_FE(wing_timer,NULL)
 	PHP_FE(wing_peek_message,NULL)
-	//PHP_FE(wing_timer,NULL)
+	PHP_FE(wing_get_message,NULL)
 	PHP_FE_END	/* Must be the last line in wing_functions[] */
 };
 /* }}} */
