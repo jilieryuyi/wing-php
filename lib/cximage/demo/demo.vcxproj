@@ -1,0 +1,333 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{D47CA1D0-DE55-473B-B1D2-CD46FDBF4A6C}</ProjectGuid>
+    <RootNamespace>demo</RootNamespace>
+    <Keyword>MFCProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+    <PlatformToolset>v100</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+    <UseOfMfc>false</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;VATI_EXTENSIONS;_CRT_SECURE_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS;_WIN32_IE=0x0501;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\cximage</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>wininet.lib;../Debug/png.lib;../Debug/jpeg.lib;../Debug/zlib.lib;../Debug/tiff.lib;../Debug/jbig.lib;../Debug/jasper.lib;../Debug/mng.lib;../Debug/libdcr.lib;../Debug/libpsd.lib;../Debug/cximage.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>../bin/demod.exe</OutputFile>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;VATI_EXTENSIONS;_CRT_SECURE_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS;_WIN32_IE=0x0501;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\cximage</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>wininet.lib;../x64/Debug/png.lib;../x64/Debug/jpeg.lib;../x64/Debug/zlib.lib;../x64/Debug/tiff.lib;../x64/Debug/jbig.lib;../x64/Debug/jasper.lib;../x64/Debug/mng.lib;../x64/Debug/libdcr.lib;../x64/Debug/libpsd.lib;../x64/Debug/cximage.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;VATI_EXTENSIONS;_CRT_SECURE_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS;_WIN32_IE=0x0501;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>..\cximage</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>wininet.lib;../Release/png.lib;../Release/jpeg.lib;../Release/zlib.lib;../Release/tiff.lib;../Release/jbig.lib;../Release/jasper.lib;../Release/mng.lib;../Release/libdcr.lib;../Release/libpsd.lib;../Release/cximage.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>../bin/demo.exe</OutputFile>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;VATI_EXTENSIONS;_CRT_SECURE_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS;_WIN32_IE=0x0501;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>..\cximage</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>wininet.lib;../x64/Release/png.lib;../x64/Release/jpeg.lib;../x64/Release/zlib.lib;../x64/Release/tiff.lib;../x64/Release/jbig.lib;../x64/Release/jasper.lib;../x64/Release/mng.lib;../x64/Release/libdcr.lib;../x64/Release/libpsd.lib;../x64/Release/cximage.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="res\demo.ico" />
+    <None Include="res\demo.rc2" />
+    <None Include="res\demoDoc.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BCMenu.h" />
+    <ClInclude Include="ChildFrm.h" />
+    <ClInclude Include="demo.h" />
+    <ClInclude Include="demoDoc.h" />
+    <ClInclude Include="demoView.h" />
+    <ClInclude Include="dlgcapture.h" />
+    <ClInclude Include="DlgColorize.h" />
+    <ClInclude Include="DlgCombine.h" />
+    <ClInclude Include="DlgCustomFilter.h" />
+    <ClInclude Include="DlgDataExt.h" />
+    <ClInclude Include="DlgDecBpp.h" />
+    <ClInclude Include="DlgDither.h" />
+    <ClInclude Include="DlgExpand.h" />
+    <ClInclude Include="DlgFFT.h" />
+    <ClInclude Include="DlgFloodFill.h" />
+    <ClInclude Include="DlgGamma.h" />
+    <ClInclude Include="DlgHisto.h" />
+    <ClInclude Include="DlgIncBpp.h" />
+    <ClInclude Include="DlgJpeg.h" />
+    <ClInclude Include="DlgMix.h" />
+    <ClInclude Include="DlgOpacity.h" />
+    <ClInclude Include="DlgOptions.h" />
+    <ClInclude Include="DlgPalette.h" />
+    <ClInclude Include="DlgRepair.h" />
+    <ClInclude Include="DlgResample.h" />
+    <ClInclude Include="DlgRotate.h" />
+    <ClInclude Include="DlgShadow.h" />
+    <ClInclude Include="DlgSkew.h" />
+    <ClInclude Include="DlgText.h" />
+    <ClInclude Include="DlgThreshold.h" />
+    <ClInclude Include="DlgURL.h" />
+    <ClInclude Include="logomdi.h" />
+    <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="Quantize.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="TwainCpp.h" />
+    <ClInclude Include="xTargetButton.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="BCMenu.cpp" />
+    <ClCompile Include="ChildFrm.cpp" />
+    <ClCompile Include="demo.cpp" />
+    <ClCompile Include="demoDoc.cpp" />
+    <ClCompile Include="demoView.cpp" />
+    <ClCompile Include="dlgcapture.cpp" />
+    <ClCompile Include="DlgColorize.cpp" />
+    <ClCompile Include="DlgCombine.cpp" />
+    <ClCompile Include="DlgCustomFilter.cpp" />
+    <ClCompile Include="DlgDataExt.cpp" />
+    <ClCompile Include="DlgDecBpp.cpp" />
+    <ClCompile Include="DlgDither.cpp" />
+    <ClCompile Include="DlgExpand.cpp" />
+    <ClCompile Include="DlgFFT.cpp" />
+    <ClCompile Include="DlgFloodFill.cpp" />
+    <ClCompile Include="DlgGamma.cpp" />
+    <ClCompile Include="DlgHisto.cpp" />
+    <ClCompile Include="DlgIncBpp.cpp" />
+    <ClCompile Include="DlgJpeg.cpp" />
+    <ClCompile Include="DlgMix.cpp" />
+    <ClCompile Include="DlgOpacity.cpp" />
+    <ClCompile Include="DlgOptions.cpp" />
+    <ClCompile Include="DlgPalette.cpp" />
+    <ClCompile Include="DlgRepair.cpp" />
+    <ClCompile Include="DlgResample.cpp" />
+    <ClCompile Include="DlgRotate.cpp" />
+    <ClCompile Include="DlgShadow.cpp" />
+    <ClCompile Include="DlgSkew.cpp" />
+    <ClCompile Include="DlgText.cpp" />
+    <ClCompile Include="DlgThreshold.cpp" />
+    <ClCompile Include="DlgURL.cpp" />
+    <ClCompile Include="logomdi.cpp" />
+    <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="Quantize.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="TwainCpp.cpp" />
+    <ClCompile Include="xTargetButton.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="demo.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CxImage\cximage.vcxproj">
+      <Project>{c739151f-5384-41df-a1a6-f089e2c1ad56}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\jasper\jasper.vcxproj">
+      <Project>{81c530e5-d74c-4a3e-b313-7ebd75698949}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\jbig\jbig.vcxproj">
+      <Project>{c8353fee-3bbd-40f4-aa72-4d6468277d91}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\jpeg\Jpeg.vcxproj">
+      <Project>{c672d3df-2ff3-45b9-9a46-09d7be07dcf4}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\libpsd\libpsd.vcxproj">
+      <Project>{838ee52e-ecb0-4256-89d5-8418b5f14e21}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\mng\mng.vcxproj">
+      <Project>{ebbf85b9-c8fa-4566-b4a6-0f155673d75c}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\png\png.vcxproj">
+      <Project>{121b23ff-d088-4cf7-a72d-d2552a142c2c}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\raw\libdcr.vcxproj">
+      <Project>{3770b285-b61f-4aa8-ae5a-624bed820eed}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\tiff\Tiff.vcxproj">
+      <Project>{6e2d8fa1-609c-4e39-97b9-679834179db4}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\zlib\zlib.vcxproj">
+      <Project>{5d1b5573-7d19-468c-a4ef-da583716f370}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

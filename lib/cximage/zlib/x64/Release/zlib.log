@@ -1,0 +1,40 @@
+﻿生成启动时间为 2016/5/14 10:44:12。
+     1>项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\zlib\zlib.vcxproj”在节点 2 上(rebuild 个目标)。
+     1>_PrepareForClean:
+         正在删除文件“x64\Release\zlib.lastbuildstate”。
+       InitializeBuildStatus:
+         正在创建“x64\Release\zlib.unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /GL /D WIN32 /D NDEBUG /D _LIB /D _CRT_SECURE_NO_DEPRECATE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Release\\" /Fd"x64\Release\vc100.pdb" /Gd /TC /errorReport:prompt adler32.c compress.c crc32.c deflate.c infback.c inffast.c inflate.c inftrees.c trees.c uncompr.c zutil.c
+         adler32.c
+         compress.c
+         crc32.c
+         deflate.c
+         infback.c
+         inffast.c
+         inflate.c
+         inftrees.c
+         trees.c
+         uncompr.c
+         zutil.c
+       Lib:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\Lib.exe /OUT:"D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\x64\Release\zlib.lib" /NOLOGO /LTCG x64\Release\adler32.obj
+         x64\Release\compress.obj
+         x64\Release\crc32.obj
+         x64\Release\deflate.obj
+         x64\Release\infback.obj
+         x64\Release\inffast.obj
+         x64\Release\inflate.obj
+         x64\Release\inftrees.obj
+         x64\Release\trees.obj
+         x64\Release\uncompr.obj
+         x64\Release\zutil.obj
+         zlib.vcxproj -> D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\x64\Release\zlib.lib
+       FinalizeBuildStatus:
+         正在删除文件“x64\Release\zlib.unsuccessfulbuild”。
+         正在对“x64\Release\zlib.lastbuildstate”执行 Touch 任务。
+     1>已完成生成项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\zlib\zlib.vcxproj”(rebuild 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:00.41

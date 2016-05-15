@@ -1,0 +1,10 @@
+﻿生成启动时间为 2016/5/14 10:45:46。
+     1>项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\CxImage\cximage.vcxproj”在节点 3 上(rebuild 个目标)。
+     1>_PrepareForClean:
+         正在删除文件“x64\Release\cximage.lastbuildstate”。
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Platforms\x64\Microsoft.Cpp.x64.Targets(507,5): error MSB8008: 指定的平台工具集(v110)未安装或无效。请确保选择受支持的 PlatformToolset 值。
+     1>已完成生成项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\CxImage\cximage.vcxproj”(rebuild 个目标)的操作 - 失败。
+
+生成失败。
+
+已用时间 00:00:00.11

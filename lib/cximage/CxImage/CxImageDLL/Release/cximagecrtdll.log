@@ -1,0 +1,105 @@
+﻿生成启动时间为 2016/5/14 10:45:06。
+     1>项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\CxImage\CxImageDLL\cximagecrtdll.vcxproj”在节点 5 上(rebuild 个目标)。
+     1>InitializeBuildStatus:
+         正在创建“.\Release\cximagecrtdll.unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I../../zlib /I../../jasper/include /Zi /nologo /W3 /WX- /O2 /Ob1 /Oy- /D WIN32 /D NDEBUG /D _WINDOWS /D _UNICODE /D UNICODE /D _USRDLL /D JAS_WIN_MSVC_BUILD /D _CRT_SECURE_NO_DEPRECATE /D _VC80_UPGRADE=0x0600 /D _WINDLL /D _MBCS /GF /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo".\Release/" /Fd".\Release/vc100.pdb" /Gd /TP /analyze- /errorReport:prompt ..\tif_xfile.cpp ..\ximabmp.cpp ..\ximadsp.cpp ..\ximaenc.cpp ..\ximaexif.cpp ..\ximage.cpp ..\ximagif.cpp ..\ximahist.cpp ..\ximaico.cpp ..\ximainfo.cpp ..\ximaint.cpp ..\ximajas.cpp ..\ximajbg.cpp ..\ximajpg.cpp ..\ximalpha.cpp ..\ximalyr.cpp ..\ximamng.cpp ..\ximapal.cpp ..\ximapcx.cpp ..\ximapng.cpp ..\ximapsd.cpp ..\ximaraw.cpp ..\ximasel.cpp ..\ximaska.cpp ..\ximatga.cpp ..\ximath.cpp ..\ximatif.cpp ..\ximatran.cpp ..\ximawbmp.cpp ..\ximawmf.cpp ..\ximawnd.cpp ..\xmemfile.cpp
+         tif_xfile.cpp
+         ximabmp.cpp
+         ximadsp.cpp
+     1>..\ximadsp.cpp(2910): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+         ximaenc.cpp
+         ximaexif.cpp
+         ximage.cpp
+         ximagif.cpp
+         ximahist.cpp
+         ximaico.cpp
+         ximainfo.cpp
+         ximaint.cpp
+         ximajas.cpp
+         ximajbg.cpp
+         ximajpg.cpp
+         ximalpha.cpp
+         ximalyr.cpp
+         ximamng.cpp
+         ximapal.cpp
+         ximapcx.cpp
+         ximapng.cpp
+         正在生成代码...
+         正在编译...
+         ximapsd.cpp
+     1>..\ximapsd.cpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+         ximaraw.cpp
+         ximasel.cpp
+         ximaska.cpp
+         ximatga.cpp
+         ximath.cpp
+         ximatif.cpp
+         ximatran.cpp
+         ximawbmp.cpp
+         ximawmf.cpp
+         ximawnd.cpp
+         xmemfile.cpp
+         正在生成代码...
+       ResourceCompile:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /D NDEBUG /D _VC80_UPGRADE=0x0600 /l"0x0809" /nologo /fo".\Release\CxImageCrtDll.res" CxImageCrtDll.rc 
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(990,5): warning MSB8012: TargetPath(D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\CxImage\CxImageDLL\.\Release\cximagecrtdll.dll) 与 Linker 的 OutputFile 属性值(D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\bin\cximagecrt.dll)不匹配。这可能导致项目生成不正确。若要更正此问题，请确保 $(OutDir)、$(TargetName) 和 $(TargetExt) 属性值与 %(Link.OutputFile) 中指定的值匹配。
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(992,5): warning MSB8012: TargetName(cximagecrtdll) 与 Linker 的 OutputFile 属性值(cximagecrt)不匹配。这可能导致项目生成不正确。若要更正此问题，请确保 $(OutDir)、$(TargetName) 和 $(TargetExt) 属性值与 %(Link.OutputFile) 中指定的值匹配。
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"../../bin/cximagecrt.dll" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:".\Release\cximagecrtdll.dll.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /PDB:".\Release/cximagecrt.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\Release/cximagecrt.lib" /MACHINE:X86 /DLL .\Release\CxImageCrtDll.res
+         .\Release/tif_xfile.obj
+         .\Release/ximabmp.obj
+         .\Release/ximadsp.obj
+         .\Release/ximaenc.obj
+         .\Release/ximaexif.obj
+         .\Release/ximage.obj
+         .\Release/ximagif.obj
+         .\Release/ximahist.obj
+         .\Release/ximaico.obj
+         .\Release/ximainfo.obj
+         .\Release/ximaint.obj
+         .\Release/ximajas.obj
+         .\Release/ximajbg.obj
+         .\Release/ximajpg.obj
+         .\Release/ximalpha.obj
+         .\Release/ximalyr.obj
+         .\Release/ximamng.obj
+         .\Release/ximapal.obj
+         .\Release/ximapcx.obj
+         .\Release/ximapng.obj
+         .\Release/ximapsd.obj
+         .\Release/ximaraw.obj
+         .\Release/ximasel.obj
+         .\Release/ximaska.obj
+         .\Release/ximatga.obj
+         .\Release/ximath.obj
+         .\Release/ximatif.obj
+         .\Release/ximatran.obj
+         .\Release/ximawbmp.obj
+         .\Release/ximawmf.obj
+         .\Release/ximawnd.obj
+         .\Release/xmemfile.obj
+         "D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\Release\jasper.lib"
+         "D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\Release\jbig.lib"
+         "D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\Release\jpeg.lib"
+         "D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\Release\libpsd.lib"
+         "D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\Release\mng.lib"
+         "D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\Release\png.lib"
+         "D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\Release\libdcr.lib"
+         "D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\Release\tiff.lib"
+         "D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\Release\zlib.lib"
+         jasper.lib(jas_malloc.obj) : 找到 MSIL .netmodule 或使用 /GL 编译的模块；正在使用 /LTCG 重新启动链接；将 /LTCG 添加到链接命令行以改进链接器性能
+            正在创建库 .\Release/cximagecrt.lib 和对象 .\Release/cximagecrt.exp
+         正在生成代码
+         已完成代码的生成
+         cximagecrtdll.vcxproj -> D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\CxImage\CxImageDLL\.\Release\cximagecrtdll.dll
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"../../bin/cximagecrt.dll;#2" /manifest .\Release\cximagecrtdll.dll.intermediate.manifest
+       FinalizeBuildStatus:
+         正在删除文件“.\Release\cximagecrtdll.unsuccessfulbuild”。
+         正在对“.\Release\cximagecrtdll.lastbuildstate”执行 Touch 任务。
+     1>已完成生成项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\CxImage\CxImageDLL\cximagecrtdll.vcxproj”(rebuild 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:24.48

@@ -1,0 +1,120 @@
+﻿生成启动时间为 2016/5/14 10:44:09。
+     1>项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\jpeg\jpeg.vcxproj”在节点 2 上(rebuild 个目标)。
+     1>_PrepareForClean:
+         正在删除文件“x64\Debug\jpeg.lastbuildstate”。
+       InitializeBuildStatus:
+         正在创建“x64\Debug\jpeg.unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /Od /D WIN32 /D _DEBUG /D _LIB /D _CRT_SECURE_NO_DEPRECATE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc100.pdb" /Gd /TC /errorReport:prompt jaricom.c jcapimin.c jcapistd.c jcarith.c jccoefct.c jccolor.c jcdctmgr.c jchuff.c jcinit.c jcmainct.c jcmarker.c jcmaster.c jcomapi.c jcparam.c jcprepct.c jcsample.c jctrans.c jdapimin.c jdapistd.c jdarith.c jdatadst.c jdatasrc.c jdcoefct.c jdcolor.c jddctmgr.c jdhuff.c jdinput.c jdmainct.c jdmarker.c jdmaster.c jdmerge.c jdpostct.c jdsample.c jdtrans.c jerror.c jfdctflt.c jfdctfst.c jfdctint.c jidctflt.c jidctfst.c jidctint.c jmemmgr.c jmemnobs.c jquant1.c jquant2.c jutils.c
+         jutils.c
+         jquant2.c
+         jquant1.c
+         jmemnobs.c
+         jmemmgr.c
+     1>jmemmgr.c(306): warning C4267: “+=”: 从“size_t”转换到“long”，可能丢失数据
+     1>jmemmgr.c(366): warning C4267: “+=”: 从“size_t”转换到“long”，可能丢失数据
+     1>jmemmgr.c(976): warning C4267: “-=”: 从“size_t”转换到“long”，可能丢失数据
+     1>jmemmgr.c(990): warning C4267: “-=”: 从“size_t”转换到“long”，可能丢失数据
+         jidctint.c
+         jidctfst.c
+         jidctflt.c
+         jfdctint.c
+         jfdctfst.c
+         jfdctflt.c
+         jerror.c
+         jdtrans.c
+         jdsample.c
+         jdpostct.c
+         jdmerge.c
+         jdmaster.c
+         jdmarker.c
+         jdmainct.c
+         jdinput.c
+         Generating Code...
+         Compiling...
+         jdhuff.c
+         jddctmgr.c
+         jdcolor.c
+         jdcoefct.c
+         jdatasrc.c
+         jdatadst.c
+     1>jdatadst.c(185): warning C4267: “=”: 从“size_t”转换到“unsigned long”，可能丢失数据
+         jdarith.c
+         jdapistd.c
+         jdapimin.c
+         jctrans.c
+         jcsample.c
+         jcprepct.c
+         jcparam.c
+         jcomapi.c
+         jcmaster.c
+         jcmarker.c
+         jcmainct.c
+         jcinit.c
+         jchuff.c
+         jcdctmgr.c
+         Generating Code...
+         Compiling...
+         jccolor.c
+         jccoefct.c
+         jcarith.c
+         jcapistd.c
+         jcapimin.c
+         jaricom.c
+         Generating Code...
+       Lib:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\Lib.exe /OUT:"D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\x64\Debug\jpeg.lib" /NOLOGO x64\Debug\jaricom.obj
+         x64\Debug\jcapimin.obj
+         x64\Debug\jcapistd.obj
+         x64\Debug\jcarith.obj
+         x64\Debug\jccoefct.obj
+         x64\Debug\jccolor.obj
+         x64\Debug\jcdctmgr.obj
+         x64\Debug\jchuff.obj
+         x64\Debug\jcinit.obj
+         x64\Debug\jcmainct.obj
+         x64\Debug\jcmarker.obj
+         x64\Debug\jcmaster.obj
+         x64\Debug\jcomapi.obj
+         x64\Debug\jcparam.obj
+         x64\Debug\jcprepct.obj
+         x64\Debug\jcsample.obj
+         x64\Debug\jctrans.obj
+         x64\Debug\jdapimin.obj
+         x64\Debug\jdapistd.obj
+         x64\Debug\jdarith.obj
+         x64\Debug\jdatadst.obj
+         x64\Debug\jdatasrc.obj
+         x64\Debug\jdcoefct.obj
+         x64\Debug\jdcolor.obj
+         x64\Debug\jddctmgr.obj
+         x64\Debug\jdhuff.obj
+         x64\Debug\jdinput.obj
+         x64\Debug\jdmainct.obj
+         x64\Debug\jdmarker.obj
+         x64\Debug\jdmaster.obj
+         x64\Debug\jdmerge.obj
+         x64\Debug\jdpostct.obj
+         x64\Debug\jdsample.obj
+         x64\Debug\jdtrans.obj
+         x64\Debug\jerror.obj
+         x64\Debug\jfdctflt.obj
+         x64\Debug\jfdctfst.obj
+         x64\Debug\jfdctint.obj
+         x64\Debug\jidctflt.obj
+         x64\Debug\jidctfst.obj
+         x64\Debug\jidctint.obj
+         x64\Debug\jmemmgr.obj
+         x64\Debug\jmemnobs.obj
+         x64\Debug\jquant1.obj
+         x64\Debug\jquant2.obj
+         x64\Debug\jutils.obj
+         jpeg.vcxproj -> D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\x64\Debug\jpeg.lib
+       FinalizeBuildStatus:
+         正在删除文件“x64\Debug\jpeg.unsuccessfulbuild”。
+         正在对“x64\Debug\jpeg.lastbuildstate”执行 Touch 任务。
+     1>已完成生成项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\jpeg\jpeg.vcxproj”(rebuild 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:01.59

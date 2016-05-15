@@ -1,0 +1,57 @@
+﻿生成启动时间为 2016/5/14 10:43:52。
+     1>项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\mng\mng.vcxproj”在节点 2 上(rebuild 个目标)。
+     1>_PrepareForClean:
+         正在删除文件“Debug\mng.lastbuildstate”。
+       InitializeBuildStatus:
+         正在创建“Debug\mng.unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _LIB /D _WINDOWS /D MNG_SUPPORT_DISPLAY /D MNG_SUPPORT_READ /D MNG_SUPPORT_WRITE /D MNG_ACCESS_CHUNKS /D MNG_STORE_CHUNKS /D MNG_ERROR_TELLTALE /D _CRT_SECURE_NO_DEPRECATE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TC /analyze- /errorReport:prompt libmng_callback_xs.c libmng_chunk_descr.c libmng_chunk_io.c libmng_chunk_prc.c libmng_chunk_xs.c libmng_cms.c libmng_display.c libmng_dither.c libmng_error.c libmng_filter.c libmng_hlapi.c libmng_jpeg.c libmng_object_prc.c libmng_pixels.c libmng_prop_xs.c libmng_read.c libmng_trace.c libmng_write.c libmng_zlib.c
+         libmng_zlib.c
+         libmng_write.c
+         libmng_trace.c
+         libmng_read.c
+         libmng_prop_xs.c
+         libmng_pixels.c
+         libmng_object_prc.c
+         libmng_jpeg.c
+         libmng_hlapi.c
+         libmng_filter.c
+         libmng_error.c
+         libmng_dither.c
+         libmng_display.c
+         libmng_cms.c
+         libmng_chunk_xs.c
+         libmng_chunk_prc.c
+         libmng_chunk_io.c
+         libmng_chunk_descr.c
+         libmng_callback_xs.c
+         正在生成代码...
+       Lib:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\Lib.exe /OUT:"D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\Debug\mng.lib" /NOLOGO Debug\libmng_callback_xs.obj
+         Debug\libmng_chunk_descr.obj
+         Debug\libmng_chunk_io.obj
+         Debug\libmng_chunk_prc.obj
+         Debug\libmng_chunk_xs.obj
+         Debug\libmng_cms.obj
+         Debug\libmng_display.obj
+         Debug\libmng_dither.obj
+         Debug\libmng_error.obj
+         Debug\libmng_filter.obj
+         Debug\libmng_hlapi.obj
+         Debug\libmng_jpeg.obj
+         Debug\libmng_object_prc.obj
+         Debug\libmng_pixels.obj
+         Debug\libmng_prop_xs.obj
+         Debug\libmng_read.obj
+         Debug\libmng_trace.obj
+         Debug\libmng_write.obj
+         Debug\libmng_zlib.obj
+         mng.vcxproj -> D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\Debug\mng.lib
+       FinalizeBuildStatus:
+         正在删除文件“Debug\mng.unsuccessfulbuild”。
+         正在对“Debug\mng.lastbuildstate”执行 Touch 任务。
+     1>已完成生成项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\mng\mng.vcxproj”(rebuild 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:01.17

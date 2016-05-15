@@ -1,0 +1,120 @@
+﻿生成启动时间为 2016/5/14 10:45:31。
+     1>项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\CxImage\CxImageDLL\cximagecrtdll.vcxproj”在节点 7 上(rebuild 个目标)。
+     1>InitializeBuildStatus:
+         正在对“.\Debug\cximagecrtdll.unsuccessfulbuild”执行 Touch 任务。
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I../../zlib /I../../jasper/include /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _UNICODE /D UNICODE /D _USRDLL /D JAS_WIN_MSVC_BUILD /D _CRT_SECURE_NO_DEPRECATE /D _VC80_UPGRADE=0x0600 /D _WINDLL /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo".\Debug/" /Fd".\Debug/vc100.pdb" /Gd /TP /analyze- /errorReport:prompt ..\tif_xfile.cpp ..\ximabmp.cpp ..\ximadsp.cpp ..\ximaenc.cpp ..\ximaexif.cpp ..\ximage.cpp ..\ximagif.cpp ..\ximahist.cpp ..\ximaico.cpp ..\ximainfo.cpp ..\ximaint.cpp ..\ximajas.cpp ..\ximajbg.cpp ..\ximajpg.cpp ..\ximalpha.cpp ..\ximalyr.cpp ..\ximamng.cpp ..\ximapal.cpp ..\ximapcx.cpp ..\ximapng.cpp ..\ximapsd.cpp ..\ximaraw.cpp ..\ximasel.cpp ..\ximaska.cpp ..\ximatga.cpp ..\ximath.cpp ..\ximatif.cpp ..\ximatran.cpp ..\ximawbmp.cpp ..\ximawmf.cpp ..\ximawnd.cpp ..\xmemfile.cpp
+         xmemfile.cpp
+         ximawnd.cpp
+         ximawmf.cpp
+         ximawbmp.cpp
+         ximatran.cpp
+         ximatif.cpp
+         ximath.cpp
+         ximatga.cpp
+         ximaska.cpp
+         ximasel.cpp
+         ximaraw.cpp
+         ximapsd.cpp
+     1>d:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\cximage\ximapsd.cpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+         ximapng.cpp
+         ximapcx.cpp
+         ximapal.cpp
+         ximamng.cpp
+         ximalyr.cpp
+         ximalpha.cpp
+         ximajpg.cpp
+         ximajbg.cpp
+         正在生成代码...
+         正在编译...
+         ximajas.cpp
+         ximaint.cpp
+         ximainfo.cpp
+         ximaico.cpp
+         ximahist.cpp
+         ximagif.cpp
+         ximage.cpp
+         ximaexif.cpp
+         ximaenc.cpp
+         ximadsp.cpp
+     1>d:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\cximage\ximadsp.cpp(2910): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+         ximabmp.cpp
+         tif_xfile.cpp
+         正在生成代码...
+       ResourceCompile:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /D _DEBUG /D _VC80_UPGRADE=0x0600 /l"0x0809" /nologo /fo".\Debug\CxImageCrtDll.res" CxImageCrtDll.rc 
+       ManifestResourceCompile:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /nologo /fo".\Debug\cximagecrtdll.dll.embed.manifest.res" .\Debug\cximagecrtdll_manifest.rc 
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(990,5): warning MSB8012: TargetPath(D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\CxImage\CxImageDLL\.\Debug\cximagecrtdll.dll) 与 Linker 的 OutputFile 属性值(D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\bin\cximagecrtd.dll)不匹配。这可能导致项目生成不正确。若要更正此问题，请确保 $(OutDir)、$(TargetName) 和 $(TargetExt) 属性值与 %(Link.OutputFile) 中指定的值匹配。
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(992,5): warning MSB8012: TargetName(cximagecrtdll) 与 Linker 的 OutputFile 属性值(cximagecrtd)不匹配。这可能导致项目生成不正确。若要更正此问题，请确保 $(OutDir)、$(TargetName) 和 $(TargetExt) 属性值与 %(Link.OutputFile) 中指定的值匹配。
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"../../bin/cximagecrtd.dll" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:".\Debug\cximagecrtdll.dll.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:".\Debug/cximagecrtd.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\Debug/cximagecrtd.lib" /MACHINE:X86 /DLL .\Debug\CxImageCrtDll.res
+         .\Debug\cximagecrtdll.dll.embed.manifest.res
+         .\Debug/tif_xfile.obj
+         .\Debug/ximabmp.obj
+         .\Debug/ximadsp.obj
+         .\Debug/ximaenc.obj
+         .\Debug/ximaexif.obj
+         .\Debug/ximage.obj
+         .\Debug/ximagif.obj
+         .\Debug/ximahist.obj
+         .\Debug/ximaico.obj
+         .\Debug/ximainfo.obj
+         .\Debug/ximaint.obj
+         .\Debug/ximajas.obj
+         .\Debug/ximajbg.obj
+         .\Debug/ximajpg.obj
+         .\Debug/ximalpha.obj
+         .\Debug/ximalyr.obj
+         .\Debug/ximamng.obj
+         .\Debug/ximapal.obj
+         .\Debug/ximapcx.obj
+         .\Debug/ximapng.obj
+         .\Debug/ximapsd.obj
+         .\Debug/ximaraw.obj
+         .\Debug/ximasel.obj
+         .\Debug/ximaska.obj
+         .\Debug/ximatga.obj
+         .\Debug/ximath.obj
+         .\Debug/ximatif.obj
+         .\Debug/ximatran.obj
+         .\Debug/ximawbmp.obj
+         .\Debug/ximawmf.obj
+         .\Debug/ximawnd.obj
+         .\Debug/xmemfile.obj
+         "D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\Release\jasper.lib"
+         "D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\Release\jbig.lib"
+         "D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\Release\jpeg.lib"
+         "D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\Release\libpsd.lib"
+         "D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\Release\mng.lib"
+         "D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\Release\png.lib"
+         "D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\Release\libdcr.lib"
+         "D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\Release\tiff.lib"
+         "D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\Release\zlib.lib"
+         jasper.lib(jas_stream.obj) : 找到 MSIL .netmodule 或使用 /GL 编译的模块；正在使用 /LTCG 重新启动链接；将 /LTCG 添加到链接命令行以改进链接器性能
+     1>LINK : warning LNK4075: 忽略“/INCREMENTAL”(由于“/LTCG”规范)
+     1>LIBCMT.lib(dosmap.obj) : error LNK2005: __errno 已经在 MSVCRTD.lib(MSVCR100D.dll) 中定义
+     1>LIBCMT.lib(invarg.obj) : error LNK2005: __invalid_parameter 已经在 MSVCRTD.lib(MSVCR100D.dll) 中定义
+     1>LIBCMT.lib(lseek.obj) : error LNK2005: __lseek 已经在 MSVCRTD.lib(MSVCR100D.dll) 中定义
+     1>LIBCMT.lib(crt0dat.obj) : error LNK2005: __initterm_e 已经在 MSVCRTD.lib(MSVCR100D.dll) 中定义
+     1>LIBCMT.lib(crt0dat.obj) : error LNK2005: _exit 已经在 MSVCRTD.lib(MSVCR100D.dll) 中定义
+     1>LIBCMT.lib(crt0dat.obj) : error LNK2005: __amsg_exit 已经在 MSVCRTD.lib(MSVCR100D.dll) 中定义
+     1>LIBCMT.lib(tidtable.obj) : error LNK2005: __encoded_null 已经在 MSVCRTD.lib(MSVCR100D.dll) 中定义
+     1>LIBCMT.lib(mlock.obj) : error LNK2005: __unlock 已经在 MSVCRTD.lib(MSVCR100D.dll) 中定义
+     1>LIBCMT.lib(mlock.obj) : error LNK2005: __lock 已经在 MSVCRTD.lib(MSVCR100D.dll) 中定义
+     1>LIBCMT.lib(hooks.obj) : error LNK2005: "void __cdecl terminate(void)" (?terminate@@YAXXZ) 已经在 MSVCRTD.lib(MSVCR100D.dll) 中定义
+     1>LIBCMT.lib(crt0init.obj) : error LNK2005: ___xi_a 已经在 MSVCRTD.lib(cinitexe.obj) 中定义
+     1>LIBCMT.lib(crt0init.obj) : error LNK2005: ___xi_z 已经在 MSVCRTD.lib(cinitexe.obj) 中定义
+     1>LIBCMT.lib(crt0init.obj) : error LNK2005: ___xc_a 已经在 MSVCRTD.lib(cinitexe.obj) 中定义
+     1>LIBCMT.lib(crt0init.obj) : error LNK2005: ___xc_z 已经在 MSVCRTD.lib(cinitexe.obj) 中定义
+     1>LIBCMT.lib(winxfltr.obj) : error LNK2005: ___CppXcptFilter 已经在 MSVCRTD.lib(MSVCR100D.dll) 中定义
+            正在创建库 .\Debug/cximagecrtd.lib 和对象 .\Debug/cximagecrtd.exp
+     1>LINK : warning LNK4098: 默认库“MSVCRTD”与其他库的使用冲突；请使用 /NODEFAULTLIB:library
+     1>LINK : warning LNK4098: 默认库“LIBCMT”与其他库的使用冲突；请使用 /NODEFAULTLIB:library
+     1>LIBCMT.lib(crt0.obj) : error LNK2001: 无法解析的外部符号 _main
+     1>../../bin/cximagecrtd.dll : fatal error LNK1120: 1 个无法解析的外部命令
+     1>已完成生成项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\CxImage\CxImageDLL\cximagecrtdll.vcxproj”(rebuild 个目标)的操作 - 失败。
+
+生成失败。
+
+已用时间 00:00:14.40

@@ -1,0 +1,60 @@
+﻿生成启动时间为 2016/5/14 10:43:48。
+     1>项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\mng\mng.vcxproj”在节点 2 上(rebuild 个目标)。
+     1>_PrepareForClean:
+         正在删除文件“x64\Release\mng.lastbuildstate”。
+       InitializeBuildStatus:
+         正在创建“x64\Release\mng.unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /GL /D WIN32 /D NDEBUG /D _LIB /D _WINDOWS /D MNG_SUPPORT_DISPLAY /D MNG_SUPPORT_READ /D MNG_SUPPORT_WRITE /D MNG_ACCESS_CHUNKS /D MNG_STORE_CHUNKS /D MNG_ERROR_TELLTALE /D _CRT_SECURE_NO_DEPRECATE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Release\\" /Fd"x64\Release\vc100.pdb" /Gd /TC /errorReport:prompt libmng_callback_xs.c libmng_chunk_descr.c libmng_chunk_io.c libmng_chunk_prc.c libmng_chunk_xs.c libmng_cms.c libmng_display.c libmng_dither.c libmng_error.c libmng_filter.c libmng_hlapi.c libmng_jpeg.c libmng_object_prc.c libmng_pixels.c libmng_prop_xs.c libmng_read.c libmng_trace.c libmng_write.c libmng_zlib.c
+         libmng_callback_xs.c
+         libmng_chunk_descr.c
+         libmng_chunk_io.c
+     1>libmng_chunk_io.c(2489): warning C4244: “=”: 从“__int64”转换到“mng_uint32”，可能丢失数据
+     1>libmng_chunk_io.c(5536): warning C4244: “=”: 从“__int64”转换到“mng_uint32”，可能丢失数据
+         libmng_chunk_prc.c
+         libmng_chunk_xs.c
+         libmng_cms.c
+         libmng_display.c
+         libmng_dither.c
+         libmng_error.c
+         libmng_filter.c
+         libmng_hlapi.c
+     1>libmng_hlapi.c(579): warning C4267: “=”: 从“size_t”转换到“mng_uint32”，可能丢失数据
+     1>libmng_hlapi.c(582): warning C4267: “=”: 从“size_t”转换到“mng_uint32”，可能丢失数据
+         libmng_jpeg.c
+         libmng_object_prc.c
+         libmng_pixels.c
+         libmng_prop_xs.c
+         libmng_read.c
+         libmng_trace.c
+         libmng_write.c
+         libmng_zlib.c
+       Lib:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\Lib.exe /OUT:"D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\x64\Release\mng.lib" /NOLOGO /LTCG x64\Release\libmng_callback_xs.obj
+         x64\Release\libmng_chunk_descr.obj
+         x64\Release\libmng_chunk_io.obj
+         x64\Release\libmng_chunk_prc.obj
+         x64\Release\libmng_chunk_xs.obj
+         x64\Release\libmng_cms.obj
+         x64\Release\libmng_display.obj
+         x64\Release\libmng_dither.obj
+         x64\Release\libmng_error.obj
+         x64\Release\libmng_filter.obj
+         x64\Release\libmng_hlapi.obj
+         x64\Release\libmng_jpeg.obj
+         x64\Release\libmng_object_prc.obj
+         x64\Release\libmng_pixels.obj
+         x64\Release\libmng_prop_xs.obj
+         x64\Release\libmng_read.obj
+         x64\Release\libmng_trace.obj
+         x64\Release\libmng_write.obj
+         x64\Release\libmng_zlib.obj
+         mng.vcxproj -> D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\x64\Release\mng.lib
+       FinalizeBuildStatus:
+         正在删除文件“x64\Release\mng.unsuccessfulbuild”。
+         正在对“x64\Release\mng.lastbuildstate”执行 Touch 任务。
+     1>已完成生成项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\mng\mng.vcxproj”(rebuild 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:01.49

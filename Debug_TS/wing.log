@@ -1,0 +1,122 @@
+﻿生成启动时间为 2016/5/13 21:26:26。
+     1>项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\wing.vcxproj”在节点 2 上(Build 个目标)。
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I..\.. /I..\..\main /I..\..\Zend /I..\..\..\bindlib_w32 /I..\..\TSRM /Zi /nologo /W3 /WX- /O2 /Oy- /D ZEND_DEBUG=1 /D WIN32 /D NDEBUG /D _WINDOWS /D _USRDLL /D WING_EXPORTS /D COMPILE_DL_WING /D ZTS=1 /D ZEND_WIN32 /D PHP_WIN32 /D HAVE_WING=1 /D LIBZEND_EXPORTS /D _VC80_UPGRADE=0x0600 /D _WINDLL /D _MBCS /GF /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo".\Debug_TS\\" /Fd".\Debug_TS\vc110.pdb" /Gd /TC /analyze- /errorReport:prompt lib\library.c wing.c
+         library.c
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\xtgmath.h(111): warning C4602: #pragma pop_macro:“new”该标识符前面没有 #pragma push_macro
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\xtgmath.h(112): warning C4193: #pragma warning(pop) : 没有匹配的“#pragma warning(push)”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\xtgmath.h(113): warning C4161: #pragma pack(pop...) : 出栈的比入栈的多
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(28): error C2061: 语法错误: 标识符“acosf”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(28): error C2059: 语法错误:“;”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(28): error C2061: 语法错误: 标识符“asinf”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(29): error C2061: 语法错误: 标识符“atanf”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(29): error C2059: 语法错误:“;”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(29): error C2061: 语法错误: 标识符“atan2f”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(29): error C2061: 语法错误: 标识符“ceilf”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(30): error C2061: 语法错误: 标识符“cosf”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(30): error C2059: 语法错误:“;”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(30): error C2061: 语法错误: 标识符“coshf”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(30): error C2061: 语法错误: 标识符“expf”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(31): error C2061: 语法错误: 标识符“fabsf”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(31): error C2059: 语法错误:“;”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(31): error C2061: 语法错误: 标识符“floorf”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(31): error C2061: 语法错误: 标识符“fmodf”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(32): error C2061: 语法错误: 标识符“frexpf”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(32): error C2059: 语法错误:“;”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(32): error C2061: 语法错误: 标识符“ldexpf”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(32): error C2061: 语法错误: 标识符“logf”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(33): error C2061: 语法错误: 标识符“log10f”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(33): error C2059: 语法错误:“;”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(33): error C2061: 语法错误: 标识符“modff”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(33): error C2061: 语法错误: 标识符“powf”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(34): error C2061: 语法错误: 标识符“sinf”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(34): error C2059: 语法错误:“;”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(34): error C2061: 语法错误: 标识符“sinhf”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(34): error C2061: 语法错误: 标识符“sqrtf”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(35): error C2061: 语法错误: 标识符“tanf”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(35): error C2059: 语法错误:“;”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(35): error C2061: 语法错误: 标识符“tanhf”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(37): error C2061: 语法错误: 标识符“acosl”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(37): error C2059: 语法错误:“;”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(37): error C2061: 语法错误: 标识符“asinl”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(38): error C2061: 语法错误: 标识符“atanl”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(38): error C2059: 语法错误:“;”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(38): error C2061: 语法错误: 标识符“atan2l”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(38): error C2061: 语法错误: 标识符“ceill”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(39): error C2061: 语法错误: 标识符“cosl”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(39): error C2059: 语法错误:“;”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(39): error C2061: 语法错误: 标识符“coshl”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(39): error C2061: 语法错误: 标识符“expl”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(40): error C2061: 语法错误: 标识符“fabsl”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(40): error C2059: 语法错误:“;”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(40): error C2061: 语法错误: 标识符“floorl”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(40): error C2061: 语法错误: 标识符“fmodl”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(41): error C2061: 语法错误: 标识符“frexpl”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(41): error C2059: 语法错误:“;”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(41): error C2061: 语法错误: 标识符“ldexpl”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(41): error C2061: 语法错误: 标识符“logl”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(42): error C2061: 语法错误: 标识符“log10l”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(42): error C2059: 语法错误:“;”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(42): error C2061: 语法错误: 标识符“modfl”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(42): error C2061: 语法错误: 标识符“powl”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(43): error C2061: 语法错误: 标识符“sinl”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(43): error C2059: 语法错误:“;”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(43): error C2061: 语法错误: 标识符“sinhl”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(43): error C2061: 语法错误: 标识符“sqrtl”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(44): error C2061: 语法错误: 标识符“tanl”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(44): error C2059: 语法错误:“;”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(44): error C2061: 语法错误: 标识符“tanhl”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(46): error C2061: 语法错误: 标识符“abs”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(46): error C2059: 语法错误:“;”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(48): error C2061: 语法错误: 标识符“acos”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(48): error C2059: 语法错误:“;”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(48): error C2061: 语法错误: 标识符“asin”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(49): error C2061: 语法错误: 标识符“atan”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(49): error C2059: 语法错误:“;”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(49): error C2061: 语法错误: 标识符“atan2”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(49): error C2061: 语法错误: 标识符“ceil”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(50): error C2061: 语法错误: 标识符“cos”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(50): error C2059: 语法错误:“;”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(50): error C2061: 语法错误: 标识符“cosh”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(50): error C2061: 语法错误: 标识符“exp”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(51): error C2061: 语法错误: 标识符“fabs”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(51): error C2059: 语法错误:“;”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(51): error C2061: 语法错误: 标识符“floor”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(51): error C2061: 语法错误: 标识符“fmod”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(52): error C2061: 语法错误: 标识符“frexp”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(52): error C2059: 语法错误:“;”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(52): error C2061: 语法错误: 标识符“ldexp”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(52): error C2061: 语法错误: 标识符“log”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(53): error C2061: 语法错误: 标识符“log10”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(53): error C2059: 语法错误:“;”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(53): error C2061: 语法错误: 标识符“modf”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(53): error C2061: 语法错误: 标识符“pow”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(54): error C2061: 语法错误: 标识符“sin”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(54): error C2059: 语法错误:“;”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(54): error C2061: 语法错误: 标识符“sinh”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(54): error C2061: 语法错误: 标识符“sqrt”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(55): error C2061: 语法错误: 标识符“tan”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(55): error C2059: 语法错误:“;”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(55): error C2061: 语法错误: 标识符“tanh”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(57): error C2061: 语法错误: 标识符“hypot”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(57): error C2059: 语法错误:“;”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cmath(57): error C2061: 语法错误: 标识符“hypotf”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cstdio(36): error C2054: 在“using”之后应输入“(”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cstdio(38): error C2061: 语法错误: 标识符“using”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cstdio(38): error C2054: 在“using”之后应输入“(”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cstdio(39): error C2061: 语法错误: 标识符“clearerr”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cstdio(39): error C2059: 语法错误:“;”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cstdio(39): error C2061: 语法错误: 标识符“fclose”
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\cstdio(39): fatal error C1003: 错误计数超过 100；正在停止编译
+         wing.c
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\xkeycheck.h(65): warning C4005: “inline”: 宏重定义
+                 D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\Zend/zend_config.w32.h(74) : 参见“inline”的前一个定义
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\xkeycheck.h(69): warning C4005: “restrict”: 宏重定义
+                 d:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\zend\zend.h(194) : 参见“restrict”的前一个定义
+     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\xkeycheck.h(87): fatal error C1189: #error :  The C Standard Library forbids macroizing keywords. Enable warning C4005 to find the forbidden macro.
+         正在生成代码...
+     1>已完成生成项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\wing.vcxproj”(Build 个目标)的操作 - 失败。
+
+生成失败。
+
+已用时间 00:00:00.79

@@ -1,0 +1,48 @@
+﻿生成启动时间为 2016/5/14 10:43:53。
+     1>项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\png\png.vcxproj”在节点 2 上(rebuild 个目标)。
+     1>_PrepareForClean:
+         正在删除文件“x64\Release\png.lastbuildstate”。
+       InitializeBuildStatus:
+         正在创建“x64\Release\png.unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /I..\zlib /Zi /nologo /W3 /WX- /O2 /Oi /GL /D WIN32 /D NDEBUG /D _LIB /D _CRT_SECURE_NO_DEPRECATE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Release\\" /Fd"x64\Release\vc100.pdb" /Gd /TC /errorReport:prompt png.c pngerror.c pngget.c pngmem.c pngpread.c pngread.c pngrio.c pngrtran.c pngrutil.c pngset.c pngtrans.c pngwio.c pngwrite.c pngwtran.c pngwutil.c
+         png.c
+         pngerror.c
+         pngget.c
+         pngmem.c
+         pngpread.c
+         pngread.c
+         pngrio.c
+         pngrtran.c
+         pngrutil.c
+         pngset.c
+         pngtrans.c
+         pngwio.c
+         pngwrite.c
+         pngwtran.c
+         pngwutil.c
+       Lib:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\Lib.exe /OUT:"D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\x64\Release\png.lib" /NOLOGO /LTCG x64\Release\png.obj
+         x64\Release\pngerror.obj
+         x64\Release\pngget.obj
+         x64\Release\pngmem.obj
+         x64\Release\pngpread.obj
+         x64\Release\pngread.obj
+         x64\Release\pngrio.obj
+         x64\Release\pngrtran.obj
+         x64\Release\pngrutil.obj
+         x64\Release\pngset.obj
+         x64\Release\pngtrans.obj
+         x64\Release\pngwio.obj
+         x64\Release\pngwrite.obj
+         x64\Release\pngwtran.obj
+         x64\Release\pngwutil.obj
+         png.vcxproj -> D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\x64\Release\png.lib
+       FinalizeBuildStatus:
+         正在删除文件“x64\Release\png.unsuccessfulbuild”。
+         正在对“x64\Release\png.lastbuildstate”执行 Touch 任务。
+     1>已完成生成项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\cximage\png\png.vcxproj”(rebuild 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:03.11
