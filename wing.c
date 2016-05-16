@@ -83,21 +83,27 @@ int process_list_init(process_list **node)
 }
 
 int process_list_add(HANDLE process_handle){
-	if(wing_process_list==NULL){
+	/*if(wing_process_list==NULL){
 		if(process_list_init(&wing_process_list)==0){
 			return 0;
 		}
 		wing_process_list->handle = process_handle;
 		return 1;
-	}
+	}*/
 	
 	process_list *node;
 	process_list_init(&node);
+	node->handle = process_handle;
 
-	process_list *temp = wing_process_list->next;
 
-	while(temp)temp=temp->next;
-		temp->next=node;
+	process_list *first_node,*temp_node;
+	first_node	= wing_process_list;//p指向链表的头结点
+
+	//process_list *temp = wing_process_list->next;
+
+	while(first_node)first_node=first_node->next;
+		
+	first_node = node;
 	return 1;
 }
 
@@ -123,11 +129,11 @@ int process_list_remove(HANDLE process_handle){
 		{
 			if(first_node->handle == process_handle){
 				CloseHandle(first_node->handle);
-				temp_node=first_node->next;	//q指向当前结点的下一个结点。
+				temp_node=first_node->next;	//temp_node指向当前结点的下一个结点。
 				free(first_node);			//释放当前结点
-				first_node=temp_node;		//p指向下一个结点
+				first_node=temp_node;		//first_node指向下一个结点
 			}else{
-				first_node=first_node->next;	//q指向当前结点的下一个结点。
+				first_node=first_node->next;	//first_node指向当前结点的下一个结点。
 			}
 		}
 		return 1;
