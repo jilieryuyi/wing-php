@@ -64,6 +64,78 @@ ZEND_DECLARE_MODULE_GLOBALS(wing)
 /* True global resources - no need for thread safety here */
 static int le_wing;
 
+//已经打开的进程存储容器
+typedef struct _process_list{
+	HANDLE handle;
+	struct _process_list *next;
+} process_list;
+
+process_list *wing_process_list=NULL;//(process_list *)malloc(sizeof(_process_list));
+
+
+int process_list_init(process_list **node)
+{
+	*node=(process_list*)malloc(sizeof(process_list));//*Lnode等于L，对与*Lnode的分配空间相当与对主函数中的L分配空间。
+	if(!*node)
+	return 0;
+	(*node)->next=NULL;
+	return 1;
+}
+
+int process_list_add(HANDLE process_handle){
+	if(wing_process_list==NULL){
+		if(process_list_init(&wing_process_list)==0){
+			return 0;
+		}
+		wing_process_list->handle = process_handle;
+		return 1;
+	}
+	
+	process_list *node;
+	process_list_init(&node);
+
+	process_list *temp = wing_process_list->next;
+
+	while(temp)temp=temp->next;
+		temp->next=node;
+	return 1;
+}
+
+int process_list_clear(){
+		process_list *temp = wing_process_list->next;
+		process_list *first_node,*temp_node;
+		first_node	= wing_process_list;//p指向链表的头结点
+		while(first_node)
+		{
+			temp_node=first_node->next;	//q指向当前结点的下一个结点。
+			CloseHandle(first_node->handle);
+			free(first_node);			//释放当前结点
+			first_node=temp_node;		//p指向下一个结点
+		}
+		return 1;
+}
+
+int process_list_remove(HANDLE process_handle){
+		process_list *temp = wing_process_list->next;
+		process_list *first_node,*temp_node;
+		first_node	= wing_process_list;//p指向链表的头结点
+		while(first_node)
+		{
+			if(first_node->handle == process_handle){
+				CloseHandle(first_node->handle);
+				temp_node=first_node->next;	//q指向当前结点的下一个结点。
+				free(first_node);			//释放当前结点
+				first_node=temp_node;		//p指向下一个结点
+			}else{
+				first_node=first_node->next;	//q指向当前结点的下一个结点。
+			}
+		}
+		return 1;
+}
+
+
+
+
 /* {{{ PHP_INI
  */
 /* Remove comments and fill if you need to have entries in php.ini

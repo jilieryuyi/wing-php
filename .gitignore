@@ -2,7 +2,9 @@
 *.lo
 *.la
 *.sdf
+.opensdf
 wing.sdf
+wing.opensdf
 .libs
 acinclude.m4
 aclocal.m4
