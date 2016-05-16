@@ -366,7 +366,8 @@ PHP_FUNCTION(wing_create_thread){
 		(sui是父进程传给子进程的数据结构，里面包含了一些父进程要告诉子进程的一些信息)，反之一样*/
 		sui.hStdError		= GetStdHandle(STD_ERROR_HANDLE);
 		debug_len = spprintf(&command, 0, "%s %s %s wing-process",_php, zend_get_executed_filename(TSRMLS_C),command_params);
-		if (!CreateProcess(NULL,command, NULL, NULL, TRUE, 0, NULL, NULL, &sui, &pi))
+
+		if (!CreateProcessA(NULL,command, NULL, NULL, TRUE, 0, NULL, NULL, &sui, &pi))
 		{
 			CloseHandle(m_hRead);
 			CloseHandle(m_hWrite);
