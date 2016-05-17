@@ -1298,12 +1298,14 @@ unsigned int __stdcall wing_timer(PVOID pM)
 }  
 
 
+static int wing_timer_count = 0;
 /****
  *@毫秒级别定时器
  *@author yuyi
  *@created 2016-05-15
  */
 ZEND_FUNCTION(wing_timer){
+	wing_timer_count++;
 	//PostThreadMessageA(GetCurrentThreadId(),WM_USER+99,(WPARAM)"hello",(LPARAM)"word");
 
 	zval *callback;
@@ -1312,8 +1314,9 @@ ZEND_FUNCTION(wing_timer){
 	MAKE_STD_ZVAL(dwMilliseconds);
 
 	int max_run_times = 0;
+	int __index = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zz|l",&dwMilliseconds, &callback,&max_run_times) ==FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zz|ll",&dwMilliseconds, &callback,&max_run_times,&__index) ==FAILURE) {
 		RETURN_LONG(-1);	
 		return;
 	}
@@ -1323,6 +1326,8 @@ ZEND_FUNCTION(wing_timer){
 	char *command_params="";
 	HashTable *arr_hash;
 	int run_process = 0;
+	int command_index = 0;
+	int last_value=0;
 	 //获取命令行参数
 	if (zend_hash_find(&EG(symbol_table),"argv",sizeof("argv"),(void**)&argv) == SUCCESS){
 		zval  **data;
@@ -1339,9 +1344,20 @@ ZEND_FUNCTION(wing_timer){
 			zend_hash_get_current_key_ex(arr_hash, &key, (uint*)&key_len, (ulong*)&index, 0, &pointer);
 			if(index>0)
 				spprintf(&command_params,0,"%s \"%s\" ",command_params,(char*)Z_LVAL_PP(data));
+
+		//	zend_printf("%ld => %s\r\n",index,(char*)Z_LVAL_PP(data));
+
+			if(index == argc-1){
+				 last_value= atoi((char*)Z_LVAL_PP(data));
+			//	if(wing_timer_count!=last_value)RETURN_LONG(wing_timer_count);
+			}
 		} 
 	}
 
+	/*zval **_argc;
+	if (zend_hash_find(&EG(symbol_table),"argc",sizeof("argc"),(void**)&_argc) == SUCCESS){
+		zend_printf("argc %ld\n",Z_LVAL_PP(_argc));
+	}*/
 
 
 
@@ -1401,7 +1417,7 @@ ZEND_FUNCTION(wing_timer){
 		sui.hStdOutput		= m_hWrite;
 		
 		sui.hStdError		= GetStdHandle(STD_ERROR_HANDLE);
-		debug_len = spprintf(&command, 0, "%s %s %s wing-process",_php, zend_get_executed_filename(TSRMLS_C),command_params);
+		debug_len = spprintf(&command, 0, "%s %s %s wing-process %ld",_php, zend_get_executed_filename(TSRMLS_C),command_params,wing_timer_count);
 		if (!CreateProcess(NULL,command, NULL, NULL, TRUE, 0, NULL, NULL, &sui, &pi))
 		{
 			CloseHandle(m_hRead);
@@ -1416,6 +1432,15 @@ ZEND_FUNCTION(wing_timer){
 		RETURN_LONG(pi.dwProcessId);	
 		return;
 	}
+
+	char *r;
+	spprintf(&r,0,"%ld==%ld",wing_timer_count,last_value);
+	if(wing_timer_count!=last_value){
+		//RETURN_STRING(r,1);
+		RETURN_LONG(-1);
+		return;
+	}
+
 
 	timer_thread_params *param =new timer_thread_params();
 	param->dwMilliseconds = Z_DVAL_P(dwMilliseconds);
