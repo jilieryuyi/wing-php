@@ -64,80 +64,100 @@ ZEND_DECLARE_MODULE_GLOBALS(wing)
 /* True global resources - no need for thread safety here */
 static int le_wing;
 
-//已经打开的进程存储容器
-typedef struct _process_list{
-	HANDLE handle;
-	struct _process_list *next;
-} process_list;
-
-process_list *wing_process_list=NULL;//(process_list *)malloc(sizeof(_process_list));
-
-
-int process_list_init(process_list **node)
-{
-	*node=(process_list*)malloc(sizeof(process_list));//*Lnode等于L，对与*Lnode的分配空间相当与对主函数中的L分配空间。
-	if(!*node)
-	return 0;
-	(*node)->next=NULL;
-	return 1;
-}
-
-int process_list_add(HANDLE process_handle){
-	/*if(wing_process_list==NULL){
-		if(process_list_init(&wing_process_list)==0){
-			return 0;
-		}
-		wing_process_list->handle = process_handle;
-		return 1;
-	}*/
-	
-	process_list *node;
-	process_list_init(&node);
-	node->handle = process_handle;
-
-
-	process_list *first_node,*temp_node;
-	first_node	= wing_process_list;//p指向链表的头结点
-
-	//process_list *temp = wing_process_list->next;
-
-	while(first_node)first_node=first_node->next;
+DWORD create_process(char *command,char *params_ex,int params_ex_len){
+	    HANDLE				m_hRead;
+		HANDLE				m_hWrite;
+		STARTUPINFO			sui;    
+		PROCESS_INFORMATION pi; // 保存了所创建子进程的信息
+		SECURITY_ATTRIBUTES sa;   // 父进程传递给子进程的一些信息
 		
-	first_node = node;
-	return 1;
-}
-
-int process_list_clear(){
-		process_list *temp = wing_process_list->next;
-		process_list *first_node,*temp_node;
-		first_node	= wing_process_list;//p指向链表的头结点
-		while(first_node)
+		char				*params    = "";
+		int					params_len = sizeof("")-1;
+    
+		sa.bInheritHandle		= TRUE; // 还记得我上面的提醒吧，这个来允许子进程继承父进程的管道句柄
+		sa.lpSecurityDescriptor = NULL;
+		sa.nLength				= sizeof(SECURITY_ATTRIBUTES);
+		if (!CreatePipe(&m_hRead, &m_hWrite, &sa, 0))
 		{
-			temp_node=first_node->next;	//q指向当前结点的下一个结点。
-			CloseHandle(first_node->handle);
-			free(first_node);			//释放当前结点
-			first_node=temp_node;		//p指向下一个结点
+			return -1;
 		}
-		return 1;
-}
 
-int process_list_remove(HANDLE process_handle){
-		process_list *temp = wing_process_list->next;
-		process_list *first_node,*temp_node;
-		first_node	= wing_process_list;//p指向链表的头结点
-		while(first_node)
-		{
-			if(first_node->handle == process_handle){
-				CloseHandle(first_node->handle);
-				temp_node=first_node->next;	//temp_node指向当前结点的下一个结点。
-				free(first_node);			//释放当前结点
-				first_node=temp_node;		//first_node指向下一个结点
-			}else{
-				first_node=first_node->next;	//first_node指向当前结点的下一个结点。
+   
+		ZeroMemory(&sui, sizeof(STARTUPINFO)); // 对一个内存区清零，最好用ZeroMemory, 它的速度要快于memset
+		sui.cb				= sizeof(STARTUPINFO);
+		sui.dwFlags			= STARTF_USESTDHANDLES;  
+		sui.hStdInput		= m_hRead;
+		sui.hStdOutput		= m_hWrite;
+		
+		sui.hStdError		= GetStdHandle(STD_ERROR_HANDLE);
+		
+		if(params_ex_len>0&&params_ex!=NULL){
+			DWORD d;
+			if(::WriteFile(m_hWrite,params_ex,params_ex_len,&d,NULL)==FALSE){
+				//告警
+				zend_error(E_USER_WARNING,"write params to parcess error");
 			}
 		}
-		return 1;
+
+		if (!CreateProcess(NULL,command, NULL, NULL, TRUE, 0, NULL, NULL, &sui, &pi))
+		{
+			CloseHandle(m_hRead);
+			CloseHandle(m_hWrite);
+			return -1;
+		}
+		
+		CloseHandle(pi.hProcess); // 子进程的进程句柄
+		CloseHandle(pi.hThread); // 子进程的线程句柄，windows中进程就是一个线程的容器，每个进程至少有一个线程在执行
+		
+		return pi.dwProcessId;	
 }
+
+void command_params_check(char *command_params,int *run_process){
+	TSRMLS_FETCH();
+	zval **argv;
+	int argc;
+	//char *command_params="";
+	HashTable *arr_hash;
+	//int run_process = 0;
+	 //获取命令行参数
+	if (zend_hash_find(&EG(symbol_table),"argv",sizeof("argv"),(void**)&argv) == SUCCESS){
+		zval  **data;
+		HashPosition pointer;
+		arr_hash	= Z_ARRVAL_PP(argv);
+		argc		= zend_hash_num_elements(arr_hash);
+		for(zend_hash_internal_pointer_reset_ex(arr_hash, &pointer); zend_hash_get_current_data_ex(arr_hash, (void**) &data, &pointer) == SUCCESS; zend_hash_move_forward_ex(arr_hash, &pointer)) {
+			if(strcmp((char*)Z_LVAL_PP(data),"wing-process")==0){
+				*run_process=1;
+			}
+
+			char *key;
+			int key_len,index;
+			zend_hash_get_current_key_ex(arr_hash, &key, (uint*)&key_len, (ulong*)&index, 0, &pointer);
+			if(index>0)
+				spprintf(&command_params,0,"%s \"%s\" ",command_params,(char*)Z_LVAL_PP(data));
+		} 
+	}
+}
+
+
+typedef struct _timer_thread_params{
+	DWORD thread_id;
+	DWORD dwMilliseconds;
+} timer_thread_params;
+//子线程函数   
+unsigned int __stdcall wing_timer(PVOID pM)  
+{  
+	timer_thread_params *param=(timer_thread_params *)pM;
+	while(1){
+		Sleep(param->dwMilliseconds);
+		PostThreadMessageA(param->thread_id,WM_USER+99,NULL,NULL);
+	}
+	return 0;
+}  
+
+
+//timer 进程计数器 用于控制多个timer的创建和运行
+static int wing_timer_count = 0;
 
 
 
@@ -164,81 +184,7 @@ PHP_FUNCTION(wing_version){
     RETURN_STRINGL(string,len,0);
 }
 
-/**
- *@检查线程是否还在运行
- */
-PHP_FUNCTION(wing_thread_isalive){
-	//zval *handle;
-	int thread_id;
-	HANDLE thread_handle;
-	int exit_code=0;
-	zval *exitcode;
-	MAKE_STD_ZVAL(exitcode);
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l|z",&thread_id,&exitcode)==FAILURE){
-		RETURN_BOOL(0);
-		return;
-	}
-	thread_handle=OpenThread(THREAD_ALL_ACCESS, FALSE, thread_id);
-	GetExitCodeThread(thread_handle,(LPDWORD)&exit_code);
-	ZVAL_LONG(exitcode,exit_code);
-	if(exit_code==STILL_ACTIVE){
-		RETURN_BOOL(1);
-	}
-	RETURN_BOOL(0);
 
-}
-
-ZEND_FUNCTION(wing_wait_multi_objects){
-
-	/*zval *arr, **data;
-    HashTable *arr_hash;
-    HashPosition pointer;
-    int array_count;
-	long timeout=INFINITE ;
-	BOOL bWAitForAll=0;
-	//ZVAL_BOOL(bWAitForAll,false);
-	MAKE_STD_ZVAL(arr);
-	//MAKE_STD_ZVAL(bWAitForAll);
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|bl", &arr,&bWAitForAll,&timeout) ==FAILURE) {
-		RETURN_BOOL(0);
-		return;
-	}
-	//if(Z_TYPE_P(bWAitForAll)==IS_NULL){
-	//	ZVAL_BOOL(bWAitForAll,false);
-	//}
-	//convert_to_boolean(bWAitForAll);
-	arr_hash = Z_ARRVAL_P(arr);
-    array_count = zend_hash_num_elements(arr_hash);
-	
-	HANDLE *handle=new HANDLE[array_count];  
-
-	int _index=0;	
-	for(zend_hash_internal_pointer_reset_ex(arr_hash, &pointer); zend_hash_get_current_data_ex(arr_hash, (void**) &data, &pointer) == SUCCESS; zend_hash_move_forward_ex(arr_hash, &pointer)) {
-		//zval temp;
-		char *key;
-		int key_len;
-		long index;
-
-		if (zend_hash_get_current_key_ex(arr_hash, &key, (uint*)&key_len, (ulong*)&index, 0, &pointer) == HASH_KEY_IS_STRING) {
-			//PHPWRITE(key, key_len);
-		} else {
-			//php_printf("%ld", index);
-		}
-
-		handle[_index]=(HANDLE)Z_LVAL_PP(data);//OpenThread(THREAD_ALL_ACCESS, FALSE,  Z_LVAL_PP(data));//(HANDLE)_h;
-
-		php_printf("%ld\n",(long)handle[_index]);
-	}
-	//php_printf("count:%ld--%ld--%ld\n",array_count,handle,timeout);
-	//BOOL wait_all = Z_BVAL_P(bWAitForAll);
-	int b=WaitForMultipleObjects((DWORD)array_count, (const HANDLE*)handle, bWAitForAll, (DWORD)timeout); 
-
-	//php_printf("b:%ld\n%ld\n\n",b,WAIT_FAILED);//
-
-	free(handle);
-	RETURN_LONG(b);*/
-	RETURN_NULL();
-}
 /**
  *@wait process进程等待
  *@param process id 进程id
@@ -254,9 +200,9 @@ PHP_FUNCTION(wing_process_wait){
 	}
 	HANDLE handle=OpenProcess(PROCESS_ALL_ACCESS, FALSE, thread_id);
 
-	 DWORD wait_result;
+	DWORD wait_result;
 
-	 DWORD wait_status= WaitForSingleObject(handle,timeout);
+	DWORD wait_status= WaitForSingleObject(handle,timeout);
 	 
 	 if(wait_status==WAIT_FAILED){
 		RETURN_BOOL(0);
@@ -272,113 +218,30 @@ PHP_FUNCTION(wing_process_wait){
 	 RETURN_LONG(wait_result);
 }
 
-
+/**
+ *@创建多线程，使用进程模拟
+ */
 PHP_FUNCTION(wing_create_thread){
 	zval *callback;
+	char *command_params	= "";
+	int run_process			= 0;
+	char	*command;
+	char   _php[MAX_PATH];  
+
+
 	MAKE_STD_ZVAL(callback);
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &callback) ==FAILURE) {
 		RETURN_LONG(-1);	
 		return;
 	}
-	zval **argv;
-	int argc;
-	char *command_params="";
-	HashTable *arr_hash;
-	int run_process = 0;
-	 //获取命令行参数
-	if (zend_hash_find(&EG(symbol_table),"argv",sizeof("argv"),(void**)&argv) == SUCCESS){
-		zval  **data;
-		HashPosition pointer;
-		arr_hash	= Z_ARRVAL_PP(argv);
-		argc		= zend_hash_num_elements(arr_hash);
-		for(zend_hash_internal_pointer_reset_ex(arr_hash, &pointer); zend_hash_get_current_data_ex(arr_hash, (void**) &data, &pointer) == SUCCESS; zend_hash_move_forward_ex(arr_hash, &pointer)) {
-			if(strcmp((char*)Z_LVAL_PP(data),"wing-process")==0){
-				run_process=1;
-			}
-
-			char *key;
-			int key_len,index;
-			zend_hash_get_current_key_ex(arr_hash, &key, (uint*)&key_len, (ulong*)&index, 0, &pointer);
-			if(index>0)
-				spprintf(&command_params,0,"%s \"%s\" ",command_params,(char*)Z_LVAL_PP(data));
-		} 
-	}
-
-
-
-
-	//===========================================================================
-
-	/*Bucket *p;
-	HashTable *ht = EG(active_symbol_table);
-	p = ht->pListHead;
-	while (p != NULL) {
-		int result =1;// apply_func(p->pData TSRMLS_CC);
-		if (result & ZEND_HASH_APPLY_REMOVE) {
-			p = zend_hash_apply_deleter(ht, p);
-		} else {
-			p = p->pListNext;
-		}
-
-		if (result & ZEND_HASH_APPLY_STOP) {
-			break;
-		}
-	}*/
-	//===========================================================================
-
-
-
-
-
-	//zend_printf("%s\n",command_params);
+	
+	command_params_check(command_params,&run_process);
+	
+	GetModuleFileName(NULL,_php,MAX_PATH);
+	spprintf(&command, 0, "%s %s %s wing-process",_php, zend_get_executed_filename(TSRMLS_C),command_params);
 
 	if(!run_process){
-
-		TCHAR   _php[1000];   
-	    GetModuleFileName(NULL,_php,MAX_PATH);
-		HANDLE				m_hRead;
-		HANDLE				m_hWrite;
-		STARTUPINFO			sui;    
-		PROCESS_INFORMATION pi; // 保存了所创建子进程的信息
-		SECURITY_ATTRIBUTES sa;   // 父进程传递给子进程的一些信息
-		char				*command;
-		char				*params="";
-		int					debug_len;
-		int					params_len= sizeof("")-1;
-    
-		sa.bInheritHandle		= TRUE; // 还记得我上面的提醒吧，这个来允许子进程继承父进程的管道句柄
-		sa.lpSecurityDescriptor = NULL;
-		sa.nLength				= sizeof(SECURITY_ATTRIBUTES);
-		if (!CreatePipe(&m_hRead, &m_hWrite, &sa, 0))
-		{
-			RETURN_LONG(-1);
-		   return;
-		}
-
-   
-		ZeroMemory(&sui, sizeof(STARTUPINFO)); // 对一个内存区清零，最好用ZeroMemory, 它的速度要快于memset
-		sui.cb				= sizeof(STARTUPINFO);
-		sui.dwFlags			= STARTF_USESTDHANDLES;  
-		sui.hStdInput		= m_hRead;
-		sui.hStdOutput		= m_hWrite;
-		/* 以上两行也许大家要有些疑问，为什么把管道读句柄（m_hRead）赋值给了hStdInput, 因为管道是双向的，
-		对于父进程写的一端正好是子进程读的一端，而m_hRead就是父进程中对管道读的一端， 自然要把这个句柄给子进程让它来写数据了
-		(sui是父进程传给子进程的数据结构，里面包含了一些父进程要告诉子进程的一些信息)，反之一样*/
-		sui.hStdError		= GetStdHandle(STD_ERROR_HANDLE);
-		debug_len = spprintf(&command, 0, "%s %s %s wing-process",_php, zend_get_executed_filename(TSRMLS_C),command_params);
-
-		if (!CreateProcessA(NULL,command, NULL, NULL, TRUE, 0, NULL, NULL, &sui, &pi))
-		{
-			CloseHandle(m_hRead);
-			CloseHandle(m_hWrite);
-			RETURN_LONG(-1);
-		}
-		else
-		{
-			CloseHandle(pi.hProcess); // 子进程的进程句柄
-			CloseHandle(pi.hThread); // 子进程的线程句柄，windows中进程就是一个线程的容器，每个进程至少有一个线程在执行
-		}
-		RETURN_LONG(pi.dwProcessId);	
+		RETURN_LONG(create_process(command,NULL,0));	
 		return;
 	}
 
@@ -434,72 +297,21 @@ ZEND_FUNCTION(wing_get_process_params){
  *@param command params 命令行参数
  */
 PHP_FUNCTION(wing_create_process_ex){
-	HANDLE				m_hRead;
-	HANDLE				m_hWrite;
-	STARTUPINFO			sui;    
-    PROCESS_INFORMATION pi; // 保存了所创建子进程的信息
-	SECURITY_ATTRIBUTES sa;   // 父进程传递给子进程的一些信息
-	
-	char				*command;
-	char				*params="";
-	int					debug_len;
-	int					params_len= sizeof("")-1;
+	char *params = "";
+	int	params_len	= 0;
 	char *params_ex="";
 	int params_ex_len=0;
-    
-	sa.bInheritHandle		= TRUE; // 还记得我上面的提醒吧，这个来允许子进程继承父进程的管道句柄
-    sa.lpSecurityDescriptor = NULL;
-    sa.nLength				= sizeof(SECURITY_ATTRIBUTES);
-    if (!CreatePipe(&m_hRead, &m_hWrite, &sa, 0))
-    {
-		RETURN_BOOL(0);
-       return;
-    }
-
-   
-    ZeroMemory(&sui, sizeof(STARTUPINFO)); // 对一个内存区清零，最好用ZeroMemory, 它的速度要快于memset
-    sui.cb				= sizeof(STARTUPINFO);
-    sui.dwFlags			= STARTF_USESTDHANDLES;
-        
-    sui.hStdInput		= m_hRead;
-	sui.hStdOutput		= m_hWrite;
-    /* 以上两行也许大家要有些疑问，为什么把管道读句柄（m_hRead）赋值给了hStdInput, 因为管道是双向的，
-	对于父进程写的一端正好是子进程读的一端，而m_hRead就是父进程中对管道读的一端， 自然要把这个句柄给子进程让它来写数据了
-	(sui是父进程传给子进程的数据结构，里面包含了一些父进程要告诉子进程的一些信息)，反之一样*/
-    sui.hStdError		= GetStdHandle(STD_ERROR_HANDLE);
-
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s", &params,&params_len,&params_ex,&params_ex_len) ==FAILURE) {
 		RETURN_BOOL(0);
 		return;
 	}
 
-
-	TCHAR   _php[1000];   
+	TCHAR   _php[MAX_PATH];   
+	char				*command;
 	GetModuleFileName(NULL,_php,MAX_PATH);
-	debug_len = spprintf(&command, 0, "%s %s\0",_php,params);
-	if(params_ex_len>0){
-		DWORD d;
-		if(::WriteFile(m_hWrite,params_ex,params_ex_len,&d,NULL)==FALSE){
-			//告警
-			zend_error(E_USER_WARNING,"write params to parcess error");
-		}
-	}
+	spprintf(&command, 0, "%s %s\0",_php,params);
 
-
-	if (!CreateProcess(NULL,command, NULL, NULL, TRUE, 0, NULL, NULL, &sui, &pi))
-    {
-        CloseHandle(m_hRead);
-        CloseHandle(m_hWrite);
-		RETURN_BOOL(0);
-    }
-    else
-    {
-        CloseHandle(pi.hProcess); // 子进程的进程句柄
-        CloseHandle(pi.hThread); // 子进程的线程句柄，windows中进程就是一个线程的容器，每个进程至少有一个线程在执行
-    }
-
-	//zval_ptr_dtor(&exe);
-	RETURN_LONG(pi.dwProcessId);	
+	RETURN_LONG(create_process(command,params_ex,params_ex_len));	
 }
 
 
@@ -509,71 +321,24 @@ PHP_FUNCTION(wing_create_process_ex){
  *@param command params 命令行参数
  */
 PHP_FUNCTION(wing_create_process){
-	HANDLE				m_hRead;
-	HANDLE				m_hWrite;
-	STARTUPINFO			sui;    
-    PROCESS_INFORMATION pi; // 保存了所创建子进程的信息
-	SECURITY_ATTRIBUTES sa;   // 父进程传递给子进程的一些信息
 	char				*exe;
-	char				*command;
+	int					exe_len;
 	char				*params="";
-	int					exe_len,debug_len;
-	int					params_len= sizeof("")-1;
-    char *params_ex="";
+	int					params_len=0;
+	char *params_ex="";
 	int params_ex_len=0;
-
-	sa.bInheritHandle		= TRUE; // 还记得我上面的提醒吧，这个来允许子进程继承父进程的管道句柄
-    sa.lpSecurityDescriptor = NULL;
-    sa.nLength				= sizeof(SECURITY_ATTRIBUTES);
-    if (!CreatePipe(&m_hRead, &m_hWrite, &sa, 0))
-    {
-		RETURN_BOOL(0);
-       return;
-    }
-
-   
-    ZeroMemory(&sui, sizeof(STARTUPINFO)); // 对一个内存区清零，最好用ZeroMemory, 它的速度要快于memset
-    sui.cb				= sizeof(STARTUPINFO);
-    sui.dwFlags			= STARTF_USESTDHANDLES;
-        
-    sui.hStdInput		= m_hRead;
-	sui.hStdOutput		= m_hWrite;
-    /* 以上两行也许大家要有些疑问，为什么把管道读句柄（m_hRead）赋值给了hStdInput, 因为管道是双向的，
-	对于父进程写的一端正好是子进程读的一端，而m_hRead就是父进程中对管道读的一端， 自然要把这个句柄给子进程让它来写数据了
-	(sui是父进程传给子进程的数据结构，里面包含了一些父进程要告诉子进程的一些信息)，反之一样*/
-    sui.hStdError		= GetStdHandle(STD_ERROR_HANDLE);
-
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|ss", &exe,&exe_len,&params,&params_len,&params_ex,&params_ex_len) ==FAILURE) {
 		RETURN_BOOL(0);
 		return;
 	}
+	char				*command;
+	spprintf(&command, 0, "%s %s\0",exe,params);
 
-	debug_len = spprintf(&command, 0, "%s %s\0",exe,params);
-
-
-	if(params_ex_len>0){
-		DWORD d;
-		if(::WriteFile(m_hWrite,params_ex,params_ex_len,&d,NULL)==FALSE){
-			//告警
-			zend_error(E_USER_WARNING,"write params to parcess error");
-		}
-	}
-	if (!CreateProcess(NULL,command, NULL, NULL, TRUE, 0, NULL, NULL, &sui, &pi))
-    {
-        CloseHandle(m_hRead);
-        CloseHandle(m_hWrite);
-		RETURN_BOOL(0);
-    }
-    else
-    {
-        CloseHandle(pi.hProcess); // 子进程的进程句柄
-        CloseHandle(pi.hThread); // 子进程的线程句柄，windows中进程就是一个线程的容器，每个进程至少有一个线程在执行
-    }
-
-	//zval_ptr_dtor(&exe);
-	RETURN_LONG(pi.dwProcessId);	
+	RETURN_LONG(create_process(command,params_ex,params_ex_len));	
 }
-
+/**
+ *@杀死进程
+ */
 ZEND_FUNCTION(wing_process_kill)
 {
 	long process_id;
@@ -593,7 +358,9 @@ ZEND_FUNCTION(wing_process_kill)
     RETURN_BOOL(1);
 }
 
-
+/**
+ *@获取当前进程id
+ */
 ZEND_FUNCTION(wing_get_current_process_id){
 	ZVAL_LONG(return_value,GetCurrentProcessId());
 }
@@ -636,7 +403,9 @@ ZEND_FUNCTION(wing_create_mutex){
 	//zend_error(E_COMPILE_ERROR,"mutex create error");
 	RETURN_LONG(-3);
 }
-
+/**
+ *@关闭互斥量
+ */
 ZEND_FUNCTION(wing_close_mutex){
 	long mutex_handle;
 	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l",&mutex_handle)==FAILURE){
@@ -649,9 +418,9 @@ ZEND_FUNCTION(wing_close_mutex){
 	}
 	RETURN_LONG(CloseHandle((HANDLE)mutex_handle));
 }
-
-
-
+/**
+ *@检测进程是否存活--实际意义不大，因为进程id重用的特性 进程退出后 同样的进程id可能立刻被重用
+ */
 ZEND_FUNCTION(wing_process_isalive)
 {
 	long process_id;
@@ -667,6 +436,9 @@ ZEND_FUNCTION(wing_process_isalive)
     RETURN_BOOL(1);
 }
 
+/**
+ *@获取环境变量
+ */
 ZEND_FUNCTION(wing_get_env){
 	char *name;
 	//zval *temp;
@@ -682,6 +454,9 @@ ZEND_FUNCTION(wing_get_env){
 	free(var);
 }
 
+/**
+ *@设置环境变量
+ */
 ZEND_FUNCTION(wing_set_env){
 	char *name;
 	zval *value;
@@ -694,7 +469,9 @@ ZEND_FUNCTION(wing_set_env){
 	convert_to_cstring(value);
 	RETURN_BOOL(SetEnvironmentVariable(name,Z_STRVAL_P(value)));
 }
-
+/**
+ *@获取一个命令所在的绝对文件路径
+ */
 ZEND_FUNCTION(wing_get_command_path){ 
 	char *name;
 	int name_len;
@@ -706,29 +483,13 @@ ZEND_FUNCTION(wing_get_command_path){
 	get_command_path((const char*)name,path);
 	RETURN_STRING(path,1);
 }
-
-ZEND_FUNCTION(wing_set_console_title){
-	char *title;
-	int title_len;
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&title,&title_len)==FAILURE){
-		RETURN_BOOL(0);
-		return;
-	}
-	RETURN_BOOL(SetConsoleTitleA(title));
-}
-
-ZEND_FUNCTION(wing_get_console_title){
-	char title[255];
-	memset(title,0,sizeof(title));
-	GetConsoleTitle(title,255);
-	RETURN_STRING(title,1);
-}
-
+/**
+ *@通过WM_COPYDATA发送进程间消息 只能发给窗口程序
+ */
 ZEND_FUNCTION(wing_send_msg){
 	zval *console_title;
 	zval *message_id;
 	zval *message;
-	//zval *message_type;
 
 	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"zzz",&console_title,&message_id,&message)==FAILURE){
 		RETURN_BOOL(0);
@@ -737,7 +498,6 @@ ZEND_FUNCTION(wing_send_msg){
 	convert_to_cstring(console_title);
 	convert_to_long(message_id);
 	convert_to_cstring(message);
-	//convert_to_long(message_type);
 
 	HWND hwnd=FindWindow (Z_STRVAL_P(console_title),NULL);
 	if(hwnd==NULL){
@@ -754,6 +514,9 @@ ZEND_FUNCTION(wing_send_msg){
 }
 
 
+/****
+ *@窗口过程
+ */
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
@@ -766,6 +529,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	return 0;
 }
+/**
+ *@创建一个窗口 纯属测试
+ */
 ZEND_FUNCTION(wing_create_window){
 	zval *console_title;
 
@@ -803,7 +569,9 @@ ZEND_FUNCTION(wing_create_window){
     UpdateWindow(hWnd);
 	RETURN_LONG((long)hWnd);
 }
-
+/**
+ *@销毁一个窗口
+ */
 ZEND_FUNCTION(wing_destory_window){
 	long hwnd;
 	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l",&hwnd)==FAILURE){
@@ -812,6 +580,20 @@ ZEND_FUNCTION(wing_destory_window){
 	}
 	RETURN_BOOL(DestroyWindow((HWND)hwnd));
 }
+/**
+ *@启用消息循环 创建窗口必用 阻塞
+ */
+ZEND_FUNCTION(wing_message_loop){
+	MSG msg;
+	while (GetMessage(&msg, NULL, 0, 0))
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+}
+/**
+ *@简单的消息弹窗
+ */
 ZEND_FUNCTION(wing_message_box){
 	char *content;
 	int c_len,t_len;
@@ -822,338 +604,14 @@ ZEND_FUNCTION(wing_message_box){
 	}
 	MessageBox(0,content,title,0);
 }
+/**
+ *@获取最后发生的错误
+ */
 ZEND_FUNCTION(wing_get_last_error){
 	RETURN_LONG(GetLastError());
 }
 
-ZEND_FUNCTION(wing_message_loop){
-	MSG msg;
-	while (GetMessage(&msg, NULL, 0, 0))
-	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-	}
-}
 
-
-ZEND_FUNCTION(wing_create_name_pipe){
-	////./pipe/PipeName
-	char *pipe_name;
-	int name_len;
-	long open_mode = PIPE_ACCESS_DUPLEX;
-	long pipe_mode = PIPE_TYPE_MESSAGE|PIPE_READMODE_MESSAGE;
-	long max_instance = PIPE_UNLIMITED_INSTANCES;
-	long output_buffer_size = 0;
-	long input_buffer_size = 0; 
-	long time_out = 5000;
-	long security = 0;
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s|lllllll",&pipe_name,&name_len,&open_mode,&pipe_mode,&max_instance,
-		&output_buffer_size,&input_buffer_size,&time_out,&security)==FAILURE){
-		RETURN_BOOL(0);
-		return;
-	}
-
-	//zend_printf("123=>%u\n",FILE_FLAG_OVERLAPPED);
-	
-	HANDLE pipe= CreateNamedPipeA( 
-         pipe_name,            // pipe name 
-        // PIPE_ACCESS_DUPLEX |     // read/write access 
-        // FILE_FLAG_OVERLAPPED,    // overlapped mode 
-
-		open_mode,
-
-        // PIPE_TYPE_MESSAGE |      // message-type pipe 
-        // PIPE_READMODE_MESSAGE |  // message-read mode 
-        // PIPE_WAIT,               // blocking mode 
-
-		pipe_mode,
-
-        // PIPE_UNLIMITED_INSTANCES,               // number of instances 
-
-		max_instance,
-
-        output_buffer_size,   // output buffer size 
-        input_buffer_size,   // input buffer size 
-         time_out,            // client time-out 
-         (LPSECURITY_ATTRIBUTES)security);                   // default security attributes 
-		
-		//CreateNamedPipeA(pipe_name,PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED ,PIPE_TYPE_MESSAGE|PIPE_READMODE_MESSAGE|PIPE_NOWAIT,PIPE_UNLIMITED_INSTANCES,0,0,NMPWAIT_USE_DEFAULT_WAIT,0);
-	RETURN_LONG((long)pipe);
-}
-
-ZEND_FUNCTION(wing_create_event){
-	  HANDLE handle = CreateEventA( 
-         NULL,    // default security attribute 
-         TRUE,    // manual-reset event 
-         TRUE,    // initial state = signaled 
-         NULL);   // unnamed event object 
-	  if(NULL==handle)RETURN_BOOL(0);
-	  RETURN_LONG((long)handle);
-}
-
-ZEND_FUNCTION(wing_read_file){
-	HANDLE hFile;
-	zval *lpBuffer;
-	LPOVERLAPPED lpOverlapped;
-	long size = 4096*sizeof(TCHAR);
-	//LPDWORD lpdword;
-
-	zval *_hFile;
-	zval *_lpOverlapped;
-	zval *_read_num;
-	MAKE_STD_ZVAL(_lpOverlapped);
-	zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"zzz|z",&_hFile,&lpBuffer,&_read_num,&_lpOverlapped);
-
-
-	convert_to_long(_hFile);
-	convert_to_long(_lpOverlapped);
-	//convert_to_long(_lpdword);
-
-	hFile			=(HANDLE)Z_LVAL_P(_hFile);
-	lpOverlapped	=(LPOVERLAPPED)Z_LVAL_P(_lpOverlapped);
-	//lpdword			=(LPDWORD)Z_LVAL_P(_lpdword);
-
-	char data_read[10240];
-	long read_num;
-
-	BOOL status=ReadFile(hFile,data_read,sizeof(data_read),(LPDWORD)&read_num,lpOverlapped);
-	ZVAL_STRING(lpBuffer,data_read,1);
-
-	//ZVAL_LONG(_hFile,(long)hFile);
-	ZVAL_LONG(_lpOverlapped,(long)lpOverlapped);
-	ZVAL_LONG(_read_num,read_num);
-
-	RETURN_BOOL(status);
-}
-
-
-ZEND_FUNCTION(wing_write_file){
-	HANDLE hFile;
-	zval *buffer;
-	zval *write_num;
-//	LPDWORD lpdword;
-	LPOVERLAPPED lpOverlapped;
-	zval *_hFile;
-	zval *_lpOverlapped;
-	//zval *_lpdword;
-
-	MAKE_STD_ZVAL(_lpOverlapped);
-	//MAKE_STD_ZVAL(_lpdword);
-	MAKE_STD_ZVAL(write_num);
-
-	zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"zz|zz",&_hFile,&buffer,&write_num,&_lpOverlapped);
-
-
-	convert_to_long(_hFile);
-	convert_to_long(_lpOverlapped);
-	//convert_to_long(_lpdword);
-
-	hFile			=(HANDLE)Z_LVAL_P(_hFile);
-	lpOverlapped	=(LPOVERLAPPED)Z_LVAL_P(_lpOverlapped);
-	//lpdword			=(LPDWORD)Z_LVAL_P(_lpdword);
-	long _write_num =0;
-	BOOL status = WriteFile(hFile,Z_STRVAL_P(buffer),Z_STRLEN_P(buffer),(LPDWORD)&_write_num,lpOverlapped);
-
-	ZVAL_LONG(_lpOverlapped,(long)lpOverlapped);
-	//ZVAL_LONG(_lpdword,(long)lpdword);
-	ZVAL_LONG(write_num,_write_num);
-
-	RETURN_BOOL(status);
-
-}
-
-ZEND_FUNCTION(wing_get_overlapped_result){
-	HANDLE hFile;
-	LPOVERLAPPED lpOverlapped;
-	LPDWORD lpdword;
-
-	zval *_hFile;
-	zval *_lpOverlapped;
-	zval *_lpdword;
-	zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"zzz",&_hFile,&_lpOverlapped,&_lpdword);
-
-
-	convert_to_long(_hFile);
-	convert_to_long(_lpOverlapped);
-	convert_to_long(_lpdword);
-
-	hFile			=(HANDLE)Z_LVAL_P(_hFile);
-	lpOverlapped	=(LPOVERLAPPED)Z_LVAL_P(_lpOverlapped);
-	lpdword			=(LPDWORD)Z_LVAL_P(_lpdword);
-
-	BOOL status = GetOverlappedResult(
-                  hFile, // handle to pipe
-            lpOverlapped, // OVERLAPPED structure
-            lpdword,            // bytes transferred
-            FALSE); // do not wait
-
-	ZVAL_LONG(_hFile,(long)hFile);
-	ZVAL_LONG(_lpOverlapped,(long)lpOverlapped);
-	ZVAL_LONG(_lpdword,(long)lpdword);
-
-	RETURN_BOOL(status);           
-}
-
-ZEND_FUNCTION(wing_disconnect_name_pipe){
-	HANDLE handle;
-	long _handle;
-	zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l",&_handle);
-	handle=(HANDLE)_handle;
-	RETURN_BOOL(DisconnectNamedPipe(handle));
-}
-ZEND_FUNCTION(wing_set_event){
-
-	LPOVERLAPPED lpo;
-
-	//long _hPipe;
-	zval *_lpo;
-	MAKE_STD_ZVAL(_lpo);
-	zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"z",&_lpo);
-	
-
-
-	lpo = (LPOVERLAPPED)Z_LVAL_P(_lpo);
-	RETURN_BOOL(SetEvent(lpo->hEvent));
-}
-ZEND_FUNCTION(wing_connect_name_pipe){
-
-	HANDLE hPipe;
-	
-
-	long _hPipe;
-	zval *_lpo;
-	zval *_event;
-	MAKE_STD_ZVAL(_lpo);
-	MAKE_STD_ZVAL(_event);
-	
-	zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l|zz",&_hPipe,&_event,&_lpo);
-	convert_to_long(_event);
-	
-	OVERLAPPED  lpo;// = new OVERLAPPED();
-	LPOVERLAPPED __lpo;
-	if(Z_LVAL_P(_event)>0){
-		lpo.hEvent = (HANDLE)Z_LVAL_P(_event);
-		__lpo = &lpo;
-	}else{
-		__lpo=NULL;
-	}
-
-	hPipe = (HANDLE)(_hPipe);
-	//lpo = (LPOVERLAPPED)Z_LVAL_P(_lpo);
-
-	BOOL fConnected = FALSE; 
- 
-// Start an overlapped connection for this pipe instance. 
-   fConnected = ConnectNamedPipe(hPipe, __lpo); 
-   zend_printf("fConnected:%ld\n",fConnected);
-
-   //https://msdn.microsoft.com/en-us/library/aa365146(VS.85).aspx
-   //如果异步 即__lpo不为null 返回0正确
-   if(__lpo != NULL){
-	if(fConnected==0)fConnected=1;
-   }
-
-   //ERROR_IO_INCOMPLETE;
-
-   //zend_printf("lpo:%ld\n",(long)&lpo);
-
-   if(Z_TYPE_P(_lpo) != IS_NULL){
-		ZVAL_LONG(_lpo,(long)__lpo);
-   }
-
-   //zend_printf("lpo:%ld\n",Z_LVAL_P(_lpo));
-
-   RETURN_BOOL(fConnected);
-
-}
-
-ZEND_FUNCTION(wing_create_file){
-
-
-
-	zval *_file_name;
-	long access =  GENERIC_READ |  // read and write access
-           GENERIC_WRITE;
-	long share =0;
-	long security =0;
-	long create = OPEN_EXISTING;
-	long attributes= FILE_ATTRIBUTE_NORMAL;
-	long template_file = 0;
-
-	zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"z|lllll",&_file_name,&access,&share,&security,&create,&attributes,&template_file);
-
-
-	convert_to_cstring(_file_name);
-	//CreateFileA(PIPE_NAME, GENERIC_READ | GENERIC_WRITE,
-     //   0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-	//zend_printf("%u\n",FILE_ATTRIBUTE_NORMAL);
-
-	HANDLE handle = CreateFileA(
-           Z_STRVAL_P(_file_name),   // pipe name
-           access,
-           share,              // no sharing
-           (LPSECURITY_ATTRIBUTES)security,           // default security attributes
-           create,  // opens existing pipe
-           attributes,              // default attributes
-           (HANDLE)template_file);          // no template file
-
-	RETURN_LONG((long)handle);
-}
-
-ZEND_FUNCTION(wing_close_handle){
-	long handle;
-	zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l",&handle);
-	RETURN_BOOL(CloseHandle((HANDLE)handle));
-}
-
-
-ZEND_FUNCTION(wing_wait_name_pipe){
-	char *name;
-	int name_len;
-	long timeout=20000;
-	zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s|l",&name,&name_len,&timeout);
-
-	RETURN_BOOL(WaitNamedPipeA(name,timeout));
-}
-
-ZEND_FUNCTION(wing_set_name_pipe_handle_state){
-
-	/**
-	BOOL WINAPI SetNamedPipeHandleState(
-  __in      HANDLE  hNamedPipe,   // 要更改的管道句柄
-  __in_opt  LPDWORD lpMode,       // 更改管道的运行模式
-  __in_opt  LPDWORD lpMaxCollectionCount, // 更改管道的收集的最大字节数
-  __in_opt  LPDWORD lpCollectDataTimeout  // 更改管道的等待时间
-);
-	*/
-
-	zval *handle;
-	zval *mode;
-	zval *lpMaxCollectionCount;
-	zval *lpCollectDataTimeout;
-
-	MAKE_STD_ZVAL(mode);
-	ZVAL_LONG(mode,PIPE_READMODE_MESSAGE);
-	MAKE_STD_ZVAL(lpMaxCollectionCount);
-	MAKE_STD_ZVAL(lpCollectDataTimeout);
-
-	zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"z|zzz",&handle,&mode,&lpMaxCollectionCount,&lpCollectDataTimeout );
-	
-
-	convert_to_long(handle);
-	convert_to_long(mode);
-	convert_to_long(lpMaxCollectionCount);
-	convert_to_long(lpCollectDataTimeout);
-
-	int dwMode = Z_LVAL_P(mode);
-	
-	BOOL status = SetNamedPipeHandleState((HANDLE)Z_LVAL_P(handle),(LPDWORD)&dwMode,(LPDWORD)lpMaxCollectionCount,(LPDWORD)lpCollectDataTimeout);
-
-	//ZVAL_LONG(mode,dwMode);
-
-	RETURN_BOOL(status);
-
-}
 
 
 
@@ -1194,111 +652,25 @@ ZEND_FUNCTION(wing_qrencode){
 		return;
 	}
 	convert_to_string(str);
-	convert_to_double(width);
+	convert_to_long(width);
 	convert_to_string(save_path);
 	
 	if(strlen(Z_STRVAL_P(str))==0){
 		RETURN_BOOL(0);
 		return;
 	}
+	
 	int _width = Z_LVAL_P(width);
 	if(_width<=0){
 		_width=120;
 	}
 
-	char *base64_encode_image_str = qrencode(Z_STRVAL_P(str),Z_LVAL_P(width),Z_STRVAL_P(save_path));
+	char *base64_encode_image_str = qrencode(Z_STRVAL_P(str),_width,Z_STRVAL_P(save_path));
 	if(return_value_used)
 	RETURN_STRING(base64_encode_image_str,1);
-	RETURN_NULL();
 }
 
-ZEND_FUNCTION(wing_peek_message){
-	//PostThreadMessageA(GetCurrentThreadId(),WM_USER+99,(WPARAM)"hello",(LPARAM)"word");
-	MSG msg;
-	if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE|PM_QS_POSTMESSAGE|PM_QS_SENDMESSAGE)) 
-    { 
-       // if (msg.message == WM_QUIT) 
-		//{
-		//	RETURN_LONG(-1);
-		//	return;
-	//	}
-		//msg.message 区分消息类型
-		//msg.lParam;
-		//msg.wParam;
-		//msg.time;
 
-
-		
-                  array_init(return_value);
-                  add_assoc_string(return_value,"lParam",(char*)msg.lParam,1);
-				  add_assoc_string(return_value,"wParam",(char*)msg.wParam,1);
-                  add_assoc_long(return_value,"message",msg.message);
-				  add_assoc_long(return_value,"time",msg.time);
-
-				 // zend_printf("%ld\n",msg.time);
-				//  zend_printf("WM_QUIT=%ld\n",WM_QUIT);
-                 return;
-                 // zval_copy_ctor(&temp);
-                //  add_next_index_zval(return_value,&temp);
-                 // zval_dtor(p);
-
-    } 
-	
-	RETURN_NULL();
-}
-
-ZEND_FUNCTION(wing_get_message){
-	//PostThreadMessageA(GetCurrentThreadId(),WM_USER+99,(WPARAM)"hello",(LPARAM)"word");
-	MSG msg;
-	if (GetMessage(&msg, NULL, 0, 0)) 
-    { 
-       // if (msg.message == WM_QUIT) 
-		//{
-		//	RETURN_LONG(-1);
-		//	return;
-	//	}
-		//msg.message 区分消息类型
-		//msg.lParam;
-		//msg.wParam;
-		//msg.time;
-
-
-		
-                  array_init(return_value);
-                  add_assoc_string(return_value,"lParam",(char*)msg.lParam,1);
-				  add_assoc_string(return_value,"wParam",(char*)msg.wParam,1);
-                  add_assoc_long(return_value,"message",msg.message);
-				  add_assoc_long(return_value,"time",msg.time);
-
-				 // zend_printf("%ld\n",msg.time);
-				//  zend_printf("WM_QUIT=%ld\n",WM_QUIT);
-                 return;
-                 // zval_copy_ctor(&temp);
-                //  add_next_index_zval(return_value,&temp);
-                 // zval_dtor(p);
-
-    } 
-	
-	RETURN_NULL();
-}
-
-typedef struct _timer_thread_params{
-	DWORD thread_id;
-	DWORD dwMilliseconds;
-} timer_thread_params;
-//子线程函数   
-unsigned int __stdcall wing_timer(PVOID pM)  
-{  
-	timer_thread_params *param=(timer_thread_params *)pM;
-	while(1){
-		Sleep(param->dwMilliseconds);
-		PostThreadMessageA(param->thread_id,WM_USER+99,NULL,NULL);
-	}
-	return 0;
-}  
-
-
-static int wing_timer_count = 0;
 /****
  *@毫秒级别定时器
  *@author yuyi
@@ -1306,8 +678,6 @@ static int wing_timer_count = 0;
  */
 ZEND_FUNCTION(wing_timer){
 	wing_timer_count++;
-	//PostThreadMessageA(GetCurrentThreadId(),WM_USER+99,(WPARAM)"hello",(LPARAM)"word");
-
 	zval *callback;
 	zval *dwMilliseconds;
 	MAKE_STD_ZVAL(callback);
@@ -1342,109 +712,36 @@ ZEND_FUNCTION(wing_timer){
 			char *key;
 			int key_len,index;
 			zend_hash_get_current_key_ex(arr_hash, &key, (uint*)&key_len, (ulong*)&index, 0, &pointer);
-			if(index>0)
-				spprintf(&command_params,0,"%s \"%s\" ",command_params,(char*)Z_LVAL_PP(data));
 
-		//	zend_printf("%ld => %s\r\n",index,(char*)Z_LVAL_PP(data));
+			if(index>0){
+				spprintf(&command_params,0,"%s \"%s\" ",command_params,(char*)Z_LVAL_PP(data));
+			}
 
 			if(index == argc-1){
 				 last_value= atoi((char*)Z_LVAL_PP(data));
-			//	if(wing_timer_count!=last_value)RETURN_LONG(wing_timer_count);
 			}
 		} 
 	}
 
-	/*zval **_argc;
-	if (zend_hash_find(&EG(symbol_table),"argc",sizeof("argc"),(void**)&_argc) == SUCCESS){
-		zend_printf("argc %ld\n",Z_LVAL_PP(_argc));
-	}*/
-
-
-
-	//===========================================================================
-
-	/*Bucket *p;
-	HashTable *ht = EG(active_symbol_table);
-	p = ht->pListHead;
-	while (p != NULL) {
-		int result =1;// apply_func(p->pData TSRMLS_CC);
-		if (result & ZEND_HASH_APPLY_REMOVE) {
-			p = zend_hash_apply_deleter(ht, p);
-		} else {
-			p = p->pListNext;
-		}
-
-		if (result & ZEND_HASH_APPLY_STOP) {
-			break;
-		}
-	}*/
-	//===========================================================================
-
-
-
-
-
-	//zend_printf("%s\n",command_params);
+	char	*command;
+	char   _php[MAX_PATH];   
+	GetModuleFileName(NULL,_php,MAX_PATH);
+	spprintf(&command, 0, "%s %s %s wing-process %ld",_php, zend_get_executed_filename(TSRMLS_C),command_params,wing_timer_count);
 
 	if(!run_process){
-
-		TCHAR   _php[1000];   
-	    GetModuleFileName(NULL,_php,MAX_PATH);
-		HANDLE				m_hRead;
-		HANDLE				m_hWrite;
-		STARTUPINFO			sui;    
-		PROCESS_INFORMATION pi; // 保存了所创建子进程的信息
-		SECURITY_ATTRIBUTES sa;   // 父进程传递给子进程的一些信息
-		char				*command;
-		char				*params="";
-		int					debug_len;
-		int					params_len= sizeof("")-1;
-    
-		sa.bInheritHandle		= TRUE; // 还记得我上面的提醒吧，这个来允许子进程继承父进程的管道句柄
-		sa.lpSecurityDescriptor = NULL;
-		sa.nLength				= sizeof(SECURITY_ATTRIBUTES);
-		if (!CreatePipe(&m_hRead, &m_hWrite, &sa, 0))
-		{
-			RETURN_LONG(-1);
-		   return;
-		}
-
-   
-		ZeroMemory(&sui, sizeof(STARTUPINFO)); // 对一个内存区清零，最好用ZeroMemory, 它的速度要快于memset
-		sui.cb				= sizeof(STARTUPINFO);
-		sui.dwFlags			= STARTF_USESTDHANDLES;  
-		sui.hStdInput		= m_hRead;
-		sui.hStdOutput		= m_hWrite;
-		
-		sui.hStdError		= GetStdHandle(STD_ERROR_HANDLE);
-		debug_len = spprintf(&command, 0, "%s %s %s wing-process %ld",_php, zend_get_executed_filename(TSRMLS_C),command_params,wing_timer_count);
-		if (!CreateProcess(NULL,command, NULL, NULL, TRUE, 0, NULL, NULL, &sui, &pi))
-		{
-			CloseHandle(m_hRead);
-			CloseHandle(m_hWrite);
-			RETURN_LONG(-1);
-		}
-		else
-		{
-			CloseHandle(pi.hProcess); // 子进程的进程句柄
-			CloseHandle(pi.hThread); // 子进程的线程句柄，windows中进程就是一个线程的容器，每个进程至少有一个线程在执行
-		}
-		RETURN_LONG(pi.dwProcessId);	
+		RETURN_LONG(create_process(command,NULL,0));	
 		return;
 	}
 
-	char *r;
-	spprintf(&r,0,"%ld==%ld",wing_timer_count,last_value);
 	if(wing_timer_count!=last_value){
-		//RETURN_STRING(r,1);
 		RETURN_LONG(-1);
 		return;
 	}
 
 
-	timer_thread_params *param =new timer_thread_params();
-	param->dwMilliseconds = Z_DVAL_P(dwMilliseconds);
-	param->thread_id=GetCurrentThreadId();
+	timer_thread_params *param	= new timer_thread_params();
+	param->dwMilliseconds		= (DWORD)Z_DVAL_P(dwMilliseconds);
+	param->thread_id			= GetCurrentThreadId();
 	_beginthreadex(NULL, 0, wing_timer, param, 0, NULL); 
 
 	
@@ -1474,21 +771,16 @@ ZEND_FUNCTION(wing_timer){
 			zval_ptr_dtor(&retval_ptr);
 
 			if(times>=max_run_times&&max_run_times>0)break;
-			//RETURN_LONG(0);	
+
 		}
-		/*array_init(return_value);
-		add_assoc_string(return_value,"lParam",(char*)msg.lParam,1);
-		add_assoc_string(return_value,"wParam",(char*)msg.wParam,1);
-		add_assoc_long(return_value,"message",msg.message);
-		add_assoc_long(return_value,"time",msg.time);*/
-		//return;
+
     } 
-	//zend_printf("exit\n");
+
 	
 	
-				free(param);
-				RETURN_LONG(times);	
-				return;
+	free(param);
+	RETURN_LONG(times);	
+	return;
 }
 
 /* }}} */
@@ -1584,50 +876,30 @@ const zend_function_entry wing_functions[] = {
 	PHP_FE(wing_get_process_params,NULL)
 	PHP_FE(wing_create_process_ex,NULL)
 	//PHP_FE(wing_thread_wait,NULL)
+
 	PHP_FE(wing_process_wait,NULL)
 	//wing_thread_wait 是别名
 	ZEND_FALIAS(wing_thread_wait,wing_process_wait,NULL)
 
-	PHP_FE(wing_wait_multi_objects,NULL)
-	PHP_FE(wing_thread_isalive,NULL)
-
-	
 	PHP_FE(wing_process_kill,NULL)
+	ZEND_FALIAS(wing_thread_kill,wing_process_kill,NULL)
+
 	PHP_FE(wing_process_isalive,NULL)
+	ZEND_FALIAS(wing_thread_isalive,wing_process_isalive,NULL)
+
 	PHP_FE(wing_get_current_process_id,NULL)
 	PHP_FE(wing_create_mutex,NULL)
 	PHP_FE(wing_close_mutex,NULL)
 	PHP_FE(wing_get_env,NULL)
 	PHP_FE(wing_get_command_path,NULL)
 	PHP_FE(wing_set_env,NULL)
-	PHP_FE(wing_set_console_title,NULL)
-	PHP_FE(wing_get_console_title,NULL)
 	PHP_FE(wing_send_msg,NULL)
-	
 	PHP_FE(wing_get_last_error,NULL)
 	PHP_FE(wing_create_window,NULL)
 	PHP_FE(wing_message_loop,NULL)
 	PHP_FE(wing_destory_window,NULL)
 	PHP_FE(wing_message_box,NULL)
-	PHP_FE(wing_create_name_pipe,NULL)
-	PHP_FE(wing_create_event,NULL)
-
-	
-	PHP_FE(wing_get_overlapped_result,NULL)
-	PHP_FE(wing_disconnect_name_pipe,NULL)
-	
-	PHP_FE(wing_read_file,NULL)
-	PHP_FE(wing_write_file,NULL)
-	PHP_FE(wing_create_file,NULL)
-
-	PHP_FE(wing_close_handle,NULL)
-	PHP_FE(wing_wait_name_pipe,NULL)
-	PHP_FE(wing_set_name_pipe_handle_state,NULL)
-	PHP_FE(wing_connect_name_pipe,NULL)
-	PHP_FE(wing_set_event,NULL)
 	PHP_FE(wing_timer,NULL)
-	PHP_FE(wing_peek_message,NULL)
-	PHP_FE(wing_get_message,NULL)
 	PHP_FE_END	/* Must be the last line in wing_functions[] */
 };
 /* }}} */
