@@ -158,7 +158,8 @@ unsigned int __stdcall wing_timer(PVOID pM)
 
 //timer 进程计数器 用于控制多个timer的创建和运行
 static int wing_timer_count = 0;
-
+//线程计数器 用于多线程控制
+static int wing_thread_count =0;
 
 
 
@@ -205,12 +206,12 @@ PHP_FUNCTION(wing_process_wait){
 	DWORD wait_status= WaitForSingleObject(handle,timeout);
 	 
 	 if(wait_status==WAIT_FAILED){
-		RETURN_BOOL(0);
+		RETURN_DOUBLE(WAIT_FAILED);
 		return;
 	 }
 
 	 if(WAIT_TIMEOUT == wait_status){
-		RETURN_LONG(-1);
+		RETURN_DOUBLE(WAIT_TIMEOUT);
 		return;
 	 }
 	 
@@ -222,36 +223,76 @@ PHP_FUNCTION(wing_process_wait){
  *@创建多线程，使用进程模拟
  */
 PHP_FUNCTION(wing_create_thread){
+	
+	wing_thread_count++;
 	zval *callback;
-	char *command_params	= "";
-	int run_process			= 0;
-	char	*command;
-	char   _php[MAX_PATH];  
-
-
+	
 	MAKE_STD_ZVAL(callback);
+
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &callback) ==FAILURE) {
 		RETURN_LONG(-1);	
 		return;
 	}
-	
-	command_params_check(command_params,&run_process);
-	
+
+	zval **argv;
+	int argc;
+	char *command_params="";
+	HashTable *arr_hash;
+	int run_process = 0;
+	int command_index = 0;
+	int last_value=0;
+	 //获取命令行参数
+	if (zend_hash_find(&EG(symbol_table),"argv",sizeof("argv"),(void**)&argv) == SUCCESS){
+		zval  **data;
+		HashPosition pointer;
+		arr_hash	= Z_ARRVAL_PP(argv);
+		argc		= zend_hash_num_elements(arr_hash);
+		for(zend_hash_internal_pointer_reset_ex(arr_hash, &pointer); zend_hash_get_current_data_ex(arr_hash, (void**) &data, &pointer) == SUCCESS; zend_hash_move_forward_ex(arr_hash, &pointer)) {
+			if(strcmp((char*)Z_LVAL_PP(data),"wing-process")==0){
+				run_process=1;
+			}
+
+			char *key;
+			int key_len,index;
+			zend_hash_get_current_key_ex(arr_hash, &key, (uint*)&key_len, (ulong*)&index, 0, &pointer);
+
+			if(index>0){
+				spprintf(&command_params,0,"%s \"%s\" ",command_params,(char*)Z_LVAL_PP(data));
+			}
+
+			if(index == argc-1){
+				 last_value= atoi((char*)Z_LVAL_PP(data));
+			}
+		} 
+	}
+
+	char	*command;
+	char   _php[MAX_PATH];   
 	GetModuleFileName(NULL,_php,MAX_PATH);
-	spprintf(&command, 0, "%s %s %s wing-process",_php, zend_get_executed_filename(TSRMLS_C),command_params);
+	spprintf(&command, 0, "%s %s %s wing-process %ld",_php, zend_get_executed_filename(TSRMLS_C),command_params,wing_thread_count);
 
 	if(!run_process){
 		RETURN_LONG(create_process(command,NULL,0));	
 		return;
 	}
 
+	if(wing_thread_count!=last_value){
+		RETURN_LONG(-1);
+		return;
+	}
+	
 	zval *retval_ptr;
+	
+			
 	MAKE_STD_ZVAL(retval_ptr);
 	if(SUCCESS != call_user_function(EG(function_table),NULL,callback,retval_ptr,0,NULL TSRMLS_CC)){
-		RETURN_LONG(-1);	
+		RETURN_LONG(0);
+		return;
 	}
-	zval_ptr_dtor(&retval_ptr);
-	RETURN_LONG(0);	
+			
+	
+	
+	RETURN_LONG(1);
 }
 /**
  *@get data from create process
@@ -812,6 +853,10 @@ PHP_MINIT_FUNCTION(wing)
 	//注册常量或者类等初始化操作
 	//REGISTER_STRING_CONSTANT("WING_VERSION",PHP_WING_VERSION,CONST_CS | CONST_PERSISTENT);
 	zend_register_string_constant("WING_VERSION", sizeof("WING_VERSION"), PHP_WING_VERSION,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	//WAIT_TIMEOUT
+	zend_register_double_constant("WING_WAIT_TIMEOUT", sizeof("WING_WAIT_TIMEOUT"), WAIT_TIMEOUT,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	//INFINITE
+	zend_register_double_constant("WING_INFINITE", sizeof("WING_INFINITE"), INFINITE,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	return SUCCESS;
 }
 /* }}} */
