@@ -72,7 +72,7 @@ DWORD create_process(char *command,char *params_ex,int params_ex_len){
 		SECURITY_ATTRIBUTES sa;   // 父进程传递给子进程的一些信息
 		
 		char				*params    = "";
-		int					params_len = sizeof("")-1;
+		int					params_len = 0;
     
 		sa.bInheritHandle		= TRUE; // 还记得我上面的提醒吧，这个来允许子进程继承父进程的管道句柄
 		sa.lpSecurityDescriptor = NULL;
