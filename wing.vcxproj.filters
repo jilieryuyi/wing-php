@@ -18,18 +18,6 @@
     <ClCompile Include="wing.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="zxing.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\zxing\cli\src\ImageReaderSource.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\zxing\cli\src\jpgd.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\zxing\cli\src\lodepng.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="lib\library.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -39,9 +27,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="lib\library.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="zxing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

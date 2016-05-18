@@ -174,16 +174,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="lib\library.cpp" />
-    <ClCompile Include="lib\zxing\cli\src\ImageReaderSource.cpp" />
-    <ClCompile Include="lib\zxing\cli\src\jpgd.cpp" />
-    <ClCompile Include="lib\zxing\cli\src\lodepng.cpp" />
     <ClCompile Include="wing.c" />
-    <ClCompile Include="zxing.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lib\library.h" />
     <ClInclude Include="php_wing.h" />
-    <ClInclude Include="zxing.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

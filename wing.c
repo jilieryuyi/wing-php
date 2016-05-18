@@ -45,8 +45,8 @@
 
 //此部分函数来源于c++ cpp定义 不能直接include头文件 通过extern访问
 extern void get_command_path(const char *name,char *output);
-extern char* qrdecode(char* filename);
-extern char* qrencode(char* str,int imageWidth,char* save_path);
+//extern char* qrdecode(char* filename);
+//extern char* qrencode(char* str,int imageWidth,char* save_path);
 
 #if (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION >= 3) || (PHP_MAJOR_VERSION >= 6)
 #undef ZVAL_REFCOUNT
@@ -189,6 +189,7 @@ PHP_FUNCTION(wing_version){
 /**
  *@wait process进程等待
  *@param process id 进程id
+ *@param timeout 等待超时时间 单位毫秒
  *@return exit code 进程退出码
  */
 
@@ -663,7 +664,7 @@ ZEND_FUNCTION(wing_get_last_error){
  *@param string qr image local file path 二维码图片本地路径
  *@return string return qr image decode string 返回解码后的字符串
  */
-ZEND_FUNCTION(wing_qrdecode){
+/*ZEND_FUNCTION(wing_qrdecode){
 	zval *file_path;
 	zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"z",&file_path);
 	convert_to_string(file_path);
@@ -672,7 +673,7 @@ ZEND_FUNCTION(wing_qrdecode){
 		return;
 	}
 	RETURN_STRING(qrdecode(Z_STRVAL_P(file_path)),1);
-}
+}*/
 /**
  *@author yuyi
  *@created 2016-05-14
@@ -682,7 +683,7 @@ ZEND_FUNCTION(wing_qrdecode){
  *@param string qr image save as file,default null,do nothing 二维码保存图片，默认为null，即不保存图片
  *@return string  return base64 image string if success 如果成功 返回base64编码后的图片字符串
  */
-ZEND_FUNCTION(wing_qrencode){
+/*ZEND_FUNCTION(wing_qrencode){
 	zval *str;
 	zval *width;
 	zval *save_path;
@@ -710,7 +711,7 @@ ZEND_FUNCTION(wing_qrencode){
 	if(return_value_used)
 	RETURN_STRING(base64_encode_image_str,1);
 }
-
+*/
 
 /****
  *@毫秒级别定时器
@@ -789,7 +790,7 @@ ZEND_FUNCTION(wing_timer){
 	MSG msg;
 	BOOL bRet;
 	zval *retval_ptr;
-	DWORD times=0;//param->times;
+	int times=0;//param->times;
 	while( (bRet = GetMessage( &msg, NULL, 0, 0 )) != 0)
 	{ 
 		if (bRet == -1)
@@ -912,8 +913,8 @@ PHP_MINFO_FUNCTION(wing)
  */
 const zend_function_entry wing_functions[] = {
 	PHP_FE(wing_version,NULL)
-	PHP_FE(wing_qrdecode,NULL)
-	PHP_FE(wing_qrencode,NULL)
+	//PHP_FE(wing_qrdecode,NULL)
+	//PHP_FE(wing_qrencode,NULL)
 	//wing_create_thread
 	PHP_FE(wing_create_thread,NULL)
 	//wing_create_process
