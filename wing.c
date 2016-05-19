@@ -43,8 +43,9 @@
 #pragma comment(lib,"Psapi.lib")
 #pragma comment(lib,"Winmm.lib")
 
+#include "lib/library.h"
 //此部分函数来源于c++ cpp定义 不能直接include头文件 通过extern访问
-extern void get_command_path(const char *name,char *output);
+//extern void get_command_path(const char *name,char *output);
 //extern char* qrdecode(char* filename);
 //extern char* qrencode(char* str,int imageWidth,char* save_path);
 
@@ -425,7 +426,12 @@ ZEND_FUNCTION(wing_create_mutex){
 		return;
 	}
 
-	HANDLE m_hMutex = CreateMutex(NULL,TRUE,mutex_name);
+	/*SECURITY_ATTRIBUTES sa;
+	sa.nLength = sizeof(sa);
+	sa.lpSecurityDescriptor = NULL;
+	sa.bInheritHandle = TRUE;*/
+
+	HANDLE m_hMutex =  CreateMutex(NULL,TRUE,mutex_name);//CreateMutex(&sa,TRUE,mutex_name);
     DWORD dwRet = GetLastError();
     if (m_hMutex)
     {
@@ -824,6 +830,8 @@ ZEND_FUNCTION(wing_timer){
 	RETURN_LONG(times);	
 	return;
 }
+
+
 
 /* }}} */
 /* The previous line is mant for vim and emacs, so it can correctly fold and 

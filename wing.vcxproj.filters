@@ -18,7 +18,10 @@
     <ClCompile Include="wing.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lib\library.cpp">
+    <ClCompile Include="lib\library.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\socket.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -27,6 +30,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="lib\library.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\socket.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -173,11 +173,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="lib\library.cpp" />
+    <ClCompile Include="lib\library.c" />
+    <ClCompile Include="lib\socket.c" />
     <ClCompile Include="wing.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lib\library.h" />
+    <ClInclude Include="lib\socket.h" />
     <ClInclude Include="php_wing.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
