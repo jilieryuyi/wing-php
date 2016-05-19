@@ -732,9 +732,8 @@ ZEND_FUNCTION(wing_timer){
 	MAKE_STD_ZVAL(dwMilliseconds);
 
 	int max_run_times = 0;
-	int __index = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zz|ll",&dwMilliseconds, &callback,&max_run_times,&__index) ==FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zz|ll",&dwMilliseconds, &callback,&max_run_times) ==FAILURE) {
 		RETURN_LONG(-1);	
 		return;
 	}
@@ -786,7 +785,7 @@ ZEND_FUNCTION(wing_timer){
 		return;
 	}
 
-
+	/*
 	timer_thread_params *param	= new timer_thread_params();
 	param->dwMilliseconds		= (DWORD)Z_DVAL_P(dwMilliseconds);
 	param->thread_id			= GetCurrentThreadId();
@@ -828,7 +827,69 @@ ZEND_FUNCTION(wing_timer){
 	
 	free(param);
 	RETURN_LONG(times);	
-	return;
+	return;*/
+
+
+	HANDLE hTimer = NULL;
+    LARGE_INTEGER liDueTime;
+	zval *retval_ptr;
+	int times=0;
+
+    //设置相对时间为1秒 10000000。
+    liDueTime.QuadPart = -Z_DVAL_P(dwMilliseconds);
+    //创建定时器。
+    hTimer = CreateWaitableTimer(NULL, TRUE, "wing_waitable_timer");
+    if(!hTimer)
+    {       
+		RETURN_LONG(times);	
+		return;
+    }
+ 
+    if (!SetWaitableTimer(hTimer, &liDueTime, 0, NULL, NULL, 0))
+    {         
+               CloseHandle(hTimer);
+			   RETURN_LONG(times);	
+               return;
+    }
+ 
+    //等定时器有信号。
+	while(true)
+	{
+		if (WaitForSingleObject(hTimer, INFINITE) != WAIT_OBJECT_0)
+		{
+			CloseHandle(hTimer);
+			RETURN_LONG(times);	
+			return;
+		}
+		else
+		{
+			//时钟到达。
+            //SetWaitableTimer(hTimer, &liDueTime, 0, NULL, NULL, 0);//将hTimer信息重置为无信号，如果不然就会不断的输出
+
+			MAKE_STD_ZVAL(retval_ptr);
+			if(SUCCESS != call_user_function(EG(function_table),NULL,callback,retval_ptr,0,NULL TSRMLS_CC)){
+				RETURN_LONG(times);	
+				return;
+			}
+			times++;
+			
+			zval_ptr_dtor(&retval_ptr);
+
+			if(times>=max_run_times&&max_run_times>0)break;
+
+
+			 if (!SetWaitableTimer(hTimer, &liDueTime, 0, NULL, NULL, 0))
+			 {         
+               CloseHandle(hTimer);
+			   RETURN_LONG(times);	
+               return;
+			 }
+
+		}  
+	}
+	SetWaitableTimer(hTimer, &liDueTime, 0, NULL, NULL, 0);
+    CloseHandle(hTimer);
+	RETURN_LONG(times);	
 }
 
 
