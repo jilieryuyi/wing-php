@@ -927,6 +927,8 @@ PHP_MINIT_FUNCTION(wing)
 	zend_register_double_constant("WING_WAIT_TIMEOUT", sizeof("WING_WAIT_TIMEOUT"), WAIT_TIMEOUT,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	//INFINITE
 	zend_register_double_constant("WING_INFINITE", sizeof("WING_INFINITE"), INFINITE,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	//WAIT_OBJECT_0
+	zend_register_double_constant("WING_WAIT_OBJECT_0", sizeof("WING_WAIT_OBJECT_0"), WAIT_OBJECT_0,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	return SUCCESS;
 }
 /* }}} */
