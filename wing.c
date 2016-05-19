@@ -837,8 +837,10 @@ ZEND_FUNCTION(wing_timer){
 
     //设置相对时间为1秒 10000000。
     liDueTime.QuadPart = -Z_DVAL_P(dwMilliseconds);
+	char *timername;
+	spprintf(&timername,0,"wing_waitable_timer-%s",create_guid());
     //创建定时器。
-    hTimer = CreateWaitableTimer(NULL, TRUE, "wing_waitable_timer");
+    hTimer = CreateWaitableTimerA(NULL, TRUE, timername);
     if(!hTimer)
     {       
 		RETURN_LONG(times);	
