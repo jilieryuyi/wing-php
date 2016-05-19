@@ -840,7 +840,7 @@ ZEND_FUNCTION(wing_timer){
 	char *timername;
 	spprintf(&timername,0,"wing_waitable_timer-%s",create_guid());
     //创建定时器。
-    hTimer = CreateWaitableTimerA(NULL, TRUE, timername);
+    hTimer = CreateWaitableTimer(NULL, TRUE, timername);
     if(!hTimer)
     {       
 		RETURN_LONG(times);	
