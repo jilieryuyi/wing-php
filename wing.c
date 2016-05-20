@@ -740,14 +740,14 @@ ZEND_FUNCTION(wing_timer){
     hTimer = CreateWaitableTimer(NULL, TRUE, timername);
     if(!hTimer)
     {       
-		RETURN_LONG(times);	
+		RETURN_LONG(0);	
 		return;
     }
  
     if (!SetWaitableTimer(hTimer, &liDueTime, 0, NULL, NULL, 0))
     {         
                CloseHandle(hTimer);
-			   RETURN_LONG(times);	
+			   RETURN_LONG(0);	
                return;
     }
  
@@ -757,7 +757,7 @@ ZEND_FUNCTION(wing_timer){
 		if (WaitForSingleObject(hTimer, INFINITE) != WAIT_OBJECT_0)
 		{
 			CloseHandle(hTimer);
-			RETURN_LONG(times);	
+			RETURN_LONG(0);	
 			return;
 		}
 		else
@@ -767,20 +767,23 @@ ZEND_FUNCTION(wing_timer){
 
 			MAKE_STD_ZVAL(retval_ptr);
 			if(SUCCESS != call_user_function(EG(function_table),NULL,callback,retval_ptr,0,NULL TSRMLS_CC)){
-				RETURN_LONG(times);	
+				RETURN_LONG(0);	
 				return;
 			}
-			times++;
+			//times++;
 			
 			zval_ptr_dtor(&retval_ptr);
 
-			if(times>=max_run_times&&max_run_times>0)break;
+			if(max_run_times>0){
+				times++;
+				if(times>=max_run_times)break;
+			}
 
 
 			 if (!SetWaitableTimer(hTimer, &liDueTime, 0, NULL, NULL, 0))
 			 {         
                CloseHandle(hTimer);
-			   RETURN_LONG(times);	
+			   RETURN_LONG(0);	
                return;
 			 }
 
@@ -788,7 +791,7 @@ ZEND_FUNCTION(wing_timer){
 	}
 	SetWaitableTimer(hTimer, &liDueTime, 0, NULL, NULL, 0);
     CloseHandle(hTimer);
-	RETURN_LONG(times);	
+	RETURN_LONG(1);	
 }
 
 
