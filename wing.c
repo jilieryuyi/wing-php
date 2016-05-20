@@ -640,64 +640,6 @@ ZEND_FUNCTION(wing_get_last_error){
 
 
 
-
-
-/**
- *@author yuyi
- *@created 2016-05-14
- *@qr image decode 二维码解析
- *@param string qr image local file path 二维码图片本地路径
- *@return string return qr image decode string 返回解码后的字符串
- */
-/*ZEND_FUNCTION(wing_qrdecode){
-	zval *file_path;
-	zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"z",&file_path);
-	convert_to_string(file_path);
-	if(!PathFileExists(Z_STRVAL_P(file_path))){
-		RETURN_BOOL(0);
-		return;
-	}
-	RETURN_STRING(qrdecode(Z_STRVAL_P(file_path)),1);
-}*/
-/**
- *@author yuyi
- *@created 2016-05-14
- *@create qrcode 创建二维码
- *@param string source string 要转换为二维码的字符串
- *@param int qr image width px 二维码大小（像素）
- *@param string qr image save as file,default null,do nothing 二维码保存图片，默认为null，即不保存图片
- *@return string  return base64 image string if success 如果成功 返回base64编码后的图片字符串
- */
-/*ZEND_FUNCTION(wing_qrencode){
-	zval *str;
-	zval *width;
-	zval *save_path;
-	MAKE_STD_ZVAL(save_path);
-
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"zz|z",&str,&width,&save_path)!=SUCCESS){
-		RETURN_BOOL(0);
-		return;
-	}
-	convert_to_string(str);
-	convert_to_long(width);
-	convert_to_string(save_path);
-	
-	if(strlen(Z_STRVAL_P(str))==0){
-		RETURN_BOOL(0);
-		return;
-	}
-	
-	int _width = Z_LVAL_P(width);
-	if(_width<=0){
-		_width=120;
-	}
-
-	char *base64_encode_image_str = qrencode(Z_STRVAL_P(str),_width,Z_STRVAL_P(save_path));
-	if(return_value_used)
-	RETURN_STRING(base64_encode_image_str,1);
-}
-*/
-
 /****
  *@毫秒级别定时器
  *@author yuyi
