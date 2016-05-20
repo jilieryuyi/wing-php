@@ -63,5 +63,5 @@ const char* create_guid()
 	   );  
 	 }  
 	 CoUninitialize();  
- return (const char*)buf;  
+	 return (const char*)buf;  
 }  

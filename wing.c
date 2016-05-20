@@ -113,7 +113,7 @@ DWORD create_process(char *command,char *params_ex,int params_ex_len){
 		return pi.dwProcessId;	
 }
 
-void command_params_check(char *command_params,int *run_process){
+void command_params_check(char *command_params,int *run_process,int *last_value){
 	TSRMLS_FETCH();
 	zval **argv;
 	int argc;
@@ -136,6 +136,10 @@ void command_params_check(char *command_params,int *run_process){
 			zend_hash_get_current_key_ex(arr_hash, &key, (uint*)&key_len, (ulong*)&index, 0, &pointer);
 			if(index>0)
 				spprintf(&command_params,0,"%s \"%s\" ",command_params,(char*)Z_LVAL_PP(data));
+
+			if(index == argc-1&&last_value != NULL){
+				 *last_value= atoi((char*)Z_LVAL_PP(data));
+			}
 		} 
 	}
 }
@@ -236,37 +240,12 @@ PHP_FUNCTION(wing_create_thread){
 		return;
 	}
 
-	zval **argv;
-	int argc;
 	char *command_params="";
-	HashTable *arr_hash;
 	int run_process = 0;
 	int command_index = 0;
 	int last_value=0;
-	 //获取命令行参数
-	if (zend_hash_find(&EG(symbol_table),"argv",sizeof("argv"),(void**)&argv) == SUCCESS){
-		zval  **data;
-		HashPosition pointer;
-		arr_hash	= Z_ARRVAL_PP(argv);
-		argc		= zend_hash_num_elements(arr_hash);
-		for(zend_hash_internal_pointer_reset_ex(arr_hash, &pointer); zend_hash_get_current_data_ex(arr_hash, (void**) &data, &pointer) == SUCCESS; zend_hash_move_forward_ex(arr_hash, &pointer)) {
-			if(strcmp((char*)Z_LVAL_PP(data),"wing-process")==0){
-				run_process=1;
-			}
 
-			char *key;
-			int key_len,index;
-			zend_hash_get_current_key_ex(arr_hash, &key, (uint*)&key_len, (ulong*)&index, 0, &pointer);
-
-			if(index>0){
-				spprintf(&command_params,0,"%s \"%s\" ",command_params,(char*)Z_LVAL_PP(data));
-			}
-
-			if(index == argc-1){
-				 last_value= atoi((char*)Z_LVAL_PP(data));
-			}
-		} 
-	}
+	command_params_check(command_params,&run_process,&last_value);
 
 	char	*command;
 	char   _php[MAX_PATH];   
@@ -738,37 +717,13 @@ ZEND_FUNCTION(wing_timer){
 		return;
 	}
 	convert_to_double(dwMilliseconds);
-	zval **argv;
-	int argc;
-	char *command_params="";
-	HashTable *arr_hash;
-	int run_process = 0;
-	int command_index = 0;
-	int last_value=0;
-	 //获取命令行参数
-	if (zend_hash_find(&EG(symbol_table),"argv",sizeof("argv"),(void**)&argv) == SUCCESS){
-		zval  **data;
-		HashPosition pointer;
-		arr_hash	= Z_ARRVAL_PP(argv);
-		argc		= zend_hash_num_elements(arr_hash);
-		for(zend_hash_internal_pointer_reset_ex(arr_hash, &pointer); zend_hash_get_current_data_ex(arr_hash, (void**) &data, &pointer) == SUCCESS; zend_hash_move_forward_ex(arr_hash, &pointer)) {
-			if(strcmp((char*)Z_LVAL_PP(data),"wing-process")==0){
-				run_process=1;
-			}
 
-			char *key;
-			int key_len,index;
-			zend_hash_get_current_key_ex(arr_hash, &key, (uint*)&key_len, (ulong*)&index, 0, &pointer);
-
-			if(index>0){
-				spprintf(&command_params,0,"%s \"%s\" ",command_params,(char*)Z_LVAL_PP(data));
-			}
-
-			if(index == argc-1){
-				 last_value= atoi((char*)Z_LVAL_PP(data));
-			}
-		} 
-	}
+	char *command_params	= "";
+	int run_process			= 0;
+	int command_index		= 0;
+	int last_value			= 0;
+	
+	command_params_check(command_params,&run_process,&last_value);
 
 	char	*command;
 	char   _php[MAX_PATH];   
@@ -836,7 +791,7 @@ ZEND_FUNCTION(wing_timer){
 	int times=0;
 
     //设置相对时间为1秒 10000000。
-    liDueTime.QuadPart = -Z_DVAL_P(dwMilliseconds);
+	liDueTime.QuadPart = -(LONGLONG)Z_DVAL_P(dwMilliseconds);
 	char *timername;
 	spprintf(&timername,0,"wing_waitable_timer-%s",create_guid());
     //创建定时器。
