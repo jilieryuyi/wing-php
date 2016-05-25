@@ -327,7 +327,7 @@ PHP_FUNCTION(wing_create_process_ex){
 	char *params_ex="";
 	int params_ex_len=0;
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s", &params,&params_len,&params_ex,&params_ex_len) ==FAILURE) {
-		RETURN_BOOL(0);
+		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
 
@@ -353,7 +353,7 @@ PHP_FUNCTION(wing_create_process){
 	char *params_ex="";
 	int params_ex_len=0;
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|ss", &exe,&exe_len,&params,&params_len,&params_ex,&params_ex_len) ==FAILURE) {
-		RETURN_BOOL(0);
+		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
 	char				*command;
