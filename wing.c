@@ -399,12 +399,12 @@ ZEND_FUNCTION(wing_create_mutex){
 	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&mutex_name,&mutex_name_len)==FAILURE){
 		//zend_error(E_COMPILE_WARNING,"get params error");
 		//RETURN_BOOL(0);
-		RETURN_DOUBLE(WING_ERROR_PARAMETER_ERROR);
+		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
 	if(mutex_name_len<=0){
 		//zend_error(E_COMPILE_WARNING,"mutex name must not empty string");
-		RETURN_DOUBLE(WING_ERROR_PARAMETER_ERROR);
+		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
 
@@ -421,17 +421,17 @@ ZEND_FUNCTION(wing_create_mutex){
         {
             //printf("程序已经在运行中了,程序退出!\n");
             CloseHandle(m_hMutex);
-			RETURN_DOUBLE(ERROR_ALREADY_EXISTS);
+			RETURN_LONG(ERROR_ALREADY_EXISTS);
             return;
 		}else{
-			RETURN_DOUBLE((double)(long)m_hMutex);
+			RETURN_LONG((long)m_hMutex);
 		}
     }
    
     // printf("创建互斥量错误,程序退出!\n");
     CloseHandle(m_hMutex);
 	//zend_error(E_COMPILE_ERROR,"mutex create error");
-	RETURN_DOUBLE(WING_ERROR_FAILURE);
+	RETURN_LONG(WING_ERROR_FAILURE);
 }
 /**
  *@关闭互斥量
@@ -829,15 +829,15 @@ PHP_MINIT_FUNCTION(wing)
 	//REGISTER_STRING_CONSTANT("WING_VERSION",PHP_WING_VERSION,CONST_CS | CONST_PERSISTENT);
 	zend_register_string_constant("WING_VERSION", sizeof("WING_VERSION"), PHP_WING_VERSION,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	//WAIT_TIMEOUT
-	zend_register_double_constant("WING_WAIT_TIMEOUT", sizeof("WING_WAIT_TIMEOUT"), WAIT_TIMEOUT,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant("WING_WAIT_TIMEOUT", sizeof("WING_WAIT_TIMEOUT"), WAIT_TIMEOUT,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	//INFINITE
-	zend_register_double_constant("WING_INFINITE", sizeof("WING_INFINITE"), INFINITE,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant("WING_INFINITE", sizeof("WING_INFINITE"), INFINITE,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	//WAIT_OBJECT_0
-	zend_register_double_constant("WING_WAIT_OBJECT_0", sizeof("WING_WAIT_OBJECT_0"), WAIT_OBJECT_0,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant("WING_WAIT_OBJECT_0", sizeof("WING_WAIT_OBJECT_0"), WAIT_OBJECT_0,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 
-	zend_register_double_constant("WING_ERROR_ALREADY_EXISTS",sizeof("WING_ERROR_ALREADY_EXISTS"),ERROR_ALREADY_EXISTS,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
-	zend_register_double_constant("WING_ERROR_PARAMETER_ERROR",sizeof("WING_ERROR_PARAMETER_ERROR"),WING_ERROR_PARAMETER_ERROR,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
-	zend_register_double_constant("WING_ERROR_FAILURE",sizeof("WING_ERROR_FAILURE"),WING_ERROR_FAILURE,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant("WING_ERROR_ALREADY_EXISTS",sizeof("WING_ERROR_ALREADY_EXISTS"),ERROR_ALREADY_EXISTS,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant("WING_ERROR_PARAMETER_ERROR",sizeof("WING_ERROR_PARAMETER_ERROR"),WING_ERROR_PARAMETER_ERROR,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant("WING_ERROR_FAILURE",sizeof("WING_ERROR_FAILURE"),WING_ERROR_FAILURE,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	return SUCCESS;
 }
 /* }}} */
