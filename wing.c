@@ -464,7 +464,7 @@ ZEND_FUNCTION(wing_close_mutex){
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
-	RETURN_LONG(CloseHandle((HANDLE)mutex_handle));
+	RETURN_LONG(CloseHandle((HANDLE)mutex_handle)?WING_SUCCESS:WING_ERROR_FAILED);
 }
 /**
  *@检测进程是否存活--实际意义不大，因为进程id重用的特性 进程退出后 同样的进程id可能立刻被重用
