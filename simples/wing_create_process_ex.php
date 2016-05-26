@@ -8,4 +8,10 @@
 $process_id = wing_create_process_ex(__DIR__."/wing_create_process_runner.php",
     "hello"//send hello to child process
 );
+
+if($process_id == WING_ERROR_PARAMETER_ERROR){
+    echo "create process fail";
+    exit;
+}
+
 echo "exit with ",wing_process_wait($process_id),"\n";

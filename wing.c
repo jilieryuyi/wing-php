@@ -83,7 +83,7 @@ DWORD create_process(char *command,char *params_ex,int params_ex_len){
 		sa.nLength				= sizeof(SECURITY_ATTRIBUTES);
 		if (!CreatePipe(&m_hRead, &m_hWrite, &sa, 0))
 		{
-			return -1;
+			return WING_ERROR_FAILURE;
 		}
 
    
@@ -107,7 +107,7 @@ DWORD create_process(char *command,char *params_ex,int params_ex_len){
 		{
 			CloseHandle(m_hRead);
 			CloseHandle(m_hWrite);
-			return -1;
+			return WING_ERROR_FAILURE;
 		}
 		
 		CloseHandle(pi.hProcess); // 子进程的进程句柄
@@ -205,7 +205,7 @@ PHP_FUNCTION(wing_process_wait){
 	
 	int thread_id,timeout=INFINITE;
 	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l|l",&thread_id,&timeout)==FAILURE){
-		RETURN_LONG(0);
+		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
 	HANDLE handle=OpenProcess(PROCESS_ALL_ACCESS, FALSE, thread_id);
@@ -239,7 +239,7 @@ PHP_FUNCTION(wing_create_thread){
 	MAKE_STD_ZVAL(callback);
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &callback) ==FAILURE) {
-		RETURN_LONG(-1);	
+		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
 
@@ -322,10 +322,10 @@ ZEND_FUNCTION(wing_get_process_params){
  *@param command params 命令行参数
  */
 PHP_FUNCTION(wing_create_process_ex){
-	char *params = "";
+	char *params	= "";
 	int	params_len	= 0;
-	char *params_ex="";
-	int params_ex_len=0;
+	char *params_ex	= "";
+	int params_ex_len = 0;
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s", &params,&params_len,&params_ex,&params_ex_len) ==FAILURE) {
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
@@ -333,7 +333,10 @@ PHP_FUNCTION(wing_create_process_ex){
 
 	TCHAR   _php[MAX_PATH];   
 	char				*command;
-	GetModuleFileName(NULL,_php,MAX_PATH);
+	if(GetModuleFileNameA(NULL,_php,MAX_PATH) == 0){
+		RETURN_LONG(WING_ERROR_FAILURE);
+		return;
+	}
 	spprintf(&command, 0, "%s %s\0",_php,params);
 
 	RETURN_LONG(create_process(command,params_ex,params_ex_len));	
@@ -368,7 +371,7 @@ ZEND_FUNCTION(wing_process_kill)
 {
 	long process_id;
 	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l",&process_id)==FAILURE){
-		RETURN_BOOL(0);
+		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
     HANDLE hProcess=OpenProcess(PROCESS_TERMINATE,FALSE,process_id);
@@ -439,11 +442,11 @@ ZEND_FUNCTION(wing_create_mutex){
 ZEND_FUNCTION(wing_close_mutex){
 	long mutex_handle;
 	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l",&mutex_handle)==FAILURE){
-		RETURN_BOOL(0);
+		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
 	if(mutex_handle<=0){
-		RETURN_LONG(0);
+		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
 	RETURN_LONG(CloseHandle((HANDLE)mutex_handle));
@@ -455,7 +458,7 @@ ZEND_FUNCTION(wing_process_isalive)
 {
 	long process_id;
 	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l",&process_id)==FAILURE){
-		RETURN_BOOL(0);
+		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
     HANDLE hProcess=OpenProcess(PROCESS_TERMINATE,FALSE,process_id);
@@ -474,7 +477,7 @@ ZEND_FUNCTION(wing_get_env){
 	//zval *temp;
 	int name_len;
 	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&name,&name_len)==FAILURE){
-		RETURN_BOOL(0);
+		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
 	int len = GetEnvironmentVariable(name,NULL,0)+1;
@@ -493,7 +496,7 @@ ZEND_FUNCTION(wing_set_env){
 	int name_len;
 	MAKE_STD_ZVAL(value);
 	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s|z",&name,&name_len,&value)==FAILURE){
-		RETURN_BOOL(0);
+		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
 	convert_to_cstring(value);
@@ -506,7 +509,7 @@ ZEND_FUNCTION(wing_get_command_path){
 	char *name;
 	int name_len;
 	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&name,&name_len)==FAILURE){
-		RETURN_BOOL(0);
+		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
 	char path[MAX_PATH];
@@ -522,7 +525,7 @@ ZEND_FUNCTION(wing_send_msg){
 	zval *message;
 
 	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"zzz",&console_title,&message_id,&message)==FAILURE){
-		RETURN_BOOL(0);
+		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
 	convert_to_cstring(console_title);
@@ -566,7 +569,7 @@ ZEND_FUNCTION(wing_create_window){
 	zval *console_title;
 
 	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"z",&console_title)==FAILURE){
-		RETURN_BOOL(0);
+		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
 	convert_to_cstring(console_title);
@@ -605,7 +608,7 @@ ZEND_FUNCTION(wing_create_window){
 ZEND_FUNCTION(wing_destory_window){
 	long hwnd;
 	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l",&hwnd)==FAILURE){
-		RETURN_BOOL(0);
+		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
 	RETURN_BOOL(DestroyWindow((HWND)hwnd));
@@ -629,7 +632,7 @@ ZEND_FUNCTION(wing_message_box){
 	int c_len,t_len;
 	char *title;
 	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"ss",&content,&c_len,&title,&t_len)==FAILURE){
-		RETURN_BOOL(0);
+		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
 	MessageBox(0,content,title,0);
@@ -658,7 +661,7 @@ ZEND_FUNCTION(wing_timer){
 	int max_run_times = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zz|ll",&dwMilliseconds, &callback,&max_run_times) ==FAILURE) {
-		RETURN_LONG(-1);	
+		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
 	convert_to_double(dwMilliseconds);
