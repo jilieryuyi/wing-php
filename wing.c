@@ -71,12 +71,19 @@ static int wing_timer_count = 0;
 static int wing_thread_count =0;
 
 
+#define WING_SUCCESS				 1
 #define WING_CALLBACK_SUCCESS		 0
 #define WING_ERROR_PARAMETER_ERROR	-1
 #define WING_ERROR_FAILED			-2
 #define WING_NOTICE_IGNORE			-3
 #define WING_ERROR_CALLBACK_FAILED  -4
+#define WING_ERROR_PROCESS_NOT_EXISTS -5
+#define WING_ERROR_WINDOW_NOT_FOUND -6
 
+
+/**
+ *@创建进程
+ */
 DWORD create_process(char *command,char *params_ex,int params_ex_len){
 	    HANDLE				m_hRead;
 		HANDLE				m_hWrite;
@@ -383,14 +390,14 @@ ZEND_FUNCTION(wing_process_kill)
 	}
     HANDLE hProcess=OpenProcess(PROCESS_TERMINATE,FALSE,process_id);
     if(hProcess==NULL){
-		RETURN_BOOL(0);
+		RETURN_LONG(WING_ERROR_PROCESS_NOT_EXISTS);
         return;
 	}
     if(!TerminateProcess(hProcess,0)){
-		RETURN_BOOL(0);
+		RETURN_LONG(WING_ERROR_FAILED);
         return;
 	}
-    RETURN_BOOL(1);
+    RETURN_LONG(WING_SUCCESS);
 }
 
 /**
@@ -470,14 +477,15 @@ ZEND_FUNCTION(wing_process_isalive)
 	}
     HANDLE hProcess=OpenProcess(PROCESS_TERMINATE,FALSE,process_id);
     if(hProcess==NULL){
-		RETURN_BOOL(0);
+		RETURN_LONG(WING_ERROR_PROCESS_NOT_EXISTS);
         return;
 	}
-    RETURN_BOOL(1);
+	RETURN_LONG(WING_SUCCESS);
 }
 
 /**
  *@获取环境变量
+ *@--test ok
  */
 ZEND_FUNCTION(wing_get_env){
 	char *name;
@@ -523,7 +531,7 @@ ZEND_FUNCTION(wing_get_command_path){
 	char *name;
 	int name_len;
 	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&name,&name_len) != SUCCESS){
-		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
+		RETURN_NULL();
 		return;
 	}
 	char path[MAX_PATH];
@@ -548,7 +556,7 @@ ZEND_FUNCTION(wing_send_msg){
 
 	HWND hwnd=FindWindow (Z_STRVAL_P(console_title),NULL);
 	if(hwnd==NULL){
-		RETURN_BOOL(0);
+		RETURN_LONG(WING_ERROR_WINDOW_NOT_FOUND);
 		return;
 	}
 	//WM_USER
@@ -557,7 +565,8 @@ ZEND_FUNCTION(wing_send_msg){
 	CopyData.cbData	= Z_STRLEN_P(message);  
 	CopyData.lpData = Z_STRVAL_P(message);  //WM_COPYDATA
 	SendMessageA(hwnd,WM_COPYDATA,NULL,(LPARAM)&CopyData);
-	RETURN_BOOL(GetLastError()==0);
+	long status = GetLastError()==0 ? WING_SUCCESS:WING_ERROR_FAILED;
+	RETURN_LONG(status);
 }
 
 
@@ -625,7 +634,8 @@ ZEND_FUNCTION(wing_destory_window){
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
-	RETURN_BOOL(DestroyWindow((HWND)hwnd));
+	long  status = DestroyWindow((HWND)hwnd)?WING_SUCCESS:WING_ERROR_FAILED;
+	RETURN_BOOL(status);
 }
 /**
  *@启用消息循环 创建窗口必用 阻塞
@@ -650,6 +660,7 @@ ZEND_FUNCTION(wing_message_box){
 		return;
 	}
 	MessageBox(0,content,title,0);
+	RETURN_NULL();
 }
 /**
  *@获取最后发生的错误
@@ -698,7 +709,7 @@ ZEND_FUNCTION(wing_timer){
 	}
 
 	if(wing_timer_count!=last_value){
-		RETURN_LONG(-1);
+		RETURN_LONG(WING_NOTICE_IGNORE);
 		return;
 	}
 
@@ -760,14 +771,14 @@ ZEND_FUNCTION(wing_timer){
     hTimer = CreateWaitableTimer(NULL, TRUE, timername);
     if(!hTimer)
     {       
-		RETURN_LONG(0);	
+		RETURN_LONG(WING_ERROR_FAILED);	
 		return;
     }
  
     if (!SetWaitableTimer(hTimer, &liDueTime, 0, NULL, NULL, 0))
     {         
                CloseHandle(hTimer);
-			   RETURN_LONG(0);	
+			   RETURN_LONG(WING_ERROR_FAILED);	
                return;
     }
  
@@ -777,7 +788,7 @@ ZEND_FUNCTION(wing_timer){
 		if (WaitForSingleObject(hTimer, INFINITE) != WAIT_OBJECT_0)
 		{
 			CloseHandle(hTimer);
-			RETURN_LONG(0);	
+			RETURN_LONG(WING_ERROR_FAILED);	
 			return;
 		}
 		else
@@ -787,7 +798,7 @@ ZEND_FUNCTION(wing_timer){
 
 			MAKE_STD_ZVAL(retval_ptr);
 			if(SUCCESS != call_user_function(EG(function_table),NULL,callback,retval_ptr,0,NULL TSRMLS_CC)){
-				RETURN_LONG(0);	
+				RETURN_LONG(WING_ERROR_FAILED);	
 				return;
 			}
 			//times++;
@@ -803,7 +814,7 @@ ZEND_FUNCTION(wing_timer){
 			 if (!SetWaitableTimer(hTimer, &liDueTime, 0, NULL, NULL, 0))
 			 {         
                CloseHandle(hTimer);
-			   RETURN_LONG(0);	
+			   RETURN_LONG(WING_ERROR_FAILED);	
                return;
 			 }
 
@@ -811,7 +822,7 @@ ZEND_FUNCTION(wing_timer){
 	}
 	SetWaitableTimer(hTimer, &liDueTime, 0, NULL, NULL, 0);
     CloseHandle(hTimer);
-	RETURN_LONG(1);	
+	RETURN_LONG(WING_SUCCESS);	
 }
 
 
@@ -870,8 +881,10 @@ PHP_MINIT_FUNCTION(wing)
 	zend_register_long_constant("WING_ERROR_FAILED",sizeof("WING_ERROR_FAILED"),WING_ERROR_FAILED,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	zend_register_long_constant("WING_ERROR_CALLBACK_FAILED",sizeof("WING_ERROR_CALLBACK_FAILED"),WING_ERROR_CALLBACK_FAILED,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	zend_register_long_constant("WING_CALLBACK_SUCCESS",sizeof("WING_CALLBACK_SUCCESS"),WING_CALLBACK_SUCCESS,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
-	
-		return SUCCESS;
+	zend_register_long_constant("WING_ERROR_PROCESS_NOT_EXISTS",sizeof("WING_ERROR_PROCESS_NOT_EXISTS"),WING_ERROR_PROCESS_NOT_EXISTS,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant("WING_SUCCESS",sizeof("WING_SUCCESS"),WING_SUCCESS,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);	
+
+	return SUCCESS;
 }
 /* }}} */
 
