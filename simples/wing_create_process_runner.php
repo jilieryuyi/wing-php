@@ -13,3 +13,5 @@ file_put_contents(__DIR__."/wing_create_process.log",
     wing_get_current_process_id()."\r\n=>".
     wing_get_process_params()."\r\n".
     wing_get_env("email"));
+
+exit(999);

@@ -64,6 +64,7 @@ ZEND_DECLARE_MODULE_GLOBALS(wing)
 
 /* True global resources - no need for thread safety here */
 static int le_wing;
+TCHAR  *PHP_PATH;
 
 #define WING_CALLBACK_SUCCESS		 0
 #define WING_ERROR_PARAMETER_ERROR	-1
@@ -251,9 +252,9 @@ PHP_FUNCTION(wing_create_thread){
 	command_params_check(command_params,&run_process,&last_value);
 
 	char	*command;
-	char   _php[MAX_PATH];   
-	GetModuleFileName(NULL,_php,MAX_PATH);
-	spprintf(&command, 0, "%s %s %s wing-process %ld",_php, zend_get_executed_filename(TSRMLS_C),command_params,wing_thread_count);
+
+	
+	spprintf(&command, 0, "%s %s %s wing-process %ld",PHP_PATH, zend_get_executed_filename(TSRMLS_C),command_params,wing_thread_count);
 
 	if(!run_process){
 		RETURN_LONG(create_process(command,NULL,0));	
@@ -331,13 +332,10 @@ PHP_FUNCTION(wing_create_process_ex){
 		return;
 	}
 
-	TCHAR   _php[MAX_PATH];   
+	
 	char				*command;
-	if(GetModuleFileNameA(NULL,_php,MAX_PATH) == 0){
-		RETURN_LONG(WING_ERROR_FAILED);
-		return;
-	}
-	spprintf(&command, 0, "%s %s\0",_php,params);
+	
+	spprintf(&command, 0, "%s %s\0",PHP_PATH,params);
 
 	RETURN_LONG(create_process(command,params_ex,params_ex_len));	
 }
@@ -674,9 +672,9 @@ ZEND_FUNCTION(wing_timer){
 	command_params_check(command_params,&run_process,&last_value);
 
 	char	*command;
-	char   _php[MAX_PATH];   
-	GetModuleFileName(NULL,_php,MAX_PATH);
-	spprintf(&command, 0, "%s %s %s wing-process %ld",_php, zend_get_executed_filename(TSRMLS_C),command_params,wing_timer_count);
+	 
+	
+	spprintf(&command, 0, "%s %s %s wing-process %ld",PHP_PATH, zend_get_executed_filename(TSRMLS_C),command_params,wing_timer_count);
 
 	if(!run_process){
 		RETURN_LONG(create_process(command,NULL,0));	
@@ -820,7 +818,7 @@ static void php_wing_init_globals(zend_wing_globals *wing_globals)
 }
 */
 /* }}} */
-
+//=new CHAR[MAX_PATH]; 
 /* {{{ PHP_MINIT_FUNCTION
  */
 PHP_MINIT_FUNCTION(wing)
@@ -831,6 +829,13 @@ PHP_MINIT_FUNCTION(wing)
 	//注册常量或者类等初始化操作
 	//REGISTER_STRING_CONSTANT("WING_VERSION",PHP_WING_VERSION,CONST_CS | CONST_PERSISTENT);
 	zend_register_string_constant("WING_VERSION", sizeof("WING_VERSION"), PHP_WING_VERSION,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	
+	PHP_PATH = new CHAR[MAX_PATH];   //(TCHAR *)emalloc(sizeof(TCHAR)*MAX_PATH);//
+	if(GetModuleFileName(NULL,PHP_PATH,MAX_PATH) != 0){
+		zend_register_string_constant("WING_PHP", sizeof("WING_PHP"), PHP_PATH,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	}
+
+
 	
 	//WAIT_TIMEOUT
 	zend_register_long_constant("WING_WAIT_TIMEOUT", sizeof("WING_WAIT_TIMEOUT"), WAIT_TIMEOUT,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
@@ -861,7 +866,8 @@ PHP_MSHUTDOWN_FUNCTION(wing)
 	/* uncomment this line if you have INI entries
 	UNREGISTER_INI_ENTRIES();
 	*/
-
+	//free(PHP_PATH);
+	free(PHP_PATH);
 	return SUCCESS;
 }
 /* }}} */
