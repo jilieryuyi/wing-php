@@ -65,8 +65,11 @@ ZEND_DECLARE_MODULE_GLOBALS(wing)
 /* True global resources - no need for thread safety here */
 static int le_wing;
 
-#define WING_ERROR_PARAMETER_ERROR -1
-#define WING_ERROR_FAILURE -2
+#define WING_CALLBACK_SUCCESS		 0
+#define WING_ERROR_PARAMETER_ERROR	-1
+#define WING_ERROR_FAILED			-2
+#define WING_NOTICE_IGNORE			-3
+#define WING_ERROR_CALLBACK_FAILED -4
 
 DWORD create_process(char *command,char *params_ex,int params_ex_len){
 	    HANDLE				m_hRead;
@@ -83,7 +86,7 @@ DWORD create_process(char *command,char *params_ex,int params_ex_len){
 		sa.nLength				= sizeof(SECURITY_ATTRIBUTES);
 		if (!CreatePipe(&m_hRead, &m_hWrite, &sa, 0))
 		{
-			return WING_ERROR_FAILURE;
+			return WING_ERROR_FAILED;
 		}
 
    
@@ -107,7 +110,7 @@ DWORD create_process(char *command,char *params_ex,int params_ex_len){
 		{
 			CloseHandle(m_hRead);
 			CloseHandle(m_hWrite);
-			return WING_ERROR_FAILURE;
+			return WING_ERROR_FAILED;
 		}
 		
 		CloseHandle(pi.hProcess); // 子进程的进程句柄
@@ -204,7 +207,7 @@ PHP_FUNCTION(wing_version){
 PHP_FUNCTION(wing_process_wait){
 	
 	int thread_id,timeout=INFINITE;
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l|l",&thread_id,&timeout)==FAILURE){
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l|l",&thread_id,&timeout)!=SUCCESS){
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
@@ -214,17 +217,14 @@ PHP_FUNCTION(wing_process_wait){
 
 	DWORD wait_status= WaitForSingleObject(handle,timeout);
 	 
-	 if(wait_status==WAIT_FAILED){
-		RETURN_DOUBLE(WAIT_FAILED);
+	 if(wait_status != WAIT_OBJECT_0){
+		RETURN_LONG(wait_status);
 		return;
 	 }
 
-	 if(WAIT_TIMEOUT == wait_status){
-		RETURN_DOUBLE(WAIT_TIMEOUT);
-		return;
-	 }
+	 //WING_WAIT_OBJECT_0
 	 
-	 GetExitCodeProcess(handle,&wait_result);
+	 if(GetExitCodeProcess(handle,&wait_result) == 0) RETURN_LONG(WING_ERROR_FAILED);
 	 RETURN_LONG(wait_result);
 }
 
@@ -238,7 +238,7 @@ PHP_FUNCTION(wing_create_thread){
 	
 	MAKE_STD_ZVAL(callback);
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &callback) ==FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &callback) != SUCCESS) {
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
@@ -260,8 +260,8 @@ PHP_FUNCTION(wing_create_thread){
 		return;
 	}
 
-	if(wing_thread_count!=last_value){
-		RETURN_LONG(-1);
+	if(wing_thread_count != last_value){
+		RETURN_LONG(WING_NOTICE_IGNORE);
 		return;
 	}
 	
@@ -270,13 +270,13 @@ PHP_FUNCTION(wing_create_thread){
 			
 	MAKE_STD_ZVAL(retval_ptr);
 	if(SUCCESS != call_user_function(EG(function_table),NULL,callback,retval_ptr,0,NULL TSRMLS_CC)){
-		RETURN_LONG(0);
+		RETURN_LONG(WING_ERROR_CALLBACK_FAILED);
 		return;
 	}
 			
 	
 	
-	RETURN_LONG(1);
+	RETURN_LONG(WING_CALLBACK_SUCCESS);
 }
 /**
  *@get data from create process
@@ -326,7 +326,7 @@ PHP_FUNCTION(wing_create_process_ex){
 	int	params_len	= 0;
 	char *params_ex	= "";
 	int params_ex_len = 0;
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s", &params,&params_len,&params_ex,&params_ex_len) ==FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s", &params,&params_len,&params_ex,&params_ex_len) != SUCCESS) {
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
@@ -334,7 +334,7 @@ PHP_FUNCTION(wing_create_process_ex){
 	TCHAR   _php[MAX_PATH];   
 	char				*command;
 	if(GetModuleFileNameA(NULL,_php,MAX_PATH) == 0){
-		RETURN_LONG(WING_ERROR_FAILURE);
+		RETURN_LONG(WING_ERROR_FAILED);
 		return;
 	}
 	spprintf(&command, 0, "%s %s\0",_php,params);
@@ -355,7 +355,7 @@ PHP_FUNCTION(wing_create_process){
 	int					params_len=0;
 	char *params_ex="";
 	int params_ex_len=0;
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|ss", &exe,&exe_len,&params,&params_len,&params_ex,&params_ex_len) ==FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|ss", &exe,&exe_len,&params,&params_len,&params_ex,&params_ex_len) != SUCCESS) {
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
@@ -370,7 +370,7 @@ PHP_FUNCTION(wing_create_process){
 ZEND_FUNCTION(wing_process_kill)
 {
 	long process_id;
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l",&process_id)==FAILURE){
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l",&process_id) != SUCCESS){
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
@@ -399,7 +399,7 @@ ZEND_FUNCTION(wing_get_current_process_id){
 ZEND_FUNCTION(wing_create_mutex){
 	char *mutex_name;
 	int mutex_name_len;
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&mutex_name,&mutex_name_len)==FAILURE){
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&mutex_name,&mutex_name_len) != SUCCESS){
 		//zend_error(E_COMPILE_WARNING,"get params error");
 		//RETURN_BOOL(0);
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
@@ -434,14 +434,14 @@ ZEND_FUNCTION(wing_create_mutex){
     // printf("创建互斥量错误,程序退出!\n");
     CloseHandle(m_hMutex);
 	//zend_error(E_COMPILE_ERROR,"mutex create error");
-	RETURN_LONG(WING_ERROR_FAILURE);
+	RETURN_LONG(WING_ERROR_FAILED);
 }
 /**
  *@关闭互斥量
  */
 ZEND_FUNCTION(wing_close_mutex){
 	long mutex_handle;
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l",&mutex_handle)==FAILURE){
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l",&mutex_handle) != SUCCESS){
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
@@ -457,7 +457,7 @@ ZEND_FUNCTION(wing_close_mutex){
 ZEND_FUNCTION(wing_process_isalive)
 {
 	long process_id;
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l",&process_id)==FAILURE){
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l",&process_id) != SUCCESS){
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
@@ -476,7 +476,7 @@ ZEND_FUNCTION(wing_get_env){
 	char *name;
 	//zval *temp;
 	int name_len;
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&name,&name_len)==FAILURE){
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&name,&name_len) != SUCCESS){
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
@@ -495,7 +495,7 @@ ZEND_FUNCTION(wing_set_env){
 	zval *value;
 	int name_len;
 	MAKE_STD_ZVAL(value);
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s|z",&name,&name_len,&value)==FAILURE){
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s|z",&name,&name_len,&value) != SUCCESS){
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
@@ -508,7 +508,7 @@ ZEND_FUNCTION(wing_set_env){
 ZEND_FUNCTION(wing_get_command_path){ 
 	char *name;
 	int name_len;
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&name,&name_len)==FAILURE){
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&name,&name_len) != SUCCESS){
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
@@ -524,7 +524,7 @@ ZEND_FUNCTION(wing_send_msg){
 	zval *message_id;
 	zval *message;
 
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"zzz",&console_title,&message_id,&message)==FAILURE){
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"zzz",&console_title,&message_id,&message) != SUCCESS){
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
@@ -568,7 +568,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 ZEND_FUNCTION(wing_create_window){
 	zval *console_title;
 
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"z",&console_title)==FAILURE){
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"z",&console_title) != SUCCESS){
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
@@ -607,7 +607,7 @@ ZEND_FUNCTION(wing_create_window){
  */
 ZEND_FUNCTION(wing_destory_window){
 	long hwnd;
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l",&hwnd)==FAILURE){
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l",&hwnd) != SUCCESS){
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
@@ -631,7 +631,7 @@ ZEND_FUNCTION(wing_message_box){
 	char *content;
 	int c_len,t_len;
 	char *title;
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"ss",&content,&c_len,&title,&t_len)==FAILURE){
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"ss",&content,&c_len,&title,&t_len) != SUCCESS){
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
@@ -660,7 +660,7 @@ ZEND_FUNCTION(wing_timer){
 
 	int max_run_times = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zz|ll",&dwMilliseconds, &callback,&max_run_times) ==FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zz|ll",&dwMilliseconds, &callback,&max_run_times) != SUCCESS) {
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
@@ -831,17 +831,26 @@ PHP_MINIT_FUNCTION(wing)
 	//注册常量或者类等初始化操作
 	//REGISTER_STRING_CONSTANT("WING_VERSION",PHP_WING_VERSION,CONST_CS | CONST_PERSISTENT);
 	zend_register_string_constant("WING_VERSION", sizeof("WING_VERSION"), PHP_WING_VERSION,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	
 	//WAIT_TIMEOUT
 	zend_register_long_constant("WING_WAIT_TIMEOUT", sizeof("WING_WAIT_TIMEOUT"), WAIT_TIMEOUT,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	//WAIT_FAILED
+	zend_register_long_constant("WING_WAIT_FAILED", sizeof("WING_WAIT_FAILED"), WAIT_FAILED,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	//INFINITE
 	zend_register_long_constant("WING_INFINITE", sizeof("WING_INFINITE"), INFINITE,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	//WAIT_OBJECT_0
 	zend_register_long_constant("WING_WAIT_OBJECT_0", sizeof("WING_WAIT_OBJECT_0"), WAIT_OBJECT_0,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	//WAIT_ABANDONED
+	zend_register_long_constant("WING_WAIT_ABANDONED", sizeof("WING_WAIT_ABANDONED"), WAIT_ABANDONED,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+
 
 	zend_register_long_constant("WING_ERROR_ALREADY_EXISTS",sizeof("WING_ERROR_ALREADY_EXISTS"),ERROR_ALREADY_EXISTS,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	zend_register_long_constant("WING_ERROR_PARAMETER_ERROR",sizeof("WING_ERROR_PARAMETER_ERROR"),WING_ERROR_PARAMETER_ERROR,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
-	zend_register_long_constant("WING_ERROR_FAILURE",sizeof("WING_ERROR_FAILURE"),WING_ERROR_FAILURE,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
-	return SUCCESS;
+	zend_register_long_constant("WING_ERROR_FAILED",sizeof("WING_ERROR_FAILED"),WING_ERROR_FAILED,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant("WING_ERROR_CALLBACK_FAILED",sizeof("WING_ERROR_CALLBACK_FAILED"),WING_ERROR_CALLBACK_FAILED,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant("WING_CALLBACK_SUCCESS",sizeof("WING_CALLBACK_SUCCESS"),WING_CALLBACK_SUCCESS,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	
+		return SUCCESS;
 }
 /* }}} */
 

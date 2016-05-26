@@ -22,7 +22,7 @@ if($process_id == WING_ERROR_PARAMETER_ERROR){
     exit;
 }
 
-if($process_id == WING_ERROR_FAILURE){
+if($process_id == WING_ERROR_FAILED){
     echo "create process fail";
     exit;
 }

@@ -7,45 +7,64 @@
  * @just a test,does not work ok
  */
 //create a thread
-foreach($argv as $v)
-{
-    file_put_contents(__DIR__."/thread_test.log",$v."\n",FILE_APPEND);
-}
-
+//参数错误 WING_ERROR_PARAMETER_ERROR
+//失败返回值 WING_ERROR_FAILED
+//可以忽略的返回值 WING_NOTICE_IGNORE
+//执行线程函数失败 WING_ERROR_CALLBACK_FAILED
+//执行回调函数成功 WING_CALLBACK_SUCCESS
 $thread_id = wing_create_thread(function(){
-    $i=0;
+    $i = 0;
     while(1){
-        file_put_contents(__DIR__."/thread_test.log",($i++)."\n",FILE_APPEND);
-        if($i>3)break;
+
+        file_put_contents(__DIR__."/wing_create_thread.log",($i++)."\n",FILE_APPEND);
+        if( $i > 10 ) break;
         sleep(1);
+
     }
     exit(9);
 });
-if($thread_id<0){
-    echo "create thread fail";
-    exit;
-}
-if($thread_id == 0) {
-    echo "child thread ";
-    echo $thread_id;
-    //child thread just exit
+
+if($thread_id == WING_ERROR_PARAMETER_ERROR){
+    echo "parameter error";
     exit;
 }
 
-//$thread_id parent continue running
-
-//wait for the thread exit
-//If you want a simple asynchronous, comment this line
-//return ===false wait failue
-//return ===-1 wait timeout
-//-1 Never timed out >0 Milliseconds timeout -1永不超时 >0毫秒超时
-$exit_code =  wing_thread_wait($thread_id,-1);
-if($exit_code === false){
-    echo "wait failue \n";
+if($thread_id == WING_ERROR_FAILED){
+    echo "create thread error";
     exit;
 }
-if($exit_code === -1){
-    echo "wait timeout \n";
+
+if($thread_id == WING_ERROR_CALLBACK_FAILED){
+    echo "call func error";
+    exit;
+}
+
+if($thread_id == WING_CALLBACK_SUCCESS){
+    echo "call func success";
+}
+
+
+//WING_INFINITE 永不超时 即线程不退出 一直等待
+$exit_code =  wing_thread_wait($thread_id,WING_INFINITE);
+
+if($exit_code == WING_WAIT_TIMEOUT){
+    echo "wait timeout";
+    exit;
+}
+
+if($exit_code == WING_WAIT_FAILED){
+    echo "wait fail";
+    exit;
+}
+
+if($exit_code == WING_WAIT_ABANDONED){
+    echo "mutex not release";
+    exit;
+}
+
+if($exit_code == WING_ERROR_FAILED){
+    echo "get exit code fail";
+    exit;
 }
 
 echo $thread_id," is exit with ",$exit_code,"\n";

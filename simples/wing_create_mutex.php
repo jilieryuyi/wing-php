@@ -10,7 +10,7 @@
 $handle = wing_create_mutex("a test mutex");
 // WING_ERROR_ALREADY_EXISTS 程序正在运行
 // WING_ERROR_PARAMETER_ERROR 参数错误
-// WING_ERROR_FAILURE 创建互斥锁失败
+// WING_ERROR_FAILED 创建互斥锁失败
 // 其他 创建互斥锁成功
 
 
@@ -25,7 +25,7 @@ if( $handle === WING_ERROR_PARAMETER_ERROR){
     exit;
 }
 
-if( $handle === WING_ERROR_FAILURE ){
+if( $handle === WING_ERROR_FAILED ){
     echo "create mutex error\n";
     exit;
 }
