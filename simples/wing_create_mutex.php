@@ -13,13 +13,6 @@ $handle = wing_create_mutex("a test mutex");
 // WING_ERROR_FAILED 创建互斥锁失败
 // 其他 创建互斥锁成功
 
-
-echo $handle,"\n";
-if( $handle === WING_ERROR_ALREADY_EXISTS ){
-    echo "process is running\n";
-    exit;
-}
-
 if( $handle === WING_ERROR_PARAMETER_ERROR){
     echo "parameter error\n";
     exit;
@@ -30,9 +23,15 @@ if( $handle === WING_ERROR_FAILED ){
     exit;
 }
 
+//如果互斥量创建成功 在程序退出时关闭
 register_shutdown_function(function() use($handle){
     wing_close_mutex($handle);
 });
+
+if( $handle === WING_ERROR_ALREADY_EXISTS ){
+    echo "process is running\n";
+    exit;
+}
 
 $i = 0;
 while(1){
