@@ -18,6 +18,11 @@ $process_id = wing_create_process_ex(
 );
 
 if($process_id == WING_ERROR_PARAMETER_ERROR){
+    echo "parameter error";
+    exit;
+}
+
+if($process_id == WING_ERROR_FAILURE){
     echo "create process fail";
     exit;
 }
