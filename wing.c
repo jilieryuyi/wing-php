@@ -342,10 +342,8 @@ PHP_FUNCTION(wing_create_process_ex){
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
-
 	
 	char				*command;
-	
 	spprintf(&command, 0, "%s %s\0",PHP_PATH,params);
 
 	RETURN_LONG(create_process(command,params_ex,params_ex_len));	
@@ -486,10 +484,14 @@ ZEND_FUNCTION(wing_get_env){
 	//zval *temp;
 	int name_len;
 	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&name,&name_len) != SUCCESS){
-		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
+		RETURN_NULL();
 		return;
 	}
 	int len = GetEnvironmentVariable(name,NULL,0);
+	if(len<=0){
+		RETURN_NULL();
+		return;
+	}
 	char *var=new char[len];
 	memset(var,0,sizeof(var));
 	GetEnvironmentVariable(name,var,len);
