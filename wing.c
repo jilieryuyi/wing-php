@@ -65,12 +65,17 @@ ZEND_DECLARE_MODULE_GLOBALS(wing)
 /* True global resources - no need for thread safety here */
 static int le_wing;
 TCHAR  *PHP_PATH;
+//timer 进程计数器 用于控制多个timer的创建和运行
+static int wing_timer_count = 0;
+//线程计数器 用于多线程控制
+static int wing_thread_count =0;
+
 
 #define WING_CALLBACK_SUCCESS		 0
 #define WING_ERROR_PARAMETER_ERROR	-1
 #define WING_ERROR_FAILED			-2
 #define WING_NOTICE_IGNORE			-3
-#define WING_ERROR_CALLBACK_FAILED -4
+#define WING_ERROR_CALLBACK_FAILED  -4
 
 DWORD create_process(char *command,char *params_ex,int params_ex_len){
 	    HANDLE				m_hRead;
@@ -99,11 +104,11 @@ DWORD create_process(char *command,char *params_ex,int params_ex_len){
 		
 		sui.hStdError		= GetStdHandle(STD_ERROR_HANDLE);
 		
-		if(params_ex_len>0&&params_ex!=NULL){
+		if( params_ex_len >0 && params_ex != NULL ){
 			DWORD d;
 			if(::WriteFile(m_hWrite,params_ex,params_ex_len,&d,NULL)==FALSE){
 				//告警
-				zend_error(E_USER_WARNING,"write params to parcess error");
+				zend_error(E_USER_WARNING,"write params to process error");
 			}
 		}
 
@@ -151,7 +156,7 @@ void command_params_check(char *command_params,int *run_process,int *last_value)
 	}
 }
 
-
+/*
 typedef struct _timer_thread_params{
 	DWORD thread_id;
 	DWORD dwMilliseconds;
@@ -165,13 +170,10 @@ unsigned int __stdcall wing_timer(PVOID pM)
 		PostThreadMessageA(param->thread_id,WM_USER+99,NULL,NULL);
 	}
 	return 0;
-}  
+}  */
 
 
-//timer 进程计数器 用于控制多个timer的创建和运行
-static int wing_timer_count = 0;
-//线程计数器 用于多线程控制
-static int wing_thread_count =0;
+
 
 
 
@@ -194,7 +196,7 @@ PHP_FUNCTION(wing_version){
 	char *string;
     int len;
 	len = spprintf(&string, 0, "%s", PHP_WING_VERSION);
-    RETURN_STRINGL(string,len,0);
+    RETURN_STRING(string,1);
 }
 
 
@@ -225,7 +227,9 @@ PHP_FUNCTION(wing_process_wait){
 
 	 //WING_WAIT_OBJECT_0
 	 
-	 if(GetExitCodeProcess(handle,&wait_result) == 0) RETURN_LONG(WING_ERROR_FAILED);
+	 if(GetExitCodeProcess(handle,&wait_result) == 0) 
+		 RETURN_LONG(WING_ERROR_FAILED);
+
 	 RETURN_LONG(wait_result);
 }
 
@@ -244,16 +248,15 @@ PHP_FUNCTION(wing_create_thread){
 		return;
 	}
 
-	char *command_params="";
+	char *command_params = "";
 	int run_process = 0;
 	int command_index = 0;
-	int last_value=0;
+	int last_value = 0;
 
 	command_params_check(command_params,&run_process,&last_value);
 
 	char	*command;
 
-	
 	spprintf(&command, 0, "%s %s %s wing-process %ld",PHP_PATH, zend_get_executed_filename(TSRMLS_C),command_params,wing_thread_count);
 
 	if(!run_process){
@@ -287,32 +290,40 @@ PHP_FUNCTION(wing_create_thread){
 ZEND_FUNCTION(wing_get_process_params){
 
 			HANDLE m_hRead = GetStdHandle(STD_INPUT_HANDLE);
-			char buf[1024];
+
+			int data_len=1024;
+			int step = 1024;
+			char *buf=new char[data_len];
 			memset(buf,0,sizeof(buf));
 			DWORD dwRead;
-			//char t[1];
-			unsigned long lBytesRead;
-			if(PeekNamedPipe(m_hRead, buf, 1024, &dwRead, NULL, 0)){
-				
-				if(!PeekNamedPipe(m_hRead,buf,1024,&lBytesRead,0,0)){
-					RETURN_NULL();
-					return;
-				}
+			DWORD lBytesRead;
+	
+			if(!PeekNamedPipe(m_hRead,buf,data_len,&lBytesRead,0,0)){
+				RETURN_NULL();
+				return;
+			}
 
-				if(lBytesRead<=0){
+			if(lBytesRead<=0){
+				RETURN_NULL();
+				return;
+			}
+
+			while(lBytesRead>=data_len){
+				free(buf);
+				data_len+=step;
+				buf = new char[data_len];
+				memset(buf,0,sizeof(buf));
+				if(!PeekNamedPipe(m_hRead,buf,data_len,&lBytesRead,0,0)){
 					RETURN_NULL();
 					return;
 				}
+			}
 				
-				if (ReadFile(m_hRead, buf, 1024, &dwRead, NULL))// 从管道中读取数据 
-				{
-					//这种读取管道的方式非常不好，最好在实际项目中不要使用，因为它是阻塞式的，
-					//如果这个时候管道中没有数据他就会一直阻塞在那里， 程序就会被挂起，而对管道来说一端正在读的时候，
-					//另一端是无法写的，也就是说父进程阻塞在这里后，子进程是无法把数据写入到管道中的， 
-					//在调用ReadFile之前最好调用PeekNamePipe来检查管道中是否有数据，它会立即返回, 
-					//或者使用重叠式读取方式,那么ReadFile的最后一个参数不能为NULL
-					RETURN_STRING(buf,1);						
-				}
+			if (ReadFile(m_hRead, buf, lBytesRead+1, &dwRead, NULL))// 从管道中读取数据 
+			{
+				ZVAL_STRINGL(return_value,buf,dwRead,1);
+				free(buf);
+				return;
 			}
 			RETURN_NULL();
 }
@@ -478,10 +489,11 @@ ZEND_FUNCTION(wing_get_env){
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
-	int len = GetEnvironmentVariable(name,NULL,0)+1;
+	int len = GetEnvironmentVariable(name,NULL,0);
 	char *var=new char[len];
+	memset(var,0,sizeof(var));
 	GetEnvironmentVariable(name,var,len);
-	ZVAL_STRINGL(return_value,var,len,1);
+	ZVAL_STRINGL(return_value,var,len-1,1);
 	free(var);
 }
 
@@ -493,12 +505,14 @@ ZEND_FUNCTION(wing_set_env){
 	zval *value;
 	int name_len;
 	MAKE_STD_ZVAL(value);
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s|z",&name,&name_len,&value) != SUCCESS){
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"sz",&name,&name_len,&value) != SUCCESS){
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
-	convert_to_cstring(value);
-	RETURN_BOOL(SetEnvironmentVariable(name,Z_STRVAL_P(value)));
+	convert_to_string(value);
+	//char *str;
+	//spprintf(&str,Z_STRLEN_P(value)-2,"%s",Z_STRVAL_P(value));
+	RETURN_LONG(SetEnvironmentVariableA(name,(LPCTSTR)Z_STRVAL_P(value)));
 }
 /**
  *@获取一个命令所在的绝对文件路径

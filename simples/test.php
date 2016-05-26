@@ -1,7 +1,7 @@
 <?php
 /**
- * @author Administrator
+ * @author yuyi
  * @created 2016/5/26 14:40
- * @email huangxiaoan@yonglibao.com
+ * @email 297341015@qq.com
  */
-echo WING_PHP;
+echo wing_version();
