@@ -685,12 +685,14 @@ ZEND_FUNCTION(wing_timer){
 	MAKE_STD_ZVAL(dwMilliseconds);
 
 	int max_run_times = 0;
+	//设置相对时间为1秒 1000 0000。
+	long accuracy = 10000;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zz|ll",&dwMilliseconds, &callback,&max_run_times) != SUCCESS) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zz|lll",&dwMilliseconds, &callback,&max_run_times,&accuracy) != SUCCESS) {
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
-	convert_to_double(dwMilliseconds);
+	convert_to_long_ex(&dwMilliseconds);
 
 	char *command_params	= "";
 	int run_process			= 0;
@@ -764,8 +766,10 @@ ZEND_FUNCTION(wing_timer){
 	zval *retval_ptr;
 	int times=0;
 
+	long time = accuracy*Z_LVAL_P(dwMilliseconds);
+
     //设置相对时间为1秒 10000000。
-	liDueTime.QuadPart = -(LONGLONG)Z_DVAL_P(dwMilliseconds);
+	liDueTime.QuadPart = -(LONGLONG)time;
 	char *timername;
 	spprintf(&timername,0,"wing_waitable_timer-%s",create_guid());
     //创建定时器。
