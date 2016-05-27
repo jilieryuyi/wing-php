@@ -766,10 +766,10 @@ ZEND_FUNCTION(wing_timer){
 	zval *retval_ptr;
 	int times=0;
 
-	long time = accuracy*Z_LVAL_P(dwMilliseconds);
+	LONGLONG time = (-1)*accuracy*Z_LVAL_P(dwMilliseconds);
 
     //设置相对时间为1秒 10000000。
-	liDueTime.QuadPart = -(LONGLONG)time;
+	liDueTime.QuadPart = time;
 	char *timername;
 	spprintf(&timername,0,"wing_waitable_timer-%s",create_guid());
     //创建定时器。
