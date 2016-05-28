@@ -803,6 +803,7 @@ ZEND_FUNCTION(wing_timer){
 
 			MAKE_STD_ZVAL(retval_ptr);
 			if(SUCCESS != call_user_function(EG(function_table),NULL,callback,retval_ptr,0,NULL TSRMLS_CC)){
+				zval_ptr_dtor(&retval_ptr);
 				RETURN_LONG(WING_ERROR_FAILED);	
 				return;
 			}

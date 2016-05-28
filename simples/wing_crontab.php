@@ -34,9 +34,13 @@ function paramsFormat($crontab_contents){
 
         $_crontab   = preg_replace("/ +/"," ",$_crontab);
         $splits     = explode(" ",$_crontab,7);
-        array_pop($splits);
+        $__params   = array_pop($splits);
+
+
 
         $times_tab  = implode(" ",$splits);
+
+
 
         $splits     = explode(" ",$_crontab,7);
         $commands   = array_pop($splits);
@@ -44,9 +48,11 @@ function paramsFormat($crontab_contents){
 
         $_commands  = explode(" ",$commands);
         $exe_path   = $_commands[0];
+        $params     = ltrim($__params,$exe_path);
         if(strpos($commands,"\"")===0) {
             preg_match("/\"(.*?)\"/", $commands, $matches);
             $exe_path = $matches[0];
+            $params     = ltrim($__params,$exe_path);
         }
         $exe_path   = trim($exe_path);
         $exe_path   = trim($exe_path,"\"");
@@ -55,23 +61,11 @@ function paramsFormat($crontab_contents){
             $exe_path = wing_get_command_path($exe_path);
         }
 
-        $splits     = explode(" ",$_crontab);
-        $params     = array_pop($splits);
-
-        if( $_crontab[strlen($_crontab)-1] == "\"" ){
-            preg_match_all("/\"(.*?)\"/", $commands, $matches);
-            $params = array_pop(array_pop($matches));
-            $params = trim($params);
-            $params = trim($params,"\"");
-        }
-
-        if(strpos($params,".php")==(strlen($params)-4) && !file_exists($params)){
-            //支持同级相对路径
-            $params = __DIR__."/".$params;
-        }
+        $params = trim($params);
 
         $crontabs_format[] =[$times_tab,$exe_path,$params];
     }
+
     return $crontabs_format;
 }
 
@@ -417,6 +411,7 @@ function crontab(){
             wing_create_process($crontab[1],$crontab[2]);
         }
     }
+    unset($crontabs_format,$crontab_contents);
 }
 
 wing_timer(1000,function(){
