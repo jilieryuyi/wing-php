@@ -154,8 +154,13 @@ void command_params_check(char *command_params,int *run_process,int *last_value)
 			char *key;
 			int key_len,index;
 			zend_hash_get_current_key_ex(arr_hash, &key, (uint*)&key_len, (ulong*)&index, 0, &pointer);
-			if(index>0)
-				spprintf(&command_params,0,"%s \"%s\" ",command_params,(char*)Z_LVAL_PP(data));
+			if(index>0){
+				char *p = (char*)Z_LVAL_PP(data);
+				if(p[0]!='\"')
+					spprintf(&command_params,0,"%s \"%s\" ",command_params,p);
+				else 
+					spprintf(&command_params,0,"%s %s ",command_params,p);
+			}
 
 			if(index == argc-1&&last_value != NULL){
 				 *last_value= atoi((char*)Z_LVAL_PP(data));
