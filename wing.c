@@ -304,7 +304,7 @@ ZEND_FUNCTION(wing_get_process_params){
 
 			HANDLE m_hRead = GetStdHandle(STD_INPUT_HANDLE);
 
-			int data_len=1024;
+			DWORD data_len=1024;
 			int step = 1024;
 			char *buf=new char[data_len];
 			memset(buf,0,sizeof(buf));

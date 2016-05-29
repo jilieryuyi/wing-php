@@ -24,6 +24,9 @@
     <ClCompile Include="lib\socket.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="lib\strlib.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="php_wing.h">
@@ -33,6 +36,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="lib\socket.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\strlib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
