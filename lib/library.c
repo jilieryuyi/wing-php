@@ -52,7 +52,7 @@ const char* create_guid()
 	 GUID guid;  
 	 if (S_OK == ::CoCreateGuid(&guid))  
 	 {  
-	  _snprintf_s(buf, sizeof(buf), 11, "{%08X-%04X-%04x-%02X%02X-%02X%02X%02X%02X%02X%02X}"  , 
+	  _snprintf(buf, sizeof(buf), "{%08X-%04X-%04x-%02X%02X-%02X%02X%02X%02X%02X%02X}"  , 
 		guid.Data1  , 
 		guid.Data2  , 
 		guid.Data3   , 

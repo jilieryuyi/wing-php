@@ -69,3 +69,16 @@ void str_replace(char *source,char *find,char *replace,char *back,int max_replac
 		}
 	}
 }
+
+//×Ö·û´®¸ñÊ½»¯
+void str_format(char *source,char *target,char *format_str=",",int format_num=3){
+	int len = strlen(source);
+	int start = len%format_num;
+	int i=start,count=1;
+	char *st = source,*ft=format_str;
+	for(i=start;i<=len;i+=format_num){
+		ft=format_str;
+		while(st<(source+i))*target++=*st++;
+		while(*ft!='\0'&&*st!='\0'&&i!=0)*target++=*ft++;
+	}	
+}

@@ -6,15 +6,16 @@
  * @windows crontab
  */
 date_default_timezone_set("PRC");
+$contab_file = __DIR__."/wing_contab.conf";
 
 //-l 或者 l指令支持
 $show_crontab_list = ( isset($argv[1]) && ( $argv[1] == "-l" || $argv[1] == "l") )? true:false;
 if( $show_crontab_list ){
-    $contents       = file_get_contents(__DIR__."/wing_contab.conf");
+    $contents       = file_get_contents($contab_file);
     $crontabs       = explode("\n",$contents);
     foreach ( $crontabs as $crontab ) {
         $_crontab = trim($crontab);
-        if (strpos($_crontab, "#") === 0)
+        if (strpos($_crontab, "#") === 0 || !$_crontab)
             continue;
         echo $_crontab,"\r\n";
     }
@@ -73,7 +74,7 @@ function paramsFormat($crontab_contents){
 /**
  * @秒规则校验
  */
-function checkSecondRule($times_tab){
+function checkSecondRule($times_tab,$start_time){
     $tabs       = explode(" ",$times_tab);
     $tab        = $tabs[0];
     $times_b    = date("s");
@@ -101,7 +102,7 @@ function checkSecondRule($times_tab){
         //每多少单位执行
         //本来这里需要获取上次执行的时间 然后判断是否已经满足
         //每多少秒执行一次，此处不用这种方法
-        if ($times_b % $temp[1] == 0) {
+        if ((time()-$start_time) % $temp[1] == 0) {
             return true;
         }
     }
@@ -117,7 +118,7 @@ function checkSecondRule($times_tab){
 
     if ($s_temp[0] <= $times_b && $times_b <= $s_temp[1]) {
         //每多少单位执行
-        if ($times_b % $temp[1]  == 0) {
+        if ((time()-$start_time) % $temp[1]  == 0) {
             return true;
         }
     }
@@ -125,7 +126,7 @@ function checkSecondRule($times_tab){
     return false;
 }
 
-function checkMinuteRule($times_tab){
+function checkMinuteRule($times_tab,$start_time){
     $tabs       = explode(" ",$times_tab);
     $tab        = $tabs[1];
     $times_b    = time();
@@ -153,7 +154,7 @@ function checkMinuteRule($times_tab){
         //每多少单位执行
         //本来这里需要获取上次执行的时间 然后判断是否已经满足
         //每多少秒执行一次，此处不用这种方法
-        if ($times_b % ($temp[1]*60) == 0) {
+        if (($times_b-$start_time) % ($temp[1]*60) == 0) {
             return true;
         }
     }
@@ -171,7 +172,7 @@ function checkMinuteRule($times_tab){
          $times_b <= strtotime(date("Y-m-d H:".$s_temp[1].":0"))
     ) {
         //每多少单位执行
-        if ($times_b % ($temp[1]*60)  == 0) {
+        if (($times_b-$start_time) % ($temp[1]*60)  == 0) {
             return true;
         }
     }
@@ -182,7 +183,7 @@ function checkMinuteRule($times_tab){
 
 
 
-function checkHourRule($times_tab){
+function checkHourRule($times_tab,$start_time){
     $tabs       = explode(" ",$times_tab);
     $tab        = $tabs[2];
     $times_b    = time();
@@ -210,7 +211,7 @@ function checkHourRule($times_tab){
         //每多少单位执行
         //本来这里需要获取上次执行的时间 然后判断是否已经满足
         //每多少秒执行一次，此处不用这种方法
-        if ($times_b % ($temp[1]*3600) == 0) {
+        if (($times_b-$start_time) % ($temp[1]*3600) == 0) {
             return true;
         }
     }
@@ -228,7 +229,7 @@ function checkHourRule($times_tab){
         $times_b <= strtotime(date("Y-m-d ".$s_temp[1].":0:0"))
     ) {
         //每多少单位执行
-        if ($times_b % ($temp[1]*3600)  == 0) {
+        if (($times_b-$start_time) % ($temp[1]*3600)  == 0) {
             return true;
         }
     }
@@ -237,7 +238,7 @@ function checkHourRule($times_tab){
 }
 
 
-function checkDayRule($times_tab){
+function checkDayRule($times_tab,$start_time){
     //##秒 分 时 日 月  星期几
     //*  *  * *  *   *
     $tabs       = explode(" ",$times_tab);
@@ -267,7 +268,7 @@ function checkDayRule($times_tab){
         //每多少单位执行
         //本来这里需要获取上次执行的时间 然后判断是否已经满足
         //每多少秒执行一次，此处不用这种方法
-        if ($times_b % ($temp[1]*86400) == 0) {
+        if (($times_b-$start_time) % ($temp[1]*86400) == 0) {
             return true;
         }
     }
@@ -285,7 +286,7 @@ function checkDayRule($times_tab){
         $times_b <= strtotime(date("Y-m-".$s_temp[1]." 0:0:0"))
     ) {
         //每多少单位执行
-        if ($times_b % ($temp[1]*86400)  == 0) {
+        if (($times_b-$start_time) % ($temp[1]*86400)  == 0) {
             return true;
         }
     }
@@ -294,7 +295,7 @@ function checkDayRule($times_tab){
 }
 
 //每月默认按照30天计算
-function checkMonthRule($times_tab){
+function checkMonthRule($times_tab,$start_time){
     //##秒 分 时 日 月  星期几
     //*  *  * *  *   *
     $tabs       = explode(" ",$times_tab);
@@ -324,7 +325,7 @@ function checkMonthRule($times_tab){
         //每多少单位执行
         //本来这里需要获取上次执行的时间 然后判断是否已经满足
         //每多少秒执行一次，此处不用这种方法
-        if ($times_b % ($temp[1]*2592000) == 0) {
+        if (($times_b-$start_time) % ($temp[1]*2592000) == 0) {
             return true;
         }
     }
@@ -342,7 +343,7 @@ function checkMonthRule($times_tab){
         $times_b <= strtotime(date("Y-".$s_temp[1]."-1 0:0:0"))
     ) {
         //每多少单位执行
-        if ($times_b % ($temp[1]*2592000)  == 0) {
+        if (($times_b-$start_time) % ($temp[1]*2592000)  == 0) {
             return true;
         }
     }
@@ -398,14 +399,19 @@ function debuglog($content){
 function crontab(){
     $crontab_contents   = file_get_contents(__DIR__."/wing_contab.conf");
     $crontabs_format    = paramsFormat($crontab_contents);
-
+    static $start_times = [];
     foreach ($crontabs_format as $crontab){
-        if( checkSecondRule($crontab[0]) &&
-            checkMinuteRule($crontab[0]) &&
-            checkHourRule($crontab[0]) &&
-            checkDayRule($crontab[0]) &&
-            checkMonthRule($crontab[0]) &&
-            checkWeekRule($crontab[0])
+        $crontab_key        = md5($crontab[0]."-".$crontab[1]."-".$crontab[2]);
+        
+        if(!isset($start_times[$crontab_key]))
+            $start_times[$crontab_key] = time();
+
+        if( checkSecondRule($crontab[0],$start_times[$crontab_key]) &&
+            checkMinuteRule($crontab[0],$start_times[$crontab_key]) &&
+            checkHourRule($crontab[0],$start_times[$crontab_key]) &&
+            checkDayRule($crontab[0],$start_times[$crontab_key]) &&
+            checkMonthRule($crontab[0],$start_times[$crontab_key]) &&
+            checkWeekRule($crontab[0],$start_times[$crontab_key])
         ){
             debuglog("run: ".$crontab[1]." ".$crontab[2]);
             wing_create_process($crontab[1],$crontab[2]);
