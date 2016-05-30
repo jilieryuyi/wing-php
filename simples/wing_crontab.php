@@ -22,6 +22,14 @@ if( $show_crontab_list ){
     exit;
 }
 
+//stop -stop -s s 停止timer
+$is_stop = ( isset($argv[1]) && (trim($argv[1],"-") == "stop" || trim($argv[1],"-") == "s") )? true:false;
+if( $is_stop ){
+    wing_kill_timer(file_get_contents("wing_timer.pid"));
+    exit;
+}
+
+
 /**
  * @crontab 参数标准化格式化
  */
@@ -402,7 +410,7 @@ function crontab(){
     static $start_times = [];
     foreach ($crontabs_format as $crontab){
         $crontab_key        = md5($crontab[0]."-".$crontab[1]."-".$crontab[2]);
-        
+
         if(!isset($start_times[$crontab_key]))
             $start_times[$crontab_key] = time();
 
@@ -420,6 +428,7 @@ function crontab(){
     unset($crontabs_format,$crontab_contents);
 }
 
-wing_timer(1000,function(){
+$timer_id = wing_timer(1000,function(){
     crontab();
 });
+file_put_contents("wing_timer.pid",$timer_id);

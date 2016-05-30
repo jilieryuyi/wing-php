@@ -968,6 +968,9 @@ const zend_function_entry wing_functions[] = {
 
 	PHP_FE(wing_process_kill,NULL)
 	ZEND_FALIAS(wing_thread_kill,wing_process_kill,NULL)
+	ZEND_FALIAS(wing_kill_thread,wing_process_kill,NULL)
+	ZEND_FALIAS(wing_kill_timer,wing_process_kill,NULL)
+	ZEND_FALIAS(wing_kill_process,wing_process_kill,NULL)
 
 	PHP_FE(wing_process_isalive,NULL)
 	ZEND_FALIAS(wing_thread_isalive,wing_process_isalive,NULL)
