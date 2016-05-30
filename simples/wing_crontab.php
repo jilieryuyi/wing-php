@@ -6,11 +6,22 @@
  * @windows crontab
  */
 date_default_timezone_set("PRC");
-$contab_file = __DIR__."/wing_contab.conf";
+$contab_file    = __DIR__."/wing_contab.conf";
+$pid_file       = __DIR__."/wing_timer.pid";
 
-//-l 或者 l指令支持
-$show_crontab_list = ( isset($argv[1]) && ( $argv[1] == "-l" || $argv[1] == "l") )? true:false;
-if( $show_crontab_list ){
+
+function command_support($command,$callback){
+    global $argv;
+    $_command = isset($argv[1])?trim($argv[1],"-"):"";
+    if( $_command == $command ) {
+        call_user_func($callback);
+        exit;
+    }
+}
+
+//l指令支持
+command_support("l",function(){
+    global $contab_file;
     $contents       = file_get_contents($contab_file);
     $crontabs       = explode("\n",$contents);
     foreach ( $crontabs as $crontab ) {
@@ -19,15 +30,14 @@ if( $show_crontab_list ){
             continue;
         echo $_crontab,"\r\n";
     }
-    exit;
-}
+});
 
-//stop -stop -s s 停止timer
-$is_stop = ( isset($argv[1]) && (trim($argv[1],"-") == "stop" || trim($argv[1],"-") == "s") )? true:false;
-if( $is_stop ){
-    wing_kill_timer(file_get_contents("wing_timer.pid"));
-    exit;
-}
+//stop 停止timer
+command_support("stop",function(){
+    global $pid_file;
+    $timer_id = file_get_contents($pid_file);
+    wing_kill_timer($timer_id);
+});
 
 
 /**
@@ -43,13 +53,9 @@ function paramsFormat($crontab_contents){
 
         $_crontab   = preg_replace("/ +/"," ",$_crontab);
         $splits     = explode(" ",$_crontab,7);
-        $__params   = array_pop($splits);
-
-
+        $_params_a  = array_pop($splits);
 
         $times_tab  = implode(" ",$splits);
-
-
 
         $splits     = explode(" ",$_crontab,7);
         $commands   = array_pop($splits);
@@ -57,11 +63,11 @@ function paramsFormat($crontab_contents){
 
         $_commands  = explode(" ",$commands);
         $exe_path   = $_commands[0];
-        $params     = ltrim($__params,$exe_path);
+        $params     = ltrim($_params_a,$exe_path);
         if(strpos($commands,"\"")===0) {
             preg_match("/\"(.*?)\"/", $commands, $matches);
             $exe_path = $matches[0];
-            $params     = ltrim($__params,$exe_path);
+            $params     = ltrim($_params_a,$exe_path);
         }
         $exe_path   = trim($exe_path);
         $exe_path   = trim($exe_path,"\"");
@@ -134,6 +140,9 @@ function checkSecondRule($times_tab,$start_time){
     return false;
 }
 
+/**
+ * @分钟规则校验
+ */
 function checkMinuteRule($times_tab,$start_time){
     $tabs       = explode(" ",$times_tab);
     $tab        = $tabs[1];
@@ -190,7 +199,9 @@ function checkMinuteRule($times_tab,$start_time){
 
 
 
-
+/**
+ * @小时规则校验
+ */
 function checkHourRule($times_tab,$start_time){
     $tabs       = explode(" ",$times_tab);
     $tab        = $tabs[2];
@@ -245,7 +256,9 @@ function checkHourRule($times_tab,$start_time){
     return false;
 }
 
-
+/**
+ * @日规则校验
+ */
 function checkDayRule($times_tab,$start_time){
     //##秒 分 时 日 月  星期几
     //*  *  * *  *   *
@@ -302,7 +315,10 @@ function checkDayRule($times_tab,$start_time){
     return false;
 }
 
-//每月默认按照30天计算
+
+/**
+ * @月规则校验，每月默认按照30天计算
+ */
 function checkMonthRule($times_tab,$start_time){
     //##秒 分 时 日 月  星期几
     //*  *  * *  *   *
@@ -359,7 +375,9 @@ function checkMonthRule($times_tab,$start_time){
     return false;
 }
 
-
+/**
+ * @获取指定的下个星期几的具体时间
+ */
 function getNextWeekTime($week){
     $i=1;
     while ($i<14){
@@ -371,6 +389,10 @@ function getNextWeekTime($week){
     return false;
 }
 
+
+/**
+ * @星期规则校验
+ */
 function checkWeekRule($times_tab){
     //##秒 分 时 日 月  星期几
     //*  *  * *  *   *
@@ -387,25 +409,24 @@ function checkWeekRule($times_tab){
         $s_temp = explode(",", $tab);
         foreach ($s_temp as $s) {
             $_time = getNextWeekTime($s);
-            debuglog("1、".$times_b."=".$_time);
             if ($week == $s && $times_b == $_time) {
                 return true;
             }
         }
     } else {
         $_time = getNextWeekTime($tab);
-        debuglog("2、".$times_b."=".$_time);
         return $week == $tab && $times_b == $_time;
     }
 
     return false;
 }
 
-function debuglog($content){
-    file_put_contents(__DIR__."/wing_crontab_debug.log",$content."\r\n\r\n",FILE_APPEND);
-}
+/**
+ * @执行crontab任务
+ */
 function crontab(){
-    $crontab_contents   = file_get_contents(__DIR__."/wing_contab.conf");
+    global $contab_file;
+    $crontab_contents   = file_get_contents($contab_file);
     $crontabs_format    = paramsFormat($crontab_contents);
     static $start_times = [];
     foreach ($crontabs_format as $crontab){
@@ -421,7 +442,6 @@ function crontab(){
             checkMonthRule($crontab[0],$start_times[$crontab_key]) &&
             checkWeekRule($crontab[0],$start_times[$crontab_key])
         ){
-            debuglog("run: ".$crontab[1]." ".$crontab[2]);
             wing_create_process($crontab[1],$crontab[2]);
         }
     }
@@ -431,4 +451,4 @@ function crontab(){
 $timer_id = wing_timer(1000,function(){
     crontab();
 });
-file_put_contents("wing_timer.pid",$timer_id);
+file_put_contents($pid_file,$timer_id);
