@@ -32,6 +32,7 @@
 #include "tlhelp32.h"
 #include "Psapi.h"
 #include "Winternl.h"
+#include <Winsock2.h>
 #include "Winbase.h"
 #include "Processthreadsapi.h"
 #include "Shlwapi.h"
@@ -44,6 +45,7 @@
 #pragma comment(lib,"Winmm.lib")
 
 #include "lib/library.h"
+#include "lib/socket.h"
 //此部分函数来源于c++ cpp定义 不能直接include头文件 通过extern访问
 //extern void get_command_path(const char *name,char *output);
 //extern char* qrdecode(char* filename);
@@ -80,6 +82,10 @@ static int wing_thread_count =0;
 #define WING_ERROR_PROCESS_NOT_EXISTS -5
 #define WING_ERROR_WINDOW_NOT_FOUND -6
 #define WING_PROCESS_IS_RUNNING		1
+
+
+#define WM_ONCONNECT		WM_USER+60
+#define WM_ACCEPT_ERROR		WM_USER+61
 
 
 /**
@@ -808,7 +814,7 @@ ZEND_FUNCTION(wing_timer){
 
 			MAKE_STD_ZVAL(retval_ptr);
 			if(SUCCESS != call_user_function(EG(function_table),NULL,callback,retval_ptr,0,NULL TSRMLS_CC)){
-				zval_ptr_dtor(&retval_ptr);
+				//zval_ptr_dtor(&retval_ptr);
 				RETURN_LONG(WING_ERROR_FAILED);	
 				return;
 			}
@@ -836,7 +842,369 @@ ZEND_FUNCTION(wing_timer){
 	RETURN_LONG(WING_SUCCESS);	
 }
 
+///////////////////////////--socket-start--
 
+
+unsigned int __stdcall  socket_worker(LPVOID ComlpetionPortID)  
+{  
+	HANDLE ComplectionPort = (HANDLE) ComlpetionPortID;  
+	DWORD BytesTransferred;  
+	//LPOVERLAPPED Overlapped;  
+	LPPER_HANDLE_DATA PerHandleData;  
+	LPPER_IO_OPERATION_DATA PerIOData;  
+	DWORD SendBytes,RecvBytes;  
+	DWORD Flags;  
+
+	while (TRUE)  
+	{  
+
+		if (GetQueuedCompletionStatus(ComplectionPort,&BytesTransferred,(LPDWORD)&PerHandleData,(LPOVERLAPPED*)&PerIOData,INFINITE) == 0)  
+		{  
+			//printf("GetQueuedCompletionStatus failed with error%d ",GetLastError());  
+			return 0;
+		 }  
+
+		//首先检查套接字上是否发生错误，如果发生了则关闭套接字并且清除同套节字相关的SOCKET_INFORATION 结构体  
+		if (BytesTransferred == 0) 
+		{  
+
+			  //printf("Closing Socket %d ",PerHandleData->Socket);  
+			 if (closesocket(PerHandleData->Socket) == SOCKET_ERROR)  
+			 {  
+				//printf("closesocket failed with error %d ",WSAGetLastError());  
+				return 0;  
+			 }  
+
+			GlobalFree(PerHandleData);  
+			GlobalFree(PerIOData);  
+			continue;  
+		}  
+
+   
+		//检查BytesRecv域是否等于0，如果是，说明WSARecv调用刚刚完成，可以用从己完成的WSARecv调用返回的BytesTransferred值更新BytesRecv域  
+		if (PerIOData->BytesRecv == 0)  
+		{  
+			PerIOData->BytesRecv = BytesTransferred;  
+			PerIOData->BytesSend = 0; 
+		}
+		else
+		{  
+		  PerIOData->BytesRecv +=BytesTransferred;  
+		}  
+
+
+		if (PerIOData->BytesRecv > PerIOData->BytesSend)  
+		{  
+
+			   //发布另一个WSASend()请求，因为WSASendi 不能确保发送了请的所有字节，继续WSASend调用直至发送完所有收到的字节  
+			  ZeroMemory(&(PerIOData->OVerlapped),sizeof(OVERLAPPED));  
+			  PerIOData->DATABuf.buf = PerIOData->Buffer + PerIOData->BytesSend;  
+			  PerIOData->DATABuf.len = PerIOData->BytesRecv - PerIOData->BytesSend;  
+			  if (WSASend(PerHandleData->Socket,&(PerIOData->DATABuf),1,&SendBytes,0,&(PerIOData->OVerlapped),NULL) ==SOCKET_ERROR )  
+			  {  
+				if (WSAGetLastError() != ERROR_IO_PENDING)  
+				{  
+				  printf("WSASend() fialed with error %d ",WSAGetLastError());  
+				  return 0;  
+				}  
+			  }  
+		}  
+		else  
+		{  
+			  PerIOData->BytesRecv = 0;  
+			  //Now that is no more bytes to send post another WSARecv() request  
+			  //现在己经发送完成  
+			  Flags = 0;  
+			  ZeroMemory(&(PerIOData->OVerlapped),sizeof(OVERLAPPED));  
+			  PerIOData->DATABuf.buf = PerIOData->Buffer;  
+			  PerIOData->DATABuf.len = DATA_BUFSIZE;  
+			  if (WSARecv(PerHandleData->Socket,&(PerIOData->DATABuf),1,&RecvBytes,&Flags,&(PerIOData->OVerlapped),NULL) == SOCKET_ERROR)  
+			  {  
+				if (WSAGetLastError() != ERROR_IO_PENDING)  
+				{  
+				 // printf("WSARecv() failed with error %d ",WSAGetLastError());  
+				  return 0;  
+				}  
+			  }  
+		}  
+	}  
+	return 0;
+}  
+
+
+unsigned int __stdcall  accept_worker(LPVOID _socket) {
+	
+	COMPARAMS *_data = (COMPARAMS*)_socket;
+	SOCKET m_sockListen= _data->Socket;
+	HANDLE m_hIOCompletionPort= _data->IOCompletionPort;
+	DWORD threadid = _data->threadid;
+
+	SOCKET accept ;
+	PER_HANDLE_DATA *PerHandleData;
+	LPPER_IO_OPERATION_DATA PerIOData;
+	DWORD RecvBytes;  // SendBytes,
+    DWORD Flags; 
+	
+	while(true){
+
+		 accept = WSAAccept(m_sockListen,NULL,NULL,NULL,0);
+		 if( SOCKET_ERROR == accept){
+			//closesocket(m_sockListen);
+			//WSACleanup();
+			 PostThreadMessageA(threadid,WM_ACCEPT_ERROR,NULL,NULL); 
+			continue;
+		 }
+
+		PostThreadMessageA(threadid,WM_ONCONNECT,accept,NULL);
+		    /* zend_printf("new accept\n");
+		     zval *params;
+			 MAKE_STD_ZVAL(params);
+			 ZVAL_LONG(params,accept);
+			 zend_printf("new accept2\n");
+
+			MAKE_STD_ZVAL(retval_ptr);
+			if(SUCCESS != call_user_function(EG(function_table),NULL,onconnect,retval_ptr,1,&params TSRMLS_CC)){
+				zval_ptr_dtor(&retval_ptr);
+				RETURN_LONG(WING_ERROR_FAILED);	
+				return;
+			}
+			zval_ptr_dtor(&retval_ptr);
+
+			 zend_printf("new accept3\n");*/
+
+		 PerHandleData = (PER_HANDLE_DATA*)GlobalAlloc(GPTR,sizeof(PER_HANDLE_DATA));
+		 PerHandleData->Socket = accept;
+
+		 if( NULL == CreateIoCompletionPort ((HANDLE )accept ,m_hIOCompletionPort , (ULONG_PTR )PerHandleData ,0)){
+			closesocket(accept);
+			closesocket(m_sockListen);
+			WSACleanup();
+			return 0;
+		 }
+
+		PerIOData = (LPPER_IO_OPERATION_DATA)GlobalAlloc(GPTR,sizeof(PER_IO_OPERATION_DATA));
+		if ( PerIOData == NULL )
+		{
+			closesocket(accept);
+			closesocket(m_sockListen);
+			WSACleanup();
+			return 0;
+		} 
+
+		ZeroMemory(&(PerIOData->OVerlapped),sizeof(OVERLAPPED)); 
+		PerIOData->BytesRecv = 0;
+		PerIOData->BytesSend = 0; 
+		PerIOData->DATABuf.len = DATA_BUFSIZE; 
+		PerIOData->DATABuf.buf = PerIOData->Buffer; 
+		Flags = 0; 
+
+		if (WSARecv(accept,&(PerIOData->DATABuf),1,&RecvBytes,&Flags,&(PerIOData->OVerlapped),NULL) == SOCKET_ERROR) 
+		{ 
+			if (WSAGetLastError() != ERROR_IO_PENDING) 
+			{
+				closesocket(accept);
+				closesocket(m_sockListen);
+				WSACleanup();
+				return 0;
+			} 
+		}
+	}
+	return 0;
+}
+ZEND_FUNCTION(wing_service){
+
+	zval *onreceive;
+	zval *onconnect;
+	zval *retval_ptr;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zz",&onreceive, &onconnect) != SUCCESS) {
+		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
+		return;
+	}
+
+	//1、创建完成端口
+	HANDLE m_hIOCompletionPort = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0 ); 
+	if(m_hIOCompletionPort == NULL){
+		RETURN_LONG(WING_ERROR_FAILED);
+		return;
+	}
+
+	//2、根据cpu数量创建工作线程
+	//获取cpu数量 用于后面创建worker数量
+	SYSTEM_INFO si; 
+	GetSystemInfo(&si); 
+	int m_nProcessors = si.dwNumberOfProcessors; 
+	// 根据CPU数量，建立*2的线程
+	int m_nThreads = 2 * m_nProcessors; 
+	//HANDLE* m_phWorkerThreads = new HANDLE[m_nThreads]; 
+	for (int i = 0; i < m_nThreads; i++) 
+	{ 
+		// m_phWorkerThreads[i] = CreateThread(NULL,NULL,socket_worker,0,0,0);
+		 _beginthreadex(NULL, 0, socket_worker, NULL/*参数*/, 0, NULL); //::CreateThread(0, 0, _WorkerThread, …); 
+	} 
+
+
+	// 初始化Socket库
+	WSADATA wsaData; 
+	if(WSAStartup(MAKEWORD(2,2), &wsaData)!=0){
+		RETURN_LONG(WING_ERROR_FAILED);
+		return; 
+	}
+	
+	//WSACleanup( );
+
+	//初始化Socket
+	
+	// 这里需要特别注意，如果要使用重叠I/O的话，这里必须要使用WSASocket来初始化Socket
+	// 注意里面有个WSA_FLAG_OVERLAPPED参数
+	SOCKET m_sockListen = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED); 
+	if(m_sockListen == INVALID_SOCKET){
+		WSACleanup();
+		RETURN_LONG(WING_ERROR_FAILED);
+		return;
+	}
+
+
+	struct sockaddr_in ServerAddress; 
+	// 填充地址结构信息
+	ZeroMemory((char *)&ServerAddress, sizeof(ServerAddress)); 
+	ServerAddress.sin_family = AF_INET; 
+	// 这里可以选择绑定任何一个可用的地址，或者是自己指定的一个IP地址
+	//ServerAddress.sin_addr.s_addr = htonl(INADDR_ANY);                     
+	ServerAddress.sin_addr.s_addr = inet_addr("0.0.0.0");          
+	ServerAddress.sin_port = htons(6998);   
+
+
+	// 绑定端口
+	if (SOCKET_ERROR == bind(m_sockListen, (struct sockaddr *) &ServerAddress, sizeof(ServerAddress))){
+		closesocket(m_sockListen);
+		WSACleanup();
+		RETURN_LONG(WING_ERROR_FAILED);
+		return;
+	}  
+	// 开始监听
+	if( 0 != listen(m_sockListen,SOMAXCONN)){
+		closesocket(m_sockListen);
+		WSACleanup();
+		RETURN_LONG(WING_ERROR_FAILED);
+		return;
+	}
+
+
+	/*PER_HANDLE_DATA *accept_params = new PER_HANDLE_DATA();
+	accept_params->Socket = m_sockListen;
+
+	 _beginthreadex(NULL, 0, socket_worker, accept_params, 0, NULL);*/
+
+
+	 
+
+
+	COMPARAMS *accept_params = new COMPARAMS();
+	accept_params->Socket = m_sockListen;
+	accept_params->IOCompletionPort = m_hIOCompletionPort;
+	accept_params->threadid = GetCurrentThreadId();
+
+	 _beginthreadex(NULL, 0, accept_worker, accept_params/*参数*/, 0, NULL);
+
+	 MSG msg;
+	BOOL bRet;
+	//zval *retval_ptr;
+	int times=0;//param->times;
+	char szPeerAddress[16];  
+	 SOCKADDR_IN addr_conn;  
+	 int nSize =0;
+
+	while( (bRet = GetMessage( &msg, NULL, 0, 0 )) != 0)
+	{ 
+		if (bRet == -1)
+		{
+			free(accept_params);
+			RETURN_LONG(WING_ERROR_FAILED);	
+			return;
+		}
+
+		switch(msg.message){
+			
+		case WM_ONCONNECT:{
+						  //on connect
+							 zend_printf("new accept\n");
+							 zval *params;
+							 MAKE_STD_ZVAL(params);
+							 ZVAL_LONG(params,(long)msg.wParam);
+
+
+							
+							 nSize = sizeof(addr_conn);  
+							//initialize the memory block via the memset function  
+							 memset((void *)&addr_conn,0,sizeof(addr_conn));  
+				
+							 getpeername((SOCKET)msg.wParam,(SOCKADDR *)&addr_conn,&nSize);  
+  
+							
+							memset((void *)szPeerAddress,0,sizeof(szPeerAddress));   
+							strcpy(szPeerAddress,inet_ntoa(addr_conn.sin_addr));  
+
+							 zend_printf("ip:%s\n",szPeerAddress);
+
+							MAKE_STD_ZVAL(retval_ptr);
+							if(SUCCESS != call_user_function(EG(function_table),NULL,onconnect,retval_ptr,1,&params TSRMLS_CC)){
+								zval_ptr_dtor(&retval_ptr);
+								RETURN_LONG(WING_ERROR_FAILED);	
+								return;
+							}
+							zval_ptr_dtor(&retval_ptr);
+							zval_ptr_dtor(&params);
+
+							 zend_printf("new accept3\n");
+						  
+						  }break;
+		case WM_ACCEPT_ERROR:{
+							 //accept error
+							 }break;
+
+		}
+
+    } 
+
+	
+	RETURN_LONG(WING_SUCCESS);
+}
+
+ZEND_FUNCTION(wing_socket_info){
+
+	zval *socket;
+	
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z",&socket) != SUCCESS) {
+		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
+		return;
+	}
+
+	convert_to_long(socket);
+
+		char szPeerAddress[16];  
+	 SOCKADDR_IN addr_conn;  
+	 int nSize =0;
+
+	 nSize = sizeof(addr_conn);  
+							//initialize the memory block via the memset function  
+							 memset((void *)&addr_conn,0,sizeof(addr_conn));  
+				
+							 getpeername((SOCKET)Z_LVAL_P(socket),(SOCKADDR *)&addr_conn,&nSize);  
+  
+							
+							memset((void *)szPeerAddress,0,sizeof(szPeerAddress));   
+							strcpy(szPeerAddress,inet_ntoa(addr_conn.sin_addr));  
+
+							array_init(return_value);
+
+							add_assoc_string(return_value,"ip",szPeerAddress,1);
+                 // add_assoc_string(return_value,"wParam",(char*)msg.wParam,1);
+                  //add_assoc_long(return_value,"message",msg.message);
+                 // add_assoc_long(return_value,"time",msg.time);
+}
+//////////////////////////--socket-end--
 
 /* }}} */
 /* The previous line is mant for vim and emacs, so it can correctly fold and 
@@ -988,6 +1356,8 @@ const zend_function_entry wing_functions[] = {
 	PHP_FE(wing_destory_window,NULL)
 	PHP_FE(wing_message_box,NULL)
 	PHP_FE(wing_timer,NULL)
+	PHP_FE(wing_service,NULL)
+	PHP_FE(wing_socket_info,NULL)
 	PHP_FE_END	/* Must be the last line in wing_functions[] */
 };
 /* }}} */

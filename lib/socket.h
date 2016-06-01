@@ -23,4 +23,26 @@
 #pragma comment(lib,"Ws2_32.lib")
 
 
+#define DATA_BUFSIZE 8192
+typedef struct  
+{ 
+
+  OVERLAPPED OVerlapped; 
+  WSABUF DATABuf; 
+  CHAR Buffer[DATA_BUFSIZE]; 
+  DWORD BytesSend,BytesRecv; 
+
+}PER_IO_OPERATION_DATA, *LPPER_IO_OPERATION_DATA;
+
+ 
+typedef struct{ 
+  SOCKET Socket;
+} PER_HANDLE_DATA,*LPPER_HANDLE_DATA; 
+
+typedef struct{ 
+  SOCKET Socket;
+  HANDLE IOCompletionPort;
+  DWORD threadid;
+} COMPARAMS; 
+
 #endif // !__WING_SOCKET__
