@@ -30,7 +30,8 @@ typedef struct
   OVERLAPPED OVerlapped; 
   WSABUF DATABuf; 
   CHAR Buffer[DATA_BUFSIZE]; 
-  DWORD BytesSend,BytesRecv; 
+  //DWORD BytesSend,BytesRecv; 
+  int type;
 
 }PER_IO_OPERATION_DATA, *LPPER_IO_OPERATION_DATA;
 
@@ -44,5 +45,10 @@ typedef struct{
   HANDLE IOCompletionPort;
   DWORD threadid;
 } COMPARAMS; 
+
+typedef struct{
+	long len;
+	char *msg;
+} RECV_MSG;
 
 #endif // !__WING_SOCKET__
