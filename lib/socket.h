@@ -24,6 +24,8 @@
 
 
 #define DATA_BUFSIZE 8192
+#define OPE_RECV 1
+#define OPE_SEND 2
 typedef struct  
 { 
 

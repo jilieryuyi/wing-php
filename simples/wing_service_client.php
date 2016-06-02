@@ -18,36 +18,10 @@ while(1)
     if (!socket_write($socket, "$send_data\n")) {
         echo "Write failed\n";
     }
-      $c++;
+    $c++;
 
      echo $c,"\n";
-
-    // if ($buffer = socket_read($socket, 1024, PHP_NORMAL_READ)) {
-       //  echo "sent to server:$send_data\n response from server was:" . $buffer . "\n";
-     //}
-
-//sleep(1);
-
-    //break;
-}
-exit;
-//客户端去连接服务端并接受服务端返回的数据，如果返回的数据保护not connect就提示不能连接。
-while ($buffer = @socket_read($socket, 1024, PHP_NORMAL_READ)) {
-    if (preg_match("/not connect/",$buffer)) {
-        echo "don`t connect\n";
-        break;
-    } else {
-        //服务端传来的信息
-        echo "Buffer Data: " . $buffer . "\n";
-        echo "Writing to Socket\n";
-        // 将客户的信息写到通道中，传给服务器端
-        if (!socket_write($socket, "$send_data\n")) {
-            echo "Write failed\n";
-        }
-        //服务器端收到信息后，客户端接收服务端传给客户端的回应信息。
-        while ($buffer = socket_read($socket, 1024, PHP_NORMAL_READ)) {
-            echo "sent to server:$send_data\n response from server was:" . $buffer . "\n";
-        }
-
-    }
+     if ($buffer = socket_read($socket, 1024, PHP_NORMAL_READ)) {
+         echo "sent to server:$send_data\n response from server was:" . $buffer . "\n";
+     }
 }

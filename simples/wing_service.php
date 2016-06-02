@@ -24,4 +24,10 @@ $onclose = function($client){
         ,FILE_APPEND);
 
 };
-wing_service($onreceive,$onconnect,$onclose);
+$onerror = function($client,$error){
+    file_put_contents("wing_service_onerror.log",$client."\r\ninfo:".
+        json_encode(wing_socket_info($client))."\r\n".
+        "error:".$error."\r\n\r\n"
+        ,FILE_APPEND);
+};
+wing_service($onreceive,$onconnect,$onclose,$onerror);
