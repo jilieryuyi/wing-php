@@ -84,7 +84,7 @@ class Http{
                         "Content-Type: $mime_type"
                     ];
                     wing_socket_send_msg($client, implode("\r\n", $headers) . "\r\n\r\n" . $file);
-                    wing_close_socket($client);
+                    //wing_close_socket($client);
                     return;
                 }
 
@@ -106,7 +106,7 @@ class Http{
                     "Content-Type: image/x-icon"
                 ];
 				wing_socket_send_msg($client,implode("\r\n",$headers)."\r\n\r\n".$file);
-				wing_close_socket($client);
+				//wing_close_socket($client);
                 return;
             }*/
 			//image/png
@@ -122,7 +122,7 @@ class Http{
                     "Content-Type: image/jpg"
                 ];
 				wing_socket_send_msg($client,implode("\r\n",$headers)."\r\n\r\n".$file);
-				wing_close_socket($client);
+				//wing_close_socket($client);
                 return;
             }*/
 			
@@ -153,9 +153,9 @@ class Http{
             ];
 
 
-            echo implode("\r\n", $headers) . "\r\n\r\n" . $content;
+           // echo implode("\r\n", $headers) . "\r\n\r\n" . $content;
             wing_socket_send_msg($client, implode("\r\n", $headers) . "\r\n\r\n" . $content);
-            wing_close_socket($client);
+            //wing_close_socket($client);
             unset($_GET,$_POST,$_REQUEST);
             unset($content,$mime_type,$headers);
             return;
@@ -189,7 +189,7 @@ class Http{
                 //call_user_func_array($this->config["onreceive"],[$client,""]);
 
                 wing_socket_send_msg($client, implode("\r\n", $headers) . "\r\n\r\n" . $file);
-                wing_close_socket($client);
+                //wing_close_socket($client);
 
                 unset($_GET,$_POST,$_REQUEST);
             }
