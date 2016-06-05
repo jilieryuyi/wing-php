@@ -869,7 +869,12 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 		if(BytesTransferred==-1 && PerIOData==NULL)   
         { 
 			PostThreadMessageA(thread_id,WM_ONQUIT,WSAGetLastError(),(LPARAM)"error 2");
-            return 0;  
+            //zend_printf("socket_worker quit\r\n");
+			
+			closesocket(PerHandleData->Socket);
+			GlobalFree(PerHandleData);
+			GlobalFree(PerIOData);  
+			return 0;  
         }  
 
 		//首先检查套接字上是否发生错误，如果发生了则关闭套接字并且清除同套节字相关的SOCKET_INFORATION 结构体  
@@ -881,24 +886,28 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 		}
 
 		if(PerIOData->type==1)  {
+						//if(NULL==PerIOData->Buffer)continue;
+						RECV_MSG *recv_msg	= new RECV_MSG();
+						recv_msg->msg		= new char[BytesTransferred+1];
+	
+						memset(recv_msg->msg,0,sizeof(recv_msg->msg));
+
+						strcpy(recv_msg->msg,PerIOData->Buffer);
+						recv_msg->len =  BytesTransferred;
 				
-			RECV_MSG *recv_msg	= new RECV_MSG();
-			recv_msg->msg		= new char[BytesTransferred+1];
-			strcpy(recv_msg->msg,PerIOData->Buffer);
-			recv_msg->len =  BytesTransferred;
+						PostThreadMessageA(thread_id,WM_ONRECV,PerHandleData->Socket,(LPARAM)recv_msg);
+
+						BytesTransferred = 0;
+						Flags = 0;  
+						ZeroMemory(&(PerIOData->OVerlapped),sizeof(OVERLAPPED)); 
+						memset(PerIOData->Buffer,0,DATA_BUFSIZE);  
+
+						PerIOData->DATABuf.buf = PerIOData->Buffer;  
+						PerIOData->DATABuf.len = DATA_BUFSIZE;  
+						PerIOData->type = 1;
+
+						WSARecv(PerHandleData->Socket,&(PerIOData->DATABuf),1,&RecvBytes,&Flags,&(PerIOData->OVerlapped),NULL);
 				
-			PostThreadMessageA(thread_id,WM_ONRECV,PerHandleData->Socket,(LPARAM)recv_msg);
-
-			BytesTransferred = 0;
-			Flags = 0;  
-			ZeroMemory(&(PerIOData->OVerlapped),sizeof(OVERLAPPED)); 
-			memset(PerIOData->Buffer,0,DATA_BUFSIZE);  
-
-			PerIOData->DATABuf.buf = PerIOData->Buffer;  
-			PerIOData->DATABuf.len = DATA_BUFSIZE;  
-			PerIOData->type = 1;
-
-			WSARecv(PerHandleData->Socket,&(PerIOData->DATABuf),1,&RecvBytes,&Flags,&(PerIOData->OVerlapped),NULL);
 		}
 
 		else if(PerIOData->type==2)  
@@ -909,7 +918,6 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 		}  
 			
 	}  
-	MessageBoxA(0,"error","6=>socket_worker exit\n",0);
 	return 0;
 }  
 
@@ -942,16 +950,14 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 		 PerHandleData->Socket = accept;
 
 		 if( NULL == CreateIoCompletionPort ((HANDLE )accept ,m_hIOCompletionPort , (ULONG_PTR)PerHandleData ,0)){
-			PostThreadMessageA(threadid,WM_ONCLOSE,accept,NULL);
-			 closesocket(accept);
+			PostThreadMessageA(threadid,WM_ONCLOSE,(WPARAM)PerHandleData,NULL);
 			continue;
 		 }
 
 		PerIOData = (LPPER_IO_OPERATION_DATA)GlobalAlloc(GPTR,sizeof(PER_IO_OPERATION_DATA));
 		if ( PerIOData == NULL )
 		{
-			PostThreadMessageA(threadid,WM_ONCLOSE,accept,NULL);
-			closesocket(accept);
+			PostThreadMessageA(threadid,WM_ONCLOSE,(WPARAM)PerHandleData,NULL);
 			continue;
 		} 
 
@@ -966,18 +972,31 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 	}
 	return 0;
 }
+
+//CRITICAL_SECTION g_cs;
 ZEND_FUNCTION(wing_service){
 
 	zval *onreceive;
 	zval *onconnect;
 	zval *onclose;
 	zval *onerror;
+	zval *_params;
+	int port;
+	char *listen_ip;
+
 	MAKE_STD_ZVAL(onreceive);
 	MAKE_STD_ZVAL(onconnect);
 	MAKE_STD_ZVAL(onclose);
 	MAKE_STD_ZVAL(onerror);
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, 
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z",&_params) != SUCCESS) {
+		
+			RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
+			return;
+	}
+
+	/*if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, 
 		"zzzz",
 		&onreceive, 
 		&onconnect,
@@ -987,7 +1006,50 @@ ZEND_FUNCTION(wing_service){
 		
 			RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 			return;
+	}*/
+
+	//zend_hash_find();
+	if(Z_TYPE_P(_params) != IS_ARRAY){
+		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
+			return;
 	}
+
+
+
+
+	int argc;
+	HashTable *arr_hash;
+
+		zval  **data;
+		HashPosition pointer;
+		arr_hash	= Z_ARRVAL_P(_params);
+		argc		= zend_hash_num_elements(arr_hash);
+	
+		for(zend_hash_internal_pointer_reset_ex(arr_hash, &pointer); zend_hash_get_current_data_ex(arr_hash, (void**) &data, &pointer) == SUCCESS; zend_hash_move_forward_ex(arr_hash, &pointer)) {
+
+            char *key;
+            int key_len;
+            long index;
+
+            if (zend_hash_get_current_key_ex(arr_hash, &key, (uint*)&key_len, (ulong*)&index, 0, &pointer) == HASH_KEY_IS_STRING) {
+
+				if(strcmp(key,"port")==0){
+					port = Z_LVAL_PP(data);
+				}else if(strcmp(key,"listen")==0){
+					listen_ip = Z_STRVAL_PP(data);
+				}else if(strcmp(key,"onreceive")==0){
+					onreceive = *data;
+				}else if(strcmp(key,"onconnect")==0){
+					onconnect = *data;
+				}else if(strcmp(key,"onclose")==0){
+					onclose = *data;
+				}else if(strcmp(key,"onerror")==0){
+					onerror = *data;
+				}
+
+            } 
+        } 
+
 
 	//1、创建完成端口
 	HANDLE m_hIOCompletionPort = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0 ); 
@@ -1039,8 +1101,8 @@ ZEND_FUNCTION(wing_service){
 	ServerAddress.sin_family = AF_INET; 
 	// 这里可以选择绑定任何一个可用的地址，或者是自己指定的一个IP地址
 	//ServerAddress.sin_addr.s_addr = htonl(INADDR_ANY);                     
-	ServerAddress.sin_addr.s_addr = inet_addr("0.0.0.0");          
-	ServerAddress.sin_port = htons(6998);   
+	ServerAddress.sin_addr.s_addr = inet_addr(listen_ip);          
+	ServerAddress.sin_port = htons(port);   
 
 
 	// 绑定端口
@@ -1069,11 +1131,14 @@ ZEND_FUNCTION(wing_service){
 	int times=0;
 	int nSize =0;
 
+	//InitializeCriticalSection(&g_cs);//DeleteCriticalSection(&g_cs);
 	while( ( bRet = GetMessage( &msg, NULL, 0, 0 )) != 0)
 	{ 
 		if (bRet == -1)
 		{
 			free(accept_params);
+			//zend_printf("GetMessage error\r\n");
+			::MessageBoxA(0,"GetMessage error\r\n","quit",0);
 			RETURN_LONG(WING_ERROR_FAILED);	
 			return;
 		}
@@ -1081,6 +1146,7 @@ ZEND_FUNCTION(wing_service){
 		switch(msg.message){
 			case WM_ONCONNECT:
 			{
+				//zend_printf("onconnect\r\n");
 				zval *params;
 				zval *retval_ptr;
 				MAKE_STD_ZVAL(params);
@@ -1089,8 +1155,9 @@ ZEND_FUNCTION(wing_service){
 							 
 				if( SUCCESS != call_user_function(EG(function_table),NULL,onconnect,retval_ptr,1,&params TSRMLS_CC) ){
 					zval_ptr_dtor(&retval_ptr);
-					RETURN_LONG(WING_ERROR_FAILED);	
-					return;
+					zval_ptr_dtor(&params);
+					zend_error(WM_ONCONNECT,"WM_ONERROR call_user_function fail\r\n");
+					continue;
 				}
 				zval_ptr_dtor(&retval_ptr);
 				zval_ptr_dtor(&params);
@@ -1099,37 +1166,54 @@ ZEND_FUNCTION(wing_service){
 			break;
 			case WM_ACCEPT_ERROR:
 			{
+				////zend_printf("accept error\r\n");
 				//accept error
 			}
 			break;
 			case WM_ONRECV:
 			{
+				////zend_printf("onrecv\r\n");
+				//EnterCriticalSection(&g_cs);
+				
+				RECV_MSG *temp		= (RECV_MSG*)msg.lParam;
+				SOCKET sClient		= (SOCKET)msg.wParam;
 				zval *params[2];
 				zval *retval_ptr;
-				RECV_MSG *temp = (RECV_MSG*)msg.lParam;
-				
+
 				MAKE_STD_ZVAL(params[0]);
 				MAKE_STD_ZVAL(params[1]);
-				ZVAL_LONG(params[0],(long)msg.wParam);
-				ZVAL_STRING(params[1],temp->msg,1); 
+				ZVAL_LONG(params[0],(long)sClient);
+				//ZVAL_STRING(params[1],temp->msg,1); 
+				ZVAL_STRINGL(params[1],temp->msg,temp->len,1);
+
 				MAKE_STD_ZVAL(retval_ptr);
-	
-				if(SUCCESS != call_user_function(EG(function_table),NULL,onreceive,retval_ptr,2,params TSRMLS_CC)){
+				
+
+				if(SUCCESS!=call_user_function(EG(function_table),NULL,onreceive,retval_ptr,2,params TSRMLS_CC)){
 					zval_ptr_dtor(&retval_ptr);
-					RETURN_LONG(WING_ERROR_FAILED);	
-					return;
-				}
+					zval_ptr_dtor(&params[0]);
+					zval_ptr_dtor(&params[1]);
+				
+					free(temp->msg);
+					free(temp);
 		
+					zend_error(E_USER_WARNING,"call_user_function fail\r\n");
+					continue;
+				}
+				//zend_printf("recv=>%s\n\n",temp->msg);
 				zval_ptr_dtor(&retval_ptr);
-				zval_ptr_dtor(params);
-					
+				zval_ptr_dtor(&params[0]);
+				zval_ptr_dtor(&params[1]);
+				
 				free(temp->msg);
 				free(temp);
 
+				//LeaveCriticalSection(&g_cs);
 			}
 			break;
 			case WM_ONCLOSE_EX:
 			{
+				//zend_printf("oncloseex\r\n");
 				zval *params;
 				zval *retval_ptr;
 				MAKE_STD_ZVAL(params);
@@ -1138,8 +1222,10 @@ ZEND_FUNCTION(wing_service){
 							 
 				if(SUCCESS != call_user_function(EG(function_table),NULL,onclose,retval_ptr,1,&params TSRMLS_CC)){
 					zval_ptr_dtor(&retval_ptr);
-					RETURN_LONG(WING_ERROR_FAILED);	
-					return;
+					zval_ptr_dtor(&params);
+					closesocket((SOCKET)msg.wParam);
+					zend_error(E_USER_WARNING,"WM_ONCLOSE_EX call_user_function fail\r\n");
+					continue;
 				}
 				
 				zval_ptr_dtor(&retval_ptr);
@@ -1150,6 +1236,7 @@ ZEND_FUNCTION(wing_service){
 			break;
 			case WM_ONCLOSE:
 			{
+				//zend_printf("onclose\r\n");
 				LPPER_HANDLE_DATA _PerHandleData =(LPPER_HANDLE_DATA)msg.wParam;
 				zval *params;
 				zval *retval_ptr;
@@ -1159,8 +1246,13 @@ ZEND_FUNCTION(wing_service){
 							 
 				if(SUCCESS != call_user_function(EG(function_table),NULL,onclose,retval_ptr,1,&params TSRMLS_CC)){
 					zval_ptr_dtor(&retval_ptr);
-					RETURN_LONG(WING_ERROR_FAILED);	
-					return;
+					zval_ptr_dtor(&params);
+				
+					closesocket(_PerHandleData->Socket);
+					GlobalFree(_PerHandleData);  
+					
+					zend_error(WM_ONCLOSE,"WM_ONCLOSE call_user_function fail\r\n");
+					continue;
 				}
 							 
 				zval_ptr_dtor(&retval_ptr);
@@ -1172,6 +1264,7 @@ ZEND_FUNCTION(wing_service){
 			break;
 			case WM_ONERROR:{
 				
+				//zend_printf("onerror\r\n");
 				LPPER_HANDLE_DATA _PerHandleData =(LPPER_HANDLE_DATA)msg.wParam;
 				zval *params[2];
 				zval *retval_ptr;
@@ -1184,29 +1277,37 @@ ZEND_FUNCTION(wing_service){
 							 
 				if(SUCCESS != call_user_function(EG(function_table),NULL,onerror,retval_ptr,2,params TSRMLS_CC)){
 					zval_ptr_dtor(&retval_ptr);
-					RETURN_LONG(WING_ERROR_FAILED);	
-					return;
+					zval_ptr_dtor(&params[0]);
+					zval_ptr_dtor(&params[1]);
+					zend_error(WM_ONCLOSE,"WM_ONERROR call_user_function fail\r\n");
+					continue;
 				}
 							 
 				zval_ptr_dtor(&retval_ptr);
-				zval_ptr_dtor(params);
+				zval_ptr_dtor(&params[0]);
+				zval_ptr_dtor(&params[1]);
 
 			}
 			break;
 			case WM_ONQUIT:
 			{
+				//zend_printf("quit\r\n");
 				PostQueuedCompletionStatus(m_hIOCompletionPort, 0xFFFFFFFF, 0, NULL);
-				CloseHandle(PostQueuedCompletionStatus);
+				CloseHandle(m_hIOCompletionPort);
 				closesocket(m_sockListen);
 				WSACleanup();
+
+				//::MessageBoxA(0,"WM_ONQUIT\r\n","quit",0);
 				RETURN_LONG(WING_SUCCESS);
+				////zend_printf("1=>service quit\r\n");
 				return;
-			}
+			}break;
 
 		}
 
     } 
-	
+	//zend_printf("service quit\r\n");
+	//::MessageBoxA(0,"service quit\r\n","quit",0);
 	RETURN_LONG(WING_SUCCESS);
 }
 
@@ -1331,7 +1432,7 @@ PHP_MINIT_FUNCTION(wing)
 	//REGISTER_STRING_CONSTANT("WING_VERSION",PHP_WING_VERSION,CONST_CS | CONST_PERSISTENT);
 	zend_register_string_constant("WING_VERSION", sizeof("WING_VERSION"), PHP_WING_VERSION,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	
-	PHP_PATH = new CHAR[MAX_PATH];   //(TCHAR *)emalloc(sizeof(TCHAR)*MAX_PATH);//
+	PHP_PATH =new char[MAX_PATH];  
 	if(GetModuleFileName(NULL,PHP_PATH,MAX_PATH) != 0){
 		zend_register_string_constant("WING_PHP", sizeof("WING_PHP"), PHP_PATH,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	}
@@ -1370,8 +1471,9 @@ PHP_MSHUTDOWN_FUNCTION(wing)
 	/* uncomment this line if you have INI entries
 	UNREGISTER_INI_ENTRIES();
 	*/
-	//free(PHP_PATH);
 	free(PHP_PATH);
+	//efree(PHP_PATH);
+	//DeleteCriticalSection(&g_cs);
 	return SUCCESS;
 }
 /* }}} */

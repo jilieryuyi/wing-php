@@ -1,0 +1,12 @@
+<html>
+<head>
+  <title>wing php</title></head><body>
+<h1>hello wing php,<pre>[]</pre></h1>
+<img src="1.jpg?12131"/>
+<script>
+ /* window.setInterval(function(){
+    window.location.reload();
+  },1);*/
+</script>
+</body>
+</html>
