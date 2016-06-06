@@ -174,12 +174,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="lib\library.c" />
+    <ClCompile Include="lib\memory.c" />
+    <ClCompile Include="lib\queue.c" />
     <ClCompile Include="lib\socket.c" />
     <ClCompile Include="lib\strlib.c" />
     <ClCompile Include="wing.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lib\library.h" />
+    <ClInclude Include="lib\memory.h" />
+    <ClInclude Include="lib\queue.h" />
     <ClInclude Include="lib\socket.h" />
     <ClInclude Include="lib\strlib.h" />
     <ClInclude Include="php_wing.h" />

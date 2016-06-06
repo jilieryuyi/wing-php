@@ -16,6 +16,7 @@
 #include "Strsafe.h"
 #include "Mmsystem.h"
 #include "process.h"
+//#include "queue.h"
 #pragma comment(lib,"Kernel32.lib")
 #pragma comment(lib,"Shlwapi.lib")
 #pragma comment(lib,"Psapi.lib")
@@ -45,6 +46,7 @@ typedef struct{
   SOCKET Socket;
   HANDLE IOCompletionPort;
   DWORD threadid;
+  //queue_t *message_queue; 
 } COMPARAMS; 
 
 typedef struct{

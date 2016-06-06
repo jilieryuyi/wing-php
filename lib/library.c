@@ -5,11 +5,13 @@
  ******************************/
 #include "Windows.h"
 #include "library.h"
+#include "memory.h"
 //获取命令的绝对路径
 void get_command_path(const char *name,char *output){
 
 	int len		= GetEnvironmentVariable("PATH",NULL,0)+1;
 	char *var	= new char[len];
+	memory_add("add memory get_command_path 13\r\n");
 	GetEnvironmentVariable("PATH",var,len);
 
 	char *temp;
@@ -27,7 +29,7 @@ void get_command_path(const char *name,char *output){
 		memset(output,0,sizeof(t));
 		sprintf_s(output,MAX_PATH,"%s\\%s.exe\0",t,name);
 		if(PathFileExists(output)){
-			free(var);
+			free(var);memory_sub("sub memory get_command_path 32\r\n");
 			return;
 		}
 
@@ -35,13 +37,13 @@ void get_command_path(const char *name,char *output){
 		sprintf_s(output,MAX_PATH,"%s\\%s.bat\0",t,name);
 
 		if(PathFileExists(output)){
-			free(var);
+			free(var);memory_sub("sub memory get_command_path 40\r\n");
 			return;
 		}
 		var_begin	= temp+1;
 		start		= temp+1;
 	}
-	free(var);
+	free(var);memory_sub("sub memory get_command_path 46\r\n");
 	return;
 }
 
