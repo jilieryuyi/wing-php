@@ -12,8 +12,8 @@ void memory_add(char *debug){
     InterlockedIncrement(&memory_add_times);
 
 	if(debug!=0){
-		ofstream fout("D:/add_memory.log",ios::app);
-		fout<<debug;
+		//ofstream fout("D:/add_memory.log",ios::app);
+		//fout<<debug;
 	}
 
 }
@@ -23,8 +23,8 @@ void memory_sub(char *debug){
     InterlockedIncrement(&memory_sub_times);
 
 	if(debug!=0){
-		ofstream fout("D:/sub_memory.log",ios::app);
-		fout<<debug;
+		//ofstream fout("D:/sub_memory.log",ios::app);
+		//fout<<debug;
 	}
 }
 
@@ -62,4 +62,18 @@ void _accept_add_times_ex(){
 }
 void _accept_sub_times_ex(){
 	InterlockedIncrement(&accept_sub_times_ex);
+}
+
+void _recv_add_times(){
+	InterlockedIncrement(&recv_add_times);
+}
+void _recv_sub_times(){
+	InterlockedIncrement(&recv_sub_times);
+}
+
+void _send_msg_add_times(){
+	InterlockedIncrement(&send_msg_add_times);
+}
+void _send_msg_sub_times(){
+	InterlockedIncrement(&send_msg_sub_times);
 }

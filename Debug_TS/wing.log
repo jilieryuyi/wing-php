@@ -1,24 +1,81 @@
-﻿生成启动时间为 2016/6/5 19:07:04。
+﻿生成启动时间为 2016/6/7 22:33:33。
      1>项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\wing.vcxproj”在节点 2 上(Build 个目标)。
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I"D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\zxing\cli\src" /I"D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\zxing\core\src\\" /I..\.. /I..\..\main /I..\..\Zend /I..\..\..\bindlib_w32 /I..\..\TSRM /Zi /nologo /W3 /WX- /O2 /Oy- /D ZEND_DEBUG=1 /D WIN32 /D NDEBUG /D _WINDOWS /D _USRDLL /D WING_EXPORTS /D COMPILE_DL_WING /D ZTS=1 /D ZEND_WIN32 /D PHP_WIN32 /D HAVE_WING=1 /D _VC80_UPGRADE=0x0600 /D _WINDLL /D _MBCS /GF /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo".\Debug_TS\\" /Fd".\Debug_TS\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt lib\queue.c wing.c
-         queue.c
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I"D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\zxing\cli\src" /I"D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\zxing\core\src\\" /I..\.. /I..\..\main /I..\..\Zend /I..\..\..\bindlib_w32 /I..\..\TSRM /Zi /nologo /W3 /WX- /O2 /Oy- /D ZEND_DEBUG=1 /D WIN32 /D NDEBUG /D _WINDOWS /D _USRDLL /D WING_EXPORTS /D COMPILE_DL_WING /D ZTS=1 /D ZEND_WIN32 /D PHP_WIN32 /D HAVE_WING=1 /D _VC80_UPGRADE=0x0600 /D _WINDLL /D _MBCS /GF /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo".\Debug_TS\\" /Fd".\Debug_TS\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt lib\memory.c wing.c
+         memory.c
          wing.c
-     1>wing.c(920): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+     1>wing.c(969): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\string.h(110) : 参见“strcpy”的声明
          正在生成代码...
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V110\Microsoft.CppBuild.targets(1137,5): warning MSB8012: TargetPath(D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\.\Debug_TS\wing.dll) does not match the Linker's OutputFile property value (D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\Debug_TS\php_wing.dll). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V110\Microsoft.CppBuild.targets(1139,5): warning MSB8012: TargetName(wing) does not match the Linker's OutputFile property value (php_wing). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"..\..\Debug_TS/php_wing.dll" /INCREMENTAL:NO /NOLOGO /LIBPATH:..\..\Debug_TS odbc32.lib odbccp32.lib php5ts_debug.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\Debug_TS\wing.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\Debug_TS\php_wing.lib" /MACHINE:X86 /SAFESEH /FORCE:MULTIPLE /DLL .\Debug_TS\library.obj
+         .\Debug_TS\memory.obj
          .\Debug_TS\queue.obj
          .\Debug_TS\socket.obj
          .\Debug_TS\strlib.obj
          .\Debug_TS\wing.obj
+     1>memory.obj : warning LNK4006: "unsigned long queue_times" (?queue_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>memory.obj : warning LNK4006: "unsigned long memory_add_times" (?memory_add_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>memory.obj : warning LNK4006: "unsigned long memory_sub_times" (?memory_sub_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>memory.obj : warning LNK4006: "unsigned long accept_times" (?accept_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>memory.obj : warning LNK4006: "unsigned long accept_add_times" (?accept_add_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>memory.obj : warning LNK4006: "unsigned long accept_sub_times" (?accept_sub_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>memory.obj : warning LNK4006: "unsigned long send_times" (?send_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>memory.obj : warning LNK4006: "unsigned long recv_times" (?recv_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>memory.obj : warning LNK4006: "unsigned long queue_add_times" (?queue_add_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>memory.obj : warning LNK4006: "unsigned long queue_sub_times" (?queue_sub_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>memory.obj : warning LNK4006: "unsigned long node_add_times" (?node_add_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>memory.obj : warning LNK4006: "unsigned long node_sub_times" (?node_sub_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>memory.obj : warning LNK4006: "unsigned long accept_add_times_ex" (?accept_add_times_ex@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>memory.obj : warning LNK4006: "unsigned long accept_sub_times_ex" (?accept_sub_times_ex@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>memory.obj : warning LNK4006: "unsigned long recv_add_times" (?recv_add_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>memory.obj : warning LNK4006: "unsigned long recv_sub_times" (?recv_sub_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>memory.obj : warning LNK4006: "unsigned long send_msg_add_times" (?send_msg_add_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>memory.obj : warning LNK4006: "unsigned long send_msg_sub_times" (?send_msg_sub_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>queue.obj : warning LNK4006: "unsigned long queue_times" (?queue_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>queue.obj : warning LNK4006: "unsigned long memory_add_times" (?memory_add_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>queue.obj : warning LNK4006: "unsigned long memory_sub_times" (?memory_sub_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>queue.obj : warning LNK4006: "unsigned long accept_times" (?accept_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>queue.obj : warning LNK4006: "unsigned long accept_add_times" (?accept_add_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>queue.obj : warning LNK4006: "unsigned long accept_sub_times" (?accept_sub_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>queue.obj : warning LNK4006: "unsigned long send_times" (?send_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>queue.obj : warning LNK4006: "unsigned long recv_times" (?recv_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>queue.obj : warning LNK4006: "unsigned long queue_add_times" (?queue_add_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>queue.obj : warning LNK4006: "unsigned long queue_sub_times" (?queue_sub_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>queue.obj : warning LNK4006: "unsigned long node_add_times" (?node_add_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>queue.obj : warning LNK4006: "unsigned long node_sub_times" (?node_sub_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>queue.obj : warning LNK4006: "unsigned long accept_add_times_ex" (?accept_add_times_ex@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>queue.obj : warning LNK4006: "unsigned long accept_sub_times_ex" (?accept_sub_times_ex@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>queue.obj : warning LNK4006: "unsigned long recv_add_times" (?recv_add_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>queue.obj : warning LNK4006: "unsigned long recv_sub_times" (?recv_sub_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>queue.obj : warning LNK4006: "unsigned long send_msg_add_times" (?send_msg_add_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>queue.obj : warning LNK4006: "unsigned long send_msg_sub_times" (?send_msg_sub_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "struct _RTL_CRITICAL_SECTION queue_lock" (?queue_lock@@3U_RTL_CRITICAL_SECTION@@A) 已在 queue.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "unsigned long queue_times" (?queue_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "unsigned long memory_add_times" (?memory_add_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "unsigned long memory_sub_times" (?memory_sub_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "unsigned long accept_times" (?accept_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "unsigned long accept_add_times" (?accept_add_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "unsigned long accept_sub_times" (?accept_sub_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "unsigned long send_times" (?send_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "unsigned long recv_times" (?recv_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "unsigned long queue_add_times" (?queue_add_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "unsigned long queue_sub_times" (?queue_sub_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "unsigned long node_add_times" (?node_add_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "unsigned long node_sub_times" (?node_sub_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "unsigned long accept_add_times_ex" (?accept_add_times_ex@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "unsigned long accept_sub_times_ex" (?accept_sub_times_ex@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "unsigned long recv_add_times" (?recv_add_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "unsigned long recv_sub_times" (?recv_sub_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "unsigned long send_msg_add_times" (?send_msg_add_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "unsigned long send_msg_sub_times" (?send_msg_sub_times@@3KA) 已在 library.obj 中定义；已忽略第二个定义
             正在创建库 .\Debug_TS\php_wing.lib 和对象 .\Debug_TS\php_wing.exp
+     1>..\..\Debug_TS/php_wing.dll : warning LNK4088: 因 /FORCE 选项生成了映像；映像可能不能运行
          wing.vcxproj -> D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\.\Debug_TS\wing.dll
      1>已完成生成项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\wing.vcxproj”(Build 个目标)的操作。
 
 生成成功。
 
-已用时间 00:00:00.91
+已用时间 00:00:01.89

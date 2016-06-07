@@ -42,6 +42,7 @@
 #include "Shlwapi.h"
 #include "Strsafe.h"
 #include "Mmsystem.h"
+#include "mstcpip.h"
 
 #pragma comment(lib,"Kernel32.lib")
 #pragma comment(lib,"Shlwapi.lib")
@@ -122,6 +123,10 @@ void memory_times_show(){
 	zend_printf("node add times need more free:%ld\r\n",(node_add_times-node_sub_times));
 
 	zend_printf("accept and close:%ld\r\n",(accept_add_times_ex-accept_sub_times_ex));
+
+	zend_printf("recv times:%ld\r\n",(recv_add_times-recv_sub_times));
+
+	zend_printf("send msg times:%ld\r\n",(send_msg_add_times-send_msg_sub_times));
 
 }
 
@@ -902,7 +907,7 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 	{  
 		BOOL wstatus = GetQueuedCompletionStatus(ComplectionPort,&BytesTransferred,(LPDWORD)&PerHandleData,(LPOVERLAPPED*)&PerIOData,INFINITE);
 		
-		if(BytesTransferred==-1 && PerIOData==NULL)   
+		if(BytesTransferred==-1 && PerIOData==NULL)
         { 
 			/*if(!PostThreadMessageA(thread_id,WM_ONQUIT,WSAGetLastError(),(LPARAM)"error 2")){
 				
@@ -918,13 +923,15 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 			
 			closesocket(PerHandleData->Socket);
 			free(PerHandleData);memory_sub("sub memory socket_worker 903 \r\n");
-			free(PerIOData);  memory_sub("sub memory socket_worker 904 \r\n");
-			::MessageBoxA(0,"quit","error",0);
+			free(PerIOData);//_send_msg_sub_times();
+			
+			memory_sub("sub memory socket_worker 904 \r\n");
+			
 			return 0;  
         }  
 
 		//首先检查套接字上是否发生错误，如果发生了则关闭套接字并且清除同套节字相关的SOCKET_INFORATION 结构体  
-		if (BytesTransferred == 0) 
+		if (BytesTransferred == 0 || 10054 ==WSAGetLastError()) 
 		{   //socket 退出 断开  客户端掉线了
 			/*if(!PostThreadMessageA(thread_id,WM_ONCLOSE,(WPARAM)PerHandleData,(LPARAM)"error 3")){
 				::MessageBoxA(0,"PostThreadMessageA error","error",0);
@@ -933,20 +940,29 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 			elemType *msg=new elemType();memory_add("add memory elemType 915\r\n");
 
 			msg->message_id = WM_ONCLOSE;
-			msg->wparam = (unsigned long)PerHandleData;
+			msg->wparam = (unsigned long)PerHandleData->Socket;
 			msg->lparam = 0;
 			enQueue(message_queue,msg);
 
-			free(PerIOData);accept_times--;  memory_accept_sub_times();
+			free(PerIOData);//_send_msg_sub_times();
+			free(PerHandleData);memory_sub("sub memory accept_worker 922\r\n");
+					memory_accept_sub_times();
+
+			accept_times--;  memory_accept_sub_times();
 			memory_sub("sub memory accept_worker 922\r\n");
 			continue;  
 		}
 
 		if(PerIOData->type==OPE_RECV)  {
+			
 						//if(NULL==PerIOData->Buffer)continue;
-						RECV_MSG *recv_msg	= new RECV_MSG();memory_add("add memory socket_worker 929\r\n");
+						RECV_MSG *recv_msg	= new RECV_MSG();_recv_add_times();
+						
+						memory_add("add memory socket_worker 929\r\n");
 
-						recv_msg->msg		= new char[BytesTransferred+1];memory_add("add memory socket_worker 931\r\n");
+						recv_msg->msg		= new char[BytesTransferred+1];_recv_add_times();
+						
+						memory_add("add memory socket_worker 931\r\n");
 	
 						memset(recv_msg->msg,0,sizeof(recv_msg->msg));
 
@@ -975,14 +991,16 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 						int code = WSARecv(PerHandleData->Socket,&(PerIOData->DATABuf),1,&RecvBytes,&Flags,&(PerIOData->OVerlapped),NULL);
 						if(SOCKET_ERROR == code && WSAGetLastError() != WSA_IO_PENDING){
 
-							 elemType *msg=new elemType();memory_add("add memory elemType 1047\r\n");
+							elemType *msg=new elemType();memory_add("add memory elemType 1047\r\n");
 
-										msg->message_id = WM_ONCLOSE;
-										msg->wparam = (unsigned long)PerHandleData;
-										msg->lparam = 0;//(unsigned long)recv_msg;
-										enQueue(message_queue,msg);
+							msg->message_id = WM_ONCLOSE;
+							msg->wparam = (unsigned long)PerHandleData->Socket;
+							msg->lparam = 0;//(unsigned long)recv_msg;
+							enQueue(message_queue,msg);
 							free(PerIOData);memory_sub();
-							
+							free(PerHandleData);
+							memory_sub("sub memory accept_worker 922\r\n");
+					memory_accept_sub_times();
 							memory_accept_sub_times();
 						}
 				
@@ -991,7 +1009,9 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 		else if(PerIOData->type == OPE_SEND)  
 		{  
 			memset(PerIOData,0,sizeof(PER_IO_OPERATION_DATA));  
-			free(PerIOData); memory_sub("sub memory socket_worker 965\r\n");
+			free(PerIOData); 
+			_send_msg_sub_times();
+			memory_sub("sub memory socket_worker 965\r\n");
 			BytesTransferred = 0;
 		}  
 			
@@ -1023,16 +1043,31 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 			//if(!PostThreadMessageA(threadid,WM_ACCEPT_ERROR,NULL,NULL)){
 			//	::MessageBoxA(0,"PostThreadMessageA error","error",0);
 			// }
-			 elemType *msg=new elemType();memory_add("add memory elemType 997\r\n");
+			elemType *msg=new elemType();memory_add("add memory elemType 997\r\n");
 
-						msg->message_id = WM_ACCEPT_ERROR;
-						msg->wparam = 0;//(unsigned long)PerHandleData->Socket;
-						msg->lparam = 0;//(unsigned long)recv_msg;
-						if(!enQueue(message_queue,msg)){
-							::MessageBoxA(0,"1enQueue error","error",0);
-						}
-			 continue;
+			msg->message_id = WM_ACCEPT_ERROR;
+			msg->wparam = 0;//(unsigned long)PerHandleData->Socket;
+			msg->lparam = 0;//(unsigned long)recv_msg;
+			enQueue(message_queue,msg);
+			continue;
 		 }
+
+		/* unsigned long dwBytes = 0;
+		 DWORD dwError = 0L ;
+tcp_keepalive sKA_Settings = {0}, sReturned = {0} ;
+sKA_Settings.onoff = 1 ;
+sKA_Settings.keepalivetime = 1 ; // Keep Alive in 5.5 sec.
+sKA_Settings.keepaliveinterval = 1 ; // Resend if No-Reply 
+if (WSAIoctl(accept, SIO_KEEPALIVE_VALS, &sKA_Settings,
+sizeof(sKA_Settings), &sReturned, sizeof(sReturned),&dwBytes,
+NULL, NULL) != 0)
+{
+//dwError = WSAGetLastError() ;
+}
+*/
+
+
+
 
 		/* if(!PostThreadMessageA(threadid,WM_ONCONNECT,accept,NULL)){
 			::MessageBoxA(0,"PostThreadMessageA error","error",0);
@@ -1043,16 +1078,16 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 						msg->message_id = WM_ONCONNECT;
 						msg->wparam = (unsigned long)accept;
 						msg->lparam = 0;//(unsigned long)recv_msg;
-						if(!enQueue(message_queue,msg)){
-							::MessageBoxA(0,"2enQueue error","error",0);
-						}
+						enQueue(message_queue,msg);
 
 						_accept_add_times_ex();
 						 //::MessageBoxA(0,"enQueue","error",0);
 						
 		 // ::MessageBoxA(0,"accept error","error",0);
 
-		 PerHandleData =new PER_HANDLE_DATA();memory_add("add memory accept_worker 1020\r\n");memory_accept_add_times();
+		 PerHandleData =new PER_HANDLE_DATA();//(PER_HANDLE_DATA*) GlobalAlloc(GPTR,sizeof(PER_HANDLE_DATA));//new PER_HANDLE_DATA();
+		 
+		 memory_add("add memory accept_worker 1020\r\n");memory_accept_add_times();
 		 
 		 PerHandleData->Socket = accept;
 		// CreateIoCompletionPort ((HANDLE )accept ,m_hIOCompletionPort , (ULONG_PTR)PerHandleData ,0);
@@ -1062,13 +1097,13 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 			// }
 			   elemType *msg=new elemType();memory_add("add memory elemType 1029\r\n");
 
-						msg->message_id = WM_ONCLOSE;
-						msg->wparam = (unsigned long)PerHandleData;
-						msg->lparam = 0;
-						if(!enQueue(message_queue,msg)){
-							::MessageBoxA(0,"3enQueue error","error",0);
-						}
-
+				msg->message_id = WM_ONCLOSE;
+				msg->wparam = (unsigned long)PerHandleData->Socket;
+				msg->lparam = 0;
+				enQueue(message_queue,msg);
+				free(PerHandleData);
+				memory_sub("sub memory accept_worker 922\r\n");
+					memory_accept_sub_times();
 			continue;
 		 }
 
@@ -1081,11 +1116,13 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 			 elemType *msg=new elemType();memory_add("add memory elemType 1047\r\n");
 
 						msg->message_id = WM_ONCLOSE;
-						msg->wparam = (unsigned long)PerHandleData;
+						msg->wparam = (unsigned long)PerHandleData->Socket;
 						msg->lparam = 0;//(unsigned long)recv_msg;
-						if(!enQueue(message_queue,msg)){
-							::MessageBoxA(0,"4enQueue error","error",0);
-						}
+						enQueue(message_queue,msg);
+
+						free(PerHandleData);
+						memory_sub("sub memory accept_worker 922\r\n");
+					memory_accept_sub_times();
 			continue;
 		}else{
 			memory_accept_add_times();
@@ -1103,11 +1140,12 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 			 elemType *msg=new elemType();memory_add("add memory elemType 1047\r\n");
 
 						msg->message_id = WM_ONCLOSE;
-						msg->wparam = (unsigned long)PerHandleData;
+						msg->wparam = (unsigned long)PerHandleData->Socket;
 						msg->lparam = 0;//(unsigned long)recv_msg;
-						if(!enQueue(message_queue,msg)){
-							::MessageBoxA(0,"5enQueue error","error",0);
-						}
+						enQueue(message_queue,msg);
+						free(PerHandleData);
+						memory_sub("sub memory accept_worker 922\r\n");
+					memory_accept_sub_times();
 			free(PerIOData);memory_sub();
 			memory_accept_sub_times();
 		}
@@ -1326,6 +1364,8 @@ ZEND_FUNCTION(wing_service){
 	
 	LeaveCriticalSection(&queue_lock);
 
+	//zend_printf("last error:%ld\r\n",WSAGetLastError());
+
 		//  if(msg==NULL){
 			//  zend_printf("null...\r\n");
 			//  continue;
@@ -1342,7 +1382,7 @@ ZEND_FUNCTION(wing_service){
 		switch(msg->message_id){
 			case WM_ONCONNECT:
 			{
-				zend_printf("onconnect\r\n");
+			//	zend_printf("onconnect\r\n");
 				zval *params;
 				zval *retval_ptr;
 				MAKE_STD_ZVAL(params);
@@ -1371,6 +1411,7 @@ ZEND_FUNCTION(wing_service){
 			break;
 			case WM_ONRECV:
 			{
+				
 			//	zend_printf("onrecv\r\n");
 				//EnterCriticalSection(&g_cs);
 				
@@ -1397,8 +1438,8 @@ ZEND_FUNCTION(wing_service){
 					zval_ptr_dtor(&params[0]);
 					zval_ptr_dtor(&params[1]);
 				
-					free(temp->msg);memory_sub("sub memory wing_service 1319\r\n");
-					free(temp);memory_sub("sub memory wing_service 1321\r\n");
+					free(temp->msg);_recv_sub_times();memory_sub("sub memory wing_service 1319\r\n");
+					free(temp);_recv_sub_times();memory_sub("sub memory wing_service 1321\r\n");
 		
 					zend_error(E_USER_WARNING,"call_user_function fail\r\n");
 					continue;
@@ -1408,8 +1449,8 @@ ZEND_FUNCTION(wing_service){
 				zval_ptr_dtor(&params[0]);
 				zval_ptr_dtor(&params[1]);
 				
-				free(temp->msg);memory_sub("sub memory wing_service 1332\r\n");
-				free(temp);memory_sub("sub memory wing_service 1334\r\n");
+				free(temp->msg);_recv_sub_times();memory_sub("sub memory wing_service 1332\r\n");
+				free(temp);_recv_sub_times();memory_sub("sub memory wing_service 1334\r\n");
 
 				//LeaveCriticalSection(&g_cs);
 			}
@@ -1443,37 +1484,54 @@ ZEND_FUNCTION(wing_service){
 			break;
 			case WM_ONCLOSE:
 			{
-				zend_printf("onclose\r\n");
+				//zend_printf("1-onclose\r\n");
 				_accept_sub_times_ex();
 				//LPPER_HANDLE_DATA _PerHandleData =(LPPER_HANDLE_DATA)msg.wParam;
-				LPPER_HANDLE_DATA _PerHandleData =(LPPER_HANDLE_DATA)msg->wparam;
+
+				SOCKET client =(SOCKET)msg->wparam;
+
+				//closesocket(_PerHandleData->Socket);
+				//free(_PerHandleData); memory_sub("sub memory accept_worker 922\r\n");
+				//memory_accept_sub_times();
 
 				zval *params;
 				zval *retval_ptr;
 				MAKE_STD_ZVAL(params);
-				ZVAL_LONG(params,(long)_PerHandleData->Socket);
+				ZVAL_LONG(params,(long)client);
 				MAKE_STD_ZVAL(retval_ptr);
-							 
+					//	zend_printf("2-onclose\r\n");	 
 				if(SUCCESS != call_user_function(EG(function_table),NULL,onclose,retval_ptr,1,&params TSRMLS_CC)){
 					zval_ptr_dtor(&retval_ptr);
 					zval_ptr_dtor(&params);
 				
-					closesocket(_PerHandleData->Socket);
-					free(_PerHandleData); memory_sub("sub memory accept_worker 922\r\n");
-					memory_accept_sub_times();
+					closesocket(client);
+					//free(_PerHandleData); 
+					//memory_sub("sub memory accept_worker 922\r\n");
+					//memory_accept_sub_times();
 					
-					
+				//	zend_printf("3-onclose err\r\n");
 					zend_error(E_USER_WARNING,"WM_ONCLOSE call_user_function fail\r\n");
 					continue;
 				}
 							 
 				zval_ptr_dtor(&retval_ptr);
 				zval_ptr_dtor(&params);
+				//zend_printf("4-onclose\r\n");
+				closesocket(client);
+				//zend_printf("5-onclose\r\n");
+			
+					
+					//free(_PerHandleData); 
+					//zend_printf("51-onclose\r\n");
+					
+					//memory_sub();
+					//zend_printf("52-onclose\r\n");
+					
+					//memory_accept_sub_times();
+					//zend_printf("53-onclose\r\n");
 				
-				closesocket(_PerHandleData->Socket);
-				free(_PerHandleData); memory_sub("sub memory accept_worker 922\r\n");
-				memory_accept_sub_times();
 				
+				//zend_printf("6-onclose\r\n");
 				// zend_printf("accept times:%ld\r\n",accept_times);
 			}
 			break;
@@ -1481,14 +1539,14 @@ ZEND_FUNCTION(wing_service){
 				
 			//	zend_printf("onerror\r\n");
 				//LPPER_HANDLE_DATA _PerHandleData =(LPPER_HANDLE_DATA)msg.wParam;
-				LPPER_HANDLE_DATA _PerHandleData =(LPPER_HANDLE_DATA)msg->wparam;
+				SOCKET client =(SOCKET)msg->wparam;
 
 				zval *params[2];
 				zval *retval_ptr;
 				MAKE_STD_ZVAL(params[0]);
 				MAKE_STD_ZVAL(params[1]);
 
-				ZVAL_LONG(params[0],(long)_PerHandleData->Socket);
+				ZVAL_LONG(params[0],(long)client);
 				//ZVAL_STRING(params[1],(char*)msg.lParam,1);
 				ZVAL_STRING(params[1],(char*)msg->lparam,1);
 
@@ -1519,7 +1577,7 @@ ZEND_FUNCTION(wing_service){
 				free(msg);memory_sub();
 				free(message_queue);memory_sub("sub memory wing_service 1439\r\n");
 				DeleteCriticalSection(&queue_lock);
-				//::MessageBoxA(0,"WM_ONQUIT\r\n","quit",0);
+				//zend_printf("1=>service quit\r\n");
 				RETURN_LONG(WING_SUCCESS);
 
 				////zend_printf("1=>service quit\r\n");
@@ -1532,6 +1590,7 @@ ZEND_FUNCTION(wing_service){
 			_queue_sub_times();
 			
 		//}
+			//zend_printf("showshow\r\n");
 		 memory_times_show();
 
     } 
@@ -1617,6 +1676,10 @@ ZEND_FUNCTION(wing_socket_send_msg)
 	//send((SOCKET)Z_LVAL_P(socket),Z_STRVAL_P(msg),Z_STRLEN_P(msg),);
 
 	SOCKET sClient		= (SOCKET)Z_LVAL_P(socket);
+	send(sClient, Z_STRVAL_P(msg),Z_STRLEN_P(msg),0);
+	RETURN_LONG(WING_SUCCESS);
+	return;
+
 	char *pData			= Z_STRVAL_P(msg);
 	ulong Length		= Z_STRLEN_P(msg);
 	unsigned long  Flag	= 0;  
@@ -1627,7 +1690,10 @@ ZEND_FUNCTION(wing_socket_send_msg)
 		return;  
 	}
    
-	LPPER_IO_OPERATION_DATA  PerIoData=new PER_IO_OPERATION_DATA();memory_add("add memory wing_socket_send_msg 1544 \r\n");
+	LPPER_IO_OPERATION_DATA  PerIoData=new PER_IO_OPERATION_DATA();//(LPPER_IO_OPERATION_DATA) GlobalAlloc(GPTR,sizeof(PER_IO_OPERATION_DATA));//new PER_IO_OPERATION_DATA();
+	
+	_send_msg_add_times();
+	memory_add("add memory wing_socket_send_msg 1544 \r\n");
 
 	ZeroMemory(&(PerIoData->OVerlapped),sizeof(OVERLAPPED));      
 	PerIoData->DATABuf.buf	= pData; 
@@ -1635,9 +1701,16 @@ ZEND_FUNCTION(wing_socket_send_msg)
 	PerIoData->type			= OPE_SEND;
 	
 	int bRet=WSASend(sClient,&(PerIoData->DATABuf),1,&SendByte,Flag,&(PerIoData->OVerlapped),NULL);  
-	if(bRet==SOCKET_ERROR && GetLastError()!=WSA_IO_PENDING)  
+	if(bRet == 0){
+		///free(PerIoData);_send_msg_sub_times();
+		///memory_sub();
+		RETURN_LONG(WING_SUCCESS);
+		return;
+	}
+	if( WSAGetLastError()!=WSA_IO_PENDING)  
 	{  
-		free(PerIoData);memory_sub();
+		free(PerIoData);_send_msg_sub_times();
+		memory_sub();
 
 		RETURN_LONG(WING_ERROR_FAILED);
 		return;

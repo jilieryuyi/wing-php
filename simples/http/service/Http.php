@@ -52,9 +52,9 @@ class Http{
         if(!file_exists($path))
             $path = "404.html";
 
-        $fi         = new \finfo(FILEINFO_MIME_TYPE);
-        $mime_type  = $fi->file($path);
-        unset($fi);
+        //$fi         = new \finfo(FILEINFO_MIME_TYPE);
+        //$mime_type  = $fi->file($path);
+       // unset($fi);
 
         if($mime_type != "text/x-php") {
             //其他资源
@@ -68,6 +68,7 @@ class Http{
                 "Content-Type: $mime_type"
             ];
             wing_socket_send_msg($client, implode("\r\n", $headers) . "\r\n\r\n" . $file);
+            //usleep(10000);
             wing_close_socket($client);
 
             unset($msgs_spalit,$_get_tab,$get_tabs,$get,$path,
@@ -96,6 +97,7 @@ class Http{
         ];
 
         wing_socket_send_msg($client, implode("\r\n", $headers) . "\r\n\r\n" . $content);
+        //usleep(10000);
         wing_close_socket($client);
         unset($content,$msgs_spalit,$_get_tab,$get_tabs,$get,$path,
             $mime_type,$file,$headers,$client,$msg);
@@ -126,9 +128,9 @@ class Http{
 
         $mime_type="text/html";
 
-        $fi         = new \finfo(FILEINFO_MIME_TYPE);
-        $mime_type  = $fi->file($path);
-        unset($fi);
+       // $fi         = new \finfo(FILEINFO_MIME_TYPE);
+       // $mime_type  = $fi->file($path);
+       // unset($fi);
 
         if($mime_type != "text/x-php") {
             //其他资源
@@ -143,6 +145,7 @@ class Http{
             ];
 
             wing_socket_send_msg($client, implode("\r\n", $_headers) . "\r\n\r\n" . $file);
+            //usleep(10000);
             wing_close_socket($client);
 
             unset($headers,$content,$_get_tab,$get_tabs,$get,$path,
@@ -199,6 +202,7 @@ class Http{
             ];
 
             wing_socket_send_msg($client, implode("\r\n", $_headers) . "\r\n\r\n" .$__content);
+            //usleep(10000);
             wing_close_socket($client);
             unset($__content);
         }
@@ -218,12 +222,12 @@ class Http{
     }
     public function start(){
         $_self = $this;
-        $params["onreceive"] = function($client,$msg) use($_self){
+        $params["onreceive"]    = function($client,$msg) use($_self){
             $_self->onreceive($client,$msg);
         };
         $params["onconnect"]    = function($client){};
-        $params["onclose"]      = function(){};
-        $params["onerror"]      = function(){};
+        $params["onclose"]      = function($client){};
+        $params["onerror"]      = function($client,$error_msg){};
         $params["port"]         = $this->config["port"];
         $params["listen"]       = $this->config["listen"];
         register_shutdown_function(function(){
