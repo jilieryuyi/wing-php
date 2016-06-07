@@ -902,65 +902,68 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 	{  
 		BOOL wstatus = GetQueuedCompletionStatus(ComplectionPort,&BytesTransferred,(LPDWORD)&PerHandleData,(LPOVERLAPPED*)&PerIOData,INFINITE);
 		
-		if(BytesTransferred==-1 && PerIOData==NULL)   
+		if( BytesTransferred==-1 && PerIOData==NULL )   
         { 
-			/*if(!PostThreadMessageA(thread_id,WM_ONQUIT,WSAGetLastError(),(LPARAM)"error 2")){
-				
-			}*/
-			elemType *msg= new elemType();memory_add("add memory elemType 893\r\n");
+		
+			elemType *msg= new elemType();
+			memory_add();
 
 			msg->message_id = WM_ONQUIT;
 			msg->wparam = 0;
 			msg->lparam = 0;
 			enQueue(message_queue,msg);
-
-            //zend_printf("socket_worker quit\r\n");
 			
 			closesocket(PerHandleData->Socket);
-			free(PerHandleData);memory_sub("sub memory socket_worker 903 \r\n");
-			free(PerIOData);  memory_sub("sub memory socket_worker 904 \r\n");
-			::MessageBoxA(0,"quit","error",0);
+			
+			free(PerHandleData);
+			free(PerIOData);
+			
+			memory_sub();
+			memory_sub();
+			
 			return 0;  
         }  
 
 		//首先检查套接字上是否发生错误，如果发生了则关闭套接字并且清除同套节字相关的SOCKET_INFORATION 结构体  
-		if (BytesTransferred == 0) 
-		{   //socket 退出 断开  客户端掉线了
-			/*if(!PostThreadMessageA(thread_id,WM_ONCLOSE,(WPARAM)PerHandleData,(LPARAM)"error 3")){
-				::MessageBoxA(0,"PostThreadMessageA error","error",0);
-			}*/
-			//::MessageBoxA(0,"2=>error","error",0);
-			elemType *msg=new elemType();memory_add("add memory elemType 915\r\n");
+		if (BytesTransferred == 0 || 10054 == WSAGetLastError()) 
+		{   
+			elemType *msg=new elemType();
+			memory_add();
 
 			msg->message_id = WM_ONCLOSE;
-			msg->wparam = (unsigned long)PerHandleData;
+			msg->wparam = (unsigned long)PerHandleData->Socket;
 			msg->lparam = 0;
 			enQueue(message_queue,msg);
 
-			free(PerIOData);accept_times--;  memory_accept_sub_times();
-			memory_sub("sub memory accept_worker 922\r\n");
+			free(PerIOData);
+			free(PerHandleData);
+
+			memory_sub();
+			memory_sub();
+
+			memory_accept_sub_times();
+			memory_accept_sub_times();
 			continue;  
 		}
 
 		if(PerIOData->type==OPE_RECV)  {
-						//if(NULL==PerIOData->Buffer)continue;
-						RECV_MSG *recv_msg	= new RECV_MSG();memory_add("add memory socket_worker 929\r\n");
-
-						recv_msg->msg		= new char[BytesTransferred+1];memory_add("add memory socket_worker 931\r\n");
-	
+					
+						RECV_MSG *recv_msg	= new RECV_MSG();
+						recv_msg->msg		= new char[BytesTransferred+1];
 						memset(recv_msg->msg,0,sizeof(recv_msg->msg));
-
 						strcpy(recv_msg->msg,PerIOData->Buffer);
-						recv_msg->len =  BytesTransferred;
-				
-						/*if(!PostThreadMessageA(thread_id,WM_ONRECV,PerHandleData->Socket,(LPARAM)recv_msg)){
-							::MessageBoxA(0,"PostThreadMessageA error","error",0);
-						}*/
-						elemType *msg=new elemType();memory_add("add memory elemType 942\r\n");
+						recv_msg->len		=  BytesTransferred;
+
+						memory_add();
+						memory_add();
+	
+					
+						elemType *msg=new elemType();
+						memory_add();
 
 						msg->message_id = WM_ONRECV;
-						msg->wparam = (unsigned long)PerHandleData->Socket;
-						msg->lparam = (unsigned long)recv_msg;
+						msg->wparam		= (unsigned long)PerHandleData->Socket;
+						msg->lparam		= (unsigned long)recv_msg;
 						enQueue(message_queue,msg);
 
 						BytesTransferred = 0;
@@ -973,16 +976,23 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 						PerIOData->type = 1;
 
 						int code = WSARecv(PerHandleData->Socket,&(PerIOData->DATABuf),1,&RecvBytes,&Flags,&(PerIOData->OVerlapped),NULL);
-						if(SOCKET_ERROR == code && WSAGetLastError() != WSA_IO_PENDING){
+						if( 0 != code && WSAGetLastError() != WSA_IO_PENDING){
 
-							 elemType *msg=new elemType();memory_add("add memory elemType 1047\r\n");
+							elemType *msg=new elemType();
+							memory_add();
 
-										msg->message_id = WM_ONCLOSE;
-										msg->wparam = (unsigned long)PerHandleData;
-										msg->lparam = 0;//(unsigned long)recv_msg;
-										enQueue(message_queue,msg);
-							free(PerIOData);memory_sub();
+							msg->message_id = WM_ONCLOSE;
+							msg->wparam = (unsigned long)PerHandleData->Socket;
+							msg->lparam = 0;
+							enQueue(message_queue,msg);
+
+							free(PerIOData);
+							memory_sub();
+
+							free(PerHandleData);
+							memory_sub();
 							
+							memory_accept_sub_times();
 							memory_accept_sub_times();
 						}
 				
@@ -991,7 +1001,8 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 		else if(PerIOData->type == OPE_SEND)  
 		{  
 			memset(PerIOData,0,sizeof(PER_IO_OPERATION_DATA));  
-			free(PerIOData); memory_sub("sub memory socket_worker 965\r\n");
+			free(PerIOData); 
+			memory_sub();
 			BytesTransferred = 0;
 		}  
 			
@@ -1020,72 +1031,66 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 
 		 accept = WSAAccept(m_sockListen,NULL,NULL,NULL,0);
 		 if( INVALID_SOCKET == accept){
-			//if(!PostThreadMessageA(threadid,WM_ACCEPT_ERROR,NULL,NULL)){
-			//	::MessageBoxA(0,"PostThreadMessageA error","error",0);
-			// }
-			 elemType *msg=new elemType();memory_add("add memory elemType 997\r\n");
+			elemType *msg=new elemType();
+			memory_add();
 
-						msg->message_id = WM_ACCEPT_ERROR;
-						msg->wparam = 0;//(unsigned long)PerHandleData->Socket;
-						msg->lparam = 0;//(unsigned long)recv_msg;
-						if(!enQueue(message_queue,msg)){
-							::MessageBoxA(0,"1enQueue error","error",0);
-						}
-			 continue;
+			msg->message_id = WM_ACCEPT_ERROR;
+			msg->wparam = 0; 
+			msg->lparam = 0; 
+			enQueue(message_queue,msg);
+			continue;
 		 }
 
-		/* if(!PostThreadMessageA(threadid,WM_ONCONNECT,accept,NULL)){
-			::MessageBoxA(0,"PostThreadMessageA error","error",0);
-		 }*/
-		// ::MessageBoxA(0,"123accept error","error",0);
-		  elemType *msg=new elemType();memory_add("add memory elemType 1010\r\n");
+		
+		elemType *msg=new elemType();
+		memory_add();
 
-						msg->message_id = WM_ONCONNECT;
-						msg->wparam = (unsigned long)accept;
-						msg->lparam = 0;//(unsigned long)recv_msg;
-						if(!enQueue(message_queue,msg)){
-							::MessageBoxA(0,"2enQueue error","error",0);
-						}
+		msg->message_id = WM_ONCONNECT;
+		msg->wparam = (unsigned long)accept;
+		msg->lparam = 0;
+		enQueue(message_queue,msg);
 
-						_accept_add_times_ex();
-						 //::MessageBoxA(0,"enQueue","error",0);
-						
-		 // ::MessageBoxA(0,"accept error","error",0);
-
-		 PerHandleData =new PER_HANDLE_DATA();memory_add("add memory accept_worker 1020\r\n");memory_accept_add_times();
+		_accept_add_times_ex();
+					
+		 PerHandleData =new PER_HANDLE_DATA();
+		 memory_add();
+		 memory_accept_add_times();
 		 
 		 PerHandleData->Socket = accept;
-		// CreateIoCompletionPort ((HANDLE )accept ,m_hIOCompletionPort , (ULONG_PTR)PerHandleData ,0);
+	
 		 if( NULL == CreateIoCompletionPort ((HANDLE )accept ,m_hIOCompletionPort , (ULONG_PTR)PerHandleData ,0)){
-			// if(!PostThreadMessageA(threadid,WM_ONCLOSE,(WPARAM)PerHandleData,NULL)){
-			//	::MessageBoxA(0,"PostThreadMessageA error","error",0);
-			// }
-			   elemType *msg=new elemType();memory_add("add memory elemType 1029\r\n");
+			
+			elemType *msg=new elemType();
+			memory_add("add memory elemType 1029\r\n");
 
-						msg->message_id = WM_ONCLOSE;
-						msg->wparam = (unsigned long)PerHandleData;
-						msg->lparam = 0;
-						if(!enQueue(message_queue,msg)){
-							::MessageBoxA(0,"3enQueue error","error",0);
-						}
+			msg->message_id = WM_ONCLOSE;
+			msg->wparam = (unsigned long)PerHandleData->Socket;
+			msg->lparam = 0;
+			enQueue(message_queue,msg);
+
+			free(PerHandleData);
+			memory_sub();
+			memory_accept_sub_times();
 
 			continue;
 		 }
 
-		PerIOData = new PER_IO_OPERATION_DATA();memory_add("add memory accept_worker 1040\r\n");
+		PerIOData = new PER_IO_OPERATION_DATA();
+		memory_add();
+
 		if ( PerIOData == NULL )
 		{
-			//if(!PostThreadMessageA(threadid,WM_ONCLOSE,(WPARAM)PerHandleData,NULL)){
-			//	::MessageBoxA(0,"PostThreadMessageA error","error",0);
-			//}
-			 elemType *msg=new elemType();memory_add("add memory elemType 1047\r\n");
+			elemType *msg=new elemType();
+			memory_add();
 
-						msg->message_id = WM_ONCLOSE;
-						msg->wparam = (unsigned long)PerHandleData;
-						msg->lparam = 0;//(unsigned long)recv_msg;
-						if(!enQueue(message_queue,msg)){
-							::MessageBoxA(0,"4enQueue error","error",0);
-						}
+			msg->message_id = WM_ONCLOSE;
+			msg->wparam = (unsigned long)PerHandleData->Socket;
+			msg->lparam = 0;
+			enQueue(message_queue,msg);
+
+			free(PerHandleData);
+			memory_sub();
+			memory_accept_sub_times();
 			continue;
 		}else{
 			memory_accept_add_times();
@@ -1100,15 +1105,20 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 
 		int code = WSARecv(accept,&(PerIOData->DATABuf),1,&RecvBytes,&Flags,&(PerIOData->OVerlapped),NULL);
 		if(0 != code && WSAGetLastError() != WSA_IO_PENDING){
-			 elemType *msg=new elemType();memory_add("add memory elemType 1047\r\n");
+			elemType *msg=new elemType();
+			memory_add();
 
-						msg->message_id = WM_ONCLOSE;
-						msg->wparam = (unsigned long)PerHandleData;
-						msg->lparam = 0;//(unsigned long)recv_msg;
-						if(!enQueue(message_queue,msg)){
-							::MessageBoxA(0,"5enQueue error","error",0);
-						}
-			free(PerIOData);memory_sub();
+			msg->message_id = WM_ONCLOSE;
+			msg->wparam = (unsigned long)PerHandleData->Socket;
+			msg->lparam = 0;
+			enQueue(message_queue,msg);
+
+			free(PerHandleData);
+			memory_sub();
+			memory_accept_sub_times();
+
+			free(PerIOData);
+			memory_sub();
 			memory_accept_sub_times();
 		}
 	}
@@ -1446,22 +1456,20 @@ ZEND_FUNCTION(wing_service){
 				zend_printf("onclose\r\n");
 				_accept_sub_times_ex();
 				//LPPER_HANDLE_DATA _PerHandleData =(LPPER_HANDLE_DATA)msg.wParam;
-				LPPER_HANDLE_DATA _PerHandleData =(LPPER_HANDLE_DATA)msg->wparam;
+				SOCKET client =(SOCKET)msg->wparam;
 
 				zval *params;
 				zval *retval_ptr;
 				MAKE_STD_ZVAL(params);
-				ZVAL_LONG(params,(long)_PerHandleData->Socket);
+				ZVAL_LONG(params,(long)client);
 				MAKE_STD_ZVAL(retval_ptr);
 							 
 				if(SUCCESS != call_user_function(EG(function_table),NULL,onclose,retval_ptr,1,&params TSRMLS_CC)){
 					zval_ptr_dtor(&retval_ptr);
 					zval_ptr_dtor(&params);
 				
-					closesocket(_PerHandleData->Socket);
-					free(_PerHandleData); memory_sub("sub memory accept_worker 922\r\n");
-					memory_accept_sub_times();
-					
+					closesocket(client);
+	
 					
 					zend_error(E_USER_WARNING,"WM_ONCLOSE call_user_function fail\r\n");
 					continue;
@@ -1470,10 +1478,8 @@ ZEND_FUNCTION(wing_service){
 				zval_ptr_dtor(&retval_ptr);
 				zval_ptr_dtor(&params);
 				
-				closesocket(_PerHandleData->Socket);
-				free(_PerHandleData); memory_sub("sub memory accept_worker 922\r\n");
-				memory_accept_sub_times();
-				
+				closesocket(client);
+				zend_printf("onclose\r\n");
 				// zend_printf("accept times:%ld\r\n",accept_times);
 			}
 			break;
@@ -1481,14 +1487,14 @@ ZEND_FUNCTION(wing_service){
 				
 			//	zend_printf("onerror\r\n");
 				//LPPER_HANDLE_DATA _PerHandleData =(LPPER_HANDLE_DATA)msg.wParam;
-				LPPER_HANDLE_DATA _PerHandleData =(LPPER_HANDLE_DATA)msg->wparam;
+				SOCKET client =(SOCKET)msg->wparam;
 
 				zval *params[2];
 				zval *retval_ptr;
 				MAKE_STD_ZVAL(params[0]);
 				MAKE_STD_ZVAL(params[1]);
 
-				ZVAL_LONG(params[0],(long)_PerHandleData->Socket);
+				ZVAL_LONG(params[0],(long)client);
 				//ZVAL_STRING(params[1],(char*)msg.lParam,1);
 				ZVAL_STRING(params[1],(char*)msg->lparam,1);
 
@@ -1614,9 +1620,10 @@ ZEND_FUNCTION(wing_socket_send_msg)
 	}
 
 	convert_to_long(socket);
-	//send((SOCKET)Z_LVAL_P(socket),Z_STRVAL_P(msg),Z_STRLEN_P(msg),);
-
-	SOCKET sClient		= (SOCKET)Z_LVAL_P(socket);
+	send((SOCKET)Z_LVAL_P(socket),Z_STRVAL_P(msg),Z_STRLEN_P(msg),0);
+	RETURN_LONG(WING_SUCCESS);
+	return;
+	/*SOCKET sClient		= (SOCKET)Z_LVAL_P(socket);
 	char *pData			= Z_STRVAL_P(msg);
 	ulong Length		= Z_STRLEN_P(msg);
 	unsigned long  Flag	= 0;  
@@ -1642,7 +1649,7 @@ ZEND_FUNCTION(wing_socket_send_msg)
 		RETURN_LONG(WING_ERROR_FAILED);
 		return;
 	} 
-	RETURN_LONG(WING_SUCCESS);
+	RETURN_LONG(WING_SUCCESS);*/
 }  
   
 

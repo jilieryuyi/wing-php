@@ -12,8 +12,8 @@ void memory_add(char *debug){
     InterlockedIncrement(&memory_add_times);
 
 	if(debug!=0){
-		ofstream fout("D:/add_memory.log",ios::app);
-		fout<<debug;
+		//ofstream fout("D:/add_memory.log",ios::app);
+		//fout<<debug;
 	}
 
 }
@@ -23,8 +23,8 @@ void memory_sub(char *debug){
     InterlockedIncrement(&memory_sub_times);
 
 	if(debug!=0){
-		ofstream fout("D:/sub_memory.log",ios::app);
-		fout<<debug;
+		//ofstream fout("D:/sub_memory.log",ios::app);
+		//fout<<debug;
 	}
 }
 
