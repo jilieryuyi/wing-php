@@ -1343,12 +1343,7 @@ ZEND_FUNCTION(wing_service){
 			continue;
 		}
 
-		//zend_printf("start...\r\n");
-
 		
-		//zend_printf("start...\r\n");
-
-		//  outQueue(message_queue,msg);
 
 
 	
@@ -1365,31 +1360,21 @@ ZEND_FUNCTION(wing_service){
     {  
         message_queue->tail = NULL;  
     }  
-    free(_temp_node);memory_sub("sub memory outQueue 59\r\n"); 
+    free(_temp_node);
+	memory_sub("sub memory outQueue 59\r\n"); 
 	_node_sub_times();
 
 	
 	LeaveCriticalSection(&queue_lock);
 
-	//zend_printf("last error:%ld\r\n",WSAGetLastError());
+	zend_printf("last error:%ld\r\n",WSAGetLastError());
 
-		//  if(msg==NULL){
-			//  zend_printf("null...\r\n");
-			//  continue;
-		//  }
-
-		//  if(msg == NULL) continue;
-		 
-		 
-
-		//if(NULL == msg) continue;
-
-		//zend_printf("message:%ld\r\n",msg->message_id);
+	
 
 		switch(msg->message_id){
 			case WM_ONCONNECT:
 			{
-			//	zend_printf("onconnect\r\n");
+				zend_printf("onconnect\r\n");
 				zval *params;
 				zval *retval_ptr;
 				MAKE_STD_ZVAL(params);
@@ -1412,14 +1397,14 @@ ZEND_FUNCTION(wing_service){
 			break;
 			case WM_ACCEPT_ERROR:
 			{
-			//	zend_printf("accept error\r\n");
+				zend_printf("accept error\r\n");
 				//accept error
 			}
 			break;
 			case WM_ONRECV:
 			{
 				
-			//	zend_printf("onrecv\r\n");
+				zend_printf("onrecv\r\n");
 				//EnterCriticalSection(&g_cs);
 				
 				//RECV_MSG *temp		= (RECV_MSG*)msg.lParam;
@@ -1464,7 +1449,7 @@ ZEND_FUNCTION(wing_service){
 			break;
 			case WM_ONCLOSE_EX:
 			{
-			//	zend_printf("onclose ex\r\n");
+				zend_printf("onclose ex\r\n");
 				zval *params;
 				zval *retval_ptr;
 				MAKE_STD_ZVAL(params);
@@ -1521,7 +1506,7 @@ ZEND_FUNCTION(wing_service){
 			}
 			break;
 			case WM_ONERROR:{
-				
+				zend_printf("WM_ONERROR\r\n");
 				SOCKET client =(SOCKET)msg->wparam;
 
 				zval *params[2];
@@ -1551,7 +1536,7 @@ ZEND_FUNCTION(wing_service){
 			break;
 			case WM_ONQUIT:
 			{
-			//	zend_printf("quit\r\n");
+				zend_printf("quit\r\n");
 				PostQueuedCompletionStatus(m_hIOCompletionPort, 0xFFFFFFFF, 0, NULL);
 				CloseHandle(m_hIOCompletionPort);
 				closesocket(m_sockListen);
@@ -1577,7 +1562,7 @@ ZEND_FUNCTION(wing_service){
 		 memory_times_show();
 
     } 
-	//zend_printf("service quit\r\n");
+	zend_printf("service quit\r\n");
 	//::MessageBoxA(0,"service quit\r\n","quit",0);
 	RETURN_LONG(WING_SUCCESS);
 }
