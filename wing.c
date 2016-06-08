@@ -543,7 +543,7 @@ ZEND_FUNCTION(wing_process_isalive)
  *@--test ok
  */
 ZEND_FUNCTION(wing_get_env){
-	zend_printf("wing_get_env\r\n");
+	
 	char *name;
 	//zval *temp;
 	int name_len;
