@@ -1,8 +1,10 @@
-#include "memory.h"
-#include <iostream>
-#include <fstream>
-
 #include <Windows.h>
+//#include <iostream>
+//#include <fstream>
+#include "memory.h"
+
+
+
 
 using namespace std;
 
@@ -62,4 +64,18 @@ void _accept_add_times_ex(){
 }
 void _accept_sub_times_ex(){
 	InterlockedIncrement(&accept_sub_times_ex);
+}
+
+void _recv_add_times(){
+	InterlockedIncrement(&recv_add_times);
+}
+void _recv_sub_times(){
+	InterlockedIncrement(&recv_sub_times);
+}
+
+void _send_msg_add_times(){
+	InterlockedIncrement(&send_msg_add_times);
+}
+void _send_msg_sub_times(){
+	InterlockedIncrement(&send_msg_sub_times);
 }

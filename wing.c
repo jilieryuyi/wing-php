@@ -42,6 +42,7 @@
 #include "Shlwapi.h"
 #include "Strsafe.h"
 #include "Mmsystem.h"
+#include "mstcpip.h"
 
 #pragma comment(lib,"Kernel32.lib")
 #pragma comment(lib,"Shlwapi.lib")
@@ -122,6 +123,10 @@ void memory_times_show(){
 	zend_printf("node add times need more free:%ld\r\n",(node_add_times-node_sub_times));
 
 	zend_printf("accept and close:%ld\r\n",(accept_add_times_ex-accept_sub_times_ex));
+
+	zend_printf("recv times:%ld\r\n",(recv_add_times-recv_sub_times));
+
+	zend_printf("send msg times:%ld\r\n",(send_msg_add_times-send_msg_sub_times));
 
 }
 
@@ -925,6 +930,7 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
         }  
 
 		//首先检查套接字上是否发生错误，如果发生了则关闭套接字并且清除同套节字相关的SOCKET_INFORATION 结构体  
+
 		if (BytesTransferred == 0 || 10054 == WSAGetLastError()) 
 		{   
 			elemType *msg=new elemType();
@@ -947,9 +953,13 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 		}
 
 		if(PerIOData->type==OPE_RECV)  {
+
 					
 						RECV_MSG *recv_msg	= new RECV_MSG();
 						recv_msg->msg		= new char[BytesTransferred+1];
+
+						_recv_add_times();
+									
 						memset(recv_msg->msg,0,sizeof(recv_msg->msg));
 						strcpy(recv_msg->msg,PerIOData->Buffer);
 						recv_msg->len		=  BytesTransferred;
@@ -986,6 +996,7 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 							msg->lparam = 0;
 							enQueue(message_queue,msg);
 
+
 							free(PerIOData);
 							memory_sub();
 
@@ -1002,7 +1013,11 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 		{  
 			memset(PerIOData,0,sizeof(PER_IO_OPERATION_DATA));  
 			free(PerIOData); 
+
 			memory_sub();
+
+			_send_msg_sub_times();
+
 			BytesTransferred = 0;
 		}  
 			
@@ -1031,24 +1046,43 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 
 		 accept = WSAAccept(m_sockListen,NULL,NULL,NULL,0);
 		 if( INVALID_SOCKET == accept){
+
 			elemType *msg=new elemType();
 			memory_add();
 
 			msg->message_id = WM_ACCEPT_ERROR;
 			msg->wparam = 0; 
 			msg->lparam = 0; 
+
 			enQueue(message_queue,msg);
 			continue;
 		 }
 
-		
+/* unsigned long dwBytes = 0;
+		 DWORD dwError = 0L ;
+tcp_keepalive sKA_Settings = {0}, sReturned = {0} ;
+sKA_Settings.onoff = 1 ;
+sKA_Settings.keepalivetime = 1 ; // Keep Alive in 5.5 sec.
+sKA_Settings.keepaliveinterval = 1 ; // Resend if No-Reply 
+if (WSAIoctl(accept, SIO_KEEPALIVE_VALS, &sKA_Settings,
+sizeof(sKA_Settings), &sReturned, sizeof(sReturned),&dwBytes,
+NULL, NULL) != 0)
+{
+//dwError = WSAGetLastError() ;
+}
+*/
+
+
+
+						
+
 		elemType *msg=new elemType();
 		memory_add();
-
 		msg->message_id = WM_ONCONNECT;
 		msg->wparam = (unsigned long)accept;
 		msg->lparam = 0;
 		enQueue(message_queue,msg);
+
 
 		_accept_add_times_ex();
 					
@@ -1071,7 +1105,7 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 			free(PerHandleData);
 			memory_sub();
 			memory_accept_sub_times();
-
+				
 			continue;
 		 }
 
@@ -1091,6 +1125,7 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 			free(PerHandleData);
 			memory_sub();
 			memory_accept_sub_times();
+
 			continue;
 		}else{
 			memory_accept_add_times();
@@ -1336,6 +1371,8 @@ ZEND_FUNCTION(wing_service){
 	
 	LeaveCriticalSection(&queue_lock);
 
+	//zend_printf("last error:%ld\r\n",WSAGetLastError());
+
 		//  if(msg==NULL){
 			//  zend_printf("null...\r\n");
 			//  continue;
@@ -1352,7 +1389,7 @@ ZEND_FUNCTION(wing_service){
 		switch(msg->message_id){
 			case WM_ONCONNECT:
 			{
-				zend_printf("onconnect\r\n");
+			//	zend_printf("onconnect\r\n");
 				zval *params;
 				zval *retval_ptr;
 				MAKE_STD_ZVAL(params);
@@ -1381,6 +1418,7 @@ ZEND_FUNCTION(wing_service){
 			break;
 			case WM_ONRECV:
 			{
+				
 			//	zend_printf("onrecv\r\n");
 				//EnterCriticalSection(&g_cs);
 				
@@ -1407,8 +1445,8 @@ ZEND_FUNCTION(wing_service){
 					zval_ptr_dtor(&params[0]);
 					zval_ptr_dtor(&params[1]);
 				
-					free(temp->msg);memory_sub("sub memory wing_service 1319\r\n");
-					free(temp);memory_sub("sub memory wing_service 1321\r\n");
+					free(temp->msg);_recv_sub_times();memory_sub("sub memory wing_service 1319\r\n");
+					free(temp);_recv_sub_times();memory_sub("sub memory wing_service 1321\r\n");
 		
 					zend_error(E_USER_WARNING,"call_user_function fail\r\n");
 					continue;
@@ -1418,8 +1456,8 @@ ZEND_FUNCTION(wing_service){
 				zval_ptr_dtor(&params[0]);
 				zval_ptr_dtor(&params[1]);
 				
-				free(temp->msg);memory_sub("sub memory wing_service 1332\r\n");
-				free(temp);memory_sub("sub memory wing_service 1334\r\n");
+				free(temp->msg);_recv_sub_times();memory_sub("sub memory wing_service 1332\r\n");
+				free(temp);_recv_sub_times();memory_sub("sub memory wing_service 1334\r\n");
 
 				//LeaveCriticalSection(&g_cs);
 			}
@@ -1453,9 +1491,9 @@ ZEND_FUNCTION(wing_service){
 			break;
 			case WM_ONCLOSE:
 			{
-				zend_printf("onclose\r\n");
+				zend_printf("1-onclose\r\n");
 				_accept_sub_times_ex();
-				//LPPER_HANDLE_DATA _PerHandleData =(LPPER_HANDLE_DATA)msg.wParam;
+
 				SOCKET client =(SOCKET)msg->wparam;
 
 				zval *params;
@@ -1463,30 +1501,28 @@ ZEND_FUNCTION(wing_service){
 				MAKE_STD_ZVAL(params);
 				ZVAL_LONG(params,(long)client);
 				MAKE_STD_ZVAL(retval_ptr);
-							 
+	 
 				if(SUCCESS != call_user_function(EG(function_table),NULL,onclose,retval_ptr,1,&params TSRMLS_CC)){
 					zval_ptr_dtor(&retval_ptr);
 					zval_ptr_dtor(&params);
 				
 					closesocket(client);
-	
-					
 					zend_error(E_USER_WARNING,"WM_ONCLOSE call_user_function fail\r\n");
 					continue;
 				}
 							 
 				zval_ptr_dtor(&retval_ptr);
 				zval_ptr_dtor(&params);
-				
+
+				closesocket(client);
+	
 				closesocket(client);
 				zend_printf("onclose\r\n");
-				// zend_printf("accept times:%ld\r\n",accept_times);
+
 			}
 			break;
 			case WM_ONERROR:{
 				
-			//	zend_printf("onerror\r\n");
-				//LPPER_HANDLE_DATA _PerHandleData =(LPPER_HANDLE_DATA)msg.wParam;
 				SOCKET client =(SOCKET)msg->wparam;
 
 				zval *params[2];
@@ -1525,7 +1561,7 @@ ZEND_FUNCTION(wing_service){
 				free(msg);memory_sub();
 				free(message_queue);memory_sub("sub memory wing_service 1439\r\n");
 				DeleteCriticalSection(&queue_lock);
-				//::MessageBoxA(0,"WM_ONQUIT\r\n","quit",0);
+				//zend_printf("1=>service quit\r\n");
 				RETURN_LONG(WING_SUCCESS);
 
 				////zend_printf("1=>service quit\r\n");
@@ -1538,6 +1574,7 @@ ZEND_FUNCTION(wing_service){
 			_queue_sub_times();
 			
 		//}
+			//zend_printf("showshow\r\n");
 		 memory_times_show();
 
     } 
@@ -1620,10 +1657,20 @@ ZEND_FUNCTION(wing_socket_send_msg)
 	}
 
 	convert_to_long(socket);
+
 	send((SOCKET)Z_LVAL_P(socket),Z_STRVAL_P(msg),Z_STRLEN_P(msg),0);
 	RETURN_LONG(WING_SUCCESS);
 	return;
 	/*SOCKET sClient		= (SOCKET)Z_LVAL_P(socket);
+
+	//send((SOCKET)Z_LVAL_P(socket),Z_STRVAL_P(msg),Z_STRLEN_P(msg),);
+
+	SOCKET sClient		= (SOCKET)Z_LVAL_P(socket);
+	send(sClient, Z_STRVAL_P(msg),Z_STRLEN_P(msg),0);
+	RETURN_LONG(WING_SUCCESS);
+	return;
+
+
 	char *pData			= Z_STRVAL_P(msg);
 	ulong Length		= Z_STRLEN_P(msg);
 	unsigned long  Flag	= 0;  
@@ -1634,7 +1681,10 @@ ZEND_FUNCTION(wing_socket_send_msg)
 		return;  
 	}
    
-	LPPER_IO_OPERATION_DATA  PerIoData=new PER_IO_OPERATION_DATA();memory_add("add memory wing_socket_send_msg 1544 \r\n");
+	LPPER_IO_OPERATION_DATA  PerIoData=new PER_IO_OPERATION_DATA();//(LPPER_IO_OPERATION_DATA) GlobalAlloc(GPTR,sizeof(PER_IO_OPERATION_DATA));//new PER_IO_OPERATION_DATA();
+	
+	_send_msg_add_times();
+	memory_add("add memory wing_socket_send_msg 1544 \r\n");
 
 	ZeroMemory(&(PerIoData->OVerlapped),sizeof(OVERLAPPED));      
 	PerIoData->DATABuf.buf	= pData; 
@@ -1642,9 +1692,16 @@ ZEND_FUNCTION(wing_socket_send_msg)
 	PerIoData->type			= OPE_SEND;
 	
 	int bRet=WSASend(sClient,&(PerIoData->DATABuf),1,&SendByte,Flag,&(PerIoData->OVerlapped),NULL);  
-	if(bRet==SOCKET_ERROR && GetLastError()!=WSA_IO_PENDING)  
+	if(bRet == 0){
+		///free(PerIoData);_send_msg_sub_times();
+		///memory_sub();
+		RETURN_LONG(WING_SUCCESS);
+		return;
+	}
+	if( WSAGetLastError()!=WSA_IO_PENDING)  
 	{  
-		free(PerIoData);memory_sub();
+		free(PerIoData);_send_msg_sub_times();
+		memory_sub();
 
 		RETURN_LONG(WING_ERROR_FAILED);
 		return;
