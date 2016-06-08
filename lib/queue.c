@@ -16,13 +16,15 @@ void initQueue(queue_t * queue_eg)
 int enQueue(queue_t *hq, elemType *x)  
 {  
 	EnterCriticalSection(&queue_lock);
-	if(hq == NULL)return 0;
+	if(hq == NULL)
+		return 0;
+
     node_t * new_p = new node_t();//(node_t *)malloc(sizeof(queue_t));  
 	
     if (new_p == NULL )  
     {  
 		LeaveCriticalSection(&queue_lock);
-       return 0;
+        return 0;
     }  
     new_p->data = x;  
     new_p->next = NULL;  
@@ -31,12 +33,11 @@ int enQueue(queue_t *hq, elemType *x)
         hq->head = new_p;  
         hq->tail = new_p;  
     } else {  
-        //hq->tail->data = x;  
         hq->tail->next = new_p;  
         hq->tail = new_p;  
     }  
-	_node_add_times();
-	memory_add("add memory enQueue 20\r\n");
+	
+	memory_add();
 	LeaveCriticalSection(&queue_lock);
     return 1;  
 }  
@@ -62,8 +63,9 @@ void outQueue(queue_t * hq,elemType *temp)
     {  
         hq->tail = NULL;  
     }  
-    free(p); queue_times--; memory_sub("sub memory outQueue 59\r\n");LeaveCriticalSection(&queue_lock);
-    //return temp;  
+    free(p);  
+	memory_sub();
+	LeaveCriticalSection(&queue_lock);
 }  
   
 /*4. 读取队首元素 */  

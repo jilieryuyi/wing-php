@@ -1,9 +1,14 @@
 #ifndef __WING__MEMORY__
 #define __WING__MEMORY__
 
-unsigned long queue_times = 0;
+
 unsigned long memory_add_times = 0;
 unsigned long memory_sub_times = 0;
+void memory_add(char *debug=0);
+void memory_sub(char *debug=0);
+
+/*
+unsigned long queue_times = 0;
 unsigned long accept_times = 0;
 
 unsigned long accept_add_times = 0;
@@ -28,8 +33,7 @@ unsigned long recv_sub_times = 0;
 void _recv_add_times();
 void _recv_sub_times();
 
-void memory_add(char *debug=0);
-void memory_sub(char *debug=0);
+
 
 void memory_accept_add_times();
 void memory_accept_sub_times();
@@ -45,6 +49,6 @@ void _accept_sub_times_ex();
 unsigned long send_msg_add_times = 0;
 unsigned long send_msg_sub_times = 0;
 void _send_msg_add_times();
-void _send_msg_sub_times();
+void _send_msg_sub_times();*/
 
 #endif

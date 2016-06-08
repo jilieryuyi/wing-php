@@ -104,14 +104,14 @@ queue_t *message_queue;
 
 void memory_times_show(){
 	//if((memory_add_times-memory_sub_times)!=0)
-	zend_printf("memory add times:%ld , memory sub times:%ld ,need more free:%ld \r\n",memory_add_times,memory_sub_times,(memory_add_times-memory_sub_times));
+	zend_printf("memory add times:%ld , memory free times:%ld ,need more free:%ld \r\n",memory_add_times,memory_sub_times,(memory_add_times-memory_sub_times));
 
 //unsigned long accept_add_times = 0;
 //unsigned long accept_sub_times = 0;
 	//if((accept_add_times-accept_sub_times)!=0)
-	{
-	zend_printf("accept times need more free:%ld\r\n",(accept_add_times-accept_sub_times));
-	}
+	//{
+	//zend_printf("accept times need more free:%ld\r\n",(accept_add_times-accept_sub_times));
+	//}
 
 	//unsigned long queue_add_times = 0;
 //unsigned long queue_sub_times = 0;
@@ -120,9 +120,9 @@ void memory_times_show(){
 	//unsigned long node_add_times = 0;
 //unsigned long node_sub_times = 0;
 
-	zend_printf("node add times need more free:%ld\r\n",(node_add_times-node_sub_times));
+//	zend_printf("node add times need more free:%ld\r\n",(node_add_times-node_sub_times));
 
-	zend_printf("accept and close:%ld\r\n",(accept_add_times_ex-accept_sub_times_ex));
+//	zend_printf("accept and close:%ld\r\n",(accept_add_times_ex-accept_sub_times_ex));
 
 	//zend_printf("recv times:%ld\r\n",(recv_add_times-recv_sub_times));
 
@@ -947,8 +947,6 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 			memory_sub();
 			memory_sub();
 
-			memory_accept_sub_times();
-			memory_accept_sub_times();
 			continue;  
 		}
 
@@ -957,8 +955,6 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 					
 						RECV_MSG *recv_msg	= new RECV_MSG();
 						recv_msg->msg		= new char[BytesTransferred+1];
-
-						_recv_add_times();
 									
 						memset(recv_msg->msg,0,sizeof(recv_msg->msg));
 						strcpy(recv_msg->msg,PerIOData->Buffer);
@@ -996,15 +992,11 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 							msg->lparam = 0;
 							enQueue(message_queue,msg);
 
-
 							free(PerIOData);
-							memory_sub();
-
 							free(PerHandleData);
 							memory_sub();
-							
-							memory_accept_sub_times();
-							memory_accept_sub_times();
+							memory_sub();
+	
 						}
 				
 		}
@@ -1013,12 +1005,9 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 		{  
 			memset(PerIOData,0,sizeof(PER_IO_OPERATION_DATA));  
 			free(PerIOData); 
-
-			memory_sub();
-
-			_send_msg_sub_times();
-
 			BytesTransferred = 0;
+
+			memory_sub();	
 		}  
 			
 	}  
@@ -1084,11 +1073,10 @@ NULL, NULL) != 0)
 		enQueue(message_queue,msg);
 
 
-		_accept_add_times_ex();
+		
 					
 		 PerHandleData =new PER_HANDLE_DATA();
 		 memory_add();
-		 memory_accept_add_times();
 		 
 		 PerHandleData->Socket = accept;
 	
@@ -1104,7 +1092,6 @@ NULL, NULL) != 0)
 
 			free(PerHandleData);
 			memory_sub();
-			memory_accept_sub_times();
 				
 			continue;
 		 }
@@ -1124,12 +1111,9 @@ NULL, NULL) != 0)
 
 			free(PerHandleData);
 			memory_sub();
-			memory_accept_sub_times();
 
 			continue;
-		}else{
-			memory_accept_add_times();
-		} 
+		}
 
 		ZeroMemory(&(PerIOData->OVerlapped),sizeof(OVERLAPPED)); 
 
@@ -1150,11 +1134,9 @@ NULL, NULL) != 0)
 
 			free(PerHandleData);
 			memory_sub();
-			memory_accept_sub_times();
 
 			free(PerIOData);
 			memory_sub();
-			memory_accept_sub_times();
 		}
 	}
 	return 0;
@@ -1361,13 +1343,12 @@ ZEND_FUNCTION(wing_service){
         message_queue->tail = NULL;  
     }  
     free(_temp_node);
-	memory_sub("sub memory outQueue 59\r\n"); 
-	_node_sub_times();
+	memory_sub(); 
 
 	
 	LeaveCriticalSection(&queue_lock);
 
-	zend_printf("last error:%ld\r\n",WSAGetLastError());
+	//zend_printf("last error:%ld\r\n",WSAGetLastError());
 
 	
 
@@ -1405,46 +1386,45 @@ ZEND_FUNCTION(wing_service){
 			{
 				
 				zend_printf("onrecv\r\n");
-				//EnterCriticalSection(&g_cs);
-				
-				//RECV_MSG *temp		= (RECV_MSG*)msg.lParam;
-				//SOCKET sClient		= (SOCKET)msg.wParam;
+
 
 				RECV_MSG *temp		= (RECV_MSG*)msg->lparam;
-				SOCKET sClient		= (SOCKET)msg->wparam;
+				SOCKET client		= (SOCKET)msg->wparam;
 
 				zval *params[2];
 				zval *retval_ptr;
 
 				MAKE_STD_ZVAL(params[0]);
 				MAKE_STD_ZVAL(params[1]);
-				ZVAL_LONG(params[0],(long)sClient);
-				//ZVAL_STRING(params[1],temp->msg,1); 
+				ZVAL_LONG(params[0],(long)client);
 				ZVAL_STRINGL(params[1],temp->msg,temp->len,1);
 
 				MAKE_STD_ZVAL(retval_ptr);
-				
 
 				if(SUCCESS!=call_user_function(EG(function_table),NULL,onreceive,retval_ptr,2,params TSRMLS_CC)){
 					zval_ptr_dtor(&retval_ptr);
 					zval_ptr_dtor(&params[0]);
 					zval_ptr_dtor(&params[1]);
 				
-					free(temp->msg);_recv_sub_times();memory_sub("sub memory wing_service 1319\r\n");
-					free(temp);_recv_sub_times();memory_sub("sub memory wing_service 1321\r\n");
+					free(temp->msg);
+					free(temp);
+
+					memory_sub();
+					memory_sub();
 		
 					zend_error(E_USER_WARNING,"call_user_function fail\r\n");
 					continue;
 				}
-				//zend_printf("recv=>%s\n\n",temp->msg);
+
 				zval_ptr_dtor(&retval_ptr);
 				zval_ptr_dtor(&params[0]);
 				zval_ptr_dtor(&params[1]);
-				
-				free(temp->msg);_recv_sub_times();memory_sub("sub memory wing_service 1332\r\n");
-				free(temp);_recv_sub_times();memory_sub("sub memory wing_service 1334\r\n");
 
-				//LeaveCriticalSection(&g_cs);
+				free(temp->msg);
+				free(temp);
+
+				memory_sub();
+				memory_sub();
 			}
 			break;
 			case WM_ONCLOSE_EX:
@@ -1477,7 +1457,7 @@ ZEND_FUNCTION(wing_service){
 			case WM_ONCLOSE:
 			{
 				zend_printf("1-onclose\r\n");
-				_accept_sub_times_ex();
+				
 
 				SOCKET client =(SOCKET)msg->wparam;
 
@@ -1553,17 +1533,14 @@ ZEND_FUNCTION(wing_service){
 			}break;
 
 		}
-		//if(msg!=NULL){
-			free(msg);memory_sub("sub memory elemType 1395\r\n");
-			_queue_sub_times();
-			
-		//}
-			//zend_printf("showshow\r\n");
-		 memory_times_show();
+
+		free(msg);
+		memory_sub();
+
+		memory_times_show();
 
     } 
 	zend_printf("service quit\r\n");
-	//::MessageBoxA(0,"service quit\r\n","quit",0);
 	RETURN_LONG(WING_SUCCESS);
 }
 
