@@ -124,9 +124,9 @@ void memory_times_show(){
 
 	zend_printf("accept and close:%ld\r\n",(accept_add_times_ex-accept_sub_times_ex));
 
-	zend_printf("recv times:%ld\r\n",(recv_add_times-recv_sub_times));
+	//zend_printf("recv times:%ld\r\n",(recv_add_times-recv_sub_times));
 
-	zend_printf("send msg times:%ld\r\n",(send_msg_add_times-send_msg_sub_times));
+	//zend_printf("send msg times:%ld\r\n",(send_msg_add_times-send_msg_sub_times));
 
 }
 
@@ -1516,7 +1516,6 @@ ZEND_FUNCTION(wing_service){
 
 				closesocket(client);
 	
-				closesocket(client);
 				zend_printf("onclose\r\n");
 
 			}
