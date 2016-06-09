@@ -51,9 +51,11 @@ class Http{
         if(!file_exists($path))
             $path = "404.html";
 
-       // $fi         = new \finfo(FILEINFO_MIME_TYPE);
-       // $mime_type  = $fi->file($path);
-      //  unset($fi);
+        if(class_exists("finfo")) {
+            $fi = new \finfo(FILEINFO_MIME_TYPE);
+            $mime_type = $fi->file($path);
+            unset($fi);
+        }
 
         if($mime_type != "text/x-php") {
             //其他资源
@@ -126,9 +128,11 @@ class Http{
 
         $mime_type="text/html";
 
-       // $fi         = new \finfo(FILEINFO_MIME_TYPE);
-       // $mime_type  = $fi->file($path);
-       // unset($fi);
+        if(class_exists("finfo")) {
+            $fi = new \finfo(FILEINFO_MIME_TYPE);
+            $mime_type = $fi->file($path);
+            unset($fi);
+        }
 
         if($mime_type != "text/x-php") {
             //其他资源

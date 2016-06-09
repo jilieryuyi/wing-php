@@ -961,7 +961,7 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 			msg->lparam = 0;
 			enQueue(message_queue,msg);
 			
-			if(1236 != error_code)
+			//if(1236 != error_code)
 				closesocket(PerHandleData->Socket);
 
 			delete(PerIOData);
@@ -1348,7 +1348,7 @@ ZEND_FUNCTION(wing_service){
 
 	struct sockaddr_in ServerAddress; 
 	// 填充地址结构信息
-	ZeroMemory((char *)&ServerAddress, sizeof(ServerAddress)); 
+	ZeroMemory(&ServerAddress, sizeof(ServerAddress)); 
 	ServerAddress.sin_family = AF_INET; 
 	// 这里可以选择绑定任何一个可用的地址，或者是自己指定的一个IP地址
 	//ServerAddress.sin_addr.s_addr = htonl(INADDR_ANY);                     
@@ -1493,8 +1493,11 @@ ZEND_FUNCTION(wing_service){
 			}
 			break;
 			case WM_ONCLOSE_EX:{
-							   closesocket((SOCKET)msg->wparam);
-							   }break;
+				zend_printf("close ex\r\n");
+				if( 0!= closesocket((SOCKET)msg->wparam)){
+					zend_printf("closesocket fail\r\n");
+				}
+			}break;
 			case WM_ONCLOSE:
 			{
 				zend_printf("onclose\r\n");				
@@ -1567,7 +1570,7 @@ ZEND_FUNCTION(wing_service){
 				delete(message_queue);
 				memory_sub();
 
-				DeleteCriticalSection(&queue_lock);
+				delete(&queue_lock);
 				zend_printf("quit end\r\n");
 				RETURN_LONG(WING_SUCCESS);
 				return;
