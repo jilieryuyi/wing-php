@@ -11,12 +11,12 @@
 //$connection = socket_connect($socket, '127.0.0.1', 6998);
 //sleep(5);
 //$c =0;
-exec("ab -n 20000 -c 20000 http://127.0.0.1:6998/");
+
 while(1)
  {
 
 exec("ab -n 20000 -c 20000 http://127.0.0.1:6998/");
-    // sleep(1);
+     sleep(15);
      //file_get_contents("http://127.0.0.1:6998/?id=12asdgfsdfgsdfg%20asdf%20asf24%20234");
 //要发送到服务端的信息。
   // $send_data = "This data will Send to server!";

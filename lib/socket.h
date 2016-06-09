@@ -40,6 +40,7 @@ typedef struct
  
 typedef struct{ 
   SOCKET Socket;
+  //HANDLE iocp;
 } PER_HANDLE_DATA,*LPPER_HANDLE_DATA; 
 
 typedef struct{ 
@@ -51,7 +52,7 @@ typedef struct{
 
 typedef struct{
 	long len;
-	char *msg;
+	char msg[DATA_BUFSIZE+1]; 
 } RECV_MSG;
 
 #endif // !__WING_SOCKET__

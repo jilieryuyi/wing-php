@@ -63,7 +63,7 @@ void outQueue(queue_t * hq,elemType *temp)
     {  
         hq->tail = NULL;  
     }  
-    free(p);  
+    delete(p);  
 	memory_sub();
 	LeaveCriticalSection(&queue_lock);
 }  
@@ -98,7 +98,8 @@ void clearQueue(queue_t * hq)
     while(p != NULL)  
     {  
         hq->head = hq->head->next;  
-        free(p);  memory_sub("sub memory clearQueue 93\r\n");
+        delete(p);  
+		memory_sub();
         p = hq->head;  
     }  
     hq->tail = NULL;  

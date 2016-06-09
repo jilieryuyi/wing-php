@@ -25,28 +25,31 @@ void get_command_path(const char *name,char *output){
 		long len_temp	= temp-start;
 		long _len_temp	= len_temp+sizeof("\\")+sizeof(".exe")+1;
 		
-		memset(t,0,sizeof(t));
+		//memset(t,0,sizeof(t));
+		ZeroMemory(t,sizeof(t));
 		strncpy_s(t,_len_temp,var_begin,len_temp);
-		memset(output,0,sizeof(t));
+		//memset(output,0,sizeof(t));
+		ZeroMemory(output,sizeof(t));
 		sprintf_s(output,MAX_PATH,"%s\\%s.exe\0",t,name);
 		if(PathFileExists(output)){
-			free(var);
+			delete(var);
 			memory_sub();
 			return;
 		}
 
-		memset(output,0,sizeof(t));
+		//memset(output,0,sizeof(t));
+		ZeroMemory(output,sizeof(t));
 		sprintf_s(output,MAX_PATH,"%s\\%s.bat\0",t,name);
 
 		if(PathFileExists(output)){
-			free(var);
+			delete(var);
 			memory_sub();
 			return;
 		}
 		var_begin	= temp+1;
 		start		= temp+1;
 	}
-	free(var);
+	delete(var);
 	memory_sub();
 	return;
 }

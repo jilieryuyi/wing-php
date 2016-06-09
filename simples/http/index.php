@@ -8,7 +8,9 @@
 <html>
 <head>
   <title>wing php</title></head><body>
-<h1>hello wing php,<pre><?php echo json_encode($_REQUEST);?></pre></h1>
+<h1>
+wing php
+  ,<pre><?php echo json_encode($_REQUEST);?></pre></h1>
 <img src="1.jpg?12131"/>
 <script>
   //window.setInterval(function(){

@@ -35,7 +35,6 @@ class Http{
         $this->config[$callback_key] = $callback_func;
     }
     private function get($client,$msg){
-//echo $msg,"\r\n\r\n";
         //解析http get协议
         $msgs_spalit    = explode("\r\n",$msg);
         $_get_tab       = array_shift($msgs_spalit);
@@ -52,9 +51,9 @@ class Http{
         if(!file_exists($path))
             $path = "404.html";
 
-        //$fi         = new \finfo(FILEINFO_MIME_TYPE);
-        //$mime_type  = $fi->file($path);
-       // unset($fi);
+        $fi         = new \finfo(FILEINFO_MIME_TYPE);
+        $mime_type  = $fi->file($path);
+        unset($fi);
 
         if($mime_type != "text/x-php") {
             //其他资源
@@ -67,8 +66,8 @@ class Http{
                 "Content-Length: " . strlen($file),
                 "Content-Type: $mime_type"
             ];
+
             wing_socket_send_msg($client, implode("\r\n", $headers) . "\r\n\r\n" . $file);
-            //usleep(10000);
             wing_close_socket($client);
 
             unset($msgs_spalit,$_get_tab,$get_tabs,$get,$path,
@@ -97,7 +96,6 @@ class Http{
         ];
 
         wing_socket_send_msg($client, implode("\r\n", $headers) . "\r\n\r\n" . $content);
-        //usleep(10000);
         wing_close_socket($client);
         unset($content,$msgs_spalit,$_get_tab,$get_tabs,$get,$path,
             $mime_type,$file,$headers,$client,$msg);
@@ -168,6 +166,11 @@ class Http{
         isset($out[1]) && $this->content_len = trim($out[1]);
         unset($out);
 
+        //100 响应
+        //100 Continue
+        //客户端应当继续发送请求。这个临时响应是用来通知客户端它的部分请求已经被服务器接收，
+        //且仍未被拒绝。客户端应当继续发送请求的剩余部分，或者如果请求已经完成，忽略这个响应。
+        //服务器必须在请求完成后向客户端发送一个最终响应。
         if( strlen($content) >= $this->content_len ){
             if(strpos($content,"--")!==0) {
                 parse_str($content, $_POST);
@@ -223,10 +226,15 @@ class Http{
     public function start(){
         $_self = $this;
         $params["onreceive"]    = function($client,$msg) use($_self){
+            //wing_socket_send_msg($client, "1");
             $_self->onreceive($client,$msg);
+           // wing_close_socket($client);
         };
         $params["onconnect"]    = function($client){};
-        $params["onclose"]      = function($client){};
+        $params["onclose"]      = function($client){
+           // $info = wing_socket_info($client);
+           // file_put_contents(__DIR__."/onclose.log",json_encode($info)."\r\n\r\n",FILE_APPEND);
+        };
         $params["onerror"]      = function($client,$error_msg){};
         $params["port"]         = $this->config["port"];
         $params["listen"]       = $this->config["listen"];
