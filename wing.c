@@ -948,18 +948,21 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
         }  
 
 		int error_code = WSAGetLastError();
+		unsigned long _socket = (unsigned long)PerHandleData->Socket;
 
 		if (BytesTransferred == 0 || 10054 == error_code || 64 == error_code || false == wstatus ||  1236 == error_code) 
 		{   
 			elemType *msg=new elemType();
 			memory_add();
+			
 
 			msg->message_id = WM_ONCLOSE;
-			msg->wparam = (unsigned long)PerHandleData->Socket;
+			msg->wparam = _socket;
 			msg->lparam = 0;
 			enQueue(message_queue,msg);
 			
-			closesocket(PerHandleData->Socket);
+			if(1236 != error_code)
+				closesocket(PerHandleData->Socket);
 
 			delete(PerIOData);
 			delete(PerHandleData);
@@ -974,23 +977,23 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 		if( PerIOData->type == OPE_RECV )  {
 					
 			RECV_MSG *recv_msg	= new RECV_MSG();
-			//recv_msg->msg		= new char[BytesTransferred+1];
-			ZeroMemory(recv_msg->msg,DATA_BUFSIZE+1);
-			recv_msg->len		=  BytesTransferred+1;
+			//ZeroMemory(recv_msg,sizeof(RECV_MSG));
 
+			recv_msg->msg		= new char[BytesTransferred+1];
 			ZeroMemory(recv_msg->msg,BytesTransferred+1);
+
 			strcpy_s(recv_msg->msg,BytesTransferred+1,PerIOData->Buffer);
-			
+			recv_msg->len		=  BytesTransferred;
 
 			memory_add();
-			//memory_add();
+			memory_add();
 	
 					
 			elemType *msg=new elemType();
 			memory_add();
 
 			msg->message_id = WM_ONRECV;
-			msg->wparam		= (unsigned long)PerHandleData->Socket;
+			msg->wparam		= _socket;
 			msg->lparam		= (unsigned long)recv_msg;
 			
 			enQueue(message_queue,msg);
@@ -1008,11 +1011,11 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 			int error_code = WSARecv(PerHandleData->Socket,&(PerIOData->DATABuf),1,&RecvBytes,&Flags,&(PerIOData->OVerlapped),NULL);
 			if( 0 != error_code && WSAGetLastError() != WSA_IO_PENDING){
 
-				elemType *msg=new elemType();
+				elemType *msg	= new elemType();
 				memory_add();
 
 				msg->message_id = WM_ONCLOSE;
-				msg->wparam		= (unsigned long)PerHandleData->Socket;
+				msg->wparam		= _socket;
 				msg->lparam		= 0;
 				
 				enQueue(message_queue,msg);
@@ -1198,8 +1201,8 @@ ZEND_FUNCTION(wing_service){
 	zval *onerror;
 	zval *_params;
 	int port;
-	zval *_port;
-	zval *_listen_ip;
+	//zval *_port;
+	//zval *_listen_ip;
 	char *listen_ip;
 
 	MAKE_STD_ZVAL(onreceive);
@@ -1469,26 +1472,29 @@ ZEND_FUNCTION(wing_service){
 				ZVAL_LONG(params[0],(long)client);
 				ZVAL_STRINGL(params[1],temp->msg,temp->len,1);
 
-				
+				zend_printf("2-onrecv\r\n");
 
-				if(SUCCESS!=call_user_function(EG(function_table),NULL,onreceive,retval_ptr,2,params TSRMLS_CC)){
+				if( SUCCESS != call_user_function(EG(function_table),NULL,onreceive,retval_ptr,2,params TSRMLS_CC) ){
 					zend_error(E_USER_WARNING,"call_user_function fail\r\n");
 				}
+				zend_printf("30-onrecv\r\n");
 
 				zval_ptr_dtor(&retval_ptr);
 				zval_ptr_dtor(&params[0]);
 				zval_ptr_dtor(&params[1]);
-				
+				zend_printf("3-onrecv\r\n");
 
-				//delete(temp->msg);
+				delete(temp->msg);
 				delete(temp);
 				memory_sub();
-				//memory_sub();
+				memory_sub();
 
 				zend_printf("onrecv end\r\n");
 			}
 			break;
-		
+			case WM_ONCLOSE_EX:{
+							   closesocket((SOCKET)msg->wparam);
+							   }break;
 			case WM_ONCLOSE:
 			{
 				zend_printf("onclose\r\n");				
@@ -1607,8 +1613,8 @@ ZEND_FUNCTION(wing_close_socket){
 		return;
 	}
 	convert_to_long(socket);
-	closesocket((SOCKET)socket);
-	/*
+	//closesocket((SOCKET)socket);
+	
 	elemType *msg=new elemType();
 	memory_add();
 
@@ -1616,9 +1622,10 @@ ZEND_FUNCTION(wing_close_socket){
 	msg->wparam =  (unsigned long)Z_LVAL_P(socket);
 	msg->lparam = 0;
 
-	enQueue(message_queue,msg);*/
+	enQueue(message_queue,msg);
 
 	RETURN_LONG(WING_SUCCESS);
+	return;
 }
 
 /*****************************************

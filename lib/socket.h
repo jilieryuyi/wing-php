@@ -52,7 +52,7 @@ typedef struct{
 
 typedef struct{
 	long len;
-	char msg[DATA_BUFSIZE+1]; 
+	char *msg;//[DATA_BUFSIZE+1]; 
 } RECV_MSG;
 
 #endif // !__WING_SOCKET__

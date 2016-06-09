@@ -51,9 +51,9 @@ class Http{
         if(!file_exists($path))
             $path = "404.html";
 
-        $fi         = new \finfo(FILEINFO_MIME_TYPE);
-        $mime_type  = $fi->file($path);
-        unset($fi);
+       // $fi         = new \finfo(FILEINFO_MIME_TYPE);
+       // $mime_type  = $fi->file($path);
+      //  unset($fi);
 
         if($mime_type != "text/x-php") {
             //其他资源
@@ -228,7 +228,7 @@ class Http{
         $params["onreceive"]    = function($client,$msg) use($_self){
             //wing_socket_send_msg($client, "1");
             $_self->onreceive($client,$msg);
-           // wing_close_socket($client);
+            //wing_close_socket($client);
         };
         $params["onconnect"]    = function($client){};
         $params["onclose"]      = function($client){
