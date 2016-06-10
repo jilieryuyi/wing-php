@@ -1117,6 +1117,21 @@ ZEND_FUNCTION(wing_timer){
 
 ///////////////////////////--socket-start--
 /*****************************************************************************************
+ * @ 关闭socket
+ *****************************************************************************************/
+#define WING_ERROR_CLOSE_SOCKET 4001
+#define WING_ERROR_ACCEPT		4002
+void _close_socket( SOCKET socket){
+	if( 0 != closesocket(socket )){
+		elemType *msg	= new elemType();  
+		memory_add();
+		msg->message_id = WM_ONERROR;
+		msg->wparam		= 0;
+		msg->lparam		= WING_ERROR_CLOSE_SOCKET;	
+		enQueue(message_queue,msg);			
+	}
+}
+/*****************************************************************************************
  * @ iocp工作线程
  *****************************************************************************************/
 unsigned int __stdcall  socket_worker(LPVOID lpParams)  
@@ -1147,7 +1162,7 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 			msg->lparam = 0;
 			enQueue(message_queue,msg);
 			
-			closesocket(PerHandleData->Socket);
+			_close_socket(PerHandleData->Socket);
 			
 			delete PerHandleData;
 			delete PerIOData;
@@ -1176,8 +1191,8 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 			msg->lparam = 0;
 			enQueue(message_queue,msg);
 			
-			if(1236 != error_code)//服务端调用了 closesocket 强制终止
-				closesocket(PerHandleData->Socket);
+			if(1236 != error_code)//服务端调用了 _close_socket 强制终止
+				_close_socket(PerHandleData->Socket);
 
 			delete PerIOData;
 			delete PerHandleData;
@@ -1239,7 +1254,7 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 				msg->lparam		= 0;
 				
 				enQueue(message_queue,msg);
-				closesocket(PerHandleData->Socket);
+				_close_socket(PerHandleData->Socket);
 
 				delete PerIOData;
 				delete PerHandleData;
@@ -1295,9 +1310,9 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 
 			memory_add();
 
-			msg->message_id = WM_ACCEPT_ERROR;
+			msg->message_id = WM_ONERROR;
 			msg->wparam = 0; 
-			msg->lparam = 0; 
+			msg->lparam = WING_ERROR_ACCEPT; 
 
 			enQueue(message_queue,msg);
 			continue;
@@ -1333,7 +1348,7 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 			msg->lparam = 0;
 			enQueue(message_queue,msg);
 
-			closesocket(PerHandleData->Socket);
+			_close_socket(PerHandleData->Socket);
 			
 			delete PerHandleData;
 			memory_sub();
@@ -1354,7 +1369,7 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 			msg->lparam = 0;
 			enQueue(message_queue,msg);
 
-			closesocket(PerHandleData->Socket);
+			_close_socket(PerHandleData->Socket);
 			
 			delete PerHandleData;
 			PerHandleData = NULL;
@@ -1383,7 +1398,7 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 			msg->lparam = 0;
 			enQueue(message_queue,msg);
 
-			closesocket(PerHandleData->Socket);
+			_close_socket(PerHandleData->Socket);
 			delete(PerHandleData);
 			memory_sub();
 
@@ -1405,7 +1420,7 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 		int code = WSARecv(accept,&(PerIOData->DATABuf),1,&RecvBytes,&Flags,&(PerIOData->OVerlapped),NULL);
 		//调用一次 WSARecv 触发iocp事件
 		if(0 != code && WSAGetLastError() != WSA_IO_PENDING){
-			elemType *msg=new elemType();
+			elemType *msg = new elemType();
 			memory_add();
 
 			msg->message_id = WM_ONCLOSE;
@@ -1413,7 +1428,7 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 			msg->lparam = 0;
 			enQueue(message_queue,msg);
 
-			closesocket(PerHandleData->Socket);
+			_close_socket(PerHandleData->Socket);
 			
 			delete PerHandleData;
 			PerHandleData = NULL;
@@ -1573,7 +1588,7 @@ ZEND_FUNCTION(wing_service){
 
 	// 绑定端口
 	if (SOCKET_ERROR == bind(m_sockListen, (struct sockaddr *) &ServerAddress, sizeof(ServerAddress))){
-		closesocket(m_sockListen);
+		_close_socket(m_sockListen);
 		WSACleanup();
 		delete accept_params;
 		accept_params = NULL;
@@ -1584,7 +1599,7 @@ ZEND_FUNCTION(wing_service){
 
 	// 开始监听
 	if( 0 != listen(m_sockListen,SOMAXCONN)){
-		closesocket(m_sockListen);
+		_close_socket(m_sockListen);
 		WSACleanup();
 		delete accept_params;
 		accept_params = NULL;
@@ -1712,10 +1727,10 @@ ZEND_FUNCTION(wing_service){
 				zend_printf("onrecv end\r\n");
 			}
 			break;
-			//调用 closesocket 服务端主动关闭socket
+			//调用 _close_socket 服务端主动关闭socket
 			case WM_ONCLOSE_EX:{
 				zend_printf("close ex\r\n");
-				closesocket((SOCKET)msg->wparam);
+				_close_socket((SOCKET)msg->wparam);
 			}break;
 			//客户端掉线了
 			case WM_ONCLOSE:
@@ -1745,7 +1760,7 @@ ZEND_FUNCTION(wing_service){
 			//发生错误 目前暂时也还没有用到
 			case WM_ONERROR:{
 				
-				zend_printf("onerror\r\n");
+				zend_printf("------------------------------------onerror----warning-------------------------------\r\n");
 				
 				SOCKET client =(SOCKET)msg->wparam;
 
@@ -1784,7 +1799,7 @@ ZEND_FUNCTION(wing_service){
 				PostQueuedCompletionStatus(m_hIOCompletionPort, 0xFFFFFFFF, 0, NULL);
 				
 				CloseHandle(m_hIOCompletionPort);
-				closesocket(m_sockListen);
+				_close_socket(m_sockListen);
 				
 				WSACleanup();
 				clearQueue(message_queue);
@@ -1812,14 +1827,17 @@ ZEND_FUNCTION(wing_service){
 
 		//显示内存申请 释放次数对比
 		memory_times_show();
+		
+		
 		_CrtMemCheckpoint( &s2 );
-
-if ( _CrtMemDifference( &s3, &s1, &s2) )
-{
-	zend_printf("memory crash\r\n");
-	  _CrtMemDumpStatistics( &s3 );//内存泄露
-}
-else zend_printf("memory not crash\r\n");
+		if ( _CrtMemDifference( &s3, &s1, &s2) )
+		{
+			zend_printf("memory crash\r\n");
+			_CrtMemDumpStatistics( &s3 );//内存泄露
+		}
+		else {
+			zend_printf("memory not crash\r\n");
+		}
   
     } 
 	zend_printf("service quit\r\n");
@@ -1830,7 +1848,7 @@ else zend_printf("memory not crash\r\n");
  ***********************************/
 ZEND_FUNCTION(wing_service_stop){
 
-	elemType *msg =new elemType();  
+	elemType *msg = new elemType();  
 	memory_add();
 
 	msg->message_id = WM_ONQUIT;
@@ -1854,7 +1872,7 @@ ZEND_FUNCTION(wing_close_socket){
 		return;
 	}
 	convert_to_long(socket);
-	//closesocket((SOCKET)socket);
+	//_close_socket((SOCKET)socket);
 	
 	elemType *msg = new elemType();  
 	memory_add();
@@ -1898,6 +1916,7 @@ ZEND_FUNCTION(wing_socket_info){
 }
 /*****************************************
  * @ 发送socket数据
+ * @ 同步发送接口 没有使用iocp
  ****************************************/
 ZEND_FUNCTION(wing_socket_send_msg)
 {  
