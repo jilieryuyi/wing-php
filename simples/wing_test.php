@@ -10,7 +10,8 @@ $data = array (
     "password"=>"123456789"
 );
 
-while(1) {
+//while(1)
+{
 
     //exec("ab -n 20000 -c 20000 http://127.0.0.1:6998/");
    // echo 1,"\n";

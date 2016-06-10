@@ -1826,6 +1826,9 @@ ZEND_FUNCTION(wing_service){
 	unsigned int begin_size = pmc.WorkingSetSize;
     zend_printf("size:%d\r\n",pmc.WorkingSetSize);
 
+	//int connect_size = 0;
+	//int new_add_size = 0;
+
 
 	while( true )
 	{ 
@@ -1834,6 +1837,11 @@ ZEND_FUNCTION(wing_service){
 			Sleep(10);
 			continue;
 		}
+
+		 GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
+		zend_printf("size-1:%d\r\n",pmc.WorkingSetSize-begin_size);
+
+	//	begin_size = pmc.WorkingSetSize;
 
 		//-----获取消息--需要加锁--------------------
 		EnterCriticalSection(&queue_lock);
@@ -1862,8 +1870,7 @@ ZEND_FUNCTION(wing_service){
 
 
 		
-    GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
-	zend_printf("size-1:%d\r\n",pmc.WorkingSetSize-begin_size);
+   
 
 
 		//根据消息ID进行不同的处理
@@ -1871,7 +1878,7 @@ ZEND_FUNCTION(wing_service){
 			//新的连接
 			case WM_ONCONNECT:
 			{
-				zend_printf("onconnect\r\n");
+				//zend_printf("onconnect\r\n");
 				
 				zval *params = NULL;
 				zval *retval_ptr = NULL;
@@ -1886,10 +1893,14 @@ ZEND_FUNCTION(wing_service){
 				zval_ptr_dtor(&retval_ptr);
 				zval_ptr_dtor(&params);
 				
-				zend_printf("onconnect end\r\n");
+				//zend_printf("onconnect end\r\n");
 
 				GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
-				zend_printf("size-onconnect:%d\r\n",pmc.WorkingSetSize-msg->size);	 
+				zend_printf("size-onconnect:%d\r\n",pmc.WorkingSetSize-msg->size);	
+
+				//connect_size = pmc.WorkingSetSize;
+
+				//new_add_size+=pmc.WorkingSetSize-msg->size;
 						  
 			}
 			break;
@@ -1900,7 +1911,7 @@ ZEND_FUNCTION(wing_service){
 			//目前暂时没有用到 先留着
 			case WM_ACCEPT_ERROR:
 			{
-				zend_printf("accept error\r\n");
+				//zend_printf("accept error\r\n");
 				GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
 				zend_printf("size-accepterror:%d\r\n",pmc.WorkingSetSize-msg->size);	
 			}
@@ -1909,7 +1920,7 @@ ZEND_FUNCTION(wing_service){
 			case WM_ONRECV:
 			{
 				
-				zend_printf("onrecv\r\n");
+				//zend_printf("onrecv\r\n");
 				
 				RECV_MSG *temp = (RECV_MSG*)msg->lparam;
 				SOCKET client = (SOCKET)msg->wparam;
@@ -1924,17 +1935,17 @@ ZEND_FUNCTION(wing_service){
 				ZVAL_LONG(params[0],(long)client);
 				ZVAL_STRINGL(params[1],temp->msg,temp->len,1);
 
-				zend_printf("2-onrecv\r\n");
+				//zend_printf("2-onrecv\r\n");
 
 				if( SUCCESS != call_user_function(EG(function_table),NULL,onreceive,retval_ptr,2,params TSRMLS_CC) ){
 					zend_error(E_USER_WARNING,"onreceive call_user_function fail");
 				}
-				zend_printf("30-onrecv\r\n");
+				//zend_printf("30-onrecv\r\n");
 
 				zval_ptr_dtor(&retval_ptr);
 				zval_ptr_dtor(&params[0]);
 				zval_ptr_dtor(&params[1]);
-				zend_printf("3-onrecv\r\n");
+			//	zend_printf("3-onrecv\r\n");
 
 				memory_sub_bytes(sizeof(char)*(temp->len));
 				delete[] temp->msg;
@@ -1947,15 +1958,17 @@ ZEND_FUNCTION(wing_service){
 				memory_sub();
 				memory_sub();
 
-				zend_printf("onrecv end\r\n");
+				//zend_printf("onrecv end\r\n");
 
 				GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
 				zend_printf("size-onrecv:%d\r\n",pmc.WorkingSetSize-msg->size);	
+
+				//new_add_size+=pmc.WorkingSetSize-msg->size;
 			}
 			break;
 			//调用 _close_socket 服务端主动关闭socket
 			case WM_ONCLOSE_EX:{
-				zend_printf("close ex\r\n");
+				//zend_printf("close ex\r\n");
 				_close_socket((SOCKET)msg->wparam);
 				GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
 				zend_printf("size-onclose ex:%d\r\n",pmc.WorkingSetSize-msg->size);	
@@ -1963,7 +1976,7 @@ ZEND_FUNCTION(wing_service){
 			//客户端掉线了
 			case WM_ONCLOSE:
 			{
-				zend_printf("onclose\r\n");				
+				//zend_printf("onclose\r\n");				
 
 				
 				SOCKET client =(SOCKET)msg->wparam;
@@ -1982,16 +1995,17 @@ ZEND_FUNCTION(wing_service){
 				zval_ptr_dtor(&retval_ptr);
 				zval_ptr_dtor(&params);
 
-				zend_printf("onclose end\r\n");
+				//zend_printf("onclose end\r\n");
 
 				GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
 				zend_printf("size-onclose:%d\r\n",pmc.WorkingSetSize-msg->size);	
+				//new_add_size = 0;
 			}
 			break; 
 			//发生错误 目前暂时也还没有用到
 			case WM_ONERROR:{
 				
-				zend_printf("------------------------------------onerror----warning-------------------------------\r\n");
+				//zend_printf("------------------------------------onerror----warning-------------------------------\r\n");
 				
 				SOCKET client =(SOCKET)msg->wparam;
 
@@ -2013,7 +2027,7 @@ ZEND_FUNCTION(wing_service){
 				zval_ptr_dtor(&params);
 			
 
-				zend_printf("onerror end\r\n");
+				//zend_printf("onerror end\r\n");
 
 				GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
 				zend_printf("size-onerror:%d\r\n",pmc.WorkingSetSize-msg->size);	
@@ -2023,7 +2037,7 @@ ZEND_FUNCTION(wing_service){
 			//退出服务 暂时没有测试
 			case WM_ONQUIT:
 			{
-				zend_printf("quit\r\n");
+				//zend_printf("quit\r\n");
 				
 				PostQueuedCompletionStatus(m_hIOCompletionPort, 0xFFFFFFFF, 0, NULL);
 				
@@ -2046,7 +2060,7 @@ ZEND_FUNCTION(wing_service){
 				msg = NULL;
 				message_queue = NULL;
 
-				zend_printf("quit end\r\n");
+				//zend_printf("quit end\r\n");
 				RETURN_LONG(WING_SUCCESS);
 				return;
 			}break;
@@ -2066,11 +2080,11 @@ ZEND_FUNCTION(wing_service){
 		_CrtMemCheckpoint( &s2 );
 		if ( _CrtMemDifference( &s3, &s1, &s2) )
 		{
-			zend_printf("memory crash\r\n");
+			//zend_printf("memory crash\r\n");
 			_CrtMemDumpStatistics( &s3 );//内存泄露
 		}
 		else {
-			zend_printf("memory not crash\r\n");
+			//zend_printf("memory not crash\r\n");
 		}
 
 		//call_cycle
