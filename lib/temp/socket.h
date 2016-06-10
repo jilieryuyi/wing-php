@@ -24,6 +24,7 @@
 #pragma comment(lib,"Ws2_32.lib")
 
 
+
 #define DATA_BUFSIZE 10240
 #define OPE_RECV 1
 #define OPE_SEND 2

@@ -18,39 +18,9 @@
     <ClCompile Include="wing.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lib\library.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\socket.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\strlib.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\queue.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\memory.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="php_wing.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\library.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\socket.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\strlib.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\queue.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\memory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

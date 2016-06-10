@@ -8,6 +8,10 @@
 
 using namespace std;
 
+
+
+
+
 void memory_add(char *debug){
 
 	//memory_add_times++;
