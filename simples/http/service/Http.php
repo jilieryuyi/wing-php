@@ -239,7 +239,13 @@ class Http{
            // $info = wing_socket_info($client);
            // file_put_contents(__DIR__."/onclose.log",json_encode($info)."\r\n\r\n",FILE_APPEND);
         };
-        $params["onerror"]      = function($client,$error_msg){};
+        $params["onerror"]      = function($error_code){};
+        $params["call_cycle"]   = function(){
+
+            global $ms;
+            echo   "more：",(memory_get_usage()-$ms)/1024,"k\r\n";
+
+        };
         $params["port"]         = $this->config["port"];
         $params["listen"]       = $this->config["listen"];
         register_shutdown_function(function(){

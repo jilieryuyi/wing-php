@@ -73,13 +73,13 @@ typedef struct
   CHAR Buffer[DATA_BUFSIZE]; 
   int type;
 
-}PER_IO_OPERATION_DATA, *LPPER_IO_OPERATION_DATA;
+}PER_IO_OPERATION_DATA;
 
  
 typedef struct{ 
   SOCKET Socket;
   //HANDLE iocp;
-} PER_HANDLE_DATA,*LPPER_HANDLE_DATA; 
+} PER_HANDLE_DATA; 
 
 typedef struct{ 
   SOCKET Socket;
@@ -98,8 +98,23 @@ typedef struct{
 //-------------内存计数器-----------------------
 unsigned long memory_add_times = 0;
 unsigned long memory_sub_times = 0;
+unsigned long _memory_add_bytes = 0;
+unsigned long _memory_sub_bytes = 0;
+
+CRITICAL_SECTION bytes_lock;
 void memory_add(){
     InterlockedIncrement(&memory_add_times);
+}
+
+void memory_sub_bytes(unsigned int _bytes){
+    EnterCriticalSection(&bytes_lock);
+    _memory_sub_bytes+=(unsigned long)_bytes;
+	LeaveCriticalSection(&bytes_lock);
+}
+void memory_add_bytes(unsigned int _bytes){
+	EnterCriticalSection(&bytes_lock);
+    _memory_add_bytes+=(unsigned long)_bytes;
+	LeaveCriticalSection(&bytes_lock);
 }
 
 void memory_sub(){
@@ -118,6 +133,7 @@ void get_command_path(const char *name,char *output){
 	int env_len		= GetEnvironmentVariable("PATH",NULL,0)+1;
 	char *env_var	= new char[env_len];
 	memory_add();
+	memory_add_bytes(sizeof(char)*env_len);
 
 	GetEnvironmentVariable("PATH",env_var,env_len);
 
@@ -142,6 +158,7 @@ void get_command_path(const char *name,char *output){
 		sprintf_s(output,MAX_PATH,"%s\\%s.exe\0",_temp_path,name);
 
 		if(PathFileExists(output)){
+			memory_sub_bytes(sizeof(char)*strlen(env_var));
 			delete[] env_var;
 			env_var = NULL;
 			memory_sub();
@@ -152,6 +169,7 @@ void get_command_path(const char *name,char *output){
 		sprintf_s(output,MAX_PATH,"%s\\%s.bat\0",_temp_path,name);
 
 		if(PathFileExists(output)){
+			memory_sub_bytes(sizeof(char)*strlen(env_var));
 			delete[] env_var;
 			env_var = NULL;
 			memory_sub();
@@ -160,7 +178,7 @@ void get_command_path(const char *name,char *output){
 		var_begin	= temp+1;
 		start		= temp+1;
 	}
-
+	memory_sub_bytes(sizeof(char)*strlen(env_var));
 	delete[] env_var;
 	env_var = NULL;
 	memory_sub();
@@ -203,6 +221,7 @@ typedef struct _thread_msg{
 	int message_id;
 	unsigned long lparam;
 	unsigned long wparam;
+	unsigned int size;
 
 } THREAD_MSG,elemType;
 
@@ -255,6 +274,8 @@ int enQueue(queue_t *hq, elemType *x)
     }  
 	
 	memory_add();
+	memory_add_bytes(sizeof(node_t));
+
 	LeaveCriticalSection(&queue_lock);
     return 1;  
 }  
@@ -280,6 +301,8 @@ void outQueue(queue_t * hq,elemType **temp)
     {  
         hq->tail = NULL;  
     }  
+
+	memory_sub_bytes(sizeof(node_t));
     delete p;  
 	p  = NULL;
 	memory_sub();
@@ -317,6 +340,7 @@ void clearQueue(queue_t * hq)
     while(p != NULL)  
     {  
         hq->head = hq->head->next;  
+		memory_sub_bytes(sizeof(node_t));
         delete p; 
 		p = NULL;
 		memory_sub();
@@ -372,6 +396,7 @@ static int wing_thread_count =0;
 #define WM_ONRECV			WM_USER+64
 #define WM_ONQUIT           WM_USER+65
 #define WM_ONCLOSE_EX		WM_USER+66
+#define WM_ONSEND			WM_USER+67
 
 
 /********************************************************************************
@@ -381,6 +406,8 @@ static int wing_thread_count =0;
  *******************************************************************************/
 void memory_times_show(){
 	zend_printf("new times : %ld , free times : %ld , need more free : %ld \r\n",memory_add_times,memory_sub_times,(memory_add_times-memory_sub_times));
+	//_memory_add_bytes
+	zend_printf("new bytes : %ld , free bytes : %ld , need more free bytes : %ld \r\n",_memory_add_bytes,_memory_sub_bytes,(_memory_add_bytes-_memory_sub_bytes));
 }
 
 /****************************************************************************
@@ -599,12 +626,14 @@ ZEND_FUNCTION(wing_get_process_params){
 
 			char *buf = new char[data_len];
 			memory_add();
+			memory_add_bytes(sizeof(char)*data_len);
 
 			ZeroMemory(buf,sizeof(buf));
 			DWORD dwRead;
 			DWORD lBytesRead;
 	
 			if(!PeekNamedPipe(m_hRead,buf,data_len,&lBytesRead,0,0)){
+				memory_sub_bytes(sizeof(char)*strlen(buf));
 				delete[] buf;
 				buf = NULL;
 				RETURN_NULL();
@@ -612,6 +641,7 @@ ZEND_FUNCTION(wing_get_process_params){
 			}
 
 			if(lBytesRead<=0){
+				memory_sub_bytes(sizeof(char)*strlen(buf));
 				delete[] buf;
 				buf = NULL;
 				RETURN_NULL();
@@ -619,7 +649,7 @@ ZEND_FUNCTION(wing_get_process_params){
 			}
 
 			while(lBytesRead>=data_len){
-				
+				memory_sub_bytes(sizeof(char)*strlen(buf));
 				delete[] buf;
 				buf = NULL;
 
@@ -629,9 +659,11 @@ ZEND_FUNCTION(wing_get_process_params){
 				
 				buf = new char[data_len];
 				memory_add();
+				memory_add_bytes(sizeof(char)*data_len);
 				
 				ZeroMemory(buf,sizeof(buf));
 				if(!PeekNamedPipe(m_hRead,buf,data_len,&lBytesRead,0,0)){
+					memory_sub_bytes(sizeof(char)*strlen(buf));
 					delete[] buf;
 					buf = NULL;
 					RETURN_NULL();
@@ -642,7 +674,7 @@ ZEND_FUNCTION(wing_get_process_params){
 			if (ReadFile(m_hRead, buf, lBytesRead+1, &dwRead, NULL))// 从管道中读取数据 
 			{
 				ZVAL_STRINGL(return_value,buf,dwRead,1);
-				
+				memory_sub_bytes(sizeof(char)*strlen(buf));
 				delete[] buf;
 				buf = NULL;
 				memory_sub();
@@ -822,12 +854,14 @@ ZEND_FUNCTION(wing_get_env){
 	}
 	char *var= new char[len];  
 	memory_add();
+	memory_add_bytes(sizeof(char)*len);
 	
 	ZeroMemory(var,sizeof(var));
 
 	GetEnvironmentVariable(name,var,len);
 	ZVAL_STRINGL(return_value,var,len-1,1);
-	
+
+	memory_sub_bytes(sizeof(char)*strlen(var));
 	delete[] var;
 	var = NULL;
 	memory_sub();
@@ -1121,15 +1155,46 @@ ZEND_FUNCTION(wing_timer){
  *****************************************************************************************/
 #define WING_ERROR_CLOSE_SOCKET 4001
 #define WING_ERROR_ACCEPT		4002
+#define WING_ERROR_MALLOC		4003
+#define WING_BAD_ERROR			-4
 void _close_socket( SOCKET socket){
-	if( 0 != closesocket(socket )){
-		elemType *msg	= new elemType();  
+
+		int error_code = WSAGetLastError();
+		if( 0 != closesocket(socket )){
+			char error_msg[32] = {0};
+			sprintf(error_msg,"%ld",error_code);
+			MessageBoxA(0,error_msg,error_msg,0);
+			
+			elemType *msg	= new elemType();  
+			if( NULL == msg ) exit(WING_BAD_ERROR);
+
+			memory_add();
+			memory_add_bytes(sizeof(elemType));
+
+			HANDLE handle = GetCurrentProcess();
+			PROCESS_MEMORY_COUNTERS pmc;
+			GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
+
+			msg->message_id = WM_ONERROR;
+			msg->wparam		= 0;
+			msg->lparam		= WING_ERROR_CLOSE_SOCKET;	
+			msg->size		= pmc.WorkingSetSize;
+
+			enQueue(message_queue,msg);			
+		}
+}
+
+void _throw_error( int error_code ){
+	exit(WING_BAD_ERROR);
+	/*	elemType *msg	= new elemType();  
+		if( NULL == msg)exit(WING_BAD_ERROR);
 		memory_add();
+		memory_add_bytes(sizeof(elemType));
+
 		msg->message_id = WM_ONERROR;
 		msg->wparam		= 0;
-		msg->lparam		= WING_ERROR_CLOSE_SOCKET;	
-		enQueue(message_queue,msg);			
-	}
+		msg->lparam		= error_code;	
+		enQueue(message_queue,msg);	*/
 }
 /*****************************************************************************************
  * @ iocp工作线程
@@ -1140,32 +1205,46 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 	HANDLE ComplectionPort = params->IOCompletionPort;  
 	DWORD thread_id = params->threadid;
 	DWORD BytesTransferred=0;  
-	LPPER_HANDLE_DATA PerHandleData=NULL;  
-	LPPER_IO_OPERATION_DATA PerIOData=NULL;  
+	PER_HANDLE_DATA *PerHandleData=NULL;  
+	PER_IO_OPERATION_DATA *PerIOData=NULL;  
 	DWORD RecvBytes=0;  
 	DWORD Flags=0;
-
+	HANDLE handle = GetCurrentProcess();
+	PROCESS_MEMORY_COUNTERS pmc;
 
 	while (TRUE)  
 	{  
 		BOOL wstatus = GetQueuedCompletionStatus(ComplectionPort,&BytesTransferred,(LPDWORD)&PerHandleData,(LPOVERLAPPED*)&PerIOData,INFINITE);
+		 GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
+		 unsigned int begin_size = pmc.WorkingSetSize;
+
 		//服务终止
 		if( BytesTransferred==-1 && PerIOData == NULL )   
         { 
 		
 			elemType *msg = new elemType(); 
+			if( NULL == msg ){
+				_throw_error(WING_ERROR_MALLOC);
+				return 0;
+			}
 			
 			memory_add();
+			memory_add_bytes(sizeof(elemType));
 
 			msg->message_id = WM_ONQUIT;
 			msg->wparam = 0;
 			msg->lparam = 0;
+			msg->size = begin_size;
+
 			enQueue(message_queue,msg);
 			
 			_close_socket(PerHandleData->Socket);
 			
+			memory_sub_bytes(sizeof(PER_HANDLE_DATA));
+			//memory_sub_bytes(sizeof(PER_IO_OPERATION_DATA));
+
 			delete PerHandleData;
-			delete PerIOData;
+			//delete PerIOData;
 
 			PerHandleData = NULL;
 			PerIOData = NULL;
@@ -1182,17 +1261,26 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 		if (BytesTransferred == 0 || 10054 == error_code || 64 == error_code || false == wstatus ||  1236 == error_code) 
 		{   
 			elemType *msg = new elemType();  
-
+			if( NULL == msg ){
+				_throw_error(WING_ERROR_MALLOC);
+				return 0;
+			}
 			memory_add();
+			memory_add_bytes(sizeof(elemType));
 			
 
 			msg->message_id = WM_ONCLOSE;
 			msg->wparam = _socket;
 			msg->lparam = 0;
+			msg->size = begin_size;
+
 			enQueue(message_queue,msg);
 			
 			if(1236 != error_code)//服务端调用了 _close_socket 强制终止
 				_close_socket(PerHandleData->Socket);
+
+			memory_sub_bytes(sizeof(PER_IO_OPERATION_DATA));
+			memory_sub_bytes(sizeof(PER_HANDLE_DATA));
 
 			delete PerIOData;
 			delete PerHandleData;
@@ -1210,25 +1298,37 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 		if( PerIOData->type == OPE_RECV )  {
 					
 			RECV_MSG *recv_msg	= new RECV_MSG();   
+			if( NULL == recv_msg ){
+				_throw_error(WING_ERROR_MALLOC);
+				return 0;
+			}
 			ZeroMemory(recv_msg,sizeof(RECV_MSG));
 
 			recv_msg->msg		= new char[BytesTransferred+1];
 			ZeroMemory(recv_msg->msg,BytesTransferred+1);
 
 			strcpy_s(recv_msg->msg,BytesTransferred+1,PerIOData->Buffer);
-			recv_msg->len		=  BytesTransferred;
+			recv_msg->len		=  BytesTransferred+1;
 
 			memory_add();
 			memory_add();
+			memory_add_bytes(sizeof(RECV_MSG));
+			memory_add_bytes(sizeof(char)*(BytesTransferred+1));
 	
 					
-			elemType *msg = new elemType();   
+			elemType *msg = new elemType(); 
+			if( NULL == msg ){
+				_throw_error(WING_ERROR_MALLOC);
+				return 0;
+			}
 			memory_add();
+			memory_add_bytes(sizeof(elemType));
 
 			msg->message_id = WM_ONRECV;
 			msg->wparam		= _socket;
 			msg->lparam		= (unsigned long)recv_msg;
-			
+			msg->size = begin_size;
+
 			enQueue(message_queue,msg);
 
 			BytesTransferred	= 0;
@@ -1246,15 +1346,24 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 			//如果发生错误 
 			if( 0 != error_code && WSAGetLastError() != WSA_IO_PENDING){
 
-				elemType *msg	= new elemType();  
+				elemType *msg	= new elemType();
+				if( NULL == msg ){
+					_throw_error(WING_ERROR_MALLOC);
+					return 0;
+				}
 				memory_add();
+				memory_add_bytes(sizeof(elemType));
 
 				msg->message_id = WM_ONCLOSE;
 				msg->wparam		= _socket;
 				msg->lparam		= 0;
+				msg->size = begin_size;
 				
 				enQueue(message_queue,msg);
 				_close_socket(PerHandleData->Socket);
+
+				memory_sub_bytes(sizeof(PER_IO_OPERATION_DATA));
+				memory_sub_bytes(sizeof(PER_HANDLE_DATA));
 
 				delete PerIOData;
 				delete PerHandleData;
@@ -1273,10 +1382,30 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 		else if(PerIOData->type == OPE_SEND)  
 		{   
 			ZeroMemory(PerIOData,sizeof(PER_IO_OPERATION_DATA));
+
+			memory_sub_bytes(sizeof(PER_IO_OPERATION_DATA));
 			delete PerIOData; 
+
 			PerIOData = NULL;
 			memory_sub();	
 			BytesTransferred = 0;
+
+			elemType *msg	= new elemType();
+			if( NULL == msg ){
+				_throw_error(WING_ERROR_MALLOC);
+				return 0;
+			}
+			memory_add();
+			memory_add_bytes(sizeof(elemType));
+
+			msg->message_id = WM_ONSEND;
+			msg->wparam		= _socket;
+			msg->lparam		= 0;
+			msg->size		= begin_size;
+				
+			enQueue(message_queue,msg);
+
+
 		}  
 			
 	}  
@@ -1294,45 +1423,83 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 
 	SOCKET accept ;
 	PER_HANDLE_DATA *PerHandleData = NULL;
-	LPPER_IO_OPERATION_DATA PerIOData = NULL;
+	PER_IO_OPERATION_DATA *PerIOData = NULL;
 	DWORD RecvBytes = 0;  
     DWORD Flags = 0; 
+
+	HANDLE handle = GetCurrentProcess();
+	PROCESS_MEMORY_COUNTERS pmc;
+    
+	
 	
 	while(true){
 
 		 accept = WSAAccept(m_sockListen,NULL,NULL,NULL,0);
 		 int error_code = WSAGetLastError() ;
 
+		 GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
+		 unsigned int begin_size = pmc.WorkingSetSize;
+
 		 //10024 打开了过多的套接字
 		 if( INVALID_SOCKET == accept || 10024 == error_code ){
 
-			elemType *msg= new elemType();
-
+			elemType *msg = new elemType();
+			if( NULL == msg ){
+				_throw_error(WING_ERROR_MALLOC);
+				return 0;
+			}
 			memory_add();
+			memory_add_bytes(sizeof(elemType));
 
 			msg->message_id = WM_ONERROR;
 			msg->wparam = 0; 
 			msg->lparam = WING_ERROR_ACCEPT; 
+			msg->size = begin_size;
 
 			enQueue(message_queue,msg);
 			continue;
 		 }				
 
 		elemType *msg = new elemType();
-	
+		if( NULL == msg ){
+				_throw_error(WING_ERROR_MALLOC);
+				return 0;
+		}
 		memory_add();
+		memory_add_bytes(sizeof(elemType));
 
 		msg->message_id = WM_ONCONNECT;
 		msg->wparam = (unsigned long)accept;
 		msg->lparam = 0;
+		msg->size = begin_size;
+
 		enQueue(message_queue,msg);
-
-
-		
 					
 		 PerHandleData = new PER_HANDLE_DATA();
 
+		 if( NULL == PerHandleData ){
+			
+			elemType *msg = new elemType();
+			if( NULL == msg ){
+				_throw_error(WING_ERROR_MALLOC);
+				return 0;
+			}
+			memory_add();
+			memory_add_bytes(sizeof(elemType));
+
+			msg->message_id = WM_ONCLOSE;
+			msg->wparam = (unsigned long)accept;
+			msg->lparam = 0;
+			msg->size = begin_size;
+
+			enQueue(message_queue,msg);
+
+			_close_socket(accept);
+			continue;
+		 }
+
 		 memory_add();
+		 memory_add_bytes(sizeof(PER_HANDLE_DATA));
 		 
 		 PerHandleData->Socket = accept;
 		 HANDLE iocp = CreateIoCompletionPort ((HANDLE )accept ,m_hIOCompletionPort , (ULONG_PTR)PerHandleData ,0);
@@ -1340,16 +1507,23 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 		 if( NULL == iocp){
 			
 			elemType *msg = new elemType();
-	
+			if( NULL == msg ){
+				_throw_error(WING_ERROR_MALLOC);
+				return 0;
+			}
 			memory_add();
+			memory_add_bytes(sizeof(elemType));
 
 			msg->message_id = WM_ONCLOSE;
 			msg->wparam = (unsigned long)PerHandleData->Socket;
 			msg->lparam = 0;
+			msg->size = begin_size;
+
 			enQueue(message_queue,msg);
 
 			_close_socket(PerHandleData->Socket);
 			
+			memory_sub_bytes(sizeof(PER_HANDLE_DATA));
 			delete PerHandleData;
 			memory_sub();
 				
@@ -1357,20 +1531,26 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 		 }
 
 		PerIOData = new PER_IO_OPERATION_DATA();
-		memory_add();
-
-		if ( PerIOData == NULL )
+		if ( NULL == PerIOData )
 		{
 			elemType *msg = new elemType();
+			if( NULL == msg ){
+				_throw_error(WING_ERROR_MALLOC);
+				return 0;
+			}
 			memory_add();
+			memory_add_bytes(sizeof(elemType));
 
 			msg->message_id = WM_ONCLOSE;
 			msg->wparam = (unsigned long)PerHandleData->Socket;
 			msg->lparam = 0;
+			msg->size = begin_size;
+
 			enQueue(message_queue,msg);
 
 			_close_socket(PerHandleData->Socket);
 			
+			memory_sub_bytes(sizeof(PER_HANDLE_DATA));
 			delete PerHandleData;
 			PerHandleData = NULL;
 
@@ -1378,8 +1558,8 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 
 			continue;
 		}
-
-
+		memory_add();
+		memory_add_bytes(sizeof(PER_IO_OPERATION_DATA));
 
 		/* 心跳检测 暂时没有详细测试
 		int Opt = 1;  
@@ -1410,6 +1590,7 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 
 
 		ZeroMemory(&(PerIOData->OVerlapped),sizeof(OVERLAPPED)); 
+		ZeroMemory(PerIOData->Buffer,sizeof(PerIOData->Buffer));
 
 		PerIOData->DATABuf.len = DATA_BUFSIZE; 
 		PerIOData->DATABuf.buf = PerIOData->Buffer; 
@@ -1418,26 +1599,36 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 
 		//这个地方偶尔报异常 还没完全解决
 		int code = WSARecv(accept,&(PerIOData->DATABuf),1,&RecvBytes,&Flags,&(PerIOData->OVerlapped),NULL);
+		error_code =  WSAGetLastError();
 		//调用一次 WSARecv 触发iocp事件
-		if(0 != code && WSAGetLastError() != WSA_IO_PENDING){
+		if(0 != code && WSA_IO_PENDING != error_code){
 			elemType *msg = new elemType();
+			if( NULL == msg ){
+				_throw_error(WING_ERROR_MALLOC);
+				return 0;
+			}
 			memory_add();
+			memory_add_bytes(sizeof(elemType));
 
 			msg->message_id = WM_ONCLOSE;
 			msg->wparam = (unsigned long)PerHandleData->Socket;
 			msg->lparam = 0;
+			msg->size = begin_size;
+
 			enQueue(message_queue,msg);
 
 			_close_socket(PerHandleData->Socket);
 			
+			memory_sub_bytes(sizeof(PER_HANDLE_DATA));
+			memory_sub_bytes(sizeof(PER_IO_OPERATION_DATA));
+
 			delete PerHandleData;
-			PerHandleData = NULL;
-
-			memory_sub();
-
 			delete PerIOData;
+
+			PerHandleData = NULL;
 			PerIOData = NULL;
 
+			memory_sub();
 			memory_sub();
 		}
 	}
@@ -1446,12 +1637,13 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 
 //iocp 服务主线程
 ZEND_FUNCTION(wing_service){
-
+	InitializeCriticalSection(&bytes_lock);
 	
 	zval *onreceive = NULL;
 	zval *onconnect = NULL;
 	zval *onclose = NULL;
 	zval *onerror = NULL;
+	zval *call_cycle=NULL;
 	zval *_params = NULL;
 	int port = 0;
 	//zval *_port;
@@ -1520,12 +1712,17 @@ ZEND_FUNCTION(wing_service){
 			}else if(strcmp(key,"onerror")==0){
 				onerror = *data;
 			}
+			//call_cycle
+			else if(strcmp(key,"call_cycle")==0){
+				call_cycle = *data;
+			}
 
         } 
     } 
 
 	//初始化消息队列
 	message_queue= new queue_t();
+	if( NULL == message_queue )exit(WING_BAD_ERROR);
     initQueue(message_queue);  
 
 	//创建完成端口
@@ -1538,6 +1735,7 @@ ZEND_FUNCTION(wing_service){
 	//初始化线程参数
 	DWORD thread_id					= GetCurrentThreadId();
 	COMPARAMS *accept_params		= new COMPARAMS();
+	if( NULL == accept_params) exit(WING_BAD_ERROR);
 	accept_params->threadid			= thread_id;
 	accept_params->IOCompletionPort = m_hIOCompletionPort;
 
@@ -1621,6 +1819,14 @@ ZEND_FUNCTION(wing_service){
 	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 	_CrtMemCheckpoint( &s1 );
 
+	HANDLE handle = GetCurrentProcess();
+	PROCESS_MEMORY_COUNTERS pmc;
+    
+	GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
+	unsigned int begin_size = pmc.WorkingSetSize;
+    zend_printf("size:%d\r\n",pmc.WorkingSetSize);
+
+
 	while( true )
 	{ 
 		//判断是否有消息
@@ -1654,6 +1860,12 @@ ZEND_FUNCTION(wing_service){
 
 		}
 
+
+		
+    GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
+	zend_printf("size-1:%d\r\n",pmc.WorkingSetSize-begin_size);
+
+
 		//根据消息ID进行不同的处理
 		switch(msg->message_id){
 			//新的连接
@@ -1675,13 +1887,22 @@ ZEND_FUNCTION(wing_service){
 				zval_ptr_dtor(&params);
 				
 				zend_printf("onconnect end\r\n");
+
+				GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
+				zend_printf("size-onconnect:%d\r\n",pmc.WorkingSetSize-msg->size);	 
 						  
 			}
 			break;
+			case WM_ONSEND:{
+					GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
+					zend_printf("size-onsend:%d\r\n",pmc.WorkingSetSize-msg->size);	   
+			}break;
 			//目前暂时没有用到 先留着
 			case WM_ACCEPT_ERROR:
 			{
 				zend_printf("accept error\r\n");
+				GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
+				zend_printf("size-accepterror:%d\r\n",pmc.WorkingSetSize-msg->size);	
 			}
 			break;
 			//收到消息
@@ -1715,9 +1936,11 @@ ZEND_FUNCTION(wing_service){
 				zval_ptr_dtor(&params[1]);
 				zend_printf("3-onrecv\r\n");
 
+				memory_sub_bytes(sizeof(char)*(temp->len));
 				delete[] temp->msg;
 				temp->msg = NULL;
 
+				memory_sub_bytes(sizeof(RECV_MSG));
 				delete temp;
 				temp = NULL;
 
@@ -1725,12 +1948,17 @@ ZEND_FUNCTION(wing_service){
 				memory_sub();
 
 				zend_printf("onrecv end\r\n");
+
+				GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
+				zend_printf("size-onrecv:%d\r\n",pmc.WorkingSetSize-msg->size);	
 			}
 			break;
 			//调用 _close_socket 服务端主动关闭socket
 			case WM_ONCLOSE_EX:{
 				zend_printf("close ex\r\n");
 				_close_socket((SOCKET)msg->wparam);
+				GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
+				zend_printf("size-onclose ex:%d\r\n",pmc.WorkingSetSize-msg->size);	
 			}break;
 			//客户端掉线了
 			case WM_ONCLOSE:
@@ -1755,6 +1983,9 @@ ZEND_FUNCTION(wing_service){
 				zval_ptr_dtor(&params);
 
 				zend_printf("onclose end\r\n");
+
+				GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
+				zend_printf("size-onclose:%d\r\n",pmc.WorkingSetSize-msg->size);	
 			}
 			break; 
 			//发生错误 目前暂时也还没有用到
@@ -1764,30 +1995,28 @@ ZEND_FUNCTION(wing_service){
 				
 				SOCKET client =(SOCKET)msg->wparam;
 
-				zval *params[2] = {0};
+				zval *params = NULL;
 				zval *retval_ptr = NULL;
 
-				MAKE_STD_ZVAL(params[0]);
-				MAKE_STD_ZVAL(params[1]);
+				MAKE_STD_ZVAL(params);
 
-				ZVAL_LONG(params[0],(long)client);
 				//ZVAL_STRING(params[1],(char*)msg.lParam,1);
-				ZVAL_STRING(params[1],(char*)msg->lparam,1);
+				ZVAL_LONG(params,(long)msg->lparam,1);
 
 				MAKE_STD_ZVAL(retval_ptr);
 							 
-				if(SUCCESS != call_user_function(EG(function_table),NULL,onerror,retval_ptr,2,params TSRMLS_CC)){
-					
-					zend_error(E_USER_WARNING,"WM_ONERROR call_user_function fail\r\n");
-	
+				if(SUCCESS != call_user_function(EG(function_table),NULL,onerror,retval_ptr,1,&params TSRMLS_CC)){
+					zend_error(E_USER_WARNING,"onerror call_user_function fail");
 				}
 							 
 				zval_ptr_dtor(&retval_ptr);
-				zval_ptr_dtor(&params[0]);
-				zval_ptr_dtor(&params[1]);
+				zval_ptr_dtor(&params);
 			
 
 				zend_printf("onerror end\r\n");
+
+				GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
+				zend_printf("size-onerror:%d\r\n",pmc.WorkingSetSize-msg->size);	
 
 			}
 			break;
@@ -1805,6 +2034,10 @@ ZEND_FUNCTION(wing_service){
 				clearQueue(message_queue);
 				DeleteCriticalSection(&queue_lock);
 
+				//memory_sub_bytes(sizeof(message_queue));
+				//memory_sub_bytes(sizeof(accept_params));
+				memory_sub_bytes(sizeof(elemType));
+
 				delete accept_params;
 				delete msg;
 				delete message_queue;
@@ -1820,6 +2053,7 @@ ZEND_FUNCTION(wing_service){
 
 		}
 
+		memory_sub_bytes(sizeof(elemType));
 		delete msg;
 		msg = NULL;
 
@@ -1838,6 +2072,15 @@ ZEND_FUNCTION(wing_service){
 		else {
 			zend_printf("memory not crash\r\n");
 		}
+
+		//call_cycle
+		/*zval *retval_ptr = NULL;
+		MAKE_STD_ZVAL(retval_ptr);				 
+		call_user_function(EG(function_table),NULL,call_cycle,retval_ptr,0,NULL TSRMLS_CC);
+		zval_ptr_dtor(&retval_ptr);*/
+
+		GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
+		zend_printf("size-last:%d\r\n",pmc.WorkingSetSize-begin_size);
   
     } 
 	zend_printf("service quit\r\n");
@@ -1848,12 +2091,25 @@ ZEND_FUNCTION(wing_service){
  ***********************************/
 ZEND_FUNCTION(wing_service_stop){
 
-	elemType *msg = new elemType();  
+	elemType *msg = new elemType(); 
+	if( NULL == msg ){
+			_throw_error(WING_ERROR_MALLOC);
+			return;
+	}
 	memory_add();
+	memory_add_bytes(sizeof(elemType));
+
+	HANDLE handle = GetCurrentProcess();
+	PROCESS_MEMORY_COUNTERS pmc;
+	GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
+
+    
+
 
 	msg->message_id = WM_ONQUIT;
 	msg->wparam = 0;
 	msg->lparam = 0;
+	msg->size   = pmc.WorkingSetSize;
 
 	enQueue(message_queue,msg);
 
@@ -1874,12 +2130,23 @@ ZEND_FUNCTION(wing_close_socket){
 	convert_to_long(socket);
 	//_close_socket((SOCKET)socket);
 	
-	elemType *msg = new elemType();  
+	elemType *msg = new elemType(); 
+	if( NULL == msg ){
+			_throw_error(WING_ERROR_MALLOC);
+			return;
+	}
 	memory_add();
+	memory_add_bytes(sizeof(elemType));
+
+
+	HANDLE handle = GetCurrentProcess();
+	PROCESS_MEMORY_COUNTERS pmc;
+	GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
 
 	msg->message_id = WM_ONCLOSE_EX;
 	msg->wparam =  (unsigned long)Z_LVAL_P(socket);
 	msg->lparam = 0;
+	msg->size   = pmc.WorkingSetSize;
 
 	enQueue(message_queue,msg);
 
@@ -1966,8 +2233,9 @@ ZEND_FUNCTION(wing_socket_send_msg_ex){
 		return;  
 	}
    
-	LPPER_IO_OPERATION_DATA  PerIoData = new PER_IO_OPERATION_DATA();
+	PER_IO_OPERATION_DATA  *PerIoData = new PER_IO_OPERATION_DATA();
 	memory_add();
+	memory_add_bytes(sizeof(PER_IO_OPERATION_DATA));
 
 	ZeroMemory(&(PerIoData->OVerlapped),sizeof(OVERLAPPED));      
 	PerIoData->DATABuf.buf	= pData; 
@@ -1976,6 +2244,8 @@ ZEND_FUNCTION(wing_socket_send_msg_ex){
 	
 	int bRet  = WSASend(sClient,&(PerIoData->DATABuf),1,&SendByte,Flag,&(PerIoData->OVerlapped),NULL);  
 	if( bRet != 0 &&  WSAGetLastError() != WSA_IO_PENDING ){
+
+		memory_sub_bytes(sizeof(PER_IO_OPERATION_DATA));
 		delete PerIoData;
 		PerIoData = NULL;
 		memory_sub();
