@@ -1467,6 +1467,7 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 
 			memory_sub();
 			memory_sub();
+			continue;
 		}
 	}
 	return 0;
