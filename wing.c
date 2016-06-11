@@ -1256,7 +1256,7 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 			if(1236 != error_code)//服务端调用了 _close_socket 强制终止
 				_close_socket(PerHandleData->Socket);
 
-			CloseHandle(PerIOData->OVerlapped.hEvent);
+			//CloseHandle(PerIOData->OVerlapped.hEvent);
 
 			GlobalFree( PerIOData );
 			GlobalFree( PerHandleData );
@@ -1295,7 +1295,7 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 			BytesTransferred	= 0;
 			Flags				= 0;  
 			
-			CloseHandle(PerIOData->OVerlapped.hEvent);
+			//CloseHandle(PerIOData->OVerlapped.hEvent);
 
 			ZeroMemory(&(PerIOData->OVerlapped),sizeof(OVERLAPPED)); 
 			ZeroMemory(PerIOData->Buffer,DATA_BUFSIZE);
@@ -1330,7 +1330,7 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 		{   
 			ZeroMemory(PerIOData,sizeof(PER_IO_OPERATION_DATA));
 
-			CloseHandle(PerIOData->OVerlapped.hEvent);
+			//CloseHandle(PerIOData->OVerlapped.hEvent);
 			GlobalFree( PerIOData ); 
 
 			PerIOData = NULL;
@@ -1459,8 +1459,6 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 			_post_msg(WM_ONCLOSE,(unsigned long)PerHandleData->Socket);
 			_close_socket(PerHandleData->Socket);
 			
-			CloseHandle(PerIOData->OVerlapped.hEvent);
-
 			GlobalFree( PerHandleData );
 			GlobalFree( PerIOData );
 
@@ -2039,8 +2037,6 @@ ZEND_FUNCTION(wing_socket_send_msg_ex){
 	
 	int bRet  = WSASend(sClient,&(PerIoData->DATABuf),1,&SendByte,Flag,&(PerIoData->OVerlapped),NULL);  
 	if( bRet != 0 &&  WSAGetLastError() != WSA_IO_PENDING ){
-
-		CloseHandle(PerIoData->OVerlapped.hEvent);
 
 		GlobalFree( PerIoData );
 		PerIoData = NULL;
