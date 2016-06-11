@@ -100,7 +100,7 @@ unsigned long memory_add_times = 0;
 unsigned long memory_sub_times = 0;
 
 
-CRITICAL_SECTION bytes_lock;
+//CRITICAL_SECTION bytes_lock;
 void memory_add(){
     InterlockedIncrement(&memory_add_times);
 }
@@ -1168,6 +1168,7 @@ void _close_socket( SOCKET socket){
 			
 			_post_msg(WM_ONERROR,0,WING_ERROR_CLOSE_SOCKET);		
 		}
+		//WSACleanup();
 }
 
 void _throw_error( int error_code ){
@@ -1436,7 +1437,7 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 
 //iocp 服务主线程
 ZEND_FUNCTION(wing_service){
-	InitializeCriticalSection(&bytes_lock);
+	//InitializeCriticalSection(&bytes_lock);
 	
 	zval *onreceive = NULL;
 	zval *onconnect = NULL;
@@ -1828,7 +1829,7 @@ ZEND_FUNCTION(wing_service){
 			{
 				//zend_printf("quit\r\n");
 				
-				PostQueuedCompletionStatus(m_hIOCompletionPort, 0xFFFFFFFF, 0, NULL);
+				//PostQueuedCompletionStatus(m_hIOCompletionPort, 0xFFFFFFFF, 0, NULL);
 				
 				CloseHandle(m_hIOCompletionPort);
 				_close_socket(m_sockListen);
