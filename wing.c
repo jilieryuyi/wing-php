@@ -1616,7 +1616,7 @@ ZEND_FUNCTION(wing_service){
 
 	//内存泄漏检测
 	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
-	_CrtMemCheckpoint( &s1 );
+	
 
 	HANDLE handle = GetCurrentProcess();
 	PROCESS_MEMORY_COUNTERS pmc;
@@ -1636,29 +1636,13 @@ ZEND_FUNCTION(wing_service){
 			Sleep(10);
 			continue;
 		}
+		_CrtMemCheckpoint( &s1 );
+		 
+		GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
+		zend_printf("size-start:%d\r\n",pmc.WorkingSetSize-begin_size);
 
-		 GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
-		zend_printf("size-1:%d\r\n",pmc.WorkingSetSize-begin_size);
-
-	//	begin_size = pmc.WorkingSetSize;
-
-		//-----获取消息--需要加锁--------------------
-		EnterCriticalSection(&queue_lock);
 
 		outQueue(message_queue,&msg);
-
-		
-		/*node_t * _temp_node;  
-		msg			= message_queue->head->data;  
-		_temp_node	= message_queue->head;  
-		message_queue->head = message_queue->head->next;  
-		if(message_queue->head == NULL)  
-		{  
-			message_queue->tail = NULL;  
-		}  
-		delete(_temp_node);
-		memory_sub(); */
-		LeaveCriticalSection(&queue_lock);
 
 		if( NULL == msg ){
 
@@ -1666,11 +1650,6 @@ ZEND_FUNCTION(wing_service){
 			continue;
 
 		}
-
-
-		
-   
-
 
 		//根据消息ID进行不同的处理
 		switch(msg->message_id){
