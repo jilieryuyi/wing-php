@@ -230,9 +230,7 @@ class Http{
     public function start(){
         $_self = $this;
         $params["onreceive"]    = function($client,$msg) use($_self){
-            //wing_socket_send_msg($client, "1");
             $_self->onreceive($client,$msg);
-            //wing_close_socket($client);
         };
         $params["onconnect"]    = function($client){};
         $params["onclose"]      = function($client){

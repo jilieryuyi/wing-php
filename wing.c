@@ -42,6 +42,7 @@
 #include "Mmsystem.h"
 #include "mstcpip.h"
 #include "process.h"
+#include  <mswsock.h>
 #pragma comment(lib,"Kernel32.lib")
 #pragma comment(lib,"Shlwapi.lib")
 #pragma comment(lib,"Psapi.lib")
@@ -78,14 +79,12 @@ typedef struct
  
 typedef struct{ 
   SOCKET Socket;
-  //HANDLE iocp;
 } PER_HANDLE_DATA; 
 
 typedef struct{ 
   SOCKET Socket;
   HANDLE IOCompletionPort;
   DWORD threadid;
-  //queue_t *message_queue; 
 } COMPARAMS; 
 
 typedef struct{
@@ -1156,18 +1155,50 @@ void _post_msg(int message_id,unsigned long wparam=0,unsigned long lparam=0){
 
 		enQueue(message_queue,msg);			
 }
+
+typedef struct _SOCKET_OBJ
+{
+	SOCKET socket;	            // 套接字句柄
+	int nOutstandingOps;	    // 记录此套接字上的重叠I/O数量
+	LPFN_DISCONNECTEX lpfnDisconnectEx; // 扩展函数DisconnectEx的指针
+}SOCKET_OBJ,*PSOCKET_OBJ;
+
+PSOCKET_OBJ GetSocketObj(SOCKET socket)
+{
+	PSOCKET_OBJ pSocket = (PSOCKET_OBJ)GlobalAlloc(GPTR,sizeof(SOCKET_OBJ));
+	if(pSocket == NULL) return NULL;
+	pSocket->socket = socket;
+	return pSocket;
+}
 void _close_socket( SOCKET socket){
 
-		int error_code = WSAGetLastError();
+	CancelIo((HANDLE)socket);
+	//int error_code = WSAGetLastError();
+		
+	GUID GuidDisconnectEx = WSAID_DISCONNECTEX;
+	DWORD dwBytes;
+	PSOCKET_OBJ pSock = GetSocketObj(socket);
+
+	if(NULL == pSock ){
+		_post_msg(WM_ONERROR,0,WING_ERROR_CLOSE_SOCKET);	
+		return;
+	}
+
+	WSAIoctl(pSock->socket,SIO_GET_EXTENSION_FUNCTION_POINTER,&GuidDisconnectEx,sizeof(GuidDisconnectEx),&pSock ->lpfnDisconnectEx,sizeof(pSock ->lpfnDisconnectEx),&dwBytes,NULL,NULL);
+	//DisconnectEx(socket,NULL,0,0);
+
+	BOOL bIs = pSock->lpfnDisconnectEx(socket,NULL,TF_REUSE_SOCKET,0);
+	GlobalFree(pSock);
+
 		//这里偶尔也会报异常
-		if( 0 != closesocket(socket )){
+		/*if( 0 != closesocket(socket )){
 			
 			char error_msg[32] = {0};
 			sprintf(error_msg,"%ld",error_code);
 			MessageBoxA(0,error_msg,error_msg,0);
 			
 			_post_msg(WM_ONERROR,0,WING_ERROR_CLOSE_SOCKET);		
-		}
+		}*/
 		//WSACleanup();
 }
 
@@ -1205,7 +1236,7 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 			_post_msg(WM_ONQUIT);
 			_close_socket(PerHandleData->Socket);
 	
-			delete PerHandleData;
+			GlobalFree( PerHandleData );
 
 			PerHandleData = NULL;
 			PerIOData = NULL;
@@ -1225,8 +1256,10 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 			if(1236 != error_code)//服务端调用了 _close_socket 强制终止
 				_close_socket(PerHandleData->Socket);
 
-			delete PerIOData;
-			delete PerHandleData;
+			CloseHandle(PerIOData->OVerlapped.hEvent);
+
+			GlobalFree( PerIOData );
+			GlobalFree( PerHandleData );
 
 			PerHandleData = NULL;
 			PerIOData = NULL;
@@ -1262,6 +1295,8 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 			BytesTransferred	= 0;
 			Flags				= 0;  
 			
+			CloseHandle(PerIOData->OVerlapped.hEvent);
+
 			ZeroMemory(&(PerIOData->OVerlapped),sizeof(OVERLAPPED)); 
 			ZeroMemory(PerIOData->Buffer,DATA_BUFSIZE);
 
@@ -1277,8 +1312,8 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 				_post_msg(WM_ONCLOSE,_socket);
 				_close_socket(PerHandleData->Socket);
 
-				delete PerIOData;
-				delete PerHandleData;
+				GlobalFree( PerIOData );
+				GlobalFree( PerHandleData );
 
 				PerIOData = NULL;
 				PerHandleData = NULL;
@@ -1294,7 +1329,9 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 		else if(PerIOData->type == OPE_SEND)  
 		{   
 			ZeroMemory(PerIOData,sizeof(PER_IO_OPERATION_DATA));
-			delete PerIOData; 
+
+			CloseHandle(PerIOData->OVerlapped.hEvent);
+			GlobalFree( PerIOData ); 
 
 			PerIOData = NULL;
 			BytesTransferred = 0;
@@ -1334,14 +1371,14 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 		int error_code = WSAGetLastError() ;
 
 		 //10024 打开了过多的套接字
-		 if( INVALID_SOCKET == accept || 10024 == error_code ){
+		 if( INVALID_SOCKET == accept || 10024 == error_code || SOCKET_ERROR == accept ){
 			_post_msg(WM_ONERROR,0,WING_ERROR_ACCEPT);
 			continue;
 		 }				
 
 		 _post_msg(WM_ONCONNECT,(unsigned long)accept);
 				
-		 PerHandleData = new PER_HANDLE_DATA();
+		 PerHandleData =  (PER_HANDLE_DATA*)GlobalAlloc(GPTR,sizeof(PER_HANDLE_DATA));//new PER_HANDLE_DATA();
 
 		 if( NULL == PerHandleData ){
 			_post_msg(WM_ONCLOSE,(unsigned long)accept);
@@ -1359,20 +1396,20 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 			_post_msg(WM_ONCLOSE,(unsigned long)PerHandleData->Socket);
 			_close_socket(PerHandleData->Socket);
 			
-			delete PerHandleData;
+			GlobalFree( PerHandleData );
 			
 			memory_sub();
 
 			continue;
 		 }
 
-		PerIOData = new PER_IO_OPERATION_DATA();
+		PerIOData =   (PER_IO_OPERATION_DATA*)GlobalAlloc(GPTR,sizeof(PER_IO_OPERATION_DATA));// new PER_IO_OPERATION_DATA();
 		if ( NULL == PerIOData )
 		{
 			_post_msg(WM_ONCLOSE,(unsigned long)PerHandleData->Socket);
 			_close_socket(PerHandleData->Socket);
 			
-			delete PerHandleData;
+			GlobalFree( PerHandleData );
 			PerHandleData = NULL;
 
 			memory_sub();
@@ -1422,8 +1459,10 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 			_post_msg(WM_ONCLOSE,(unsigned long)PerHandleData->Socket);
 			_close_socket(PerHandleData->Socket);
 			
-			delete PerHandleData;
-			delete PerIOData;
+			CloseHandle(PerIOData->OVerlapped.hEvent);
+
+			GlobalFree( PerHandleData );
+			GlobalFree( PerIOData );
 
 			PerHandleData = NULL;
 			PerIOData = NULL;
@@ -1990,7 +2029,7 @@ ZEND_FUNCTION(wing_socket_send_msg_ex){
 		return;  
 	}
    
-	PER_IO_OPERATION_DATA  *PerIoData = new PER_IO_OPERATION_DATA();
+	PER_IO_OPERATION_DATA  *PerIoData =  (PER_IO_OPERATION_DATA*)GlobalAlloc(GPTR,sizeof(PER_IO_OPERATION_DATA));//new PER_IO_OPERATION_DATA();
 	memory_add();
 
 	ZeroMemory(&(PerIoData->OVerlapped),sizeof(OVERLAPPED));      
@@ -2001,7 +2040,9 @@ ZEND_FUNCTION(wing_socket_send_msg_ex){
 	int bRet  = WSASend(sClient,&(PerIoData->DATABuf),1,&SendByte,Flag,&(PerIoData->OVerlapped),NULL);  
 	if( bRet != 0 &&  WSAGetLastError() != WSA_IO_PENDING ){
 
-		delete PerIoData;
+		CloseHandle(PerIoData->OVerlapped.hEvent);
+
+		GlobalFree( PerIoData );
 		PerIoData = NULL;
 		memory_sub();
 		RETURN_LONG(WING_ERROR_FAILED);
