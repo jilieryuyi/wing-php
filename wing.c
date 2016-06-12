@@ -23,7 +23,6 @@
 #endif
 
 
-
 #include "php.h"
 #include "php_ini.h"
 #include "zend_constants.h"
@@ -48,6 +47,10 @@
 #pragma comment(lib,"Psapi.lib")
 #pragma comment(lib,"Winmm.lib")
 #pragma comment(lib,"Ws2_32.lib")
+
+
+//#include "lib/include/vld.h"
+//#pragma comment(lib,"lib/lib/Win32/vld.lib")
 
 
 //#define _CRTDBG_MAP_ALLOC
@@ -118,6 +121,7 @@ void get_command_path(const char *name,char *output){
 
 	int env_len		= GetEnvironmentVariable("PATH",NULL,0)+1;
 	char *env_var	= new char[env_len];
+	ZeroMemory(env_var,sizeof(char)*(env_len));
 	memory_add();
 
 	GetEnvironmentVariable("PATH",env_var,env_len);
@@ -135,11 +139,9 @@ void get_command_path(const char *name,char *output){
 		long len_temp	= temp-start;
 		long _len_temp	= len_temp+sizeof("\\")+sizeof(".exe")+1;
 		
+		ZeroMemory(output,sizeof(char)*MAX_PATH);
 
-		ZeroMemory(_temp_path,sizeof(_temp_path));
 		strncpy_s(_temp_path,_len_temp,var_begin,len_temp);
-		ZeroMemory(output,sizeof(_temp_path));
-
 		sprintf_s(output,MAX_PATH,"%s\\%s.exe\0",_temp_path,name);
 
 		if(PathFileExists(output)){
@@ -149,7 +151,7 @@ void get_command_path(const char *name,char *output){
 			return;
 		}
 
-		ZeroMemory(output,sizeof(_temp_path));
+		ZeroMemory(output,sizeof(char)*MAX_PATH);
 		sprintf_s(output,MAX_PATH,"%s\\%s.bat\0",_temp_path,name);
 
 		if(PathFileExists(output)){
@@ -1156,26 +1158,30 @@ void _post_msg(int message_id,unsigned long wparam=0,unsigned long lparam=0){
 		enQueue(message_queue,msg);			
 }
 
-void _close_socket( SOCKET socket){
-
-	CancelIo((HANDLE)socket);
-	//int error_code = WSAGetLastError();	
+bool DisconnectEx(
+	SOCKET hSocket,
+	LPOVERLAPPED lpOverlapped,
+	DWORD dwFlags,
+	DWORD reserved
+)
+{
 	GUID GuidDisconnectEx = WSAID_DISCONNECTEX;
 	DWORD dwBytes = 0;
 	LPFN_DISCONNECTEX lpfnDisconnectEx;
-	WSAIoctl(socket,SIO_GET_EXTENSION_FUNCTION_POINTER,&GuidDisconnectEx,sizeof(GuidDisconnectEx),&lpfnDisconnectEx,sizeof(lpfnDisconnectEx),&dwBytes,NULL,NULL);
-	BOOL bIs = lpfnDisconnectEx(socket,NULL,TF_REUSE_SOCKET,0);
+	if( 0 != WSAIoctl(hSocket,SIO_GET_EXTENSION_FUNCTION_POINTER,&GuidDisconnectEx,sizeof(GuidDisconnectEx),&lpfnDisconnectEx,sizeof(lpfnDisconnectEx),&dwBytes,NULL,NULL)){
+		return false;
+	}
+	return lpfnDisconnectEx(hSocket,lpOverlapped,/*TF_REUSE_SOCKET*/dwFlags,reserved);
+}
 
-		//这里偶尔也会报异常
-		/*if( 0 != closesocket(socket )){
-			
-			char error_msg[32] = {0};
-			sprintf(error_msg,"%ld",error_code);
-			MessageBoxA(0,error_msg,error_msg,0);
-			
-			_post_msg(WM_ONERROR,0,WING_ERROR_CLOSE_SOCKET);		
-		}*/
-		//WSACleanup();
+void _close_socket( SOCKET socket){
+
+	CancelIo((HANDLE)socket);
+
+	if( !DisconnectEx(socket,NULL,/*TF_REUSE_SOCKET*/0,0) ){
+		_post_msg(WM_ONERROR,0,WING_ERROR_CLOSE_SOCKET);		
+	}
+
 }
 
 void _throw_error( int error_code ){
