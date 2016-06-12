@@ -1177,7 +1177,7 @@ bool DisconnectEx(
 void _close_socket( SOCKET socket){
 
 	CancelIo((HANDLE)socket);
-
+	shutdown(socket,SD_BOTH);
 	if( !DisconnectEx(socket,NULL,/*TF_REUSE_SOCKET*/0,0) ){
 		_post_msg(WM_ONERROR,0,WING_ERROR_CLOSE_SOCKET);		
 	}
@@ -1423,6 +1423,18 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 			continue;
 		}
 		*/
+
+
+
+
+		linger so_linger;
+		so_linger.l_onoff = TRUE;
+		so_linger.l_linger = 30; //设置30秒收发超时
+		setsockopt(accept,SOL_SOCKET,SO_LINGER,(const char*)&so_linger,sizeof(so_linger));
+
+
+
+
 
 		ZeroMemory(&(PerIOData->OVerlapped),sizeof(OVERLAPPED)); 
 		ZeroMemory(PerIOData->Buffer,sizeof(PerIOData->Buffer));
