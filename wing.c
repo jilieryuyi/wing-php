@@ -1156,39 +1156,15 @@ void _post_msg(int message_id,unsigned long wparam=0,unsigned long lparam=0){
 		enQueue(message_queue,msg);			
 }
 
-typedef struct _SOCKET_OBJ
-{
-	SOCKET socket;	            // 套接字句柄
-	int nOutstandingOps;	    // 记录此套接字上的重叠I/O数量
-	LPFN_DISCONNECTEX lpfnDisconnectEx; // 扩展函数DisconnectEx的指针
-}SOCKET_OBJ,*PSOCKET_OBJ;
-
-PSOCKET_OBJ GetSocketObj(SOCKET socket)
-{
-	PSOCKET_OBJ pSocket = (PSOCKET_OBJ)GlobalAlloc(GPTR,sizeof(SOCKET_OBJ));
-	if(pSocket == NULL) return NULL;
-	pSocket->socket = socket;
-	return pSocket;
-}
 void _close_socket( SOCKET socket){
 
 	CancelIo((HANDLE)socket);
-	//int error_code = WSAGetLastError();
-		
+	//int error_code = WSAGetLastError();	
 	GUID GuidDisconnectEx = WSAID_DISCONNECTEX;
-	DWORD dwBytes;
-	PSOCKET_OBJ pSock = GetSocketObj(socket);
-
-	if(NULL == pSock ){
-		_post_msg(WM_ONERROR,0,WING_ERROR_CLOSE_SOCKET);	
-		return;
-	}
-
-	WSAIoctl(pSock->socket,SIO_GET_EXTENSION_FUNCTION_POINTER,&GuidDisconnectEx,sizeof(GuidDisconnectEx),&pSock ->lpfnDisconnectEx,sizeof(pSock ->lpfnDisconnectEx),&dwBytes,NULL,NULL);
-	//DisconnectEx(socket,NULL,0,0);
-
-	BOOL bIs = pSock->lpfnDisconnectEx(socket,NULL,TF_REUSE_SOCKET,0);
-	GlobalFree(pSock);
+	DWORD dwBytes = 0;
+	LPFN_DISCONNECTEX lpfnDisconnectEx;
+	WSAIoctl(socket,SIO_GET_EXTENSION_FUNCTION_POINTER,&GuidDisconnectEx,sizeof(GuidDisconnectEx),&lpfnDisconnectEx,sizeof(lpfnDisconnectEx),&dwBytes,NULL,NULL);
+	BOOL bIs = lpfnDisconnectEx(socket,NULL,TF_REUSE_SOCKET,0);
 
 		//这里偶尔也会报异常
 		/*if( 0 != closesocket(socket )){
@@ -1664,6 +1640,8 @@ ZEND_FUNCTION(wing_service){
 	unsigned int begin_size = pmc.WorkingSetSize;
     zend_printf("size:%d\r\n",pmc.WorkingSetSize);
 
+	unsigned int _begin_size = pmc.WorkingSetSize;
+
 	//int connect_size = 0;
 	//int new_add_size = 0;
 
@@ -1678,7 +1656,8 @@ ZEND_FUNCTION(wing_service){
 		//_CrtMemCheckpoint( &s1 );
 		 
 		GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
-		zend_printf("size-start:%d\r\n",pmc.WorkingSetSize-begin_size);
+		begin_size = pmc.WorkingSetSize;
+		zend_printf("start memory:%d\r\n",pmc.WorkingSetSize);
 
 
 		outQueue(message_queue,&msg);
@@ -1917,7 +1896,9 @@ ZEND_FUNCTION(wing_service){
 		zval_ptr_dtor(&retval_ptr);*/
 
 		GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
-		zend_printf("size-last:%d\r\n",pmc.WorkingSetSize-begin_size);
+		zend_printf("free memory:%d\r\n",pmc.WorkingSetSize-begin_size);
+		zend_printf("add memory:%d\r\n\r\n",pmc.WorkingSetSize-_begin_size);
+		zend_printf("--------------------------------------------------------------------------------\r\n\r\n");
   
     } 
 	zend_printf("service quit\r\n");
