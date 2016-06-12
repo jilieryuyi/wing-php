@@ -50,9 +50,9 @@
 #pragma comment(lib,"Ws2_32.lib")
 
 
-#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#include <crtdbg.h>
+//#define _CRTDBG_MAP_ALLOC
+//#include <stdlib.h>
+//#include <crtdbg.h>
 /*inline void EnableMemLeakCheck()
 {
    _CrtSetDbgFlag(_CrtSetDbgFlag(_CRTDBG_REPORT_FLAG) | _CRTDBG_LEAK_CHECK_DF);
@@ -1360,8 +1360,8 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 	DWORD RecvBytes = 0;  
     DWORD Flags = 0; 
 
-	HANDLE handle = GetCurrentProcess();
-	PROCESS_MEMORY_COUNTERS pmc;
+	//HANDLE handle = GetCurrentProcess();
+//	PROCESS_MEMORY_COUNTERS pmc;
     
 	
 	
@@ -1654,7 +1654,7 @@ ZEND_FUNCTION(wing_service){
 
 
 	//ÄÚ´æÐ¹Â©¼ì²â
-	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+//	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 	
 
 	HANDLE handle = GetCurrentProcess();
@@ -1675,7 +1675,7 @@ ZEND_FUNCTION(wing_service){
 			Sleep(10);
 			continue;
 		}
-		_CrtMemCheckpoint( &s1 );
+		//_CrtMemCheckpoint( &s1 );
 		 
 		GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
 		zend_printf("size-start:%d\r\n",pmc.WorkingSetSize-begin_size);
@@ -1900,15 +1900,15 @@ ZEND_FUNCTION(wing_service){
 		memory_times_show();
 		
 		
-		_CrtMemCheckpoint( &s2 );
-		if ( _CrtMemDifference( &s3, &s1, &s2) )
-		{
+		//_CrtMemCheckpoint( &s2 );
+		//if ( _CrtMemDifference( &s3, &s1, &s2) )
+	//	{
 			//zend_printf("memory crash\r\n");
-			_CrtMemDumpStatistics( &s3 );//ÄÚ´æÐ¹Â¶
-		}
-		else {
+		//	_CrtMemDumpStatistics( &s3 );//ÄÚ´æÐ¹Â¶
+	//	}
+	//	else {
 			//zend_printf("memory not crash\r\n");
-		}
+	//	}
 
 		//call_cycle
 		/*zval *retval_ptr = NULL;
