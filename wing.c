@@ -1674,7 +1674,7 @@ ZEND_FUNCTION(wing_service){
 			//新的连接
 			case WM_ONCONNECT:
 			{
-				//zend_printf("onconnect\r\n");
+				zend_printf("onconnect\r\n");
 				
 				zval *params = NULL;
 				zval *retval_ptr = NULL;
@@ -1701,12 +1701,14 @@ ZEND_FUNCTION(wing_service){
 			}
 			break;
 			case WM_ONSEND:{
+				zend_printf("onsend\r\n");
 					//GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
 					//zend_printf("size-onsend:%d\r\n",pmc.WorkingSetSize-msg->size);	   
 			}break;
 			//目前暂时没有用到 先留着
 			case WM_ACCEPT_ERROR:
 			{
+				zend_printf("onaccepterror\r\n");
 				//zend_printf("accept error\r\n");
 				//GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
 				//zend_printf("size-accepterror:%d\r\n",pmc.WorkingSetSize-msg->size);	
@@ -1716,7 +1718,7 @@ ZEND_FUNCTION(wing_service){
 			case WM_ONRECV:
 			{
 				
-				//zend_printf("onrecv\r\n");
+				zend_printf("onrecv\r\n");
 				
 				RECV_MSG *temp = (RECV_MSG*)msg->lparam;
 				SOCKET client = (SOCKET)msg->wparam;
@@ -1762,6 +1764,7 @@ ZEND_FUNCTION(wing_service){
 			break;
 			//调用 _close_socket 服务端主动关闭socket
 			case WM_ONCLOSE_EX:{
+				zend_printf("oncloseex\r\n");
 				//zend_printf("close ex\r\n");
 				_close_socket((SOCKET)msg->wparam);
 				//GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
@@ -1769,21 +1772,24 @@ ZEND_FUNCTION(wing_service){
 			}break;
 			case WM_TEST:
 			{
+				zend_printf("ontest\r\n");
 					//zend_printf("test---------------------------------------:%d\r\n",msg->size);	
 			}
 			case WM_TEST2:
 			{
+				zend_printf("ontest2\r\n");
 					//zend_printf("test-2222---------------------------------------:%d\r\n",msg->size);	
 			}
 			case WM_TEST3:
 			{
+				zend_printf("ontest3\r\n");
 					//zend_printf("test-3333---------------------------------------:%d\r\n",msg->size);	
 			}
 			break;
 			//客户端掉线了
 			case WM_ONCLOSE:
 			{
-				//zend_printf("onclose\r\n");				
+				zend_printf("onclose\r\n");				
 
 				
 				SOCKET client =(SOCKET)msg->wparam;
@@ -1811,7 +1817,7 @@ ZEND_FUNCTION(wing_service){
 			break; 
 			//发生错误 目前暂时也还没有用到
 			case WM_ONERROR:{
-				
+				zend_printf("onerror\r\n");		
 				//zend_printf("------------------------------------onerror----warning-------------------------------\r\n");
 				
 				SOCKET client =(SOCKET)msg->wparam;
@@ -1844,7 +1850,7 @@ ZEND_FUNCTION(wing_service){
 			//退出服务 暂时没有测试
 			case WM_ONQUIT:
 			{
-				//zend_printf("quit\r\n");
+				zend_printf("onquit\r\n");
 				
 				//PostQueuedCompletionStatus(m_hIOCompletionPort, 0xFFFFFFFF, 0, NULL);
 				
