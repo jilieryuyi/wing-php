@@ -70,8 +70,6 @@
 #define OPE_RECV 1
 #define OPE_SEND 2
 #define OPE_ACCEPT 3
-SOCKET m_sockListen;
-HANDLE m_hIOCompletionPort;
 
 typedef struct  
 { 
@@ -80,15 +78,14 @@ typedef struct
   WSABUF DATABuf; 
   CHAR Buffer[DATA_BUFSIZE]; 
   int type;
-  DWORD recvBytes;
-  SOCKET client;
+ // SOCKET client;
 
 }PER_IO_OPERATION_DATA;
 
  
 typedef struct{ 
   SOCKET Socket;
-  SOCKADDR_STORAGE ClientAddr;
+ // SOCKADDR_STORAGE ClientAddr;
 } PER_HANDLE_DATA; 
 
 typedef struct{ 
@@ -1229,100 +1226,6 @@ void _throw_error( int error_code ){
 	exit(WING_BAD_ERROR);
 }
 
-bool _post_accept(){
-	DWORD dwBytes=0;
-	PER_IO_OPERATION_DATA *perIoData = (PER_IO_OPERATION_DATA*)GlobalAlloc(GPTR,sizeof(PER_IO_OPERATION_DATA));
-	memset(&(perIoData->OVerlapped),0,sizeof(OVERLAPPED));    
-	perIoData->type = OPE_ACCEPT;
-    //在使用AcceptEx前需要事先重建一个套接字用于其第二个参数。这样目的是节省时间
-    //通常可以创建一个套接字库
-	perIoData->client = WSASocket(AF_INET,SOCK_STREAM,IPPROTO_TCP,0,0,WSA_FLAG_OVERLAPPED);
-
-        // perIoData->dataLength = DATA_LENGTH;
-	int rc = WingAcceptEx(m_sockListen,perIoData->client,perIoData->Buffer,0,sizeof(SOCKADDR_IN)+16,sizeof(SOCKADDR_IN)+16,&dwBytes, &(perIoData->OVerlapped));
-    if( rc == FALSE && WSAGetLastError() != ERROR_IO_PENDING ){
-		return false;
-	}
-	return true;
-}
-
-bool _post_recv(SOCKET accept,PER_IO_OPERATION_DATA** PerIOData,	PER_HANDLE_DATA **PerHandleData){
-	DWORD RecvBytes=0;
-	DWORD Flags=0;
-	//这个地方偶尔报异常 还没完全解决
-	int code = WSARecv(accept,&((*PerIOData)->DATABuf),1,&RecvBytes,&Flags,&((*PerIOData)->OVerlapped),NULL);
-	int error_code =  WSAGetLastError();
-	//调用一次 WSARecv 触发iocp事件
-	if(0 != code && WSA_IO_PENDING != error_code){
-		return false;
-	}
-	return true;
-}
-
-void _wing_on_accept( PER_IO_OPERATION_DATA** perIoData,PER_HANDLE_DATA **perHandleData){
-
-	//此处可以设置 SO_CONNECT_TIME 超时
-	//bool is_error = false;
-	//int code = setsockopt( (*perIoData)->client, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, ( char* )&((*perHandleData)->Socket ), sizeof( (*perHandleData)->Socket ) );
-	//if( SOCKET_ERROR == code){
-		//closesocket( perIoData->client);
-		//GlobalFree(perIoData);
-		//is_error = true;
-	//}
-
-	(*perHandleData)->Socket = (*perIoData)->client;
-    //将新的客户套接字与完成端口连接
-	CreateIoCompletionPort((HANDLE)(*perHandleData)->Socket,m_hIOCompletionPort,(ULONG_PTR)(*perHandleData),0);
-
-	memset(&((*perIoData)->OVerlapped),0,sizeof(OVERLAPPED));
-	(*perIoData)->type = OPE_ACCEPT;         //将状态设置成接收
-    //设置WSABUF结构
-	(*perIoData)->DATABuf.buf = (*perIoData)->Buffer;
-	(*perIoData)->DATABuf.len = DATA_BUFSIZE;
-
-           
-	_post_recv((*perHandleData)->Socket,perIoData,perHandleData);
-	_post_accept();
-
-}
-
-void _wing_on_send( PER_IO_OPERATION_DATA** perIoData,PER_HANDLE_DATA **perHandleData){
-
-}
-
-void _wing_on_recv(SOCKET _socket, PER_IO_OPERATION_DATA** perIoData,PER_HANDLE_DATA **perHandleData){
-	
-	//构建消息
-	RECV_MSG *recv_msg	= new RECV_MSG();   
-	ZeroMemory(recv_msg,sizeof(RECV_MSG));
-
-	DWORD len =(*perIoData)->recvBytes+1;
-	recv_msg->msg		= new char[len];
-	ZeroMemory(recv_msg->msg,len);
-
-	strcpy_s(recv_msg->msg,len,(*perIoData)->Buffer);
-	recv_msg->len		=  len;
-
-	//内存计数器 此处new了两次
-	memory_add();
-	memory_add();
-	
-	//发送消息
-	_post_msg(WM_ONRECV,_socket,(unsigned long)recv_msg);
-
-	//投递下一个recv
-	_post_recv(_socket,perIoData,perHandleData);		
-}
-
-void _wing_on_quit( PER_IO_OPERATION_DATA** perIoData,PER_HANDLE_DATA **perHandleData){}
-
-void _wing_on_close( PER_IO_OPERATION_DATA** perIoData,PER_HANDLE_DATA **perHandleData){}
-
-
-
-
-
-
 /*****************************************************************************************
  * @ iocp工作线程
  *****************************************************************************************/
@@ -1349,7 +1252,17 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 		//服务终止
 		if( BytesTransferred==-1 && PerIOData == NULL )   
         { 
-			_wing_on_quit(&PerIOData,&PerHandleData);
+		
+			_post_msg(WM_ONQUIT);
+			_close_socket(PerHandleData->Socket);
+	
+			GlobalFree( PerHandleData );
+
+			PerHandleData = NULL;
+			PerIOData = NULL;
+
+			memory_sub();
+
 			return 0;  
         }  
 
@@ -1358,14 +1271,77 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 		//掉线检测
 		if (BytesTransferred == 0 || 10054 == error_code || 64 == error_code || false == wstatus ||  1236 == error_code) 
 		{   
-			_wing_on_close(&PerIOData,&PerHandleData);
+			_post_msg(WM_ONCLOSE,_socket);
+
+			if(1236 != error_code)//服务端调用了 _close_socket 强制终止
+				_close_socket(PerHandleData->Socket);
+
+			//CloseHandle(PerIOData->OVerlapped.hEvent);
+
+			GlobalFree( PerIOData );
+			GlobalFree( PerHandleData );
+
+			PerHandleData = NULL;
+			PerIOData = NULL;
+
+			memory_sub();
+			memory_sub();
+			
 			continue;  
 		}
 
 		//收到消息
 		if( PerIOData->type == OPE_RECV )  {
-			PerIOData->recvBytes = 	BytesTransferred;
-			_wing_on_recv(_socket,&PerIOData,&PerHandleData);
+				
+			RECV_MSG *recv_msg	= new RECV_MSG();   
+			if( NULL == recv_msg ){
+				_throw_error(WING_ERROR_MALLOC);
+				return 0;
+			}
+			ZeroMemory(recv_msg,sizeof(RECV_MSG));
+
+			recv_msg->msg		= new char[BytesTransferred+1];
+			ZeroMemory(recv_msg->msg,BytesTransferred+1);
+
+			strcpy_s(recv_msg->msg,BytesTransferred+1,PerIOData->Buffer);
+			recv_msg->len		=  BytesTransferred+1;
+
+			memory_add();
+			memory_add();
+	
+					
+			_post_msg(WM_ONRECV,_socket,(unsigned long)recv_msg);
+
+			BytesTransferred	= 0;
+			Flags				= 0;  
+			
+			//CloseHandle(PerIOData->OVerlapped.hEvent);
+
+			ZeroMemory(&(PerIOData->OVerlapped),sizeof(OVERLAPPED)); 
+			ZeroMemory(PerIOData->Buffer,DATA_BUFSIZE);
+
+			PerIOData->DATABuf.buf	= PerIOData->Buffer;  
+			PerIOData->DATABuf.len	= DATA_BUFSIZE;  
+			PerIOData->type			= OPE_RECV;
+
+			int error_code = WSARecv(PerHandleData->Socket,&(PerIOData->DATABuf),1,&RecvBytes,&Flags,&(PerIOData->OVerlapped),NULL);
+			//接收完一次消息之后 再次调用 WSARecv 触发 iocp异步接收
+			//如果发生错误 
+			if( 0 != error_code && WSAGetLastError() != WSA_IO_PENDING){
+
+				_post_msg(WM_ONCLOSE,_socket);
+				_close_socket(PerHandleData->Socket);
+
+				GlobalFree( PerIOData );
+				GlobalFree( PerHandleData );
+
+				PerIOData = NULL;
+				PerHandleData = NULL;
+
+				memory_sub();
+				memory_sub();
+	
+			}
 				
 		}
 
@@ -1387,9 +1363,49 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 
 		///////////////////////////////////////////////////////
 
-		else if(PerIOData->type == OPE_ACCEPT){
-			_wing_on_accept(&PerIOData,&PerHandleData);
-		}
+		//else if(PerIOData->type == OPE_ACCEPT){
+
+             //使用GetAcceptExSockaddrs函数 获得具体的各个地址参数.
+           //  if(setsockopt( PerIOData->client, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT,  
+			//	 ( char* )&(PerHandleData->Socket ), sizeof( PerHandleData->Socket ) )==SOCKET_ERROR){
+			 
+			// }
+                // cout<<"setsockopt..."<<endl;
+
+        //     PerHandleData->Socket = PerIOData->client;
+
+             //memcpy(&(perHandleData->clientAddr),raddr,sizeof(raddr));
+             //将新的客户套接字与完成端口连接
+          //   CreateIoCompletionPort((HANDLE)PerHandleData->Socket,ComplectionPort,(ULONG_PTR)PerHandleData,0);
+
+		//	 memset(&(PerIOData->OVerlapped),0,sizeof(OVERLAPPED));
+		//	 PerIOData->type = OPE_RECV;         //将状态设置成接收
+             //设置WSABUF结构
+		//	 PerIOData->DATABuf.buf = PerIOData->Buffer;
+		//	 PerIOData->DATABuf.len = DATA_BUFSIZE;
+
+ 
+          /*   Flags = 0;
+			 int _code = WSARecv(PerHandleData->Socket,&(PerIOData->DATABuf),1,&RecvBytes,&Flags,&(PerIOData->OVerlapped),NULL);//==SOCKET_ERROR)
+			 int error_code = WSAGetLastError();
+
+              
+			 if(0 != _code && WSA_IO_PENDING != error_code){
+
+				_post_msg(WM_ONCLOSE,(unsigned long)PerHandleData->Socket);
+				_close_socket(PerHandleData->Socket);
+			
+				GlobalFree( PerHandleData );
+				GlobalFree( PerIOData );
+
+				PerHandleData = NULL;
+				PerIOData = NULL;
+
+				memory_sub();
+				memory_sub();
+			}*/
+         
+		//}
 
 		////////////////////////////////////////////////////////
 			
@@ -1674,7 +1690,7 @@ ZEND_FUNCTION(wing_service){
     initQueue(message_queue);  
 
 	//创建完成端口
-	 m_hIOCompletionPort = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0 ); 
+	HANDLE m_hIOCompletionPort = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0 ); 
 	if(m_hIOCompletionPort == NULL){
 		RETURN_LONG(WING_ERROR_FAILED);
 		return;
@@ -1713,7 +1729,7 @@ ZEND_FUNCTION(wing_service){
 	//初始化Socket
 	// 这里需要特别注意，如果要使用重叠I/O的话，这里必须要使用WSASocket来初始化Socket
 	// 注意里面有个WSA_FLAG_OVERLAPPED参数
-	m_sockListen = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED); 
+	SOCKET m_sockListen = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED); 
 	if(m_sockListen == INVALID_SOCKET){
 		WSACleanup();
 		delete accept_params;
@@ -1721,17 +1737,6 @@ ZEND_FUNCTION(wing_service){
 		RETURN_LONG(WING_ERROR_FAILED);
 		return;
 	}
-
-
-	//绑定完成端口
-
-	 //将监听套接字与完成端口绑定
-     PER_HANDLE_DATA *perDandleData;
-     perDandleData = (PER_HANDLE_DATA*)GlobalAlloc(GPTR,sizeof(PER_HANDLE_DATA));
-	 perDandleData->Socket = m_sockListen;
-     CreateIoCompletionPort((HANDLE)m_sockListen,m_hIOCompletionPort,(ULONG_PTR)perDandleData,0);
-
-	//投递acceptex
 
 
 	struct sockaddr_in ServerAddress; 
@@ -1767,27 +1772,7 @@ ZEND_FUNCTION(wing_service){
 	
 	accept_params->Socket = m_sockListen;
 	//客户端连接进来的处理线程
-	// _beginthreadex(NULL, 0, accept_worker, accept_params, 0, NULL);
-
-
-
-	//投递第一个acceptex
-	 if( !_post_accept() ){
-        
-		 zend_printf("accept ex error\r\n");
-		
-		_close_socket(m_sockListen);
-		WSACleanup();
-		delete accept_params;
-		accept_params = NULL;
-
-		RETURN_LONG(WING_ERROR_FAILED);
-	}
-
-
-
-
-
+	 _beginthreadex(NULL, 0, accept_worker, accept_params, 0, NULL);
 
 
 	int times = 0;
@@ -2104,7 +2089,7 @@ ZEND_FUNCTION(wing_close_socket){
 
 /*****************************************
  * @获取socket信息，ip 协议 端口 等
- * @return array //GetAcceptExSockaddrs
+ * @return array
  ****************************************/
 ZEND_FUNCTION(wing_socket_info){
 
