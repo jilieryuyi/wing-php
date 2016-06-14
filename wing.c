@@ -1229,17 +1229,17 @@ void _throw_error( int error_code ){
 	exit(WING_BAD_ERROR);
 }
 
-bool _post_accept(){
+bool _post_accept(PER_IO_OPERATION_DATA** perIoData){
 	DWORD dwBytes=0;
-	PER_IO_OPERATION_DATA *perIoData = (PER_IO_OPERATION_DATA*)GlobalAlloc(GPTR,sizeof(PER_IO_OPERATION_DATA));
-	memset(&(perIoData->OVerlapped),0,sizeof(OVERLAPPED));    
-	perIoData->type = OPE_ACCEPT;
+	//PER_IO_OPERATION_DATA *perIoData = (PER_IO_OPERATION_DATA*)GlobalAlloc(GPTR,sizeof(PER_IO_OPERATION_DATA));
+	memset(&((*perIoData)->OVerlapped),0,sizeof(OVERLAPPED));    
+	(*perIoData)->type = OPE_ACCEPT;
     //在使用AcceptEx前需要事先重建一个套接字用于其第二个参数。这样目的是节省时间
     //通常可以创建一个套接字库
-	perIoData->client = WSASocket(AF_INET,SOCK_STREAM,IPPROTO_TCP,0,0,WSA_FLAG_OVERLAPPED);
+	(*perIoData)->client = WSASocket(AF_INET,SOCK_STREAM,IPPROTO_TCP,0,0,WSA_FLAG_OVERLAPPED);
 
         // perIoData->dataLength = DATA_LENGTH;
-	int rc = WingAcceptEx(m_sockListen,perIoData->client,perIoData->Buffer,0,sizeof(SOCKADDR_IN)+16,sizeof(SOCKADDR_IN)+16,&dwBytes, &(perIoData->OVerlapped));
+	int rc = WingAcceptEx(m_sockListen,(*perIoData)->client,(*perIoData)->Buffer,0,sizeof(SOCKADDR_IN)+16,sizeof(SOCKADDR_IN)+16,&dwBytes, &((*perIoData)->OVerlapped));
     if( rc == FALSE && WSAGetLastError() != ERROR_IO_PENDING ){
 		return false;
 	}
@@ -1282,7 +1282,7 @@ void _wing_on_accept( PER_IO_OPERATION_DATA** perIoData,PER_HANDLE_DATA **perHan
 
            
 	_post_recv((*perHandleData)->Socket,perIoData,perHandleData);
-	_post_accept();
+	_post_accept(perIoData);
 
 }
 
@@ -1770,9 +1770,9 @@ ZEND_FUNCTION(wing_service){
 	// _beginthreadex(NULL, 0, accept_worker, accept_params, 0, NULL);
 
 
-
+	PER_IO_OPERATION_DATA *perIoData = (PER_IO_OPERATION_DATA*)GlobalAlloc(GPTR,sizeof(PER_IO_OPERATION_DATA));
 	//投递第一个acceptex
-	 if( !_post_accept() ){
+	 if( !_post_accept(&perIoData) ){
         
 		 zend_printf("accept ex error\r\n");
 		
