@@ -69,6 +69,8 @@
 #define DATA_BUFSIZE 10240
 #define OPE_RECV 1
 #define OPE_SEND 2
+#define OPE_ACCEPT 3
+
 typedef struct  
 { 
 
@@ -76,12 +78,14 @@ typedef struct
   WSABUF DATABuf; 
   CHAR Buffer[DATA_BUFSIZE]; 
   int type;
+ // SOCKET client;
 
 }PER_IO_OPERATION_DATA;
 
  
 typedef struct{ 
   SOCKET Socket;
+ // SOCKADDR_STORAGE ClientAddr;
 } PER_HANDLE_DATA; 
 
 typedef struct{ 
@@ -1174,13 +1178,47 @@ bool DisconnectEx(
 	return lpfnDisconnectEx(hSocket,lpOverlapped,/*TF_REUSE_SOCKET*/dwFlags,reserved);
 }
 
-void _close_socket( SOCKET socket){
+bool WingAcceptEx(
+	 SOCKET sListenSocket,
+	 SOCKET sAcceptSocket,
+	 PVOID lpOutputBuffer,
+	 DWORD dwReceiveDataLength,
+	 DWORD dwLocalAddressLength,
+	 DWORD dwRemoteAddressLength,
+	 LPDWORD lpdwBytesReceived,
+	 LPOVERLAPPED lpOverlapped
+	){
+		LPFN_ACCEPTEX lpfnAcceptEx = NULL;     //AcceptEx函数指针
+     //Accept function GUID
+		GUID guidAcceptEx = WSAID_ACCEPTEX;
+     //get acceptex function pointer
+		 DWORD dwBytes = 0;
+		 if( 0 != WSAIoctl(sListenSocket,SIO_GET_EXTENSION_FUNCTION_POINTER,&guidAcceptEx,sizeof(guidAcceptEx),&lpfnAcceptEx,sizeof(lpfnAcceptEx),&dwBytes,NULL,NULL)){
+			return false;
+		 }
 
-	CancelIo((HANDLE)socket);
+		return lpfnAcceptEx( sListenSocket,
+	  sAcceptSocket,
+	  lpOutputBuffer,
+	  dwReceiveDataLength,
+	  dwLocalAddressLength,
+	  dwRemoteAddressLength,
+	  lpdwBytesReceived,
+	  lpOverlapped);
+        
+}
+
+
+void _close_socket( SOCKET socket, LPOVERLAPPED lpOverlapped=NULL){
+
+	//CancelIo((HANDLE)socket);
+	//CancelIoEx((HANDLE)socket,lpOverlapped);
 	shutdown(socket,SD_BOTH);
 	if( !DisconnectEx(socket,NULL,/*TF_REUSE_SOCKET*/0,0) ){
+		closesocket(socket);
 		_post_msg(WM_ONERROR,0,WING_ERROR_CLOSE_SOCKET);		
 	}
+	//closesocket(socket);
 
 }
 
@@ -1322,11 +1360,96 @@ unsigned int __stdcall  socket_worker(LPVOID lpParams)
 
 			_post_msg(WM_ONSEND,_socket);
 		}  
+
+		///////////////////////////////////////////////////////
+
+		//else if(PerIOData->type == OPE_ACCEPT){
+
+             //使用GetAcceptExSockaddrs函数 获得具体的各个地址参数.
+           //  if(setsockopt( PerIOData->client, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT,  
+			//	 ( char* )&(PerHandleData->Socket ), sizeof( PerHandleData->Socket ) )==SOCKET_ERROR){
+			 
+			// }
+                // cout<<"setsockopt..."<<endl;
+
+        //     PerHandleData->Socket = PerIOData->client;
+
+             //memcpy(&(perHandleData->clientAddr),raddr,sizeof(raddr));
+             //将新的客户套接字与完成端口连接
+          //   CreateIoCompletionPort((HANDLE)PerHandleData->Socket,ComplectionPort,(ULONG_PTR)PerHandleData,0);
+
+		//	 memset(&(PerIOData->OVerlapped),0,sizeof(OVERLAPPED));
+		//	 PerIOData->type = OPE_RECV;         //将状态设置成接收
+             //设置WSABUF结构
+		//	 PerIOData->DATABuf.buf = PerIOData->Buffer;
+		//	 PerIOData->DATABuf.len = DATA_BUFSIZE;
+
+ 
+          /*   Flags = 0;
+			 int _code = WSARecv(PerHandleData->Socket,&(PerIOData->DATABuf),1,&RecvBytes,&Flags,&(PerIOData->OVerlapped),NULL);//==SOCKET_ERROR)
+			 int error_code = WSAGetLastError();
+
+              
+			 if(0 != _code && WSA_IO_PENDING != error_code){
+
+				_post_msg(WM_ONCLOSE,(unsigned long)PerHandleData->Socket);
+				_close_socket(PerHandleData->Socket);
+			
+				GlobalFree( PerHandleData );
+				GlobalFree( PerIOData );
+
+				PerHandleData = NULL;
+				PerIOData = NULL;
+
+				memory_sub();
+				memory_sub();
+			}*/
+         
+		//}
+
+		////////////////////////////////////////////////////////
 			
 	}  
 	return 0;
 }  
 
+/*
+unsigned int __stdcall  accept_worker(LPVOID _socket) {
+	COMPARAMS *_data			= (COMPARAMS*)_socket;
+	SOCKET Listen				= _data->Socket;
+	HANDLE m_hIOCompletionPort	= _data->IOCompletionPort;
+	DWORD threadid				= _data->threadid;
+	while(true){
+		//准备调用 AcceptEx 函数，该函数使用重叠结构并于完成端口连接
+         PER_IO_OPERATION_DATA *perIoData =   (PER_IO_OPERATION_DATA*)GlobalAlloc(GPTR,sizeof(PER_IO_OPERATION_DATA));
+
+		 memset(&(perIoData->OVerlapped),0,sizeof(OVERLAPPED));    
+		 perIoData->type = OPE_ACCEPT;
+         //在使用AcceptEx前需要事先重建一个套接字用于其第二个参数。这样目的是节省时间
+         //通常可以创建一个套接字库
+         perIoData->client = WSASocket(AF_INET,SOCK_STREAM,IPPROTO_TCP,0,0,WSA_FLAG_OVERLAPPED);
+
+        // perIoData->dataLength = DATA_LENGTH;
+         DWORD flags = 0,dwBytes=0;
+        
+         //调用AcceptEx函数，地址长度需要在原有的上面加上16个字节
+         //注意这里使用了重叠模型，该函数的完成将在与完成端口关联的工作线程中处理
+         //cout<<"Process AcceptEx function wait for client connect..."<<endl;
+		 int rc = WingAcceptEx(Listen,perIoData->client,perIoData->Buffer,0, sizeof(SOCKADDR_IN)+16,sizeof(SOCKADDR_IN)+16,&dwBytes, &(perIoData->OVerlapped));
+         if(rc == FALSE)
+         {::MessageBoxA(0,"error2221","error",0);
+			 if(WSAGetLastError()!=ERROR_IO_PENDING){
+				 ::MessageBoxA(0,"error111","error",0);
+				 closesocket(perIoData->client);
+				 GlobalFree(perIoData);
+				 memory_sub();
+				
+			 }
+                // cout<<"lpfnAcceptEx failed.."<<endl;
+         }
+	}
+
+}*/
 
 //接受客户端连接进来的工作线程
 unsigned int __stdcall  accept_worker(LPVOID _socket) {
@@ -1336,11 +1459,15 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 	HANDLE m_hIOCompletionPort	= _data->IOCompletionPort;
 	DWORD threadid				= _data->threadid;
 
-	SOCKET accept ;
 	PER_HANDLE_DATA *PerHandleData = NULL;
+	SOCKET accept ;
 	PER_IO_OPERATION_DATA *PerIOData = NULL;
 	DWORD RecvBytes = 0;  
-    DWORD Flags = 0; 
+	DWORD Flags = 0; 
+	SOCKADDR_IN saRemote;
+	int RemoteLen;
+	
+	
 
 	//HANDLE handle = GetCurrentProcess();
 //	PROCESS_MEMORY_COUNTERS pmc;
@@ -1349,7 +1476,9 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 	
 	while(true){
 
-		accept = WSAAccept(m_sockListen,NULL,NULL,NULL,0);
+		
+
+		accept = WSAAccept(m_sockListen,(SOCKADDR*)&saRemote,&RemoteLen,NULL,0);
 		int error_code = WSAGetLastError() ;
 
 		 //10024 打开了过多的套接字
@@ -1370,7 +1499,9 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 
 		 memory_add();
 		 
-		 PerHandleData->Socket = accept;
+		// PerHandleData->Socket = accept;
+		// memcpy(&PerHandleData->ClientAddr,&saRemote,RemoteLen);
+
 		 HANDLE iocp = CreateIoCompletionPort ((HANDLE )accept ,m_hIOCompletionPort , (ULONG_PTR)PerHandleData ,0);
 
 		 if( NULL == iocp){
@@ -1399,7 +1530,7 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 		}
 		memory_add();
 
-		/* 心跳检测 暂时没有详细测试
+		/*//------------ 心跳检测 暂时没有详细测试
 		int Opt = 1;  
 		tcp_keepalive live,liveout;     
 		live.keepaliveinterval=1000;      
@@ -1422,7 +1553,7 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 
 			continue;
 		}
-		*/
+		//////////////*/
 
 
 
@@ -1463,6 +1594,7 @@ unsigned int __stdcall  accept_worker(LPVOID _socket) {
 			memory_sub();
 			continue;
 		}
+
 	}
 	return 0;
 }
@@ -1578,7 +1710,8 @@ ZEND_FUNCTION(wing_service){
 	int m_nThreads = 2 * m_nProcessors; 
 	for (int i = 0; i < m_nThreads; i++) 
 	{ 
-		 _beginthreadex(NULL, 0, socket_worker, accept_params, 0, NULL); 
+		HANDLE _thread = (HANDLE)_beginthreadex(NULL, 0, socket_worker, accept_params, 0, NULL); 
+		CloseHandle(_thread);
 	} 
 
 
