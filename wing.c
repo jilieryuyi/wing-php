@@ -1504,29 +1504,11 @@ ZEND_FUNCTION(wing_service){
 		return;
 	}
 
-
-
-
 	
 	HashTable *arr_hash = Z_ARRVAL_P(_params);
-	int argc= zend_hash_num_elements(arr_hash);
+	int argc = zend_hash_num_elements(arr_hash);
 	zval  **data = NULL;
 	HashPosition pointer = NULL;
-		
-	
-	/*  
-	    查不到值不知为何 待测试
-		zend_hash_find(arr_hash,"port",strlen("port")+1,(void**)&_port);
-		port = Z_LVAL_P(_port);
-		zend_printf("%ld",port);
-		zend_hash_find(arr_hash,"listen",strlen("listen")+1,(void**)&_listen_ip);
-		listen_ip = Z_STRVAL_P(_listen_ip);
-		zend_printf("%s",listen_ip);
-		zend_hash_find(arr_hash,"onreceive",strlen("onreceive")+1,(void**)&onreceive);
-		zend_hash_find(arr_hash,"onconnect",strlen("onconnect")+1,(void**)&onconnect);
-		zend_hash_find(arr_hash,"onclose",strlen("onclose")+1,(void**)&onclose);
-		zend_hash_find(arr_hash,"onerror",strlen("onerror")+1,(void**)&onerror);
-	*/
 			
 	//数组参数解析
 	for(zend_hash_internal_pointer_reset_ex(arr_hash, &pointer); zend_hash_get_current_data_ex(arr_hash, (void**) &data, &pointer) == SUCCESS; zend_hash_move_forward_ex(arr_hash, &pointer)) {
@@ -1615,29 +1597,6 @@ ZEND_FUNCTION(wing_service){
 		RETURN_LONG(WING_ERROR_FAILED);
 		return;
 	}
-	
-	//accept_params->Socket = m_sockListen;
-	//客户端连接进来的处理线程
-	// _beginthreadex(NULL, 0, accept_worker, accept_params, 0, NULL);
-
-
-	//PER_IO_OPERATION_DATA *perIoData = (PER_IO_OPERATION_DATA*)GlobalAlloc(GPTR,sizeof(PER_IO_OPERATION_DATA));
-
-	
-
-	//投递第一个acceptex
-	/* if( !_post_accept() ){
-        
-		 zend_printf("accept ex error\r\n");
-		
-		_close_socket(m_sockListen);
-		WSACleanup();
-	//	delete accept_params;
-	//	accept_params = NULL;
-
-		RETURN_LONG(WING_ERROR_FAILED);
-	}*/
-
 
 	//socket 池
 	for( int i=0;i<100;i++){
@@ -1659,18 +1618,18 @@ ZEND_FUNCTION(wing_service){
 		int error_code = WingAcceptEx(m_sockListen,pMyOL->m_skClient,pMyOL->m_pBuf,0,sizeof(SOCKADDR_IN)+16,sizeof(SOCKADDR_IN)+16,NULL, (LPOVERLAPPED)pMyOL);
 		int last_error = WSAGetLastError() ;
 		if( !error_code && WSAECONNRESET != last_error && ERROR_IO_PENDING != last_error ){
-				if( INVALID_SOCKET != pMyOL->m_skClient ) 
-				{
-					closesocket(pMyOL->m_skClient);
-					client = pMyOL->m_skClient = INVALID_SOCKET;
-				}
+			if( INVALID_SOCKET != pMyOL->m_skClient ) 
+			{
+				closesocket(pMyOL->m_skClient);
+				client = pMyOL->m_skClient = INVALID_SOCKET;
+			}
 				
-				if( NULL != pMyOL) 
-				{
-					delete pMyOL;
-					pMyOL = NULL; 
-				}
-				continue;
+			if( NULL != pMyOL) 
+			{
+				delete pMyOL;
+				pMyOL = NULL; 
+			}
+			continue;
 		}
 
 		
@@ -1681,23 +1640,11 @@ ZEND_FUNCTION(wing_service){
 
 		WingGetAcceptExSockaddrs( pMyOL->m_skClient , pMyOL->m_pBuf , 0 , sizeof(sockaddr_in) + 16 , sizeof(sockaddr_in) + 16, (LPSOCKADDR*) &addrHost , &lenHost , (LPSOCKADDR*) &addrClient , &lenClient );
 		int nRet = ::setsockopt(pMyOL->m_skClient, SOL_SOCKET,SO_UPDATE_ACCEPT_CONTEXT,(char *)&m_sockListen,sizeof(m_sockListen));
-
-	
 	}
-
-
-
-
-
-
 
 	int times = 0;
 	int nSize = 0;
 	elemType *msg = NULL;//消息
-
-
-	//内存泄漏检测
-//	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 	
 
 	HANDLE handle = GetCurrentProcess();
@@ -1708,10 +1655,6 @@ ZEND_FUNCTION(wing_service){
     zend_printf("size:%d\r\n",pmc.WorkingSetSize);
 
 	unsigned int _begin_size = pmc.WorkingSetSize;
-
-	//int connect_size = 0;
-	//int new_add_size = 0;
-
 
 	while( true )
 	{ 
@@ -1755,15 +1698,6 @@ ZEND_FUNCTION(wing_service){
 				}
 				zval_ptr_dtor(&retval_ptr);
 				zval_ptr_dtor(&params);
-				
-				//zend_printf("onconnect end\r\n");
-
-				//GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
-				//zend_printf("size-onconnect:%d\r\n",pmc.WorkingSetSize-msg->size);	
-
-				//connect_size = pmc.WorkingSetSize;
-
-				//new_add_size+=pmc.WorkingSetSize-msg->size;
 						  
 			}
 			break;
