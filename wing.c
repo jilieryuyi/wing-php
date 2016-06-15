@@ -1390,6 +1390,7 @@ void _wing_on_recv(MYOVERLAPPED*  pOL){
 	
 	//发送消息
 	_post_msg(WM_ONRECV,pOL->m_skClient,(unsigned long)recv_msg);
+	_post_recv(pOL);
 }
 
 void _wing_on_close(MYOVERLAPPED*  &pOL){
@@ -1401,22 +1402,17 @@ void _wing_on_close(MYOVERLAPPED*  &pOL){
 
 	//创建一个自定义的OVERLAPPED扩展结构，使用IOCP方式调用
 
-	MYOVERLAPPED *pMyOL= new MYOVERLAPPED();
-
-	pMyOL->m_iOpType = 0;        //AcceptEx操作
-
-	pMyOL->m_skServer = pOL->m_skServer;
-
-	pMyOL->m_skClient = pOL->m_skClient;
-
-	
+	MYOVERLAPPED *pMyOL	= new MYOVERLAPPED();
+	pMyOL->m_iOpType	= 0;        //AcceptEx操作
+	pMyOL->m_skServer	= pOL->m_skServer;
+	pMyOL->m_skClient	= pOL->m_skClient;
 
 	int error_code = WingAcceptEx(m_sockListen,pMyOL->m_skClient,pMyOL->m_pBuf,0,sizeof(SOCKADDR_IN)+16,sizeof(SOCKADDR_IN)+16,NULL, (LPOVERLAPPED)pMyOL);
 	int last_error = WSAGetLastError() ;
 	if( !error_code && WSAECONNRESET != last_error && ERROR_IO_PENDING != last_error ){
 		if( INVALID_SOCKET != pMyOL->m_skClient ) 
 		{
-				closesocket(pMyOL->m_skClient);
+			closesocket(pMyOL->m_skClient);
 		}	
 		if( NULL != pMyOL) 
 		{
@@ -1433,10 +1429,6 @@ void _wing_on_close(MYOVERLAPPED*  &pOL){
 	delete pOL;
 
 }
-
-
-
-
 
 
 VOID CALLBACK MyIOCPThread(DWORD dwErrorCode,DWORD dwBytesTrans,LPOVERLAPPED lpOverlapped)
