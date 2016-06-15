@@ -80,6 +80,7 @@ struct MYOVERLAPPED{
 	SOCKET m_skClient;
 	DWORD recvBytes;
 	char m_pBuf[DATA_BUFSIZE];
+	WSABUF DATABuf; 
 };
 
 
@@ -1310,12 +1311,24 @@ bool _post_accept(/*PER_IO_OPERATION_DATA* &perIoData*/){
 /****************************************************
  * @ 投递一次 recv
  ****************************************************/
-bool _post_recv(PER_IO_OPERATION_DATA* &PerIOData,	PER_HANDLE_DATA* &PerHandleData){
+bool _post_recv(MYOVERLAPPED* &pMyOL){
 	
+
+			
+			//CloseHandle(PerIOData->OVerlapped.hEvent);
+
+	ZeroMemory(&(pMyOL->m_ol),sizeof(OVERLAPPED)); 
+	ZeroMemory(pMyOL->m_pBuf,DATA_BUFSIZE);
+
+	pMyOL->DATABuf.buf	= pMyOL->m_pBuf;  
+	pMyOL->DATABuf.len	= DATA_BUFSIZE;  
+	pMyOL->m_iOpType			= OPE_RECV;
+
+
 	DWORD RecvBytes=0;
 	DWORD Flags=0;
 	//这个地方偶尔报异常 还没完全解决
-	int code = WSARecv(PerHandleData->Socket,&(PerIOData->DATABuf),1,&RecvBytes,&Flags,&(PerIOData->OVerlapped),NULL);
+	int code = WSARecv(pMyOL->m_skClient,&(pMyOL->DATABuf),1,&RecvBytes,&Flags,&(pMyOL->m_ol),NULL);
 	int error_code =  WSAGetLastError();
 	//调用一次 WSARecv 触发iocp事件
 	if(0 != code && WSA_IO_PENDING != error_code){
@@ -1328,25 +1341,18 @@ bool _post_recv(PER_IO_OPERATION_DATA* &PerIOData,	PER_HANDLE_DATA* &PerHandleDa
  * @ 回调之后需要投递一次新的 accept 以待下次新客户端连接
  * @ 还需要头第一次recv 用来接收数据
  ****************************************************/
-void _wing_on_accept(MYOVERLAPPED* &pOL/* PER_IO_OPERATION_DATA* &perIoData,PER_HANDLE_DATA* &perHandleData*/){
-	/*
-	//此处可以设置 SO_CONNECT_TIME 超时
-	int code = setsockopt( pOL->m_skClient, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, ( char* )&(pOL->m_skServer ), sizeof( SOCKET ) );
+void _wing_on_accept(MYOVERLAPPED* &pMyOL/* PER_IO_OPERATION_DATA* &perIoData,PER_HANDLE_DATA* &perHandleData*/){
+
+	LPSOCKADDR addrHost = NULL;      //服务端地址
+	LPSOCKADDR addrClient = NULL;     //客户端地址
+	int lenHost = 0;
+	int lenClient = 0;
+
+	WingGetAcceptExSockaddrs( pMyOL->m_skClient , pMyOL->m_pBuf , 0 , sizeof(sockaddr_in) + 16 , sizeof(sockaddr_in) + 16, (LPSOCKADDR*) &addrHost , &lenHost , (LPSOCKADDR*) &addrClient , &lenClient );
+	int nRet = ::setsockopt(pMyOL->m_skClient, SOL_SOCKET,SO_UPDATE_ACCEPT_CONTEXT,(char *)&m_sockListen,sizeof(m_sockListen));
 	
-
-	
-    //将新的客户套接字与完成端口连接
-	CreateIoCompletionPort((HANDLE) pOL->m_skClient,m_hIOCompletionPort,(ULONG_PTR)perHandleData,0);
-
-	memset(&(perIoData->OVerlapped),0,sizeof(OVERLAPPED));
-	perIoData->type = OPE_ACCEPT;         //将状态设置成接收
-    //设置WSABUF结构
-	perIoData->DATABuf.buf = perIoData->Buffer;
-	perIoData->DATABuf.len = DATA_BUFSIZE;
-           
-	_post_recv(perIoData,perHandleData);
-	_post_accept(perIoData);*/
-
+	_post_msg(WM_ONCONNECT, pMyOL->m_skClient,0);
+	_post_recv(pMyOL);
 }
 /****************************************************
  * @ 发送消息
@@ -1555,6 +1561,13 @@ ZEND_FUNCTION(wing_service){
 		RETURN_LONG(WING_ERROR_FAILED);
 		return; 
 	}
+
+
+	 if(LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2){// 检查是否申请了所需版本的套接字库   
+        WSACleanup();  
+        return;  
+    }  
+
 	
 
 	//WSACleanup( );
@@ -1633,13 +1646,7 @@ ZEND_FUNCTION(wing_service){
 		}
 
 		
-		LPSOCKADDR addrHost = NULL;      //服务端地址
-		LPSOCKADDR addrClient = NULL;     //客户端地址
-		int lenHost = 0;
-		int lenClient = 0;
-
-		WingGetAcceptExSockaddrs( pMyOL->m_skClient , pMyOL->m_pBuf , 0 , sizeof(sockaddr_in) + 16 , sizeof(sockaddr_in) + 16, (LPSOCKADDR*) &addrHost , &lenHost , (LPSOCKADDR*) &addrClient , &lenClient );
-		int nRet = ::setsockopt(pMyOL->m_skClient, SOL_SOCKET,SO_UPDATE_ACCEPT_CONTEXT,(char *)&m_sockListen,sizeof(m_sockListen));
+		
 	}
 
 	int times = 0;
