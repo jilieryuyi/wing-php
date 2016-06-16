@@ -81,6 +81,9 @@ struct MYOVERLAPPED{
 	DWORD recvBytes;
 	char m_pBuf[DATA_BUFSIZE];
 	WSABUF DATABuf; 
+	int timeout;
+	LPSOCKADDR addrClient;
+	LPSOCKADDR addrServer;
 };
 
 
@@ -1165,16 +1168,16 @@ void _post_msg(int message_id,unsigned long wparam=0,unsigned long lparam=0){
 
 		memory_add();
 
-		HANDLE handle = GetCurrentProcess();
-		PROCESS_MEMORY_COUNTERS pmc;
-		GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
+		//HANDLE handle = GetCurrentProcess();
+		//PROCESS_MEMORY_COUNTERS pmc;
+		//GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
 
 		msg->message_id = message_id;
 		msg->wparam		= wparam;
 		msg->lparam		= lparam;	
-		msg->size		= pmc.WorkingSetSize;
+		msg->size		= 0;//pmc.WorkingSetSize;
 
-		enQueue(message_queue,msg);			
+		enQueue(message_queue,msg);	
 }
 BOOL LoadWSAFun(GUID&funGuid,void*& pFun)
 {
@@ -1205,6 +1208,8 @@ BOOL LoadWSAFun(GUID&funGuid,void*& pFun)
        return NULL != pFun;
 
 }
+
+LPFN_DISCONNECTEX lpfnDisconnectEx = NULL;
 BOOL DisconnectEx(
 	SOCKET hSocket,
 	LPOVERLAPPED lpOverlapped,
@@ -1214,9 +1219,11 @@ BOOL DisconnectEx(
 {
 	GUID GuidDisconnectEx = WSAID_DISCONNECTEX;
 	DWORD dwBytes = 0;
-	LPFN_DISCONNECTEX lpfnDisconnectEx;
-	if( 0 != WSAIoctl(hSocket,SIO_GET_EXTENSION_FUNCTION_POINTER,&GuidDisconnectEx,sizeof(GuidDisconnectEx),&lpfnDisconnectEx,sizeof(lpfnDisconnectEx),&dwBytes,NULL,NULL)){
-		return false;
+	//LPFN_DISCONNECTEX lpfnDisconnectEx;
+	if( NULL == lpfnDisconnectEx ){
+		if( 0 != WSAIoctl(hSocket,SIO_GET_EXTENSION_FUNCTION_POINTER,&GuidDisconnectEx,sizeof(GuidDisconnectEx),&lpfnDisconnectEx,sizeof(lpfnDisconnectEx),&dwBytes,NULL,NULL)){
+			return false;
+		}
 	}
 	return lpfnDisconnectEx(hSocket,lpOverlapped,/*TF_REUSE_SOCKET*/dwFlags,reserved);
 }
@@ -1266,68 +1273,38 @@ void WingGetAcceptExSockaddrs(
 
 
 void _close_socket( SOCKET socket, LPOVERLAPPED lpOverlapped=NULL){
-
+	
 	//CancelIo((HANDLE)socket);
 	//CancelIoEx((HANDLE)socket,lpOverlapped);
-	shutdown(socket,SD_BOTH);
-	if( !DisconnectEx(socket,NULL,/*TF_REUSE_SOCKET*/0,0) ){
+	//shutdown(socket,SD_BOTH);
+	if( !DisconnectEx(socket,NULL,TF_REUSE_SOCKET,0) ){
+		printf("---------------------------%ld disconnect error------------------------\r\n",socket);
 		closesocket(socket);
-		_post_msg(WM_ONERROR,0,WING_ERROR_CLOSE_SOCKET);		
+		//_post_msg(WM_ONERROR,0,WING_ERROR_CLOSE_SOCKET);		
 	}
 	//closesocket(socket);
+	printf("%ld disconnect\r\n",socket);
+
+	
 
 }
 
 void _throw_error( int error_code ){
 	exit(WING_BAD_ERROR);
 }
-/****************************************************
- * @ 投递一次 accept
- ****************************************************/
-bool _post_accept(/*PER_IO_OPERATION_DATA* &perIoData*/){
-	
 
-	MYOVERLAPPED *pMyOL = new MYOVERLAPPED();
-	ZeroMemory(pMyOL,sizeof(MYOVERLAPPED));
-	pMyOL->m_iOpType	= OPE_ACCEPT;
-	pMyOL->m_skServer	= m_sockListen;
-
-	DWORD dwBytes=0;
-	//memset(&(perIoData->OVerlapped),0,sizeof(OVERLAPPED));    
-	//perIoData->type = OPE_ACCEPT;
-    //在使用AcceptEx前需要事先重建一个套接字用于其第二个参数。这样目的是节省时间
-    //通常可以创建一个套接字库
-	//perIoData->client = WSASocket(AF_INET,SOCK_STREAM,IPPROTO_TCP,0,0,WSA_FLAG_OVERLAPPED);
-
-	pMyOL->m_skClient = WSASocket(AF_INET,SOCK_STREAM,IPPROTO_TCP,0,0,WSA_FLAG_OVERLAPPED);
-
-    //perIoData->dataLength = DATA_LENGTH;
-	int error_code = WingAcceptEx(m_sockListen,pMyOL->m_skClient,pMyOL->m_pBuf,0,sizeof(SOCKADDR_IN)+16,sizeof(SOCKADDR_IN)+16,NULL, (LPOVERLAPPED)pMyOL);
-    if( error_code == FALSE && ERROR_IO_PENDING != WSAGetLastError() ){
-		return false;
-	}
-	return true;
-}
 /****************************************************
  * @ 投递一次 recv
  ****************************************************/
 bool _post_recv(MYOVERLAPPED* &pMyOL){
 	
-
-			
-			//CloseHandle(PerIOData->OVerlapped.hEvent);
-
-	ZeroMemory(&(pMyOL->m_ol),sizeof(OVERLAPPED)); 
-	ZeroMemory(pMyOL->m_pBuf,DATA_BUFSIZE);
-
 	pMyOL->DATABuf.buf	= pMyOL->m_pBuf;  
 	pMyOL->DATABuf.len	= DATA_BUFSIZE;  
-	pMyOL->m_iOpType			= OPE_RECV;
-
+	pMyOL->m_iOpType	= OPE_RECV;
 
 	DWORD RecvBytes=0;
 	DWORD Flags=0;
-	//这个地方偶尔报异常 还没完全解决
+
 	int code = WSARecv(pMyOL->m_skClient,&(pMyOL->DATABuf),1,&RecvBytes,&Flags,&(pMyOL->m_ol),NULL);
 	int error_code =  WSAGetLastError();
 	//调用一次 WSARecv 触发iocp事件
@@ -1343,15 +1320,33 @@ bool _post_recv(MYOVERLAPPED* &pMyOL){
  ****************************************************/
 void _wing_on_accept(MYOVERLAPPED* &pMyOL/* PER_IO_OPERATION_DATA* &perIoData,PER_HANDLE_DATA* &perHandleData*/){
 
-	LPSOCKADDR addrHost = NULL;      //服务端地址
-	LPSOCKADDR addrClient = NULL;     //客户端地址
+	//LPSOCKADDR addrHost = NULL;      //服务端地址
+	//LPSOCKADDR addrClient = NULL;     //客户端地址
 	int lenHost = 0;
 	int lenClient = 0;
 
-	WingGetAcceptExSockaddrs( pMyOL->m_skClient , pMyOL->m_pBuf , 0 , sizeof(sockaddr_in) + 16 , sizeof(sockaddr_in) + 16, (LPSOCKADDR*) &addrHost , &lenHost , (LPSOCKADDR*) &addrClient , &lenClient );
-	int nRet = ::setsockopt(pMyOL->m_skClient, SOL_SOCKET,SO_UPDATE_ACCEPT_CONTEXT,(char *)&m_sockListen,sizeof(m_sockListen));
+	WingGetAcceptExSockaddrs( pMyOL->m_skClient , pMyOL->m_pBuf , 0 , sizeof(sockaddr_in) + 16 , sizeof(sockaddr_in) + 16, (LPSOCKADDR*) &pMyOL->addrServer , &lenHost , (LPSOCKADDR*) &pMyOL->addrClient , &lenClient );
+
+	
+	// 设置超时时间 某些短连接协议 就很有用 貌似没效果
+	if( pMyOL->timeout > 0 ){
+		::setsockopt(pMyOL->m_skClient, SOL_SOCKET,SO_SNDTIMEO, (const char*)&pMyOL->timeout,sizeof(pMyOL->timeout));
+		::setsockopt(pMyOL->m_skClient, SOL_SOCKET,SO_RCVTIMEO, (const char*)&pMyOL->timeout,sizeof(pMyOL->timeout));
+	}
+	
+
+	linger so_linger;
+	so_linger.l_onoff = TRUE;
+	so_linger.l_linger = 3; //强制closesocket后 设置允许3秒逗留时间 防止数据丢失
+	setsockopt(pMyOL->m_skClient,SOL_SOCKET,SO_LINGER,(const char*)&so_linger,sizeof(so_linger));
+
+	int nRet = ::setsockopt(pMyOL->m_skClient, SOL_SOCKET,SO_UPDATE_ACCEPT_CONTEXT,(const char *)&m_sockListen,sizeof(m_sockListen));
 	
 	_post_msg(WM_ONCONNECT, pMyOL->m_skClient,0);
+
+	
+	printf("%ld onconnect\r\n", pMyOL->m_skClient);
+
 	_post_recv(pMyOL);
 }
 /****************************************************
@@ -1370,63 +1365,73 @@ void _wing_on_send( MYOVERLAPPED*  pOL){
 
 			_post_msg(WM_ONSEND,perHandleData->Socket);*/
 }
-
-void _wing_on_recv(MYOVERLAPPED*  pOL){
+void _wing_on_close(MYOVERLAPPED*  &pMyOL);
+void _wing_on_recv(MYOVERLAPPED*  &pOL){
 	
+
+	printf("recv: %s\r\n", pOL->m_pBuf);
+	send(pOL->m_skClient,"hello",strlen("hello"),0);
+	//_close_socket(pOL->m_skClient);
+	printf("%ld onconnect\r\n", pOL->m_skClient);
+	_wing_on_close(pOL);
 	//构建消息
-	RECV_MSG *recv_msg	= new RECV_MSG();   
-	ZeroMemory(recv_msg,sizeof(RECV_MSG));
+	//RECV_MSG *recv_msg	= new RECV_MSG();   
+	//ZeroMemory(recv_msg,sizeof(RECV_MSG));
 
-	DWORD len = pOL->recvBytes+1;
-	recv_msg->msg		= new char[len];
-	ZeroMemory(recv_msg->msg,len);
+	//DWORD len = pOL->recvBytes+1;
+	//recv_msg->msg		= new char[len];
+	//ZeroMemory(recv_msg->msg,len);
 
-	strcpy_s(recv_msg->msg,len,pOL->m_pBuf);
-	recv_msg->len		=  len;
+	//strcpy_s(recv_msg->msg,len,pOL->m_pBuf);
+//	recv_msg->len		=  len;
 
 	//内存计数器 此处new了两次
-	memory_add();
-	memory_add();
+	//memory_add();
+	//memory_add();
 	
 	//发送消息
-	_post_msg(WM_ONRECV,pOL->m_skClient,(unsigned long)recv_msg);
-	_post_recv(pOL);
+	//_post_msg(WM_ONRECV,pOL->m_skClient,(unsigned long)recv_msg);
+	//_post_recv(pOL);
 }
 
-void _wing_on_close(MYOVERLAPPED*  &pOL){
+void _wing_on_close(MYOVERLAPPED*  &pMyOL){
 	
 	//此处应该修改为 ON_DISCONNECT
-	_post_msg(WM_ONCLOSE,pOL->m_skClient);
+	_post_msg(WM_ONCLOSE,pMyOL->m_skClient);
 
-	DisconnectEx(pOL->m_skClient,NULL,TF_REUSE_SOCKET,0);
+	DisconnectEx(pMyOL->m_skClient,NULL,TF_REUSE_SOCKET,0);
 
 	//创建一个自定义的OVERLAPPED扩展结构，使用IOCP方式调用
 
-	MYOVERLAPPED *pMyOL	= new MYOVERLAPPED();
-	pMyOL->m_iOpType	= 0;        //AcceptEx操作
-	pMyOL->m_skServer	= pOL->m_skServer;
-	pMyOL->m_skClient	= pOL->m_skClient;
+	//MYOVERLAPPED *pMyOL	= new MYOVERLAPPED();
+	pMyOL->m_iOpType	= OPE_ACCEPT;        //AcceptEx操作
+	//pMyOL->m_skServer	= pMyOL->m_skServer;
+	//pMyOL->m_skClient	= pMyOL->m_skClient;
+	//ZeroMemory(&(pMyOL->m_ol),sizeof(OVERLAPPED)); 
+	ZeroMemory(pMyOL->m_pBuf,sizeof(char)*DATA_BUFSIZE);
 
 	int error_code = WingAcceptEx(m_sockListen,pMyOL->m_skClient,pMyOL->m_pBuf,0,sizeof(SOCKADDR_IN)+16,sizeof(SOCKADDR_IN)+16,NULL, (LPOVERLAPPED)pMyOL);
 	int last_error = WSAGetLastError() ;
 	if( !error_code && WSAECONNRESET != last_error && ERROR_IO_PENDING != last_error ){
 		if( INVALID_SOCKET != pMyOL->m_skClient ) 
 		{
+			printf("------------onerror----------close socket-------------------");
 			closesocket(pMyOL->m_skClient);
 		}	
 		if( NULL != pMyOL) 
 		{
+			printf("------------onerror----------delete pMyOL-------------------");
 			delete pMyOL;
 			pMyOL = NULL; 
 		}
-		delete pOL;
+		//delete pOL;
 		return;
 	}
 
 	//注意在这个SOCKET被重新利用后，后面的再次捆绑到完成端口的操作会返回一个已设置//的错误，这个错误直接被忽略即可
 	::BindIoCompletionCallback((HANDLE)pMyOL->m_skClient,MyIOCPThread, 0);
-
-	delete pOL;
+	printf("%ld onclose\r\n", pMyOL->m_skClient);
+	//delete pOL;
 
 }
 
@@ -1442,6 +1447,13 @@ VOID CALLBACK MyIOCPThread(DWORD dwErrorCode,DWORD dwBytesTrans,LPOVERLAPPED lpO
 	int error_code = WSAGetLastError();
 	//找回“火车头”以及后面的所有东西
 	MYOVERLAPPED*  pOL = CONTAINING_RECORD(lpOverlapped, MYOVERLAPPED, m_ol);
+
+	if( 0 != dwErrorCode ){
+		if( 0 == dwBytesTrans || 10054 == error_code || 64 == error_code){
+					_wing_on_close(pOL);
+				}
+	}
+
 	switch(pOL->m_iOpType)
 	{
 		case OPE_ACCEPT: //AcceptEx结束
@@ -1452,11 +1464,12 @@ VOID CALLBACK MyIOCPThread(DWORD dwErrorCode,DWORD dwBytesTrans,LPOVERLAPPED lpO
 		case OPE_RECV:
 		{
 			if( 0 == dwBytesTrans || 10054 == error_code || 64 == error_code){
-				_wing_on_close(pOL);
-			}else{
+					_wing_on_close(pOL);
+				}else{
 				pOL->recvBytes = dwBytesTrans;
 				_wing_on_recv(pOL);
 			}
+			
 		}
 		break;
 		case OPE_SEND:
@@ -1483,6 +1496,7 @@ ZEND_FUNCTION(wing_service){
 	//zval *_port;
 	//zval *_listen_ip;
 	char *listen_ip = NULL;
+	int timeout = 0;
 
 	MAKE_STD_ZVAL(onreceive);
 	MAKE_STD_ZVAL(onconnect);
@@ -1532,6 +1546,9 @@ ZEND_FUNCTION(wing_service){
 			else if(strcmp(key,"call_cycle")==0){
 				call_cycle = *data;
 			}
+			else if(strcmp(key,"timeout")==0){
+				timeout = Z_LVAL_PP(data);
+			}
 
         } 
     } 
@@ -1548,8 +1565,6 @@ ZEND_FUNCTION(wing_service){
 	WSADATA wsaData; 
 	if( WSAStartup(MAKEWORD(2,2), &wsaData) != 0 )
 	{
-		//delete accept_params;
-		//accept_params = NULL;
 		RETURN_LONG(WING_ERROR_FAILED);
 		return; 
 	}
@@ -1603,6 +1618,16 @@ ZEND_FUNCTION(wing_service){
 		return;
 	}
 
+	zval *sockets;
+	MAKE_STD_ZVAL(sockets);
+	array_init(sockets);
+	/*add_assoc_string(return_value,"sin_addr",inet_ntoa(addr_conn.sin_addr),1);
+    add_assoc_long(return_value,"sin_family",addr_conn.sin_family);
+	add_assoc_long(return_value,"sin_port",addr_conn.sin_port);
+	add_assoc_string(return_value,"sin_zero",addr_conn.sin_zero,1);*/
+
+
+
 	//socket 池
 	for( int i=0;i<100;i++){
 	
@@ -1619,6 +1644,9 @@ ZEND_FUNCTION(wing_service){
 		pMyOL->m_iOpType	= OPE_ACCEPT;
 		pMyOL->m_skServer	= m_sockListen;
 		pMyOL->m_skClient	= client;
+		pMyOL->timeout		= timeout;
+		pMyOL->addrClient   = NULL;
+		pMyOL->addrServer   = NULL;
 
 		int error_code = WingAcceptEx(m_sockListen,pMyOL->m_skClient,pMyOL->m_pBuf,0,sizeof(SOCKADDR_IN)+16,sizeof(SOCKADDR_IN)+16,NULL, (LPOVERLAPPED)pMyOL);
 		int last_error = WSAGetLastError() ;
@@ -1637,8 +1665,7 @@ ZEND_FUNCTION(wing_service){
 			continue;
 		}
 
-		
-		
+		add_index_long(sockets,(unsigned long)client,(unsigned long)pMyOL);
 	}
 
 	int times = 0;
@@ -1657,6 +1684,7 @@ ZEND_FUNCTION(wing_service){
 
 	while( true )
 	{ 
+		
 		//判断是否有消息
 		if(is_emptyQueue(message_queue)){
 			Sleep(10);
@@ -1683,7 +1711,7 @@ ZEND_FUNCTION(wing_service){
 			//新的连接
 			case WM_ONCONNECT:
 			{
-				zend_printf("onconnect\r\n");
+				zend_printf("===================================onconnect===================================\r\n");
 				
 				zval *params = NULL;
 				zval *retval_ptr = NULL;
@@ -1789,7 +1817,7 @@ ZEND_FUNCTION(wing_service){
 			//客户端掉线了
 			case WM_ONCLOSE:
 			{
-				zend_printf("onclose\r\n");				
+				zend_printf("===================================onclose===================================\r\n");	
 
 				
 				SOCKET client =(SOCKET)msg->wparam;
@@ -1912,7 +1940,7 @@ ZEND_FUNCTION(wing_service){
  * @停止服务
  ***********************************/
 ZEND_FUNCTION(wing_service_stop){
-	_post_msg(WM_ONQUIT);
+	//_post_msg(WM_ONQUIT);
 	RETURN_LONG(WING_SUCCESS);
 }
 
@@ -1929,7 +1957,7 @@ ZEND_FUNCTION(wing_close_socket){
 	}
 	convert_to_long(socket);
 	
-	_post_msg(WM_ONCLOSE_EX,Z_LVAL_P(socket));
+	//_post_msg(WM_ONCLOSE_EX,Z_LVAL_P(socket));
 
 	RETURN_LONG(WING_SUCCESS);
 }
