@@ -9,3 +9,6 @@ void addtomap(unsigned long socket,unsigned long ovl){
 unsigned long getfrommap(unsigned long socket){
 	return sockets_map[socket];
 }
+void removefrommap(unsigned long socket){
+	sockets_map.erase(socket);
+}
