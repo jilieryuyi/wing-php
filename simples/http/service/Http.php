@@ -233,12 +233,12 @@ class Http{
             $_self->onreceive($client,$msg);
         };
         $params["onconnect"]    = function($client, $client_ip, $client_port, $client_family, $client_sign_zero){
-            /**//*echo $client.",".
+            echo $client.",".
                 $client_ip.",".
                 $client_port.",".
                 $client_family.",".
                 $client_sign_zero."\r\n";//.json_encode(wing_socket_info($client)),"\r\n\r\n";
-var_dump(wing_socket_info($client));*/
+//var_dump(wing_socket_info($client));*/
             /*file_put_contents("onconnect.log",
                 $client.",".
                 $client_ip.",".

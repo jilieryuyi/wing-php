@@ -1359,7 +1359,7 @@ void _wing_on_accept(MYOVERLAPPED* &pMyOL/* PER_IO_OPERATION_DATA* &perIoData,PE
 	so_linger.l_linger = 3; //强制closesocket后 设置允许3秒逗留时间 防止数据丢失
 	setsockopt(pMyOL->m_skClient,SOL_SOCKET,SO_LINGER,(const char*)&so_linger,sizeof(so_linger));
 
-
+	/*
 	//这里不能直接得到 ip和端口 实际内容被存到了 buf里面
 	WingGetAcceptExSockaddrs( 
 			pMyOL->m_skClient , pMyOL->m_pBuf ,0 , 
@@ -1376,7 +1376,13 @@ void _wing_on_accept(MYOVERLAPPED* &pMyOL/* PER_IO_OPERATION_DATA* &perIoData,PE
 	PBYTE p_addr_client			=  p_addr_server + sizeof(sockaddr_in) + 10 + 2;
 	sockaddr_in *addr_client	= (sockaddr_in*)p_addr_client;
 	memcpy( &pMyOL->addrClient, addr_client, sizeof(sockaddr_in));
+	*/
 	
+	
+	int client_size = sizeof(pMyOL->addrClient);  
+	ZeroMemory(&pMyOL->addrClient,sizeof(pMyOL->addrClient));
+	getpeername(pMyOL->m_skClient,(SOCKADDR *)&pMyOL->addrClient,&client_size);  
+
 	_post_msg(WM_ONCONNECT, pMyOL->m_skClient,0);
 	_post_recv(pMyOL);
 }
@@ -1685,10 +1691,13 @@ ZEND_FUNCTION(wing_service){
 		pMyOL->m_skServer	= m_sockListen;
 		pMyOL->m_skClient	= client;
 		pMyOL->timeout		= timeout;
-		//pMyOL->addrClient   = NULL;
-		//pMyOL->addrServer   = NULL;
 
-		int error_code = WingAcceptEx(m_sockListen,pMyOL->m_skClient,pMyOL->m_pBuf,0,sizeof(SOCKADDR_IN)+16,sizeof(SOCKADDR_IN)+16,NULL, (LPOVERLAPPED)pMyOL);
+		int server_size = sizeof(pMyOL->addrServer);  
+		ZeroMemory(&pMyOL->addrServer,server_size);
+		getpeername(pMyOL->m_skServer,(SOCKADDR *)&pMyOL->addrServer,&server_size);  
+
+
+		int error_code = WingAcceptEx( m_sockListen,pMyOL->m_skClient,pMyOL->m_pBuf,0,sizeof(SOCKADDR_IN)+16,sizeof(SOCKADDR_IN)+16,NULL, (LPOVERLAPPED)pMyOL );
 		int last_error = WSAGetLastError() ;
 		if( !error_code && WSAECONNRESET != last_error && ERROR_IO_PENDING != last_error ){
 			
