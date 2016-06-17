@@ -1644,16 +1644,6 @@ ZEND_FUNCTION(wing_service){
 		return;
 	}
 
-	zval *sockets;
-	MAKE_STD_ZVAL(sockets);
-	array_init(sockets);
-	/*add_assoc_string(return_value,"sin_addr",inet_ntoa(addr_conn.sin_addr),1);
-    add_assoc_long(return_value,"sin_family",addr_conn.sin_family);
-	add_assoc_long(return_value,"sin_port",addr_conn.sin_port);
-	add_assoc_string(return_value,"sin_zero",addr_conn.sin_zero,1);*/
-
-
-
 	//socket 池
 	for( int i=0;i<max_connect;i++){
 	
@@ -1690,24 +1680,10 @@ ZEND_FUNCTION(wing_service){
 			}
 			continue;
 		}
-		zend_printf("socket %ld==ovl %ld\r\n",(unsigned long)client,(unsigned long)pMyOL);
-		add_index_long(sockets,(unsigned long)client,(unsigned long)pMyOL);
 		addtomap((unsigned long)client,(unsigned long)pMyOL);
 	}
 
-	int times = 0;
-	int nSize = 0;
 	elemType *msg = NULL;//消息
-	
-
-	HANDLE handle = GetCurrentProcess();
-	PROCESS_MEMORY_COUNTERS pmc;
-    
-	GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
-	unsigned int begin_size = pmc.WorkingSetSize;
-    zend_printf("size:%d\r\n",pmc.WorkingSetSize);
-
-	unsigned int _begin_size = pmc.WorkingSetSize;
 
 	while( true )
 	{ 
@@ -1717,12 +1693,6 @@ ZEND_FUNCTION(wing_service){
 			Sleep(10);
 			continue;
 		}
-		//_CrtMemCheckpoint( &s1 );
-		 
-		GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
-		begin_size = pmc.WorkingSetSize;
-		zend_printf("start memory:%d\r\n",pmc.WorkingSetSize);
-
 
 		outQueue(message_queue,&msg);
 
@@ -1811,18 +1781,8 @@ ZEND_FUNCTION(wing_service){
 				zend_printf("===================================onclose ex===================================\r\n");	
 
 				unsigned long socket_to_close = (unsigned long)msg->wparam;
-				//zval **zvalue; 
-				//if( SUCCESS == zend_hash_index_find(Z_ARRVAL_P(sockets), socket_to_close, (void**)&zvalue) ){
-					
-					MYOVERLAPPED *lpol = (MYOVERLAPPED *)getfrommap(socket_to_close);//Z_LVAL_PP(zvalue);
-					zend_printf("socket %ld==ovl %ld\r\n",socket_to_close,(unsigned long)lpol);
-					_wing_on_close(lpol);
-
-				//}else{
-				//	zend_printf("===================================onclose ex error===================================\r\n");	
-				//}
-				
-				//zval_ptr_dtor(zvalue);
+				MYOVERLAPPED *lpol = (MYOVERLAPPED *)getfrommap(socket_to_close);
+				_wing_on_close(lpol);
 			}break;
 			
 			//客户端掉线了
@@ -1847,11 +1807,6 @@ ZEND_FUNCTION(wing_service){
 				zval_ptr_dtor(&retval_ptr);
 				zval_ptr_dtor(&params);
 
-				//zend_printf("onclose end\r\n");
-
-				//GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
-				//zend_printf("size-onclose:%d\r\n",pmc.WorkingSetSize-msg->size);	
-				//new_add_size = 0;
 			}
 			break; 
 			//发生错误 目前暂时也还没有用到
@@ -1865,25 +1820,14 @@ ZEND_FUNCTION(wing_service){
 				zval *retval_ptr = NULL;
 
 				MAKE_STD_ZVAL(params);
-
-				//ZVAL_STRING(params[1],(char*)msg.lParam,1);
 				ZVAL_LONG(params,(long)msg->lparam);
-
 				MAKE_STD_ZVAL(retval_ptr);
 							 
 				if(SUCCESS != call_user_function(EG(function_table),NULL,onerror,retval_ptr,1,&params TSRMLS_CC)){
 					zend_error(E_USER_WARNING,"onerror call_user_function fail");
-				}
-							 
+				}							 
 				zval_ptr_dtor(&retval_ptr);
 				zval_ptr_dtor(&params);
-			
-
-				//zend_printf("onerror end\r\n");
-
-				//GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
-				//zend_printf("size-onerror:%d\r\n",pmc.WorkingSetSize-msg->size);	
-				//
 			}
 			break;
 			//退出服务 暂时没有测试
@@ -1919,29 +1863,7 @@ ZEND_FUNCTION(wing_service){
 		memory_sub();
 
 		//显示内存申请 释放次数对比
-		memory_times_show();
-		
-		
-		//_CrtMemCheckpoint( &s2 );
-		//if ( _CrtMemDifference( &s3, &s1, &s2) )
-	//	{
-			//zend_printf("memory crash\r\n");
-		//	_CrtMemDumpStatistics( &s3 );//内存泄露
-	//	}
-	//	else {
-			//zend_printf("memory not crash\r\n");
-	//	}
-
-		//call_cycle
-		/*zval *retval_ptr = NULL;
-		MAKE_STD_ZVAL(retval_ptr);				 
-		call_user_function(EG(function_table),NULL,call_cycle,retval_ptr,0,NULL TSRMLS_CC);
-		zval_ptr_dtor(&retval_ptr);*/
-
-		GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
-		zend_printf("free memory:%d\r\n",pmc.WorkingSetSize-begin_size);
-		zend_printf("add memory:%d\r\n\r\n",pmc.WorkingSetSize-_begin_size);
-		zend_printf("--------------------------------------------------------------------------------\r\n\r\n");
+		memory_times_show();	
   
     } 
 	zend_printf("service quit\r\n");
@@ -2073,7 +1995,15 @@ ZEND_FUNCTION(wing_socket_send_msg_ex){
 }
 
 //////////////////////////--socket-end--
+ZEND_FUNCTION(wing_get_memory_info){
 
+	HANDLE handle = GetCurrentProcess();
+	PROCESS_MEMORY_COUNTERS pmc;
+	GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
+	CloseHandle(handle);
+	RETURN_LONG( pmc.WorkingSetSize );
+
+}
 /* }}} */
 /* The previous line is mant for vim and emacs, so it can correctly fold and 
    unfold functions in source code. See the corresponding marks just before 
@@ -2233,6 +2163,7 @@ const zend_function_entry wing_functions[] = {
 	PHP_FE(wing_socket_send_msg,NULL)
 	PHP_FE(wing_service_stop,NULL)
 	PHP_FE(wing_close_socket,NULL)
+	PHP_FE(wing_get_memory_info,NULL)
 	PHP_FE_END	/* Must be the last line in wing_functions[] */
 };
 /* }}} */

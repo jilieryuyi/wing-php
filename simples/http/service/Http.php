@@ -237,7 +237,9 @@ class Http{
            // $info = wing_socket_info($client);
            // file_put_contents(__DIR__."/onclose.log",json_encode($info)."\r\n\r\n",FILE_APPEND);
         };
-        $params["onerror"]      = function($error_code){};
+        $params["onerror"]      = function($error_code){
+            
+        };
         $params["port"]         = $this->config["port"];
         $params["listen"]       = $this->config["listen"];
         $params["max_connect"]  = 1000;//创建1000个备用socket 也就是最大并发数
