@@ -199,19 +199,19 @@ const char* create_guid()
 	 GUID guid;  
 	 if (S_OK == ::CoCreateGuid(&guid))  
 	 {  
-	  _snprintf(buf, sizeof(buf), "{%08X-%04X-%04x-%02X%02X-%02X%02X%02X%02X%02X%02X}"  , 
-		guid.Data1  , 
-		guid.Data2  , 
-		guid.Data3   , 
-		guid.Data4[0], 
-		guid.Data4[1]  , 
-		guid.Data4[2], 
-		guid.Data4[3],
-		guid.Data4[4], 
-		guid.Data4[5]  , 
-		guid.Data4[6], 
-		guid.Data4[7]  
-	   );  
+		  _snprintf(buf, sizeof(buf), "{%08X-%04X-%04x-%02X%02X-%02X%02X%02X%02X%02X%02X}"  , 
+			guid.Data1  , 
+			guid.Data2  , 
+			guid.Data3   , 
+			guid.Data4[0], 
+			guid.Data4[1]  , 
+			guid.Data4[2], 
+			guid.Data4[3],
+			guid.Data4[4], 
+			guid.Data4[5]  , 
+			guid.Data4[6], 
+			guid.Data4[7]  
+		   );  
 	 }  
 	 CoUninitialize();  
 	 return (const char*)buf;  
@@ -460,11 +460,12 @@ unsigned long create_process(char *command,char *params_ex=NULL,int params_ex_le
 /********************************************************************************************************
  * @ 进程参数校验，该怎么说这个函数的作用呢，这么说吧，这个函数用来确认是否让阻塞的函数异步执行的
  ********************************************************************************************************/
-void command_params_check(char *command_params,int *run_process,int *last_value){
+void command_params_check(char* &command_params,int *run_process,int *last_value){
 	TSRMLS_FETCH();
 	zval **argv = NULL;
 	int argc = 0;
 	HashTable *arr_hash = NULL;
+	//char *target = NULL;
 	 //获取命令行参数
 	if ( zend_hash_find(&EG(symbol_table),"argv",sizeof("argv"),(void**)&argv) == SUCCESS ){
 		zval  **data = NULL;
@@ -523,7 +524,7 @@ PHP_INI_END()
 PHP_FUNCTION(wing_version){
 	char *string = NULL;
     int len = spprintf(&string, 0, "%s", PHP_WING_VERSION);
-    RETURN_STRING(string,1);
+    RETURN_STRING(string,0);
 }
 
 
@@ -585,15 +586,23 @@ PHP_FUNCTION(wing_create_thread){
 	spprintf(&command, 0, "%s %s %s wing-process %ld",PHP_PATH, zend_get_executed_filename(TSRMLS_C),command_params,wing_thread_count);
 
 	if(!run_process){
-		RETURN_LONG(create_process(command,NULL,0));	
+		unsigned long pid = create_process(command,NULL,0);
+		efree(command);
+		efree(command_params);
+		RETURN_LONG(pid);	
 		return;
 	}
 
 	if(wing_thread_count != last_value){
+		efree(command);
+		efree(command_params);
 		RETURN_LONG(WING_NOTICE_IGNORE);
 		return;
 	}
 	
+	efree(command);
+	efree(command_params);
+
 	zval *retval_ptr = NULL;
 			
 	MAKE_STD_ZVAL(retval_ptr);
@@ -691,9 +700,9 @@ PHP_FUNCTION(wing_create_process_ex){
 		return;
 	}
 	
-	char				*command = NULL;
+	char *command = NULL;
 	spprintf(&command, 0, "%s %s\0",PHP_PATH,params);
-
+	efree(command);
 	RETURN_LONG(create_process(command,params_ex,params_ex_len));	
 }
 
@@ -715,9 +724,9 @@ PHP_FUNCTION(wing_create_process){
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
-	char				*command = NULL;
+	char *command = NULL;
 	spprintf(&command, 0, "%s %s\0",exe,params);
-
+	efree(command);
 	RETURN_LONG(create_process(command,params_ex,params_ex_len));	
 }
 /*******************************************************************
@@ -1053,20 +1062,25 @@ ZEND_FUNCTION(wing_timer){
 	
 	command_params_check(command_params,&run_process,&last_value);
 
-	char	*command;
+	char *command = NULL;
 	 
 	
 	spprintf(&command, 0, "%s %s %s wing-process %ld",PHP_PATH, zend_get_executed_filename(TSRMLS_C),command_params,wing_timer_count);
 
 	if(!run_process){
-		RETURN_LONG(create_process(command,NULL,0));	
+		unsigned long pid = create_process(command,NULL,0);
+		efree(command);
+		RETURN_LONG(pid);	
 		return;
 	}
 
 	if(wing_timer_count!=last_value){
+		efree(command);
 		RETURN_LONG(WING_NOTICE_IGNORE);
 		return;
 	}
+
+	efree(command);
 
 	HANDLE hTimer = NULL;
     LARGE_INTEGER liDueTime;
@@ -1077,10 +1091,12 @@ ZEND_FUNCTION(wing_timer){
 
     //设置相对时间为1秒 10000000。
 	liDueTime.QuadPart = time;
-	char *timername;
+	char *timername = NULL;
 	spprintf(&timername,0,"wing_waitable_timer-%s",create_guid());
     //创建定时器。
     hTimer = CreateWaitableTimer(NULL, TRUE, timername);
+	efree(timername);
+
     if(!hTimer)
     {       
 		RETURN_LONG(WING_ERROR_FAILED);	
@@ -1271,7 +1287,7 @@ void WingGetAcceptExSockaddrs(
 }
 
 
-
+/*
 void _close_socket( SOCKET socket, LPOVERLAPPED lpOverlapped=NULL){
 	
 	//CancelIo((HANDLE)socket);
@@ -1287,7 +1303,7 @@ void _close_socket( SOCKET socket, LPOVERLAPPED lpOverlapped=NULL){
 
 	
 
-}
+}*/
 
 void _throw_error( int error_code ){
 	exit(WING_BAD_ERROR);
@@ -1604,7 +1620,7 @@ ZEND_FUNCTION(wing_service){
 
 	// 绑定端口
 	if (SOCKET_ERROR == bind(m_sockListen, (struct sockaddr *) &ServerAddress, sizeof(ServerAddress))){
-		_close_socket(m_sockListen);
+		closesocket(m_sockListen);
 		WSACleanup();
 		RETURN_LONG(WING_ERROR_FAILED);
 		return;
@@ -1612,7 +1628,7 @@ ZEND_FUNCTION(wing_service){
 
 	// 开始监听
 	if( 0 != listen(m_sockListen,SOMAXCONN)){
-		_close_socket(m_sockListen);
+		closesocket(m_sockListen);
 		WSACleanup();
 		RETURN_LONG(WING_ERROR_FAILED);
 		return;
@@ -1746,7 +1762,7 @@ ZEND_FUNCTION(wing_service){
 			case WM_ONRECV:
 			{
 				
-				zend_printf("onrecv\r\n");
+				zend_printf("===================================onrecv===================================\r\n");	
 				
 				RECV_MSG *temp = (RECV_MSG*)msg->lparam;
 				SOCKET client = (SOCKET)msg->wparam;
@@ -1761,17 +1777,13 @@ ZEND_FUNCTION(wing_service){
 				ZVAL_LONG(params[0],(long)client);
 				ZVAL_STRINGL(params[1],temp->msg,temp->len,1);
 
-				//zend_printf("2-onrecv\r\n");
-
 				if( SUCCESS != call_user_function(EG(function_table),NULL,onreceive,retval_ptr,2,params TSRMLS_CC) ){
 					zend_error(E_USER_WARNING,"onreceive call_user_function fail");
 				}
-				//zend_printf("30-onrecv\r\n");
 
 				zval_ptr_dtor(&retval_ptr);
 				zval_ptr_dtor(&params[0]);
 				zval_ptr_dtor(&params[1]);
-			//	zend_printf("3-onrecv\r\n");
 
 				delete[] temp->msg;
 				temp->msg = NULL;
@@ -1781,39 +1793,21 @@ ZEND_FUNCTION(wing_service){
 
 				memory_sub();
 				memory_sub();
-
-				//zend_printf("onrecv end\r\n");
-
-				//GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
-				//zend_printf("size-onrecv:%d\r\n",pmc.WorkingSetSize-msg->size);	
-
-				//new_add_size+=pmc.WorkingSetSize-msg->size;
 			}
 			break;
 			//调用 _close_socket 服务端主动关闭socket
 			case WM_ONCLOSE_EX:{
-				zend_printf("oncloseex\r\n");
-				//zend_printf("close ex\r\n");
-				_close_socket((SOCKET)msg->wparam);
-				//GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
-				//zend_printf("size-onclose ex:%d\r\n",pmc.WorkingSetSize-msg->size);	
+				zend_printf("===================================onclose ex===================================\r\n");	
+
+				unsigned long socket_to_close = (unsigned long)msg->wparam;
+				zval **zvalue; 
+				zend_hash_index_find(Z_ARRVAL_P(sockets), socket_to_close, (void**)&zvalue);
+				MYOVERLAPPED *lpol = (MYOVERLAPPED *)Z_LVAL_PP(zvalue);
+
+				_wing_on_close(lpol);
+				zval_ptr_dtor(zvalue);
 			}break;
-			case WM_TEST:
-			{
-				zend_printf("ontest\r\n");
-					//zend_printf("test---------------------------------------:%d\r\n",msg->size);	
-			}
-			case WM_TEST2:
-			{
-				zend_printf("ontest2\r\n");
-					//zend_printf("test-2222---------------------------------------:%d\r\n",msg->size);	
-			}
-			case WM_TEST3:
-			{
-				zend_printf("ontest3\r\n");
-					//zend_printf("test-3333---------------------------------------:%d\r\n",msg->size);	
-			}
-			break;
+			
 			//客户端掉线了
 			case WM_ONCLOSE:
 			{
@@ -1883,7 +1877,7 @@ ZEND_FUNCTION(wing_service){
 				//PostQueuedCompletionStatus(m_hIOCompletionPort, 0xFFFFFFFF, 0, NULL);
 				
 				CloseHandle(m_hIOCompletionPort);
-				_close_socket(m_sockListen);
+				closesocket(m_sockListen);
 				
 				WSACleanup();
 				clearQueue(message_queue);
