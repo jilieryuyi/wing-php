@@ -73,7 +73,7 @@ extern unsigned long getfrommap(unsigned long socket);
 #define OPE_RECV 1
 #define OPE_SEND 2
 #define OPE_ACCEPT 3
-SOCKET m_sockListen;
+
 HANDLE m_hIOCompletionPort;
 
 struct MYOVERLAPPED{
@@ -1361,7 +1361,7 @@ void _wing_on_accept(MYOVERLAPPED* &pMyOL/* PER_IO_OPERATION_DATA* &perIoData,PE
 	so_linger.l_linger = 3; //强制closesocket后 设置允许3秒逗留时间 防止数据丢失
 	setsockopt(pMyOL->m_skClient,SOL_SOCKET,SO_LINGER,(const char*)&so_linger,sizeof(so_linger));
 
-	int nRet = ::setsockopt(pMyOL->m_skClient, SOL_SOCKET,SO_UPDATE_ACCEPT_CONTEXT,(const char *)&m_sockListen,sizeof(m_sockListen));
+	int nRet = ::setsockopt(pMyOL->m_skClient, SOL_SOCKET,SO_UPDATE_ACCEPT_CONTEXT,(const char *)&pMyOL->m_skServer,sizeof(pMyOL->m_skServer));
 	
 	_post_msg(WM_ONCONNECT, pMyOL->m_skClient,0);
 
@@ -1432,7 +1432,7 @@ void _wing_on_close(MYOVERLAPPED*  &pMyOL){
 	//ZeroMemory(&(pMyOL->m_ol),sizeof(OVERLAPPED)); 
 	ZeroMemory(pMyOL->m_pBuf,sizeof(char)*DATA_BUFSIZE);
 
-	int error_code = WingAcceptEx(m_sockListen,pMyOL->m_skClient,pMyOL->m_pBuf,0,sizeof(SOCKADDR_IN)+16,sizeof(SOCKADDR_IN)+16,NULL, (LPOVERLAPPED)pMyOL);
+	int error_code = WingAcceptEx(pMyOL->m_skServer,pMyOL->m_skClient,pMyOL->m_pBuf,0,sizeof(SOCKADDR_IN)+16,sizeof(SOCKADDR_IN)+16,NULL, (LPOVERLAPPED)pMyOL);
 	int last_error = WSAGetLastError() ;
 	if( !error_code && WSAECONNRESET != last_error && ERROR_IO_PENDING != last_error ){
 		if( INVALID_SOCKET != pMyOL->m_skClient ) 
@@ -1607,14 +1607,14 @@ ZEND_FUNCTION(wing_service){
 	//初始化Socket
 	// 这里需要特别注意，如果要使用重叠I/O的话，这里必须要使用WSASocket来初始化Socket
 	// 注意里面有个WSA_FLAG_OVERLAPPED参数
-	m_sockListen = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED); 
+	SOCKET m_sockListen = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED); 
 	if(m_sockListen == INVALID_SOCKET){
 		WSACleanup();
 		RETURN_LONG(WING_ERROR_FAILED);
 		return;
 	}
 
-	BOOL   bReuse=TRUE;
+	BOOL   bReuse = TRUE;
 	::BindIoCompletionCallback((HANDLE)m_sockListen,MyIOCPThread, 0);
 	::setsockopt(m_sockListen,SOL_SOCKET,SO_REUSEADDR,(LPCSTR)&bReuse,sizeof(BOOL));
 
