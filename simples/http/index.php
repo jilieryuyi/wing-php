@@ -13,9 +13,9 @@ wing php
   ,<pre><?php echo json_encode($_REQUEST);?></pre></h1>
 <img src="1.jpg?12131"/>
 <script>
-  //window.setInterval(function(){
-    //window.location.reload();
-  //},1);
+  window.setInterval(function(){
+    window.location.reload();
+  },1);
 </script>
 </body>
 </html>

@@ -41,7 +41,9 @@
 #include "Mmsystem.h"
 #include "mstcpip.h"
 #include "process.h"
-#include  <mswsock.h>
+#include <mswsock.h>
+
+
 #pragma comment(lib,"Kernel32.lib")
 #pragma comment(lib,"Shlwapi.lib")
 #pragma comment(lib,"Psapi.lib")
@@ -63,7 +65,8 @@
 
 #define n ew   n ew(_NORMAL_BLOCK, __FILE__, __LINE__)*/
 
-
+extern void addtomap(unsigned long socket,unsigned long ovl);
+extern unsigned long getfrommap(unsigned long socket);
 
 //-------------socket相关参数-----------------------
 #define DATA_BUFSIZE 1024
@@ -579,7 +582,7 @@ PHP_FUNCTION(wing_create_thread){
 	int run_process = 0;
 	int command_index = 0;
 	int last_value = 0;
-	char	*command = NULL;
+	char *command = NULL;
 
 	command_params_check(command_params,&run_process,&last_value);
 
@@ -691,10 +694,11 @@ ZEND_FUNCTION(wing_get_process_params){
  ********************************************************************/
 PHP_FUNCTION(wing_create_process_ex){
 	
-	char *params	= NULL;
-	int	params_len	= 0;
+	char *params = NULL;
+	int	params_len = 0;
 	char *params_ex	= NULL;
 	int params_ex_len = 0;
+
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s", &params,&params_len,&params_ex,&params_ex_len) != SUCCESS) {
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
@@ -1105,9 +1109,9 @@ ZEND_FUNCTION(wing_timer){
  
     if (!SetWaitableTimer(hTimer, &liDueTime, 0, NULL, NULL, 0))
     {         
-               CloseHandle(hTimer);
-			   RETURN_LONG(WING_ERROR_FAILED);	
-               return;
+        CloseHandle(hTimer);
+		RETURN_LONG(WING_ERROR_FAILED);	
+        return;
     }
  
     //等定时器有信号。
@@ -1179,21 +1183,22 @@ ZEND_FUNCTION(wing_timer){
 void _throw_error( int error_code );
 VOID CALLBACK MyIOCPThread(DWORD dwErrorCode,DWORD dwBytesTrans,LPOVERLAPPED lpOverlapped);
 void _post_msg(int message_id,unsigned long wparam=0,unsigned long lparam=0){
-		elemType *msg	= new elemType();  
-		if( NULL == msg ) _throw_error(WING_BAD_ERROR);
+		
+	elemType *msg	= new elemType();  
+	if( NULL == msg ) _throw_error(WING_BAD_ERROR);
 
-		memory_add();
+	memory_add();
 
-		//HANDLE handle = GetCurrentProcess();
-		//PROCESS_MEMORY_COUNTERS pmc;
-		//GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
+	//HANDLE handle = GetCurrentProcess();
+	//PROCESS_MEMORY_COUNTERS pmc;
+	//GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
 
-		msg->message_id = message_id;
-		msg->wparam		= wparam;
-		msg->lparam		= lparam;	
-		msg->size		= 0;//pmc.WorkingSetSize;
+	msg->message_id = message_id;
+	msg->wparam		= wparam;
+	msg->lparam		= lparam;	
+	msg->size		= 0;//pmc.WorkingSetSize;
 
-		enQueue(message_queue,msg);	
+	enQueue(message_queue,msg);	
 }
 BOOL LoadWSAFun(GUID&funGuid,void*& pFun)
 {
@@ -1386,28 +1391,29 @@ void _wing_on_recv(MYOVERLAPPED*  &pOL){
 	
 
 	printf("recv: %s\r\n", pOL->m_pBuf);
-	send(pOL->m_skClient,"hello",strlen("hello"),0);
+	//send(pOL->m_skClient,"hello",strlen("hello"),0);
 	//_close_socket(pOL->m_skClient);
 	printf("%ld onconnect\r\n", pOL->m_skClient);
-	_wing_on_close(pOL);
+	
+	
 	//构建消息
-	//RECV_MSG *recv_msg	= new RECV_MSG();   
-	//ZeroMemory(recv_msg,sizeof(RECV_MSG));
+	RECV_MSG *recv_msg	= new RECV_MSG();   
+	ZeroMemory(recv_msg,sizeof(RECV_MSG));
 
-	//DWORD len = pOL->recvBytes+1;
-	//recv_msg->msg		= new char[len];
-	//ZeroMemory(recv_msg->msg,len);
+	DWORD len = pOL->recvBytes+1;
+	recv_msg->msg		= new char[len];
+	ZeroMemory(recv_msg->msg,len);
 
-	//strcpy_s(recv_msg->msg,len,pOL->m_pBuf);
-//	recv_msg->len		=  len;
+	strcpy_s(recv_msg->msg,len,pOL->m_pBuf);
+	recv_msg->len		=  len;
 
 	//内存计数器 此处new了两次
-	//memory_add();
-	//memory_add();
+	memory_add();
+	memory_add();
 	
 	//发送消息
-	//_post_msg(WM_ONRECV,pOL->m_skClient,(unsigned long)recv_msg);
-	//_post_recv(pOL);
+	_post_msg(WM_ONRECV,pOL->m_skClient,(unsigned long)recv_msg);
+	//_wing_on_close(pOL);
 }
 
 void _wing_on_close(MYOVERLAPPED*  &pMyOL){
@@ -1446,7 +1452,7 @@ void _wing_on_close(MYOVERLAPPED*  &pMyOL){
 
 	//注意在这个SOCKET被重新利用后，后面的再次捆绑到完成端口的操作会返回一个已设置//的错误，这个错误直接被忽略即可
 	::BindIoCompletionCallback((HANDLE)pMyOL->m_skClient,MyIOCPThread, 0);
-	printf("%ld onclose\r\n", pMyOL->m_skClient);
+	printf("%ld onclose %ld\r\n", pMyOL->m_skClient,pMyOL);
 	//delete pOL;
 
 }
@@ -1513,6 +1519,7 @@ ZEND_FUNCTION(wing_service){
 	//zval *_listen_ip;
 	char *listen_ip = NULL;
 	int timeout = 0;
+	int max_connect = 1000;
 
 	MAKE_STD_ZVAL(onreceive);
 	MAKE_STD_ZVAL(onconnect);
@@ -1564,6 +1571,9 @@ ZEND_FUNCTION(wing_service){
 			}
 			else if(strcmp(key,"timeout")==0){
 				timeout = Z_LVAL_PP(data);
+			}
+			else if(strcmp(key,"max_connect")==0){
+				max_connect = Z_LVAL_PP(data);
 			}
 
         } 
@@ -1645,7 +1655,7 @@ ZEND_FUNCTION(wing_service){
 
 
 	//socket 池
-	for( int i=0;i<100;i++){
+	for( int i=0;i<max_connect;i++){
 	
 		SOCKET client = WSASocket(AF_INET,SOCK_STREAM,IPPROTO_TCP,0,0,WSA_FLAG_OVERLAPPED);
 		
@@ -1680,8 +1690,9 @@ ZEND_FUNCTION(wing_service){
 			}
 			continue;
 		}
-
+		zend_printf("socket %ld==ovl %ld\r\n",(unsigned long)client,(unsigned long)pMyOL);
 		add_index_long(sockets,(unsigned long)client,(unsigned long)pMyOL);
+		addtomap((unsigned long)client,(unsigned long)pMyOL);
 	}
 
 	int times = 0;
@@ -1800,12 +1811,18 @@ ZEND_FUNCTION(wing_service){
 				zend_printf("===================================onclose ex===================================\r\n");	
 
 				unsigned long socket_to_close = (unsigned long)msg->wparam;
-				zval **zvalue; 
-				zend_hash_index_find(Z_ARRVAL_P(sockets), socket_to_close, (void**)&zvalue);
-				MYOVERLAPPED *lpol = (MYOVERLAPPED *)Z_LVAL_PP(zvalue);
+				//zval **zvalue; 
+				//if( SUCCESS == zend_hash_index_find(Z_ARRVAL_P(sockets), socket_to_close, (void**)&zvalue) ){
+					
+					MYOVERLAPPED *lpol = (MYOVERLAPPED *)getfrommap(socket_to_close);//Z_LVAL_PP(zvalue);
+					zend_printf("socket %ld==ovl %ld\r\n",socket_to_close,(unsigned long)lpol);
+					_wing_on_close(lpol);
 
-				_wing_on_close(lpol);
-				zval_ptr_dtor(zvalue);
+				//}else{
+				//	zend_printf("===================================onclose ex error===================================\r\n");	
+				//}
+				
+				//zval_ptr_dtor(zvalue);
 			}break;
 			
 			//客户端掉线了
@@ -1951,7 +1968,7 @@ ZEND_FUNCTION(wing_close_socket){
 	}
 	convert_to_long(socket);
 	
-	//_post_msg(WM_ONCLOSE_EX,Z_LVAL_P(socket));
+	_post_msg(WM_ONCLOSE_EX,Z_LVAL_P(socket));
 
 	RETURN_LONG(WING_SUCCESS);
 }

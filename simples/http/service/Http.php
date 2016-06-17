@@ -238,15 +238,9 @@ class Http{
            // file_put_contents(__DIR__."/onclose.log",json_encode($info)."\r\n\r\n",FILE_APPEND);
         };
         $params["onerror"]      = function($error_code){};
-        /*$params["call_cycle"]   = function(){
-
-            global $ms;
-            echo   "more：",(memory_get_usage()-$ms)/1024,"k\r\n";
-
-        };*/
         $params["port"]         = $this->config["port"];
         $params["listen"]       = $this->config["listen"];
-        //$params["timeout"]      = 500;//500毫秒超时
+        $params["max_connect"]  = 1000;//创建1000个备用socket 也就是最大并发数
         register_shutdown_function(function(){
             wing_service_stop();
         });

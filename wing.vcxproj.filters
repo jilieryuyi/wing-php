@@ -18,6 +18,9 @@
     <ClCompile Include="wing.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="lib\map.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="php_wing.h">
