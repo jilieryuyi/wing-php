@@ -60,19 +60,6 @@ struct MYOVERLAPPED{
 	SOCKADDR_IN m_addrServer;
 };
 
-
- 
-typedef struct{ 
-  SOCKET Socket;
-  SOCKADDR_STORAGE ClientAddr;
-} PER_HANDLE_DATA; 
-
-typedef struct{ 
-  SOCKET Socket;
-  HANDLE IOCompletionPort;
-  DWORD threadid;
-} COMPARAMS; 
-
 typedef struct{
 	long len;
 	char *msg;//[DATA_BUFSIZE+1]; 
@@ -1229,8 +1216,11 @@ void wing_socket_on_close(MYOVERLAPPED*  &pMyOL){
 	pMyOL->m_iOpType	= OPE_ACCEPT;        //AcceptEx操作
 	ZeroMemory(pMyOL->m_pBuf,sizeof(char)*DATA_BUFSIZE);
 
+	
 	int error_code = WingAcceptEx(pMyOL->m_skServer,pMyOL->m_skClient,pMyOL->m_pBuf,0,sizeof(SOCKADDR_IN)+16,sizeof(SOCKADDR_IN)+16,NULL, (LPOVERLAPPED)pMyOL);
 	int last_error = WSAGetLastError() ;
+	
+	//这里经常会返回 10022错误 得找找解决方案
 	if( !error_code && WSAECONNRESET != last_error && ERROR_IO_PENDING != last_error ){
 		
 		if( INVALID_SOCKET != pMyOL->m_skClient ) 
