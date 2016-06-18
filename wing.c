@@ -1033,39 +1033,24 @@ BOOL LoadWSAFun(GUID&funGuid,void*& pFun)
 
 }
 
-LPFN_DISCONNECTEX lpfnDisconnectEx = NULL;
-BOOL DisconnectEx(
-	SOCKET hSocket,
-	LPOVERLAPPED lpOverlapped,
-	DWORD dwFlags,
-	DWORD reserved
-)
+
+BOOL WingDisconnectEx(SOCKET hSocket,LPOVERLAPPED lpOverlapped,DWORD dwFlags,DWORD reserved)
 {
 	GUID GuidDisconnectEx = WSAID_DISCONNECTEX;
 	DWORD dwBytes = 0;
-	//LPFN_DISCONNECTEX lpfnDisconnectEx;
-	if( NULL == lpfnDisconnectEx ){
-		if( 0 != WSAIoctl(hSocket,SIO_GET_EXTENSION_FUNCTION_POINTER,&GuidDisconnectEx,sizeof(GuidDisconnectEx),&lpfnDisconnectEx,sizeof(lpfnDisconnectEx),&dwBytes,NULL,NULL)){
+	LPFN_DISCONNECTEX lpfnDisconnectEx;
+	
+	if( 0 != WSAIoctl(hSocket,SIO_GET_EXTENSION_FUNCTION_POINTER,&GuidDisconnectEx,sizeof(GuidDisconnectEx),&lpfnDisconnectEx,sizeof(lpfnDisconnectEx),&dwBytes,NULL,NULL)){
 			return false;
-		}
 	}
+	
 	return lpfnDisconnectEx(hSocket,lpOverlapped,/*TF_REUSE_SOCKET*/dwFlags,reserved);
 }
 
-BOOL WingAcceptEx(
-	SOCKET sListenSocket,
-	SOCKET sAcceptSocket,
-	PVOID lpOutputBuffer,
-	DWORD dwReceiveDataLength,
-	DWORD dwLocalAddressLength,
-	DWORD dwRemoteAddressLength,
-	LPDWORD lpdwBytesReceived,
-	LPOVERLAPPED lpOverlapped
-){
+BOOL WingAcceptEx(SOCKET sListenSocket,SOCKET sAcceptSocket,PVOID lpOutputBuffer,DWORD dwReceiveDataLength,DWORD dwLocalAddressLength,DWORD dwRemoteAddressLength,LPDWORD lpdwBytesReceived,LPOVERLAPPED lpOverlapped)
+{
 	LPFN_ACCEPTEX lpfnAcceptEx = NULL;     //AcceptEx函数指针
-	//Accept function GUID
 	GUID guidAcceptEx = WSAID_ACCEPTEX;
-	//get acceptex function pointer
 	DWORD dwBytes = 0;
 	if( 0 != WSAIoctl(sListenSocket,SIO_GET_EXTENSION_FUNCTION_POINTER,&guidAcceptEx,sizeof(guidAcceptEx),&lpfnAcceptEx,sizeof(lpfnAcceptEx),&dwBytes,NULL,NULL)){
 		return false;
@@ -1073,20 +1058,10 @@ BOOL WingAcceptEx(
 	return lpfnAcceptEx( sListenSocket,sAcceptSocket,lpOutputBuffer,dwReceiveDataLength,dwLocalAddressLength,dwRemoteAddressLength,lpdwBytesReceived,lpOverlapped);        
 }
 
-void WingGetAcceptExSockaddrs(
-		SOCKET sListenSocket,
-		PVOID lpOutputBuffer,
-		DWORD dwReceiveDataLength,
-		DWORD dwLocalAddressLength,
-		DWORD dwRemoteAddressLength,
-		LPSOCKADDR *LocalSockaddr,
-		LPINT LocalSockaddrLength,
-		LPSOCKADDR *RemoteSockaddr,
-		LPINT RemoteSockaddrLength
-	){
+void WingGetAcceptExSockaddrs(SOCKET sListenSocket,PVOID lpOutputBuffer,DWORD dwReceiveDataLength,DWORD dwLocalAddressLength,DWORD dwRemoteAddressLength,LPSOCKADDR *LocalSockaddr,LPINT LocalSockaddrLength,LPSOCKADDR *RemoteSockaddr,LPINT RemoteSockaddrLength)
+{
 	LPFN_GETACCEPTEXSOCKADDRS lpfnGetAcceptExSockaddrs = NULL;
 	GUID guidGetAcceptExSockaddrs = WSAID_GETACCEPTEXSOCKADDRS;
-	//get acceptex function pointer
 	DWORD dwBytes = 0;
 	if( 0 != WSAIoctl(sListenSocket,SIO_GET_EXTENSION_FUNCTION_POINTER,&guidGetAcceptExSockaddrs,sizeof(guidGetAcceptExSockaddrs),&lpfnGetAcceptExSockaddrs,sizeof(lpfnGetAcceptExSockaddrs),&dwBytes,NULL,NULL)){
 		return;
@@ -1101,7 +1076,7 @@ void _throw_error( int error_code ){
 /****************************************************
  * @ 投递一次 recv
  ****************************************************/
-bool _post_recv(MYOVERLAPPED* &pMyOL){
+bool wing_socket_post_recv(MYOVERLAPPED* &pMyOL){
 	
 	pMyOL->m_DataBuf.buf	= pMyOL->m_pBuf;  
 	pMyOL->m_DataBuf.len	= DATA_BUFSIZE;  
@@ -1123,7 +1098,7 @@ bool _post_recv(MYOVERLAPPED* &pMyOL){
  * @ 回调之后需要投递一次新的 accept 以待下次新客户端连接
  * @ 还需要头第一次recv 用来接收数据
  ****************************************************/
-void _wing_on_accept(MYOVERLAPPED* &pMyOL){
+void wing_socket_on_accept(MYOVERLAPPED* &pMyOL){
 
 	int lenHost		= sizeof(sockaddr_in) + 16;
 	int lenClient	= sizeof(sockaddr_in) + 16;
@@ -1141,33 +1116,13 @@ void _wing_on_accept(MYOVERLAPPED* &pMyOL){
 	so_linger.l_onoff = TRUE;
 	so_linger.l_linger = 3; //强制closesocket后 设置允许3秒逗留时间 防止数据丢失
 	setsockopt(pMyOL->m_skClient,SOL_SOCKET,SO_LINGER,(const char*)&so_linger,sizeof(so_linger));
-
-	/*
-	//这里不能直接得到 ip和端口 实际内容被存到了 buf里面
-	WingGetAcceptExSockaddrs( 
-			pMyOL->m_skClient , pMyOL->m_pBuf ,0 , 
-			sizeof(SOCKADDR_IN)+16 , sizeof(SOCKADDR_IN)+16,
-			(LPSOCKADDR*) &pMyOL->addrServer , &lenHost , 
-			(LPSOCKADDR*) &pMyOL->addrClient , &lenClient 
-		);
-	
-	//通过buf得到ip和端口
-	PBYTE p_addr_server			= (PBYTE)pMyOL->m_pBuf + 10;
-	SOCKADDR_IN  *addr_server	= (SOCKADDR_IN*)p_addr_server;
-	memcpy( &pMyOL->addrServer, addr_server, sizeof(sockaddr_in));
-
-	PBYTE p_addr_client			=  p_addr_server + sizeof(sockaddr_in) + 10 + 2;
-	sockaddr_in *addr_client	= (sockaddr_in*)p_addr_client;
-	memcpy( &pMyOL->addrClient, addr_client, sizeof(sockaddr_in));
-	*/
-	
 	
 	int client_size = sizeof(pMyOL->m_addrClient);  
 	ZeroMemory(&pMyOL->m_addrClient,sizeof(pMyOL->m_addrClient));
 	getpeername(pMyOL->m_skClient,(SOCKADDR *)&pMyOL->m_addrClient,&client_size);  
 
 	wing_post_queue_msg(WM_ONCONNECT, pMyOL->m_skClient,0);
-	_post_recv(pMyOL);
+	wing_socket_post_recv(pMyOL);
 }
 /****************************************************
  * @ 发送消息
@@ -1208,10 +1163,9 @@ void wing_socket_on_recv(MYOVERLAPPED*  &pOL){
 
 void wing_socket_on_close(MYOVERLAPPED*  &pMyOL){
 	
-	//此处应该修改为 ON_DISCONNECT
 	wing_post_queue_msg(WM_ONCLOSE,pMyOL->m_skClient);
 
-	DisconnectEx(pMyOL->m_skClient,NULL,TF_REUSE_SOCKET,0);
+	WingDisconnectEx(pMyOL->m_skClient,NULL,TF_REUSE_SOCKET,0);
 
 	pMyOL->m_iOpType	= OPE_ACCEPT;        //AcceptEx操作
 	ZeroMemory(pMyOL->m_pBuf,sizeof(char)*DATA_BUFSIZE);
@@ -1295,7 +1249,6 @@ VOID CALLBACK wing_icop_thread(DWORD dwErrorCode,DWORD dwBytesTrans,LPOVERLAPPED
 	}
 
 	int error_code = WSAGetLastError();
-	//找回“火车头”以及后面的所有东西
 	MYOVERLAPPED*  pOL = CONTAINING_RECORD(lpOverlapped, MYOVERLAPPED, m_ol);
 
 	if( 0 != dwErrorCode ) {
@@ -1308,7 +1261,7 @@ VOID CALLBACK wing_icop_thread(DWORD dwErrorCode,DWORD dwBytesTrans,LPOVERLAPPED
 	{
 		case OPE_ACCEPT: //AcceptEx结束
 		{//有链接进来了 SOCKET句柄就是 pMyOL->m_skClient
-			_wing_on_accept(pOL);
+			wing_socket_on_accept(pOL);
 		}
 		break;
 		case OPE_RECV:
@@ -1351,8 +1304,8 @@ ZEND_FUNCTION(wing_service){
 
 	//参数获取
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z",&service_params) != SUCCESS) {
-			RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
-			return;
+		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
+		return;
 	}
 
 	//如果参数不是数组
