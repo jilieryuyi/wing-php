@@ -19,3 +19,7 @@ void wing_remove_from_sockets_map(unsigned long socket){
 unsigned int wing_get_sockets_map_size(){
 	return wing_sockets_hash_map.size();
 }
+
+hash_map<unsigned long,unsigned long> wing_get_sockets_map(){
+	return wing_sockets_hash_map;
+}
