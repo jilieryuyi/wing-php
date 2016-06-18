@@ -233,11 +233,7 @@ class Http{
             $_self->onreceive($client,$msg);
         };
         $params["onconnect"]    = function($client, $client_ip, $client_port, $client_family, $client_sign_zero){
-            echo $client.",".
-                $client_ip.",".
-                $client_port.",".
-                $client_family.",".
-                $client_sign_zero."\r\n";//.json_encode(wing_socket_info($client)),"\r\n\r\n";
+           //.json_encode(wing_socket_info($client)),"\r\n\r\n";
 //var_dump(wing_socket_info($client));*/
             /*file_put_contents("onconnect.log",
                 $client.",".
@@ -250,8 +246,10 @@ class Http{
            // $info = wing_socket_info($client);
            // file_put_contents(__DIR__."/onclose.log",json_encode($info)."\r\n\r\n",FILE_APPEND);
         };
-        $params["onerror"]      = function($client,$error_code){
-            
+        $params["onerror"]      = function($error_code,$last_error){
+            $error_content = "some error happened:{$error_code},{$last_error}\r\n";
+            file_put_contents("error.log",$error_content,FILE_APPEND);
+            echo $error_content;
         };
         $params["port"]         = $this->config["port"];
         $params["listen"]       = $this->config["listen"];
