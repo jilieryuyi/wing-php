@@ -8,6 +8,7 @@
  */
 
 require_once "service/Http.php";
+define("HOME_PATH",__DIR__);
 $http = new \Service\Http();
 echo "启动占用：",wing_get_memory_info()/1024,"k=",wing_get_memory_info()/1024/1024,"M\r\n";
 $http->start();

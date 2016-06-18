@@ -219,7 +219,7 @@ class Http{
         unset($_GET,$_POST,$_REQUEST);
     }
     public function onreceive($client,$msg){
-        //echo "onreceive==>",$msg,"\r\n\r\n";
+        echo "onreceive{$client}:",$msg,"\r\n\r\n";
         $_GET = $_POST = $_REQUEST = [];
         $http   = trim(strtolower(substr($msg,0,4)));
         if(!in_array($http,["get","post"]))
@@ -248,12 +248,14 @@ class Http{
         };
         $params["onerror"]      = function($error_code,$last_error){
             $error_content = "some error happened:{$error_code},{$last_error}\r\n";
-            file_put_contents("error.log",$error_content,FILE_APPEND);
+            file_put_contents(HOME_PATH."/error.log",$error_content,FILE_APPEND);
             echo $error_content;
         };
         $params["port"]         = $this->config["port"];
         $params["listen"]       = $this->config["listen"];
-        $params["max_connect"]  = 1000;//创建1000个备用socket 也就是最大并发数
+        //创建1000个备用socket 也就是最大并发数
+        //也就是所谓的socket池概念 性能好 稳定
+        $params["max_connect"]  = 1000;
         register_shutdown_function(function(){
             wing_service_stop();
         });
