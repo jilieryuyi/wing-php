@@ -117,5 +117,13 @@ void wing_msg_queue_clear()
 	message_queue = NULL;
     return;  
 }  
+
+void wing_msg_queue_get(wing_msg_queue_element **msg){
+	while( wing_msg_queue_is_empty( ) )
+	{
+		Sleep(10);
+	}
+	wing_msg_queue_pop_msg(msg);
+}
  
 //----消息队列----------end------------------

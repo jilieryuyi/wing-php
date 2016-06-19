@@ -1032,9 +1032,10 @@ ZEND_FUNCTION(wing_service){
         } 
     } 
 
-
+	//初始化消息队列
 	wing_msg_queue_init();  
 
+	//初始化服务端socket 如果失败返回INVALID_SOCKET
 	SOCKET m_sockListen = wing_socket_init((const char *)listen_ip,(const int)port,(const int)max_connect,(const int) timeout);
 	if( INVALID_SOCKET == m_sockListen ) 
 	{
@@ -1042,25 +1043,13 @@ ZEND_FUNCTION(wing_service){
 		return;
 	}
 	
-
+	//消息队列载体
 	wing_msg_queue_element *msg = NULL;//消息
 
 	while( true )
 	{ 
-		
-		//判断是否有消息
-		if( wing_msg_queue_is_empty( ) )
-		{
-			Sleep(10);
-			continue;
-		}
-
-		wing_msg_queue_pop_msg(&msg);
-		if( NULL == msg )
-		{
-			Sleep(10);
-			continue;
-		}
+		//获取消息 没有的时候会阻塞
+		wing_msg_queue_get(&msg);
 
 		//根据消息ID进行不同的处理
 		switch(msg->message_id){
@@ -1083,19 +1072,19 @@ ZEND_FUNCTION(wing_service){
 				MAKE_STD_ZVAL(params[4]);
 
 				ZVAL_LONG(params[0],(long)msg->wparam);//socket资源
-				ZVAL_STRING(params[1],inet_ntoa(lpol->m_addrClient.sin_addr),1);
-				ZVAL_LONG(params[2],ntohs(lpol->m_addrClient.sin_port));
-				ZVAL_LONG(params[3],lpol->m_addrClient.sin_family);
-				ZVAL_STRING(params[4],lpol->m_addrClient.sin_zero,1);
-
-
+				ZVAL_STRING(params[1],inet_ntoa(lpol->m_addrClient.sin_addr),1);//ip
+				ZVAL_LONG(params[2],ntohs(lpol->m_addrClient.sin_port));//port
+				ZVAL_LONG(params[3],lpol->m_addrClient.sin_family);//协议类型
+				ZVAL_STRING(params[4],lpol->m_addrClient.sin_zero,1);//这个zero不知道干嘛的 这里也直接支持返回
 
 				MAKE_STD_ZVAL(retval_ptr);
 							 
+				//通过回调 把相关信息传回给php
 				if( SUCCESS != call_user_function(EG(function_table),NULL,onconnect,retval_ptr,5,params TSRMLS_CC) ){
 					zend_error(E_USER_WARNING,"onconnect call_user_function fail");
 				}
 
+				//释放资源
 				zval_ptr_dtor(&retval_ptr);
 				zval_ptr_dtor(&params[0]);
 				zval_ptr_dtor(&params[1]);
@@ -1151,9 +1140,6 @@ ZEND_FUNCTION(wing_service){
 
 				delete temp;
 				temp = NULL;
-
-				memory_sub();
-				memory_sub();
 			}
 			break;
 			//调用 _close_socket 服务端主动关闭socket
@@ -1171,6 +1157,7 @@ ZEND_FUNCTION(wing_service){
 				zend_printf("===================================onclose===================================\r\n");	
 
 				
+				//那个客户端掉线了
 				SOCKET client =(SOCKET)msg->wparam;
 
 				zval *params = NULL;
@@ -1180,7 +1167,7 @@ ZEND_FUNCTION(wing_service){
 				ZVAL_LONG(params,(long)client);
 				MAKE_STD_ZVAL(retval_ptr);
 	 
-				if(SUCCESS != call_user_function(EG(function_table),NULL,onclose,retval_ptr,1,&params TSRMLS_CC)){
+				if( SUCCESS != call_user_function(EG(function_table),NULL,onclose,retval_ptr,1,&params TSRMLS_CC ) ){
 					zend_error(E_USER_WARNING,"WM_ONCLOSE call_user_function fail\r\n");
 				}
 							 
@@ -1191,57 +1178,43 @@ ZEND_FUNCTION(wing_service){
 			break; 
 			//发生错误 目前暂时也还没有用到
 			case WM_ONERROR:{
-				//zend_printf("onerror\r\n");		
-				//zend_printf("------------------------------------onerror----warning-------------------------------\r\n");
 				
-				//SOCKET w_client =(SOCKET)msg->wparam;
-				//int error_code = msg->lparam;
-				
-				zend_printf("===============onerror debug 1===============r\n");	
-				zval *params[2] = {0};
+				zend_printf("===============onerror===============r\n");	
+				zval *params[3] = {0};
 				zval *retval_ptr = NULL;
 
 				MAKE_STD_ZVAL(params[0]);
 				MAKE_STD_ZVAL(params[1]);
+				MAKE_STD_ZVAL(params[2]);
 
-				zend_printf("===============onerror debug 2===============r\n");	
-
-				ZVAL_LONG(params[0],(long)msg->wparam);
-				ZVAL_LONG(params[1],(long)msg->lparam);
-
+				ZVAL_LONG(params[0],(long)msg->eparam);//发生错误的socket
+				ZVAL_LONG(params[1],(long)msg->wparam);//自定义错误编码
+				ZVAL_LONG(params[2],(long)msg->lparam);//WSAGetLasterror 错误码
 
 				MAKE_STD_ZVAL(retval_ptr);
 							 
-				if(SUCCESS != call_user_function(EG(function_table),NULL,onerror,retval_ptr,2,params TSRMLS_CC)){
+				if( SUCCESS != call_user_function(EG(function_table),NULL,onerror,retval_ptr,3,params TSRMLS_CC ) ){
 					zend_error(E_USER_WARNING,"onerror call_user_function fail");
 				}		
-
-				zend_printf("===============onerror debug 3===============r\n");	
 
 				zval_ptr_dtor(&retval_ptr);
 				zval_ptr_dtor(&params[0]);
 				zval_ptr_dtor(&params[1]);
-
-				zend_printf("===============onerror debug 4===============r\n");	
+				zval_ptr_dtor(&params[2]);	
 			}
 			break;
 			//退出服务 暂时没有测试
 			case WM_ONQUIT:
 			{
-				//zend_printf("onquit\r\n");
-				
+				//低版本的系统可能需要使用到这个函数 这里先不做兼容了
 				//PostQueuedCompletionStatus(m_hIOCompletionPort, 0xFFFFFFFF, 0, NULL);
 				
-				
-				closesocket(m_sockListen);
-				
-				WSACleanup();
+				//析构函数
 				wing_msg_queue_clear();
 				
-
 				delete msg;
 				msg = NULL;
-			
+
 				RETURN_LONG(WING_SUCCESS);
 				return;
 			}break;
@@ -1337,9 +1310,10 @@ ZEND_FUNCTION(wing_socket_send_msg)
 	}
 	
 	RETURN_LONG(WING_SUCCESS);
+	return;
 }  
 /***************************************************
- * @ 使用iocp异步发送消息
+ * @ 使用iocp异步发送消息--未测试
  ***************************************************/ 
 ZEND_FUNCTION(wing_socket_send_msg_ex){
 	/*zval *socket = NULL;
@@ -1387,6 +1361,11 @@ ZEND_FUNCTION(wing_socket_send_msg_ex){
 }
 
 //////////////////////////--socket-end--
+
+/*********************************
+ * @获取使用的内存信息 
+ * @进程实际占用的内存大小
+ *********************************/
 ZEND_FUNCTION(wing_get_memory_info){
 
 	HANDLE handle = GetCurrentProcess();

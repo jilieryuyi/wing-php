@@ -246,8 +246,8 @@ class Http{
            // $info = wing_socket_info($client);
            // file_put_contents(__DIR__."/onclose.log",json_encode($info)."\r\n\r\n",FILE_APPEND);
         };
-        $params["onerror"]      = function($error_code,$last_error){
-            $error_content = "some error happened:{$error_code},{$last_error}\r\n";
+        $params["onerror"]      = function($client,$error_code,$last_error){
+            $error_content = "{$client} some error happened:{$error_code},{$last_error}\r\n";
             file_put_contents(HOME_PATH."/error.log",$error_content,FILE_APPEND);
             echo $error_content;
         };

@@ -11,6 +11,7 @@ typedef struct _thread_msg{
 	int message_id;
 	unsigned long lparam;
 	unsigned long wparam;
+	unsigned long eparam;
 	unsigned int size;
 
 } wing_msg_queue_element;
@@ -36,5 +37,6 @@ void wing_msg_queue_pop_msg(wing_msg_queue_element **temp);
 wing_msg_queue_element *wing_peek_msg_queue() ;
 int wing_msg_queue_is_empty()  ;
 void wing_msg_queue_clear()  ;
+void wing_msg_queue_get(wing_msg_queue_element **msg);
 
 #endif
