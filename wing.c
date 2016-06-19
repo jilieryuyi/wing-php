@@ -1246,7 +1246,7 @@ ZEND_FUNCTION(wing_socket_send_msg_ex){
  * @获取使用的内存信息 
  * @进程实际占用的内存大小
  *********************************/
-ZEND_FUNCTION(wing_get_memory_info){
+ZEND_FUNCTION(wing_get_memory_used){
 
 	HANDLE handle = GetCurrentProcess();
 	PROCESS_MEMORY_COUNTERS pmc;
@@ -1412,7 +1412,7 @@ const zend_function_entry wing_functions[] = {
 	PHP_FE(wing_socket_send_msg,NULL)
 	PHP_FE(wing_service_stop,NULL)
 	PHP_FE(wing_close_socket,NULL)
-	PHP_FE(wing_get_memory_info,NULL)
+	PHP_FE(wing_get_memory_used,NULL)
 	PHP_FE_END	/* Must be the last line in wing_functions[] */
 };
 /* }}} */
