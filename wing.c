@@ -1039,6 +1039,7 @@ ZEND_FUNCTION(wing_service){
 	SOCKET m_sockListen = wing_socket_init((const char *)listen_ip,(const int)port,(const int)max_connect,(const int) timeout);
 	if( INVALID_SOCKET == m_sockListen ) 
 	{
+		wing_socket_clear();
 		RETURN_LONG(WING_ERROR_FAILED);
 		return;
 	}
@@ -1155,7 +1156,6 @@ ZEND_FUNCTION(wing_service){
 			case WM_ONCLOSE:
 			{
 				zend_printf("===================================onclose===================================\r\n");	
-
 				
 				//那个客户端掉线了
 				SOCKET client =(SOCKET)msg->wparam;
@@ -1230,8 +1230,9 @@ ZEND_FUNCTION(wing_service){
 		//memory_times_show();	
   
     } 
-	//zend_printf("service quit\r\n");
-	RETURN_LONG(WING_SUCCESS);
+	wing_socket_clear();
+	RETURN_LONG( WING_SUCCESS );
+	return;
 }
 /***********************************
  * @停止服务
