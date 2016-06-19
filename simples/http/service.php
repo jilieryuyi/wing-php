@@ -7,6 +7,7 @@
  * @打开浏览器 访问 http://127.0.0.1:6998/
  */
 
+require_once "service/Response.php";
 require_once "service/Http.php";
 define("HOME_PATH",__DIR__);
 $http = new \Service\Http();

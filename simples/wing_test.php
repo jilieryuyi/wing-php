@@ -26,4 +26,5 @@ while(1)
     curl_setopt($ch, CURLOPT_POSTFIELDS, ($data));//http_build_query
     $return = curl_exec($ch);
     curl_close($ch);
+    echo $return;
 }

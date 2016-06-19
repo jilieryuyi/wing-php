@@ -174,12 +174,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="lib\wing_lib.c" />
     <ClCompile Include="lib\wing_msg_queue.c" />
     <ClCompile Include="lib\wing_socket.c" />
     <ClCompile Include="lib\wing_sockets_map.cpp" />
     <ClCompile Include="wing.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="lib\wing_lib.h" />
     <ClInclude Include="lib\wing_msg_queue.h" />
     <ClInclude Include="lib\wing_socket.h" />
     <ClInclude Include="php_wing.h" />

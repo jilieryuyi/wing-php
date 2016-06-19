@@ -10,12 +10,12 @@
   <title>wing php</title></head><body>
 <h1>
 wing php
-  ,<pre><?php echo json_encode($_REQUEST);?></pre></h1>
-<img src="1.jpg?12131"/>
+  ,<pre><?php var_dump($_SERVER); echo json_encode($_REQUEST);?></pre></h1>
+<img src="images/1.jpg?id=244"/>
 <script>
-  window.setInterval(function(){
-    window.location.reload();
-  },1);
+ // window.setInterval(function(){
+    //window.location.reload();
+  //},1);
 </script>
 </body>
 </html>

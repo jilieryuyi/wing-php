@@ -417,7 +417,8 @@ SOCKET wing_socket_init(const char *listen_ip,const int port,const int max_conne
 
 		int error_code = WingAcceptEx( m_sockListen,pMyOL->m_skClient,pMyOL->m_pBuf,0,sizeof(SOCKADDR_IN)+16,sizeof(SOCKADDR_IN)+16,NULL, (LPOVERLAPPED)pMyOL );
 		int last_error = WSAGetLastError() ;
-		if( !error_code && WSAECONNRESET != last_error && ERROR_IO_PENDING != last_error ){
+		if( !error_code && WSAECONNRESET != last_error && ERROR_IO_PENDING != last_error )
+		{
 			
 			closesocket(client);
 			client = pMyOL->m_skClient = INVALID_SOCKET;
@@ -436,6 +437,8 @@ SOCKET wing_socket_init(const char *listen_ip,const int port,const int max_conne
 //最后的资源清理
 void wing_socket_clear(){
 	//CloseHandle(m_hIOCompletionPort);
+	//低版本的系统可能需要使用到这个函数 这里先不做兼容了
+	//PostQueuedCompletionStatus(m_hIOCompletionPort, 0xFFFFFFFF, 0, NULL);
 	if( INVALID_SOCKET != m_sockListen ) 
 		closesocket(m_sockListen);
 	WSACleanup();

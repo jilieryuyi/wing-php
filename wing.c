@@ -33,120 +33,7 @@
 
 #include "lib/wing_msg_queue.h"
 #include "lib/wing_socket.h"
-
-
-//-------------socket相关参数-----------------------
-
-
-
-
-
-
-//-------------socket相关参数------end-----------------
-
-
-//-------------内存计数器-----------------------
-unsigned long memory_add_times = 0;
-unsigned long memory_sub_times = 0;
-
-
-//CRITICAL_SECTION bytes_lock;
-void memory_add(){
-    InterlockedIncrement(&memory_add_times);
-}
-void memory_sub(){
-    InterlockedIncrement(&memory_sub_times);
-}
-//-------------内存计数器-----------------------
-
-
-
-
-/**************************************
- * @获取命令的绝对路径
- **************************************/
-void get_command_path(const char *name,char *output){
-
-	int env_len		= GetEnvironmentVariable("PATH",NULL,0)+1;
-	char *env_var	= new char[env_len];
-	ZeroMemory(env_var,sizeof(char)*(env_len));
-	memory_add();
-
-	GetEnvironmentVariable("PATH",env_var,env_len);
-
-	char *temp = NULL;
-	char *start = NULL,*var_begin = NULL;
-
-	start		= env_var;
-	var_begin	= env_var;
-
-	char _temp_path[MAX_PATH] = {0};
-
-	while( temp = strchr(var_begin,';') ){
-		
-		long len_temp	= temp-start;
-		long _len_temp	= len_temp+sizeof("\\")+sizeof(".exe")+1;
-		
-		ZeroMemory(output,sizeof(char)*MAX_PATH);
-
-		strncpy_s(_temp_path,_len_temp,var_begin,len_temp);
-		sprintf_s(output,MAX_PATH,"%s\\%s.exe\0",_temp_path,name);
-
-		if(PathFileExists(output)){
-			delete[] env_var;
-			env_var = NULL;
-			memory_sub();
-			return;
-		}
-
-		ZeroMemory(output,sizeof(char)*MAX_PATH);
-		sprintf_s(output,MAX_PATH,"%s\\%s.bat\0",_temp_path,name);
-
-		if(PathFileExists(output)){
-			delete[] env_var;
-			env_var = NULL;
-			memory_sub();
-			return;
-		}
-		var_begin	= temp+1;
-		start		= temp+1;
-	}
-	delete[] env_var;
-	env_var = NULL;
-	memory_sub();
-}
-
-/*********************************************
- * @生成随机字符串
- *********************************************/
-const char* create_guid()  
-{  
-	 CoInitialize(NULL);  
-	 static char buf[64] = {0};  
-	 GUID guid;  
-	 if (S_OK == ::CoCreateGuid(&guid))  
-	 {  
-		  _snprintf(buf, sizeof(buf), "{%08X-%04X-%04x-%02X%02X-%02X%02X%02X%02X%02X%02X}"  , 
-			guid.Data1  , 
-			guid.Data2  , 
-			guid.Data3   , 
-			guid.Data4[0], 
-			guid.Data4[1]  , 
-			guid.Data4[2], 
-			guid.Data4[3],
-			guid.Data4[4], 
-			guid.Data4[5]  , 
-			guid.Data4[6], 
-			guid.Data4[7]  
-		   );  
-	 }  
-	 CoUninitialize();  
-	 return (const char*)buf;  
-}  
-
-
-
-
+#include "lib/wing_lib.h"
 
 
 #if (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION >= 3) || (PHP_MAJOR_VERSION >= 6)
@@ -170,29 +57,6 @@ static int wing_timer_count = 0;
 //线程计数器 用于多线程控制
 static int wing_thread_count =0;
 
-
-#define WING_SUCCESS				 1
-#define WING_CALLBACK_SUCCESS		 0
-#define WING_ERROR_PARAMETER_ERROR	-1
-#define WING_ERROR_FAILED			-2
-#define WING_NOTICE_IGNORE			-3
-#define WING_ERROR_CALLBACK_FAILED  -4
-#define WING_ERROR_PROCESS_NOT_EXISTS -5
-#define WING_ERROR_WINDOW_NOT_FOUND -6
-#define WING_PROCESS_IS_RUNNING		1
-
-
-
-
-/********************************************************************************
- * @ 内存计数器 用于记录申请和释放的次数
- * @ 申请和释放的次数相等 则可以认为没有内存泄漏
- * @ 事实好像没这么简单？why？
- *******************************************************************************/
-void memory_times_show(){
-	zend_printf("new times : %ld , free times : %ld , need more free : %ld \r\n",memory_add_times,memory_sub_times,(memory_add_times-memory_sub_times));
-}
-
 /****************************************************************************
  * @ 创建进程
  * @ param command 要在进程中执行的指令 
@@ -200,63 +64,68 @@ void memory_times_show(){
  * @ param params_ex_len 额外参数长度 默认为0，即参数为 params_ex = NULL
  ***************************************************************************/
 unsigned long create_process(char *command,char *params_ex=NULL,int params_ex_len=0){
-	    HANDLE				m_hRead = NULL;
-		HANDLE				m_hWrite = NULL;
-		STARTUPINFO			sui;    
-		PROCESS_INFORMATION pi; // 保存了所创建子进程的信息
-		SECURITY_ATTRIBUTES sa;   // 父进程传递给子进程的一些信息
+	    
+	HANDLE m_hRead = NULL;
+	HANDLE m_hWrite = NULL;
+	STARTUPINFO sui;    
+	PROCESS_INFORMATION pi; // 保存了所创建子进程的信息
+	SECURITY_ATTRIBUTES sa;   // 父进程传递给子进程的一些信息
 		
-		char				*params    = NULL;
-		int					params_len = 0;
+	char *params = NULL;
+	int params_len = 0;
     
-		sa.bInheritHandle		= TRUE; // 还记得我上面的提醒吧，这个来允许子进程继承父进程的管道句柄
-		sa.lpSecurityDescriptor = NULL;
-		sa.nLength				= sizeof(SECURITY_ATTRIBUTES);
-		if (!CreatePipe(&m_hRead, &m_hWrite, &sa, 0))
-		{
-			return WING_ERROR_FAILED;
-		}
+	sa.bInheritHandle = TRUE; // 还记得我上面的提醒吧，这个来允许子进程继承父进程的管道句柄
+	sa.lpSecurityDescriptor = NULL;
+	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+	
+	if (!CreatePipe(&m_hRead, &m_hWrite, &sa, 0))
+	{
+		return WING_ERROR_FAILED;
+	}
 
-   
-		ZeroMemory(&sui, sizeof(STARTUPINFO)); // 对一个内存区清零，最好用ZeroMemory, 它的速度要快于memset
-		sui.cb				= sizeof(STARTUPINFO);
-		sui.dwFlags			= STARTF_USESTDHANDLES;  
-		sui.hStdInput		= m_hRead;
-		sui.hStdOutput		= m_hWrite;
+	ZeroMemory(&sui, sizeof(STARTUPINFO)); // 对一个内存区清零，最好用ZeroMemory, 它的速度要快于memset
+	
+	sui.cb = sizeof(STARTUPINFO);
+	sui.dwFlags	= STARTF_USESTDHANDLES;  
+	sui.hStdInput = m_hRead;
+	sui.hStdOutput = m_hWrite;
+	sui.hStdError = GetStdHandle(STD_ERROR_HANDLE);
 		
-		sui.hStdError		= GetStdHandle(STD_ERROR_HANDLE);
-		
-		if( params_ex_len >0 && params_ex != NULL ){
-			DWORD d;
-			if(::WriteFile(m_hWrite,params_ex,params_ex_len,&d,NULL)==FALSE){
-				//告警
-				zend_error(E_USER_WARNING,"write params to process error");
-			}
+	if( params_ex_len >0 && params_ex != NULL ){
+		DWORD d;
+		if(::WriteFile(m_hWrite,params_ex,params_ex_len,&d,NULL)==FALSE){
+			//告警
+			zend_error(E_USER_WARNING,"write params to process error");
 		}
+	}
 
-		if (!CreateProcess(NULL,command, NULL, NULL, TRUE, 0, NULL, NULL, &sui, &pi))
-		{
-			CloseHandle(m_hRead);
-			CloseHandle(m_hWrite);
-			return WING_ERROR_FAILED;
-		}
+	if (!CreateProcess(NULL,command, NULL, NULL, TRUE, 0, NULL, NULL, &sui, &pi))
+	{
+		CloseHandle(m_hRead);
+		CloseHandle(m_hWrite);
+		return WING_ERROR_FAILED;
+	}
 		
-		CloseHandle(pi.hProcess); // 子进程的进程句柄
-		CloseHandle(pi.hThread); // 子进程的线程句柄，windows中进程就是一个线程的容器，每个进程至少有一个线程在执行
+	CloseHandle(m_hRead);
+	CloseHandle(m_hWrite);
+	CloseHandle(pi.hProcess); // 子进程的进程句柄
+	CloseHandle(pi.hThread); // 子进程的线程句柄，windows中进程就是一个线程的容器，每个进程至少有一个线程在执行
 		
-		return pi.dwProcessId;	
+	return pi.dwProcessId;	
 }
 
 /********************************************************************************************************
  * @ 进程参数校验，该怎么说这个函数的作用呢，这么说吧，这个函数用来确认是否让阻塞的函数异步执行的
  ********************************************************************************************************/
 void command_params_check(char* &command_params,int *run_process,int *last_value){
+	
 	TSRMLS_FETCH();
 	zval **argv = NULL;
 	int argc = 0;
 	HashTable *arr_hash = NULL;
+	
 	//char *target = NULL;
-	 //获取命令行参数
+	//获取命令行参数
 	if ( zend_hash_find(&EG(symbol_table),"argv",sizeof("argv"),(void**)&argv) == SUCCESS ){
 		zval  **data = NULL;
 		HashPosition pointer = NULL;
@@ -417,7 +286,6 @@ ZEND_FUNCTION(wing_get_process_params){
 			int step = 1024;
 
 			char *buf = new char[data_len];
-			memory_add();
 
 			ZeroMemory(buf,sizeof(buf));
 			DWORD dwRead;
@@ -443,13 +311,9 @@ ZEND_FUNCTION(wing_get_process_params){
 
 				delete[] buf;
 				buf = NULL;
-
-				memory_sub();
-
 				data_len+=step;
 				
 				buf = new char[data_len];
-				memory_add();
 				
 				ZeroMemory(buf,sizeof(buf));
 				if(!PeekNamedPipe(m_hRead,buf,data_len,&lBytesRead,0,0)){
@@ -467,7 +331,6 @@ ZEND_FUNCTION(wing_get_process_params){
 
 				delete[] buf;
 				buf = NULL;
-				memory_sub();
 				
 				return;
 			}
@@ -526,16 +389,16 @@ PHP_FUNCTION(wing_create_process){
 ZEND_FUNCTION(wing_process_kill)
 {
 	long process_id = 0;
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l",&process_id) != SUCCESS){
+	if( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l",&process_id) != SUCCESS ){
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
     HANDLE hProcess = OpenProcess(PROCESS_TERMINATE,FALSE,process_id);
-    if(hProcess==NULL){
+    if( hProcess == NULL ){
 		RETURN_LONG(WING_ERROR_PROCESS_NOT_EXISTS);
         return;
 	}
-    if(!TerminateProcess(hProcess,0)){
+    if( !TerminateProcess( hProcess , 0 ) ){
 		RETURN_LONG(WING_ERROR_FAILED);
         return;
 	}
@@ -575,19 +438,19 @@ ZEND_FUNCTION(wing_create_mutex){
 
 	HANDLE m_hMutex =  CreateMutex(NULL,TRUE,mutex_name);//CreateMutex(&sa,TRUE,mutex_name);
     DWORD dwRet = GetLastError();
-    if (m_hMutex)
+    if ( m_hMutex )
     {
-        if (ERROR_ALREADY_EXISTS == dwRet)
+        if ( ERROR_ALREADY_EXISTS == dwRet )
         {
             CloseHandle(m_hMutex);
 			RETURN_LONG(ERROR_ALREADY_EXISTS);
             return;
 		}else{
 			RETURN_LONG((long)m_hMutex);
+			return;
 		}
     }
    
-    CloseHandle(m_hMutex);
 	RETURN_LONG(WING_ERROR_FAILED);
 }
 
@@ -644,7 +507,6 @@ ZEND_FUNCTION(wing_get_env){
 		return;
 	}
 	char *var= new char[len];  
-	memory_add();
 	
 	ZeroMemory(var,sizeof(var));
 
@@ -653,7 +515,6 @@ ZEND_FUNCTION(wing_get_env){
 
 	delete[] var;
 	var = NULL;
-	memory_sub();
 }
 
 /****************************************************************************************************
@@ -921,7 +782,6 @@ ZEND_FUNCTION(wing_timer){
 				RETURN_LONG(WING_ERROR_FAILED);	
 				return;
 			}
-			//times++;
 			
 			zval_ptr_dtor(&retval_ptr);
 
@@ -945,9 +805,9 @@ ZEND_FUNCTION(wing_timer){
 	RETURN_LONG(WING_SUCCESS);	
 }
 
-///////////////////////////--socket-start--
+
 /*****************************************************************************************
- * @ 关闭socket
+ * @ socket
  *****************************************************************************************/
 
 //iocp 服务主线程
@@ -1046,11 +906,13 @@ ZEND_FUNCTION(wing_service){
 	
 	//消息队列载体
 	wing_msg_queue_element *msg = NULL;//消息
+	zend_printf("sockets pool %ld\r\n",wing_get_sockets_map_size());
 
 	while( true )
 	{ 
 		//获取消息 没有的时候会阻塞
 		wing_msg_queue_get(&msg);
+		zend_printf("sockets pool %ld\r\n",wing_get_sockets_map_size());
 
 		//根据消息ID进行不同的处理
 		switch(msg->message_id){
@@ -1058,7 +920,7 @@ ZEND_FUNCTION(wing_service){
 			case WM_ONCONNECT:
 			{
 				//新的连接
-				zend_printf("===================================new connect===================================\r\n");
+				//zend_printf("===================================new connect===================================\r\n");
 				
 				zval *params[5] = {0};
 				zval *retval_ptr = NULL;
@@ -1079,11 +941,17 @@ ZEND_FUNCTION(wing_service){
 				ZVAL_STRING(params[4],lpol->m_addrClient.sin_zero,1);//这个zero不知道干嘛的 这里也直接支持返回
 
 				MAKE_STD_ZVAL(retval_ptr);
-							 
-				//通过回调 把相关信息传回给php
-				if( SUCCESS != call_user_function(EG(function_table),NULL,onconnect,retval_ptr,5,params TSRMLS_CC) ){
-					zend_error(E_USER_WARNING,"onconnect call_user_function fail");
+				
+				zend_try{
+					//通过回调 把相关信息传回给php
+					if( SUCCESS != call_user_function(EG(function_table),NULL,onconnect,retval_ptr,5,params TSRMLS_CC ) ){
+						zend_error(E_USER_WARNING,"onconnect call_user_function fail");
+					}
 				}
+				zend_catch{
+					zend_printf("php syntax error\r\n");
+				}
+				zend_end_try();
 
 				//释放资源
 				zval_ptr_dtor(&retval_ptr);
@@ -1113,7 +981,7 @@ ZEND_FUNCTION(wing_service){
 			case WM_ONRECV:
 			{
 				
-				zend_printf("===================================onrecv===================================\r\n");	
+				//zend_printf("===================================onrecv===================================\r\n");	
 				///
 				RECV_MSG *temp = (RECV_MSG*)msg->lparam;
 				SOCKET client = (SOCKET)msg->wparam;
@@ -1128,9 +996,15 @@ ZEND_FUNCTION(wing_service){
 				ZVAL_LONG(params[0],(long)client);
 				ZVAL_STRINGL(params[1],temp->msg,temp->len,1);
 
-				if( SUCCESS != call_user_function(EG(function_table),NULL,onreceive,retval_ptr,2,params TSRMLS_CC) ){
-					zend_error(E_USER_WARNING,"onreceive call_user_function fail");
+				zend_try{
+					if( SUCCESS != call_user_function(EG(function_table),NULL,onreceive,retval_ptr,2,params TSRMLS_CC) ){
+						zend_error(E_USER_WARNING,"onreceive call_user_function fail");
+					}
 				}
+				zend_catch{
+					zend_printf("php syntax error\r\n");
+				}
+				zend_end_try();
 
 				zval_ptr_dtor(&retval_ptr);
 				zval_ptr_dtor(&params[0]);
@@ -1145,7 +1019,7 @@ ZEND_FUNCTION(wing_service){
 			break;
 			//调用 _close_socket 服务端主动关闭socket
 			case WM_ONCLOSE_EX:{
-				zend_printf("===================================onclose ex===================================\r\n");	
+				//zend_printf("===================================onclose ex===================================\r\n");	
 
 				unsigned long socket_to_close = (unsigned long)msg->wparam;
 				MYOVERLAPPED *lpol = (MYOVERLAPPED *)wing_get_from_sockets_map(socket_to_close);
@@ -1155,7 +1029,7 @@ ZEND_FUNCTION(wing_service){
 			//客户端掉线了
 			case WM_ONCLOSE:
 			{
-				zend_printf("===================================onclose===================================\r\n");	
+				//zend_printf("===================================onclose===================================\r\n");	
 				
 				//那个客户端掉线了
 				SOCKET client =(SOCKET)msg->wparam;
@@ -1167,9 +1041,15 @@ ZEND_FUNCTION(wing_service){
 				ZVAL_LONG(params,(long)client);
 				MAKE_STD_ZVAL(retval_ptr);
 	 
-				if( SUCCESS != call_user_function(EG(function_table),NULL,onclose,retval_ptr,1,&params TSRMLS_CC ) ){
-					zend_error(E_USER_WARNING,"WM_ONCLOSE call_user_function fail\r\n");
+				zend_try{
+					if( SUCCESS != call_user_function(EG(function_table),NULL,onclose,retval_ptr,1,&params TSRMLS_CC ) ){
+						zend_error(E_USER_WARNING,"WM_ONCLOSE call_user_function fail\r\n");
+					}
 				}
+				zend_catch{
+					zend_printf("php syntax error\r\n");
+				}
+				zend_end_try();
 							 
 				zval_ptr_dtor(&retval_ptr);
 				zval_ptr_dtor(&params);
@@ -1179,7 +1059,7 @@ ZEND_FUNCTION(wing_service){
 			//发生错误 目前暂时也还没有用到
 			case WM_ONERROR:{
 				
-				zend_printf("===============onerror===============r\n");	
+				//zend_printf("===============onerror===============r\n");	
 				zval *params[3] = {0};
 				zval *retval_ptr = NULL;
 
@@ -1192,10 +1072,16 @@ ZEND_FUNCTION(wing_service){
 				ZVAL_LONG(params[2],(long)msg->lparam);//WSAGetLasterror 错误码
 
 				MAKE_STD_ZVAL(retval_ptr);
-							 
-				if( SUCCESS != call_user_function(EG(function_table),NULL,onerror,retval_ptr,3,params TSRMLS_CC ) ){
-					zend_error(E_USER_WARNING,"onerror call_user_function fail");
-				}		
+				
+				zend_try{
+					if( SUCCESS != call_user_function(EG(function_table),NULL,onerror,retval_ptr,3,params TSRMLS_CC ) ){
+						zend_error(E_USER_WARNING,"onerror call_user_function fail");
+					}	
+				}
+				zend_catch{
+					zend_printf("php syntax error\r\n");
+				}
+				zend_end_try();
 
 				zval_ptr_dtor(&retval_ptr);
 				zval_ptr_dtor(&params[0]);
@@ -1206,9 +1092,6 @@ ZEND_FUNCTION(wing_service){
 			//退出服务 暂时没有测试
 			case WM_ONQUIT:
 			{
-				//低版本的系统可能需要使用到这个函数 这里先不做兼容了
-				//PostQueuedCompletionStatus(m_hIOCompletionPort, 0xFFFFFFFF, 0, NULL);
-				
 				//析构函数
 				wing_msg_queue_clear();
 				
@@ -1222,13 +1105,7 @@ ZEND_FUNCTION(wing_service){
 		}
 
 		delete msg;
-		msg = NULL;
-
-		memory_sub();
-
-		//显示内存申请 释放次数对比
-		//memory_times_show();	
-  
+		msg = NULL;  
     } 
 	wing_socket_clear();
 	RETURN_LONG( WING_SUCCESS );
@@ -1250,7 +1127,7 @@ ZEND_FUNCTION(wing_close_socket){
 
 	zval *socket = NULL;
 	
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z",&socket) != SUCCESS) {
+	if ( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z",&socket) != SUCCESS ) {
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
@@ -1269,7 +1146,7 @@ ZEND_FUNCTION(wing_socket_info){
 
 	zval *socket = NULL;
 	MAKE_STD_ZVAL(socket);
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z",&socket) != SUCCESS) {
+	if ( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z",&socket) != SUCCESS) {
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
@@ -1287,6 +1164,8 @@ ZEND_FUNCTION(wing_socket_info){
     add_assoc_long(return_value,"sin_family",addr_conn.sin_family);
 	add_assoc_long(return_value,"sin_port",ntohs(addr_conn.sin_port));
 	add_assoc_string(return_value,"sin_zero",addr_conn.sin_zero,1);
+
+	return;
 }
 /*****************************************
  * @ 发送socket数据
@@ -1374,7 +1253,7 @@ ZEND_FUNCTION(wing_get_memory_info){
 	GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
 	CloseHandle(handle);
 	RETURN_LONG( pmc.WorkingSetSize );
-
+	return;
 }
 /* }}} */
 /* The previous line is mant for vim and emacs, so it can correctly fold and 
@@ -1412,8 +1291,6 @@ PHP_MINIT_FUNCTION(wing)
 	if(GetModuleFileName(NULL,PHP_PATH,MAX_PATH) != 0){
 		zend_register_string_constant("WING_PHP", sizeof("WING_PHP"), PHP_PATH,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	}
-
-
 	
 	//WAIT_TIMEOUT
 	zend_register_long_constant("WING_WAIT_TIMEOUT", sizeof("WING_WAIT_TIMEOUT"), WAIT_TIMEOUT,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
@@ -1448,7 +1325,6 @@ PHP_MSHUTDOWN_FUNCTION(wing)
 	UNREGISTER_INI_ENTRIES();
 	*/
 	delete[] PHP_PATH;
-	//DeleteCriticalSection(&g_cs);
 	return SUCCESS;
 }
 /* }}} */
@@ -1530,6 +1406,7 @@ const zend_function_entry wing_functions[] = {
 	PHP_FE(wing_timer,NULL)
 	PHP_FE(wing_service,NULL)
 	ZEND_FALIAS(wing_socket,wing_service,NULL)
+	ZEND_FALIAS(wing_tcp_server,wing_service,NULL)
 
 	PHP_FE(wing_socket_info,NULL)
 	PHP_FE(wing_socket_send_msg,NULL)
