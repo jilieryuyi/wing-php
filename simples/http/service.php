@@ -17,7 +17,6 @@ $web_config = [
     "document_root"     => HOME_PATH."/www", //把这个路径修改为您的个人网站试试
     "index"             => "index.html index.htm index.php",
     "404"               =>  HOME_PATH."/www/404.html",
-    "server_name"       => "www.wingphp.com", //记得修改host
 
     "virtual"           => [
                 //第一个子域名
@@ -25,7 +24,7 @@ $web_config = [
                     "document_root"     => HOME_PATH."/www-2", //把这个路径修改为您的个人网站试试
                     "index"             => "index.html index.htm index.php",
                     "404"               =>  HOME_PATH."/www/404.html",
-                    "server_name"       => "wing.ylb.com", //记得修改host
+                    "server_name"       => "www.wingphp.com", //记得修改host
                 ],
                 //第二个子域名[]
     ],
