@@ -98,9 +98,16 @@ class Response{
         return $mime_type;
     }
 
+    private  function createUnique(){
+        $randcode = "";
+        while(strlen($randcode)<64){
+            $md5 = md5(chr(rand(0,127)).chr(rand(0,127)).chr(rand(0,127)).chr(rand(0,127)));
+            $randcode.=substr($md5,rand(0,strlen($md5)-8),8);
+        }
+        return $randcode."_".time();
+    }
 
-
-    public function output( $_http_request_file , $_host ){
+    public function output( $_http_request_file , $_host ,$cookie_path ){
         //暂不支持 100-continue
        
         $this->headers = [
@@ -142,7 +149,11 @@ class Response{
         $this->setHeaders("Date: " . gmdate("D,d M Y H:m:s")." GMT");
         $this->setHeaders("Content-Type: ".$response_mime_type);
         $this->setHeaders("Content-Length: " . strlen($response_content) );
-
+        
+        $cookie_key = $this->createUnique();
+        file_put_contents($cookie_path."/".$cookie_key,json_encode(Cookie::getAll()));
+        $this->setHeaders("Set-Cookie: PHPSESSID=".$cookie_key);
+        
         unset($_GET , $_POST , $_SERVER , $_COOKIE , $_REQUEST);
         return implode("\r\n", $this->headers) . "\r\n\r\n" . $response_content;
     }

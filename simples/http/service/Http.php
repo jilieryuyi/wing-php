@@ -26,6 +26,25 @@ class Http{
         }
     }
 
+    private function parseCookie($cookie_str){
+        $_temp = explode(";",$cookie_str);
+        //PHPSESSID=a53tchtk9su5v8a1n0ssff67r3;
+        foreach( $_temp as $item ){
+            $item = trim($item);
+            if( strpos($item,"PHPSESSID=") === 0 ){
+                $phpcookie = explode("=",$item);
+
+                $cookie_file = $this->config["cookie"]."/".$phpcookie[1];
+                if(file_exists($cookie_file)) {
+                    $content = file_get_contents($cookie_file);
+                    $cookie = json_decode($content,true);
+                    Cookie::setCookie($cookie);
+                    unlink($cookie_file);
+                }
+            }
+        }
+    }
+
     //解析http协议
     public function httpParse( $http_request_msg ,&$http_request_file ,&$_host){
         $_SERVER = $_GET = $_POST  = $_COOKIE = $_REQUEST = [];
@@ -74,6 +93,9 @@ class Http{
             $_header_temp = explode(": ",$_header);
             $headers[$_header_temp[0]] = $_header_temp[1];
 
+            if( strtolower($_header_temp[0]) == "cookie" )
+                $this->parseCookie($_header_temp[1]);
+
             $_SERVER["HTTP_".strtoupper(str_replace("-","_",$_header_temp[0]))] = $_header_temp[1];
         }
         $_host  = isset($headers["Host"]) ? $headers["Host"]:"";
@@ -91,7 +113,7 @@ class Http{
         //http 协议解析
          $this->httpParse( $http_msg ,$http_request_file , $_host);
         //构建网站输出
-        $http_response_content  = $this->response->output( $http_request_file,$_host );
+        $http_response_content  = $this->response->output( $http_request_file,$_host ,$this->config["cookie"]);
 
         //输出信息到http请求页面
         wing_socket_send_msg( $http_client, $http_response_content );

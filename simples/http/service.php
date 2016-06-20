@@ -10,7 +10,12 @@
 require_once "service/Response.php";
 require_once "service/Http.php";
 require_once "service/Header.php";
+require_once "service/Cookie.php";
 define("HOME_PATH",__DIR__);
+
+//cookie/session api
+//\Service\Cookie::set("user","yuyi");
+//echo \Service\Cookie::get("user");
 
 //网站配置
 $web_config = [
@@ -21,10 +26,11 @@ $web_config = [
 ];
 
 $server_config = [
-    "port"              => 6998, 
+    "port"              => 6998,
     "listen"            => "0.0.0.0",
     "max_connect"       => 1000 ,
     "error_log"         => HOME_PATH."/log/wing_error.log",
+    "cookie"            => HOME_PATH."/cookie"
 ];
 
 $response               = new \Service\Response($web_config);
