@@ -29,23 +29,43 @@ class Response{
     }
 
     //获取请求的资源文件绝对路径
-    private function getPath( $_request_path ){
+    private function getPath( $_request_path ,$host = ''){
+        if( $host ) {
+            $_host =explode(":",$host);
+            $host = $_host[0];
+        }
 
+        $document_root = $this->web_config["document_root"];
+        $not_fund = $this->web_config["404"];
+        $index = $this->web_config["index"];
+
+        if( isset($this->web_config["virtual"]) && is_array($this->web_config["virtual"]) &&
+            count($this->web_config["virtual"]) >0 ){
+            foreach ($this->web_config["virtual"] as $virtual){
+                if($host == $virtual["server_name"] ) {
+                    $document_root = $virtual["document_root"];
+                    $not_fund = $virtual["404"];
+                    $index = $virtual["index"];
+                    break;
+                }
+            }
+        }
+        
         if( $_request_path != "/" ) {
-            $path = $this->web_config["document_root"] . $_request_path;
+            $path = $document_root . $_request_path;
             if( !file_exists($path) )
             {
                 //404
-                return str_replace("\\","/",$this->web_config["404"]);
+                return str_replace("\\","/",$not_fund);
             }
             return str_replace("\\","/",$path);
         }
 
-        $indexs = explode(" ", $this->web_config["index"]);
+        $indexs = explode(" ", $index);
         $path   = '';
 
         foreach ( $indexs as $index ) {
-            $_file = $this->web_config["document_root"]."/".trim($index);
+            $_file = $document_root."/".trim($index);
             if( file_exists($_file) ) {
                 $path = $_file;
                 break;
@@ -55,7 +75,7 @@ class Response{
         if( $path == '' )
         {
             //404
-            return str_replace("\\","/",$this->web_config["404"]);
+            return str_replace("\\","/",$not_fund);
         }
         return str_replace("\\","/",$path);
     }
@@ -104,8 +124,9 @@ class Response{
 
         $this->requestParse( $http_request_info["http_get_query"],$http_request_info["http_post_query"] );
         $this->serverParse( $http_request_info["http_headers"] );
-        //请求文件
-        $http_request_file  = $this->getPath( $http_request_info["http_request_file"] );
+        //请求文件 Host
+        $http_request_file  = $this->getPath( $http_request_info["http_request_file"] ,$http_request_info["http_headers"]["Host"]);
+
         $response_mime_type = $this->getMimitype( $http_request_file );
 
         $response_content   = '';
@@ -117,7 +138,6 @@ class Response{
             $response_content = ob_get_contents();
             ob_end_clean();
         }
-
 
         if( $response_mime_type == "text/x-php" )
             $response_mime_type = "text/html";
