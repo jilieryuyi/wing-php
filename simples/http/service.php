@@ -21,6 +21,7 @@ $web_config = [
 $server_config = [
     "port"              => 6998,
     "listen"            => "0.0.0.0",
+    "max_connect"       => 1000 ,
     "error_log"         => HOME_PATH."/log/wing_error.log",
 ];
 

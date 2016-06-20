@@ -7,6 +7,7 @@
 class Response{
 
     private $web_config;
+    private $headers  = [];
 
     public function __construct($web_config)
     {
@@ -14,8 +15,19 @@ class Response{
         $this->preResponse();
     }
 
+    public function setHeaders($headers){
+        if(is_array($headers)) {
+            foreach( $headers as $key => $header ) {
+                $this->headers[] = ucfirst($key).": ".ucfirst($header);
+            }
+            return;
+        }
+        $this->headers[] = $headers;
+    }
     private function preResponse(){
         chdir($this->web_config["document_root"]);
+        $this->setHeaders("Server: wing php ".WING_VERSION);
+        $this->setHeaders("Date: " . gmdate("D,d M Y H:m:s")." GMT");
     }
 
     //获取请求的资源文件绝对路径
@@ -68,17 +80,18 @@ class Response{
         return $mime_type;
     }
 
-    private function getParse(){
-        //解析生成 $_GET
-    }
-    private function postParse(){
-
-    }
     private function cookieParse(){
 
     }
-    private function requestParse(){
-
+    private function requestParse($get_request,$post_request){
+        $_GET = $get_request;
+        $_POST = $post_request;
+        $_REQUEST = array_merge($_GET,$_POST);
+    }
+    private function serverParse( $headers ){
+        foreach ($headers as $key => $header ){
+            $_SERVER["HTTP_".strtoupper(str_replace("-","_",$key))] = $header;
+        }
     }
 
 
@@ -86,6 +99,13 @@ class Response{
     public function output( $http_request_info ){
         //暂不支持 100-continue
         $_GET = $_POST = $_SERVER = $_COOKIE = $_REQUEST = [];
+        $this->headers = [
+            "HTTP/1.1 200 OK",
+            "Connection: Close"
+        ];
+
+        $this->requestParse( $http_request_info["http_get_query"],$http_request_info["http_post_query"] );
+        $this->serverParse( $http_request_info["http_headers"] );
         //请求文件
         $http_request_file  = $this->getPath( $http_request_info["http_request_file"] );
         $response_mime_type = $this->getMimitype( $http_request_file );
@@ -104,17 +124,12 @@ class Response{
         if( $response_mime_type == "text/x-php" )
             $response_mime_type = "text/html";
 
-        $headers = [
-            "HTTP/1.1 200 OK",
-            "Server: wing php ".WING_VERSION,
-            "Date: " . gmdate("D,d M Y H:m:s")." GMT",
-            "Connection: Close",
-            "Content-Type: {$response_mime_type}",
-            "Content-Length: " . strlen($response_content)
-        ];
+
+        $this->setHeaders("Content-Type: ".$response_mime_type);
+        $this->setHeaders("Content-Length: " . strlen($response_content) );
 
         unset($_GET , $_POST , $_SERVER , $_COOKIE , $_REQUEST);
-        return implode("\r\n", $headers) . "\r\n\r\n" . $response_content;
+        return implode("\r\n", $this->headers) . "\r\n\r\n" . $response_content;
     }
 
 }

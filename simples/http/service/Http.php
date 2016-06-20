@@ -10,6 +10,7 @@ class Http{
     private $config = [
         "port"          => 6998,
         "listen"        => "0.0.0.0",
+        "max_connect"   => 1000,
         "error_log"     => HOME_PATH."/log/wing_error.log",
     ];
     private $response;
@@ -46,7 +47,7 @@ class Http{
 
 
         //协议 get|post
-        $response["http_request_type"]  =  $_service_temp[0];
+        $response["http_request_type"]  = $_service_temp[0];
         //得到http 1.1
         $response["http_protocols"]     = $_service_temp[2];
 
@@ -54,21 +55,21 @@ class Http{
         $_request = parse_url($_service_temp[1]);
 
         //请求资源文件
-        $response["http_request_file"] = $_request["path"];
+        $response["http_request_file"]  = $_request["path"];
 
 
-        $get_output = [];
+        $get_output     = [];
         //get查询信息解析
         isset( $_request["query"] ) && parse_str( $_request["query"] ,$get_output );
         $response["http_get_query"] = $get_output;
 
         //post查询信息解析
-        $post_output = [];
+        $post_output    = [];
         !empty($_request_content) && parse_str($_request_content, $post_output);
         $response["http_post_query"] = $post_output;
 
 
-        $headers = [];
+        $headers        = [];
         foreach ( $headers_tab as $_header ) {
             $_header_temp = explode(": ",$_header);
             $headers[$_header_temp[0]] = $_header_temp[1];
@@ -85,9 +86,11 @@ class Http{
         //http 协议解析
         $http_parse_info        = $this->httpParse( $http_msg );
         //构建网站输出
-        $http_response_content  = $this->response->ouput($http_parse_info);
+        $http_response_content  = $this->response->output($http_parse_info);
 
+        //输出信息到http请求页面
         wing_socket_send_msg( $http_client, $http_response_content );
+        //直接关闭连接
         wing_close_socket( $http_client );
 
     }
@@ -113,7 +116,7 @@ class Http{
         $params["listen"]       = $this->config["listen"];
         //创建1000个备用socket 也就是最大并发数
         //也就是所谓的socket池概念 性能好 稳定
-        $params["max_connect"]  = 1000;
+        $params["max_connect"]  = $this->config["max_connect"];
         register_shutdown_function(function(){
             wing_service_stop();
         });
