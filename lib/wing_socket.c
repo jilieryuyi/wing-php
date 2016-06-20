@@ -125,7 +125,7 @@ void wing_socket_on_accept(MYOVERLAPPED* &pMyOL){
 
 	linger so_linger;
 	so_linger.l_onoff = TRUE;
-	so_linger.l_linger = 3; //强制closesocket后 设置允许3秒逗留时间 防止数据丢失
+	so_linger.l_linger = 0; //强制closesocket后 设置允许3秒逗留时间 防止数据丢失
 	setsockopt(pMyOL->m_skClient,SOL_SOCKET,SO_LINGER,(const char*)&so_linger,sizeof(so_linger));
 	
 	int client_size = sizeof(pMyOL->m_addrClient);  
