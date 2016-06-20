@@ -48,7 +48,7 @@ class Response{
 
         foreach ( $indexs as $index ) {
             $_file = $this->web_config["document_root"]."/".trim($index);
-            if( file_exists($_file)) {
+            if( file_exists($_file) ) {
                 $path = $_file;
                 break;
             }

@@ -4,7 +4,6 @@
  * @created 2016/6/3 21:59
  * @email 297341015@qq.com
  */
-header("author: yuyi");
 ?>
 <html>
 <head>
