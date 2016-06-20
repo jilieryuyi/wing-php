@@ -23,6 +23,7 @@
 #pragma comment(lib,"Ws2_32.lib")
 
 #define DATA_BUFSIZE	1024
+//#define SEND_DATA_BUFSIZE 1048576 //1024x1024 1M
 
 //iocp的动作类型 accept 新的连接 recv 收到消息 send异步发送
 #define OPE_RECV		1

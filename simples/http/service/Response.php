@@ -26,8 +26,6 @@ class Response{
     }
     private function preResponse(){
         chdir($this->web_config["document_root"]);
-        $this->setHeaders("Server: wing php ".WING_VERSION);
-        $this->setHeaders("Date: " . gmdate("D,d M Y H:m:s")." GMT");
     }
 
     //获取请求的资源文件绝对路径
@@ -124,7 +122,8 @@ class Response{
         if( $response_mime_type == "text/x-php" )
             $response_mime_type = "text/html";
 
-
+        $this->setHeaders("Server: wing php ".WING_VERSION);
+        $this->setHeaders("Date: " . gmdate("D,d M Y H:m:s")." GMT");
         $this->setHeaders("Content-Type: ".$response_mime_type);
         $this->setHeaders("Content-Length: " . strlen($response_content) );
 
