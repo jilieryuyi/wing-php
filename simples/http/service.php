@@ -21,7 +21,7 @@ $web_config = [
     "virtual"           => [
                 //第一个子域名
                 [
-                    "document_root"     => "D:/web/yonglibao/bigbluewhare",//HOME_PATH."/www-2", //把这个路径修改为您的个人网站试试
+                    "document_root"     => HOME_PATH."/www-2",//"D:/web/yonglibao/bigbluewhare", //把这个路径修改为您的个人网站试试
                     "index"             => "index.html index.htm index.php",
                     "404"               =>  HOME_PATH."/www/404.html",
                     "server_name"       => "www.wingphp.com", //记得修改host
@@ -49,5 +49,6 @@ $http->setConfig($server_config);
 //\Service\Header::set api设置header
 \Service\Header::$response = $response;
 
-echo "启动占用：",wing_get_memory_used()/1024,"k=",wing_get_memory_used()/1024/1024,"M\r\n";
+$memory_used = wing_get_memory_used();
+echo "启动占用：",$memory_used/1024,"k=",$memory_used/1024/1024,"M\r\n";
 $http->start();
