@@ -4,7 +4,7 @@
  * @created 2016/6/8 17:39
  * @email 297341015@qq.com
  */
-$uri = "http://127.0.0.1/";
+$uri = "http://127.0.0.1:6998/";
 $data = array (
     'name' => '123',
     "password"=>"123456789"
@@ -18,19 +18,7 @@ while(1)
     // sleep(1);
     //file_get_contents("http://127.0.0.1:6998/?id=12asdgfsdfgsdfg%20asdf%20asf24%20234");
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, "http://127.0.0.1/");
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch,CURLOPT_TIMEOUT,1);
-    curl_setopt($ch, CURLOPT_HEADER, 0);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, ($data));//http_build_query
-    $return = curl_exec($ch);
-    curl_close($ch);
-    echo $return;
-
-    //file_get_contents("http://127.0.0.1:6998/?id=12asdgfsdfgsdfg%20asdf%20asf24%20234");
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, "http://wing.ylb.com/");
+    curl_setopt($ch, CURLOPT_URL, $uri);
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch,CURLOPT_TIMEOUT,1);
     curl_setopt($ch, CURLOPT_HEADER, 0);

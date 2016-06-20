@@ -12,9 +12,14 @@ class Response{
     public function __construct($web_config)
     {
         $this->web_config = $web_config;
-        //$this->preResponse();
+        chdir($this->web_config["document_root"]);
     }
 
+    //去掉重复的header
+    public function clearHeaders(){
+        $this->headers = array_flip($this->headers);
+        $this->headers = array_flip($this->headers);
+    }
     public function setHeaders($headers){
         if(is_array($headers)) {
             foreach( $headers as $key => $header ) {
@@ -24,41 +29,33 @@ class Response{
         }
         $this->headers[] = $headers;
     }
-   /* private function preResponse(){
-        chdir($this->web_config["document_root"]);
-    }*/
 
     //获取请求的资源文件绝对路径
     private function getPath( $_request_path ,$host = ''){
-        if( $host ) {
-            $_host =explode(":",$host);
-            $host = $_host[0];
-        }
 
-        $document_root = $this->web_config["document_root"];
-        $not_fund = $this->web_config["404"];
-        $index = $this->web_config["index"];
+        $host && list( $host , $port )  =explode(":",$host);
 
-        if( isset($this->web_config["virtual"]) && is_array($this->web_config["virtual"]) &&
-            count($this->web_config["virtual"]) >0 ){
-            foreach ($this->web_config["virtual"] as $virtual){
-                if($host == $virtual["server_name"] ) {
-                    $document_root = $virtual["document_root"];
-                    $not_fund = $virtual["404"];
-                    $index = $virtual["index"];
+        $document_root  = $this->web_config["document_root"];
+        $not_fund       = $this->web_config["404"];
+        $index          = $this->web_config["index"];
+
+        if( isset( $this->web_config["virtual"] ) && is_array( $this->web_config["virtual"] ) &&
+            count( $this->web_config["virtual"] ) >0 ){
+            foreach ( $this->web_config["virtual"] as $virtual ){
+                if( $host == $virtual["server_name"] ) {
+                    $document_root  = $virtual["document_root"];
+                    $not_fund       = $virtual["404"];
+                    $index          = $virtual["index"];
                     break;
                 }
             }
         }
 
-        chdir($document_root);
-
         if( $_request_path != "/" ) {
             $path = $document_root . $_request_path;
-            if( !file_exists($path) )
+            if( !file_exists($path) || !is_file($path) )//404
             {
-                //404
-                return str_replace("\\","/",$not_fund);
+                $path = str_replace("\\","/",$not_fund);
             }
             return str_replace("\\","/",$path);
         }
@@ -68,25 +65,25 @@ class Response{
 
         foreach ( $indexs as $index ) {
             $_file = $document_root."/".trim($index);
-            if( file_exists($_file) ) {
+            if( file_exists($_file) && is_file($_file) ) {
                 $path = $_file;
                 break;
             }
         }
 
-        if( $path == '' )
+        if( $path == '' )//404
         {
-            //404
-            return str_replace("\\","/",$not_fund);
+            $path = str_replace("\\","/",$not_fund);
         }
         return str_replace("\\","/",$path);
     }
 
     //获取请求资源的mime type
     public function getMimitype( $path ){
-        $mime_type="text/html";
 
-        if(class_exists("finfo")) {
+        $mime_type = "text/html";
+
+        if( class_exists("finfo") ) {
             $fi = new \finfo(FILEINFO_MIME_TYPE);
             $mime_type = $fi->file($path);
             unset($fi);
@@ -104,14 +101,29 @@ class Response{
 
     }
     private function requestParse($get_request,$post_request){
-        $_GET = $get_request;
-        $_POST = $post_request;
-        $_REQUEST = array_merge($_GET,$_POST);
+        $_GET       = $get_request;
+        $_POST      = $post_request;
+        $_REQUEST   = array_merge($_GET,$_POST);
     }
-    private function serverParse( $headers ){
+    private function serverParse( $request , $http_request_file ){
+        $headers        = $request["http_headers"];
+        $server_config  = $request["http_server_config"];
+
         foreach ($headers as $key => $header ){
             $_SERVER["HTTP_".strtoupper(str_replace("-","_",$key))] = $header;
         }
+
+        //这里要使用 PHPSESSID=a53tchtk9su5v8a1n0ssff67r3; 做session支持 暂未支持
+        //"PHPSESSID=a53tchtk9su5v8a1n0ssff67r3;
+        // _ga=GA1.2.659666694.1463541755;
+        // Hm_lvt_c4fb630bdc21e7a693a06c26ba5651c6=1465352549,1465894583,1466069135,1466335394;
+        // Hm_lpvt_c4fb630bdc21e7a693a06c26ba5651c6=1466335479
+        $_SERVER["SERVER_PORT"]     = $server_config["port"];
+        $_SERVER["DOCUMENT_ROOT"]   = $this->web_config["document_root"];
+        $_SERVER["REQUEST_URI"]     = $request["http_request_uri"];
+        $_SERVER["SCRIPT_NAME"]     = $_SERVER["PHP_SELF"] = $request["http_request_file"];
+        $_SERVER["SCRIPT_FILENAME"] = $http_request_file;
+        $_SERVER["REQUEST_TIME"]    = time();
     }
 
 
@@ -125,9 +137,10 @@ class Response{
         ];
 
         $this->requestParse( $http_request_info["http_get_query"],$http_request_info["http_post_query"] );
-        $this->serverParse( $http_request_info["http_headers"] );
+
         //请求文件 Host
         $http_request_file  = $this->getPath( $http_request_info["http_request_file"] ,$http_request_info["http_headers"]["Host"]);
+        $this->serverParse( $http_request_info ,$http_request_file );
 
         $response_mime_type = $this->getMimitype( $http_request_file );
 

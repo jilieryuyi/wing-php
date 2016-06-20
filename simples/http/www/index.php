@@ -6,6 +6,7 @@
  */
 \Service\Header::set(["Anthor"=>"yuyi","Email"=>"297341015@qq.com"]);
 \Service\Header::set("Version: ".WING_VERSION);
+//var_dump($_SERVER);
 ?>
 <html>
 <head>

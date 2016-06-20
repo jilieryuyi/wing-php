@@ -56,7 +56,7 @@ class Http{
 
         //请求资源文件
         $response["http_request_file"]  = $_request["path"];
-
+        $response["http_request_uri"]   = $_service_temp[1];
 
         $get_output     = [];
         //get查询信息解析
@@ -75,6 +75,7 @@ class Http{
             $headers[$_header_temp[0]] = $_header_temp[1];
         }
         $response["http_headers"] = $headers;
+        $response["http_server_config"] = $this->config;
 
         return $response;
     }

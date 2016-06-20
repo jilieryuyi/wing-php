@@ -3,8 +3,8 @@
  * @author yuyi
  * @created 2016/6/5 8:59
  * @email 297341015@qq.com
- * @执行 php service.php 启动服务 默认80得永生 哈哈
- * @打开浏览器 访问 http://127.0.0.1/
+ * @执行 php service.php 启动服务 默认6998
+ * @打开浏览器 访问 http://127.0.0.1:6998/
  */
 
 require_once "service/Response.php";
@@ -17,21 +17,11 @@ $web_config = [
     "document_root"     => HOME_PATH."/www", //把这个路径修改为您的个人网站试试
     "index"             => "index.html index.htm index.php",
     "404"               =>  HOME_PATH."/www/404.html",
-
-    "virtual"           => [
-                //第一个子域名
-                [
-                    "document_root"     => HOME_PATH."/www-2",//"D:/web/yonglibao/bigbluewhare", //把这个路径修改为您的个人网站试试
-                    "index"             => "index.html index.htm index.php",
-                    "404"               =>  HOME_PATH."/www/404.html",
-                    "server_name"       => "www.wingphp.com", //记得修改host
-                ],
-                //第二个子域名[]
-    ],
+    "server_name"       => "www.wingphp.com"
 ];
 
 $server_config = [
-    "port"              => 80, //使用80 哈哈
+    "port"              => 6998, 
     "listen"            => "0.0.0.0",
     "max_connect"       => 1000 ,
     "error_log"         => HOME_PATH."/log/wing_error.log",
