@@ -27,8 +27,8 @@ class Http{
     }
 
     //解析http协议
-    public function httpParse( $http_request_msg ){
-        $response           = [];
+    public function httpParse( $http_request_msg ,&$http_request_file ,&$_host){
+        $_SERVER = $_GET = $_POST  = $_COOKIE = $_REQUEST = [];
 
         //http协议 header 和 body 之间
         //通过两个 \r\n\r\n 分割（两个回车符）
@@ -47,47 +47,51 @@ class Http{
 
 
         //协议 get|post
-        $response["http_request_type"]  = $_service_temp[0];
+        $_SERVER["REQUEST_METHOD"]  =  strtoupper($_service_temp[0]);
         //得到http 1.1
-        $response["http_protocols"]     = $_service_temp[2];
+        $_SERVER["SERVER_PROTOCOL"] = $_service_temp[2];
 
         //get查询信息
         $_request = parse_url($_service_temp[1]);
 
         //请求资源文件
-        $response["http_request_file"]  = $_request["path"];
-        $response["http_request_uri"]   = $_service_temp[1];
+        $http_request_file          = $_request["path"];
+        $_SERVER["SCRIPT_NAME"]     = $_SERVER["PHP_SELF"] = $http_request_file;
+        $_SERVER["REQUEST_URI"]     = $_service_temp[1];
+        $_SERVER["REQUEST_TIME"]    = time();
 
-        $get_output     = [];
+
         //get查询信息解析
-        isset( $_request["query"] ) && parse_str( $_request["query"] ,$get_output );
-        $response["http_get_query"] = $get_output;
+        isset( $_request["query"] ) && parse_str( $_request["query"] ,$_GET );
 
         //post查询信息解析
-        $post_output    = [];
-        !empty($_request_content) && parse_str($_request_content, $post_output);
-        $response["http_post_query"] = $post_output;
+        !empty($_request_content) && parse_str($_request_content, $_POST);
+        $_REQUEST   = array_merge($_GET,$_POST);
 
 
         $headers        = [];
         foreach ( $headers_tab as $_header ) {
             $_header_temp = explode(": ",$_header);
             $headers[$_header_temp[0]] = $_header_temp[1];
-        }
-        $response["http_headers"] = $headers;
-        $response["http_server_config"] = $this->config;
 
-        return $response;
+            $_SERVER["HTTP_".strtoupper(str_replace("-","_",$_header_temp[0]))] = $_header_temp[1];
+        }
+        $_host  = isset($headers["Host"]) ? $headers["Host"]:"";
+
+        $_SERVER["SERVER_PORT"]     = $this->config["port"];
+
     }
 
 
     public function onreceive($http_client,$http_msg){
         echo $http_msg,"\r\n\r\n";
 
+        $http_request_file      = '';
+        $_host = '';
         //http 协议解析
-        $http_parse_info        = $this->httpParse( $http_msg );
+         $this->httpParse( $http_msg ,$http_request_file , $_host);
         //构建网站输出
-        $http_response_content  = $this->response->output($http_parse_info);
+        $http_response_content  = $this->response->output( $http_request_file,$_host );
 
         //输出信息到http请求页面
         wing_socket_send_msg( $http_client, $http_response_content );

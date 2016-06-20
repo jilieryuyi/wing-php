@@ -20,6 +20,7 @@ class Response{
         $this->headers = array_flip($this->headers);
         $this->headers = array_flip($this->headers);
     }
+    //设置header
     public function setHeaders($headers){
         if(is_array($headers)) {
             foreach( $headers as $key => $header ) {
@@ -97,50 +98,30 @@ class Response{
         return $mime_type;
     }
 
-    private function cookieParse(){
 
-    }
-    private function requestParse($get_request,$post_request){
-        $_GET       = $get_request;
-        $_POST      = $post_request;
-        $_REQUEST   = array_merge($_GET,$_POST);
-    }
-    private function serverParse( $request , $http_request_file ){
-        $headers        = $request["http_headers"];
-        $server_config  = $request["http_server_config"];
 
-        foreach ($headers as $key => $header ){
-            $_SERVER["HTTP_".strtoupper(str_replace("-","_",$key))] = $header;
-        }
+    public function output( $_http_request_file , $_host ){
+        //暂不支持 100-continue
+       
+        $this->headers = [
+            "HTTP/1.1 200 OK",
+            "Connection: Close"
+        ];
+        
+
+        //请求文件 Host
+        $http_request_file  = $this->getPath( $_http_request_file , $_host);
+
+        $_SERVER["SCRIPT_FILENAME"] = $http_request_file;
+        $_SERVER["DOCUMENT_ROOT"]   = $this->web_config["document_root"];
+        
 
         //这里要使用 PHPSESSID=a53tchtk9su5v8a1n0ssff67r3; 做session支持 暂未支持
         //"PHPSESSID=a53tchtk9su5v8a1n0ssff67r3;
         // _ga=GA1.2.659666694.1463541755;
         // Hm_lvt_c4fb630bdc21e7a693a06c26ba5651c6=1465352549,1465894583,1466069135,1466335394;
         // Hm_lpvt_c4fb630bdc21e7a693a06c26ba5651c6=1466335479
-        $_SERVER["SERVER_PORT"]     = $server_config["port"];
-        $_SERVER["DOCUMENT_ROOT"]   = $this->web_config["document_root"];
-        $_SERVER["REQUEST_URI"]     = $request["http_request_uri"];
-        $_SERVER["SCRIPT_NAME"]     = $_SERVER["PHP_SELF"] = $request["http_request_file"];
-        $_SERVER["SCRIPT_FILENAME"] = $http_request_file;
-        $_SERVER["REQUEST_TIME"]    = time();
-    }
 
-
-
-    public function output( $http_request_info ){
-        //暂不支持 100-continue
-        $_GET = $_POST = $_SERVER = $_COOKIE = $_REQUEST = [];
-        $this->headers = [
-            "HTTP/1.1 200 OK",
-            "Connection: Close"
-        ];
-
-        $this->requestParse( $http_request_info["http_get_query"],$http_request_info["http_post_query"] );
-
-        //请求文件 Host
-        $http_request_file  = $this->getPath( $http_request_info["http_request_file"] ,$http_request_info["http_headers"]["Host"]);
-        $this->serverParse( $http_request_info ,$http_request_file );
 
         $response_mime_type = $this->getMimitype( $http_request_file );
 

@@ -11,9 +11,21 @@
 <html>
 <head>
   <title>wing php</title>
+  <style>
+    body{
+      height: 98%;
+    }
+    .wing-php{
+      background: url('images/wing.jpg') center no-repeat;
+      text-align: center;
+      height: 100%;
+      line-height: 100%;
+      vertical-align: middle;
+    }
+  </style>
 </head>
-<body style="height: 98%;">
-<div style="background: url('images/wing.jpg') center no-repeat;text-align: center; height: 100%; line-height: 100%; vertical-align: middle;">
+<body>
+<div class="wing-php">
 </div>
 </body>
 </html>
