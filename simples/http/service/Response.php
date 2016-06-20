@@ -12,7 +12,7 @@ class Response{
     public function __construct($web_config)
     {
         $this->web_config = $web_config;
-        $this->preResponse();
+        //$this->preResponse();
     }
 
     public function setHeaders($headers){
@@ -24,9 +24,9 @@ class Response{
         }
         $this->headers[] = $headers;
     }
-    private function preResponse(){
+   /* private function preResponse(){
         chdir($this->web_config["document_root"]);
-    }
+    }*/
 
     //获取请求的资源文件绝对路径
     private function getPath( $_request_path ,$host = ''){
@@ -50,7 +50,9 @@ class Response{
                 }
             }
         }
-        
+
+        chdir($document_root);
+
         if( $_request_path != "/" ) {
             $path = $document_root . $_request_path;
             if( !file_exists($path) )
