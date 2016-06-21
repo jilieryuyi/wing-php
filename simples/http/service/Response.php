@@ -149,12 +149,16 @@ class Response{
         $this->setHeaders("Date: " . gmdate("D,d M Y H:m:s")." GMT");
         $this->setHeaders("Content-Type: ".$response_mime_type);
         $this->setHeaders("Content-Length: " . strlen($response_content) );
-        
-        $cookie_key = $this->createUnique();
-        file_put_contents($cookie_path."/".$cookie_key,json_encode(Cookie::getAll()));
-        $this->setHeaders("Set-Cookie: PHPSESSID=".$cookie_key);
-        
-        unset($_GET , $_POST , $_SERVER , $_COOKIE , $_REQUEST);
+
+        $cookies = Cookie::getAll();
+        if( count($cookies) >0 ) {
+            $cookie_key = Cookie::getKey();
+           if(!$cookie_key) $cookie_key= $this->createUnique();
+            file_put_contents($cookie_path . "/" . $cookie_key, json_encode($cookies));
+            $this->setHeaders("Set-Cookie: PHPSESSID=" . $cookie_key);
+        }
+
+        unset($_GET , $_POST , $_SERVER , $_COOKIE , $_REQUEST,$_SESSION);
         return implode("\r\n", $this->headers) . "\r\n\r\n" . $response_content;
     }
 

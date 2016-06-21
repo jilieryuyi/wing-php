@@ -6,6 +6,7 @@
  */
 class Cookie{
     private static $cookie;
+    private static $cookie_key = '';
     public static function set($key,$value){
         self::$cookie[$key] = $value;
     }
@@ -17,6 +18,17 @@ class Cookie{
     }
     public static function setCookie($cookie){
         self::$cookie = $cookie;
+        $_COOKIE = $_SESSION = $cookie;
+    }
+    public static function clearCookie(){
+        self::$cookie = [];
+        self::$cookie_key = '';
+    }
+    public static function setKey($key){
+        self::$cookie_key = $key;
+    }
+    public static function getKey(){
+        return self::$cookie_key;
     }
     /*private static  function createUnique(){
         $randcode = "";

@@ -27,6 +27,7 @@ class Http{
     }
 
     private function parseCookie($cookie_str){
+        Cookie::clearCookie();
         $_temp = explode(";",$cookie_str);
         //PHPSESSID=a53tchtk9su5v8a1n0ssff67r3;
         foreach( $_temp as $item ){
@@ -35,6 +36,7 @@ class Http{
                 $phpcookie = explode("=",$item);
 
                 $cookie_file = $this->config["cookie"]."/".$phpcookie[1];
+                Cookie::setKey($phpcookie[1]);
                 if(file_exists($cookie_file)) {
                     $content = file_get_contents($cookie_file);
                     $cookie = json_decode($content,true);
@@ -47,7 +49,7 @@ class Http{
 
     //解析http协议
     public function httpParse( $http_request_msg ,&$http_request_file ,&$_host){
-        $_SERVER = $_GET = $_POST  = $_COOKIE = $_REQUEST = [];
+        $_SERVER = $_GET = $_POST  = $_COOKIE = $_SESSION = $_REQUEST = [];
 
         //http协议 header 和 body 之间
         //通过两个 \r\n\r\n 分割（两个回车符）
