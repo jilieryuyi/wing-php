@@ -125,7 +125,7 @@ void wing_socket_on_accept(MYOVERLAPPED* &pMyOL){
 
 	linger so_linger;
 	so_linger.l_onoff = TRUE;
-	so_linger.l_linger = 0; //Ç¿ÖÆclosesocketºó ÉèÖÃÔÊĞí3Ãë¶ºÁôÊ±¼ä ·ÀÖ¹Êı¾İ¶ªÊ§
+	so_linger.l_linger = 0; //¾Ü¾øclose wait×´Ì¬
 	setsockopt(pMyOL->m_skClient,SOL_SOCKET,SO_LINGER,(const char*)&so_linger,sizeof(so_linger));
 	
 	int client_size = sizeof(pMyOL->m_addrClient);  
