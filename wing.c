@@ -1196,8 +1196,8 @@ ZEND_FUNCTION(wing_socket_send_msg)
  * @ 使用iocp异步发送消息--未测试
  ***************************************************/ 
 ZEND_FUNCTION(wing_socket_send_msg_ex){
-	/*zval *socket = NULL;
-	zval *msg = NULL;
+	zval *socket = NULL;
+	zval *msg	 = NULL;
 	int close_after_send = 0;//发送完关闭socket 默认为false 否 待定 还没开发
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zz|l",&socket,&msg,&close_after_send) != SUCCESS) {
@@ -1208,36 +1208,58 @@ ZEND_FUNCTION(wing_socket_send_msg_ex){
 
 	
 	SOCKET sClient		= (SOCKET)Z_LVAL_P(socket);
+	char *sendbuf		= Z_STRVAL_P(msg);
+	ulong bufsize		= Z_STRLEN_P(msg);
+	ulong  Flag			= 0;  
+	ulong SendByte		= 0;  
 
-	char *pData			= Z_STRVAL_P(msg);
-	ulong Length		= Z_STRLEN_P(msg);
-	unsigned long  Flag	= 0;  
-	DWORD SendByte		= 0;  
+	WSABUF DataBuf;
+	WSAOVERLAPPED SendOverlapped;
 
-    if ( sClient == INVALID_SOCKET || pData == NULL || Length == 0 ){
-		
+    if ( sClient == INVALID_SOCKET || sendbuf == NULL || bufsize == 0 )
+	{
 		RETURN_LONG(WING_ERROR_FAILED);
 		return;  
 	}
    
-	  *PerIoData =  (*)GlobalAlloc(GPTR,sizeof());//new ();
-	memory_add();
-
-	ZeroMemory(&(PerIoData->OVerlapped),sizeof(OVERLAPPED));      
-	PerIoData->DATABuf.buf	= pData; 
-	PerIoData->DATABuf.len	= Length; 
-	PerIoData->type			= OPE_SEND;
 	
-	int bRet  = WSASend(sClient,&(PerIoData->DATABuf),1,&SendByte,Flag,&(PerIoData->OVerlapped),NULL);  
-	if( bRet != 0 &&  WSAGetLastError() != WSA_IO_PENDING ){
+	SecureZeroMemory((PVOID) & SendOverlapped, sizeof (WSAOVERLAPPED));
+	SendOverlapped.hEvent = WSACreateEvent();
+    if (SendOverlapped.hEvent == NULL) 
+	{
+        RETURN_LONG(WING_ERROR_FAILED);
+		return;  
+    }
 
-		GlobalFree( PerIoData );
-		PerIoData = NULL;
-		memory_sub();
+
+	DataBuf.buf	= sendbuf; 
+	DataBuf.len	= bufsize; 
+	
+	int bRet  = WSASend(sClient,&(DataBuf),1,&SendByte,Flag,&(SendOverlapped),NULL);  
+	if( bRet != 0 &&  WSAGetLastError() != WSA_IO_PENDING ){
+		WSAResetEvent(SendOverlapped.hEvent);
 		RETURN_LONG(WING_ERROR_FAILED);
 		return;
 	}
-	RETURN_LONG(WING_SUCCESS);*/
+
+	bRet = WSAWaitForMultipleEvents(1, &SendOverlapped.hEvent, TRUE, INFINITE,
+                                      TRUE);
+	if ( bRet == WSA_WAIT_FAILED) {
+		WSAResetEvent(SendOverlapped.hEvent);
+		RETURN_LONG(WING_ERROR_FAILED);
+		return;
+	}
+
+	bRet = WSAGetOverlappedResult(sClient, &SendOverlapped, &SendByte,FALSE, &Flag);
+	if ( bRet == FALSE) 
+	{
+		WSAResetEvent(SendOverlapped.hEvent);
+		RETURN_LONG(WING_ERROR_FAILED);
+		return;
+	}
+
+	WSAResetEvent(SendOverlapped.hEvent);
+	RETURN_LONG(WING_SUCCESS);
 }
 
 //////////////////////////--socket-end--

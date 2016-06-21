@@ -152,8 +152,8 @@ class Response{
 
         $cookies = Cookie::getAll();
         if( count($cookies) >0 ) {
-            $cookie_key = Cookie::getKey();
-           if(!$cookie_key) $cookie_key= $this->createUnique();
+            //$cookie_key = Cookie::getKey();
+            $cookie_key= $this->createUnique();
             file_put_contents($cookie_path . "/" . $cookie_key, json_encode($cookies));
             $this->setHeaders("Set-Cookie: PHPSESSID=" . $cookie_key);
         }

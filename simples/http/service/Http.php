@@ -36,7 +36,7 @@ class Http{
                 $phpcookie = explode("=",$item);
 
                 $cookie_file = $this->config["cookie"]."/".$phpcookie[1];
-                Cookie::setKey($phpcookie[1]);
+                //Cookie::setKey($phpcookie[1]);
                 if(file_exists($cookie_file)) {
                     $content = file_get_contents($cookie_file);
                     $cookie = json_decode($content,true);
