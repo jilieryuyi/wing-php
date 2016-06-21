@@ -15,6 +15,9 @@
 #include "process.h"
 #include <mswsock.h>
 
+#include <ws2tcpip.h>//ipv4 ipv6
+//int getaddrinfo( const char *hostname, const char *service, const struct addrinfo *hints, struct addrinfo **result );
+//https://msdn.microsoft.com/en-us/library/windows/desktop/ms742203(v=vs.85).aspx
 
 #pragma comment(lib,"Kernel32.lib")
 #pragma comment(lib,"Shlwapi.lib")
