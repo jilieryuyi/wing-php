@@ -1406,20 +1406,20 @@ ZEND_METHOD(wing_server,start){
 	
 	//消息队列载体
 	wing_msg_queue_element *msg = NULL;//消息
-	zend_printf("sockets pool %ld\r\n",wing_get_sockets_map_size());
+	//zend_printf("sockets pool %ld\r\n",wing_get_sockets_map_size());
 
 	while( true )
 	{ 
 		//获取消息 没有的时候会阻塞
 		wing_msg_queue_get(&msg);
-		zend_printf("sockets pool %ld\r\n",wing_get_sockets_map_size());
+		//zend_printf("sockets pool %ld\r\n",wing_get_sockets_map_size());
 
 		//根据消息ID进行不同的处理
 		switch(msg->message_id){
 			
 			case WM_ONCONNECT:
 			{
-				zend_printf("===================================new connect===================================\r\n");
+				//zend_printf("===================================new connect===================================\r\n");
 				
 				//zval *params;//[5] = {0};
 				zval *retval_ptr = NULL;
@@ -1438,7 +1438,7 @@ ZEND_METHOD(wing_server,start){
 				zend_update_property_long(wing_client_ce,wing_client,"sin_family",strlen("sin_family"),lpol->m_addrClient.sin_family TSRMLS_CC);
 				zend_update_property_string(wing_client_ce,wing_client,"sin_zero",strlen("sin_zero"),lpol->m_addrClient.sin_zero TSRMLS_CC);
 				zend_update_property_long(wing_client_ce,wing_client,"socket",strlen("socket"),(long)msg->wparam TSRMLS_CC);
-				zend_printf("===================================new connect 2===================================\r\n");
+				//zend_printf("===================================new connect 2===================================\r\n");
 
 				MAKE_STD_ZVAL(retval_ptr);
 				
@@ -1459,7 +1459,7 @@ ZEND_METHOD(wing_server,start){
 				//释放资源
 				zval_ptr_dtor(&retval_ptr);
 				zval_ptr_dtor(&wing_client);
-				zend_printf("===================================new connect 3===================================\r\n");
+				//zend_printf("===================================new connect 3===================================\r\n");
 						  
 			}
 			break;
