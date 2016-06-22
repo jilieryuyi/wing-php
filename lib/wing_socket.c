@@ -1,8 +1,9 @@
 #include "wing_socket.h"
 #include "wing_msg_queue.h"
-
+#include "synchapi.h"
 //HANDLE m_hIOCompletionPort;//完成端口
 SOCKET m_sockListen;//服务socket
+
 //post 队列消息
 void wing_post_queue_msg(int message_id,unsigned long wparam,unsigned long lparam,unsigned long eparam){
 		
@@ -134,6 +135,7 @@ void wing_socket_on_accept(MYOVERLAPPED* &pMyOL){
 
 	wing_post_queue_msg(WM_ONCONNECT, pMyOL->m_skClient,0);
 	wing_socket_post_recv(pMyOL);
+	
 }
 /****************************************************
  * @ 发送消息
@@ -152,20 +154,29 @@ void wing_socket_on_send( MYOVERLAPPED*  pOL){
 			wing_post_queue_msg(WM_ONSEND,perHandleData->Socket);*/
 }
 
+
+
+
+
 void wing_socket_on_recv(MYOVERLAPPED*  &pOL){
 	//构建消息
-	RECV_MSG *recv_msg	= new RECV_MSG();   
-	ZeroMemory(recv_msg,sizeof(RECV_MSG));
+	//RECV_MSG *recv_msg	= new RECV_MSG();   
+	//ZeroMemory(recv_msg,sizeof(RECV_MSG));
 
-	DWORD len = pOL->m_recvBytes+1;
-	recv_msg->msg = new char[len];
-	ZeroMemory(recv_msg->msg,len);
+	//DWORD len = pOL->m_recvBytes+1;
+	//recv_msg->msg = new char[len];
 
-	strcpy_s(recv_msg->msg,len,pOL->m_pBuf);
-	recv_msg->len		=  len;
+
+	char *recvmsg =new char[DATA_BUFSIZE];
+	//ZeroMemory(recv_msg->msg,len);
+	ZeroMemory(recvmsg,DATA_BUFSIZE);
+
+	strcpy(recvmsg,pOL->m_pBuf);
+	//recv_msg->len		= len;
 	
 	//发送消息
-	wing_post_queue_msg(WM_ONRECV,pOL->m_skClient,(unsigned long)recv_msg);
+	wing_post_queue_msg(WM_ONRECV,pOL->m_skClient,(unsigned long)recvmsg);
+
 }
 
 void wing_socket_on_close(MYOVERLAPPED*  &pMyOL){
@@ -173,6 +184,7 @@ void wing_socket_on_close(MYOVERLAPPED*  &pMyOL){
 	wing_post_queue_msg(WM_ONCLOSE,pMyOL->m_skClient);
 
 	WingDisconnectEx(pMyOL->m_skClient,NULL,TF_REUSE_SOCKET,0);
+	
 
 	pMyOL->m_iOpType	= OPE_ACCEPT;        //AcceptEx操作
 	pMyOL->m_isUsed     = WING_SOCKET_IS_SLEEP;
@@ -211,6 +223,7 @@ void wing_socket_on_close(MYOVERLAPPED*  &pMyOL){
 					//清理资源
 					delete pMyOL;
 					pMyOL = NULL; 
+					wing_post_queue_msg(WM_ONERROR,w_client,WING_ERROR_ACCEPT,last_error);
 					return;
 				}
 				else
@@ -232,6 +245,7 @@ void wing_socket_on_close(MYOVERLAPPED*  &pMyOL){
 						//清理资源
 						delete pMyOL;
 						pMyOL = NULL; 
+						wing_post_queue_msg(WM_ONERROR,w_client,WING_ERROR_ACCEPT,last_error);
 						return;
 
 					}else{
@@ -246,18 +260,20 @@ void wing_socket_on_close(MYOVERLAPPED*  &pMyOL){
 				wing_remove_from_sockets_map((unsigned long)w_client);
 				delete pMyOL;
 				pMyOL = NULL; 
+				wing_post_queue_msg(WM_ONERROR,w_client,WING_ERROR_ACCEPT,last_error);
 				return;		
 			}
 		}	
 
 		////如果发生错误应该要有增补方案 否则到最后可用socket为0了就不好了
 		//触发onerror 会新建一个 socket 然后重用 pMyOL 所以 pMyOL不要删除
-		wing_post_queue_msg(WM_ONERROR,WING_ERROR_ACCEPT,last_error,w_client);
+		wing_post_queue_msg(WM_ONERROR,w_client,WING_ERROR_ACCEPT,last_error);
 		return;
 	}
 
 	//注意在这个SOCKET被重新利用后，后面的再次捆绑到完成端口的操作会返回一个已设置//的错误，这个错误直接被忽略即可
 	::BindIoCompletionCallback((HANDLE)pMyOL->m_skClient,wing_icop_thread, 0);
+
 
 }
 
@@ -282,7 +298,7 @@ VOID CALLBACK wing_icop_thread(DWORD dwErrorCode,DWORD dwBytesTrans,LPOVERLAPPED
 			wing_socket_on_close(pOL);
 		}
 	}
-	pOL->m_recvBytes = dwBytesTrans;
+	
 	switch(pOL->m_iOpType)
 	{
 		case OPE_ACCEPT: //AcceptEx结束
@@ -293,6 +309,7 @@ VOID CALLBACK wing_icop_thread(DWORD dwErrorCode,DWORD dwBytesTrans,LPOVERLAPPED
 		break;
 		case OPE_RECV:
 		{
+			pOL->m_recvBytes = dwBytesTrans;
 			//收到信的消息 需要判断一下是否掉线
 			if( 0 == dwBytesTrans || 10054 == error_code || 64 == error_code){
 				wing_socket_on_close(pOL);

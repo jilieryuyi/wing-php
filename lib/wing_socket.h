@@ -71,6 +71,7 @@ struct MYOVERLAPPED{
 	SOCKADDR_IN m_addrClient;//客户端实际的地址
 	SOCKADDR_IN m_addrServer;//服务端实际的地址
 	int			m_isUsed;//标志是否已被激活使用 1已被激活 0待激活
+	//LPVOID      m_client;//wing_client 对象
 };
 
 //消息队列传递的消息

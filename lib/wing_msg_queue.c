@@ -5,6 +5,7 @@
  ******************************/
 
 #include "wing_msg_queue.h"
+
 //----消息队列----------------------------
 CRITICAL_SECTION queue_lock;
 queue_t *message_queue = NULL;
