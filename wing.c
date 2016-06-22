@@ -1357,6 +1357,7 @@ ZEND_METHOD(wing_server,start){
 	zval *onclose = NULL;
 	zval *onerror = NULL;
 	zval *service_params = NULL;
+
 	int port = 0;
 	char *listen_ip = NULL;
 	int timeout = 0;
@@ -1368,20 +1369,19 @@ ZEND_METHOD(wing_server,start){
 	MAKE_STD_ZVAL(onerror);
 
 
-	onreceive			= zend_read_property(wing_server_ce,getThis(),"onreceive",	strlen("onreceive"),	0 TSRMLS_CC);
-	onconnect			= zend_read_property(wing_server_ce,getThis(),"onconnect",	strlen("onconnect"),	0 TSRMLS_CC);
-	onclose				= zend_read_property(wing_server_ce,getThis(),"onclose",	strlen("onclose"),		0 TSRMLS_CC);
-	onerror				= zend_read_property(wing_server_ce,getThis(),"onerror",	strlen("onerror"),		0 TSRMLS_CC);
-	zval *_listen		= zend_read_property(wing_server_ce,getThis(),"listen",		strlen("listen"),		0 TSRMLS_CC);
+	onreceive			= zend_read_property( wing_server_ce,getThis(),"onreceive",	strlen("onreceive"),	0 TSRMLS_CC);
+	onconnect			= zend_read_property( wing_server_ce,getThis(),"onconnect",	strlen("onconnect"),	0 TSRMLS_CC);
+	onclose				= zend_read_property( wing_server_ce,getThis(),"onclose",	strlen("onclose"),		0 TSRMLS_CC);
+	onerror				= zend_read_property( wing_server_ce,getThis(),"onerror",	strlen("onerror"),		0 TSRMLS_CC);
+	zval *_listen		= zend_read_property( wing_server_ce,getThis(),"listen",	strlen("listen"),		0 TSRMLS_CC);
+	zval *_port			= zend_read_property( wing_server_ce,getThis(),"port",		strlen("port"),			0 TSRMLS_CC);
+	zval *_max_connect	= zend_read_property( wing_server_ce,getThis(),"max_connect",strlen("max_connect"),	0 TSRMLS_CC);
+	zval *_timeout		= zend_read_property( wing_server_ce,getThis(),"timeout",	strlen("timeout"),		0 TSRMLS_CC);
+
+	timeout				= Z_LVAL_P(_timeout);
 	listen_ip			= Z_STRVAL_P(_listen);
-	zval *_port			= zend_read_property(wing_server_ce,getThis(),"port",		strlen("port"),			0 TSRMLS_CC);
 	port				= Z_LVAL_P(_port);
-
-	zval *_max_connect	= zend_read_property(wing_server_ce,getThis(),"max_connect",strlen("max_connect"),0 TSRMLS_CC);
-	max_connect = Z_LVAL_P(_max_connect);
-
-	zval *_timeout =  zend_read_property(wing_server_ce,getThis(),"timeout",strlen("timeout"),0 TSRMLS_CC);
-	timeout = Z_LVAL_P(_timeout);
+	max_connect			= Z_LVAL_P(_max_connect);
 
 	//初始化消息队列
 	wing_msg_queue_init();  
