@@ -1277,6 +1277,43 @@ ZEND_FUNCTION(wing_get_memory_used){
 	RETURN_LONG( pmc.WorkingSetSize );
 	return;
 }
+//----------------------wing_server class--------------------------
+zend_class_entry *wing_server_ce;
+
+ZEND_METHOD(wing_server,__construct){
+	//构造方法 ip 端口 最大连接数
+	zval *listen = NULL;
+	int port = 6998;
+	int max_connect = 1000;
+
+	if( SUCCESS != zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"|zll",&listen,&port,&max_connect)){
+	
+	}
+
+	zend_declare_property_string(wing_server_ce,"listen",strlen("listen"),Z_STRVAL_P(listen),ZEND_ACC_PRIVATE TSRMLS_CC);
+	zend_declare_property_long(wing_server_ce,"port",strlen("port"),port,ZEND_ACC_PRIVATE TSRMLS_CC);
+	zend_declare_property_long(wing_server_ce,"max_connect",strlen("max_connect"),max_connect,ZEND_ACC_PRIVATE TSRMLS_CC);
+}
+ZEND_METHOD(wing_server,on){
+	zval *pro = NULL;
+	zval *callback = NULL;
+	zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"zz",&pro,&callback);
+
+	zend_declare_property(wing_server_ce,Z_STRVAL_P(pro),Z_STRLEN_P(pro),callback,ZEND_ACC_PUBLIC TSRMLS_CC);
+}
+
+ZEND_METHOD(wing_server,start){
+	//启动服务
+}
+
+static zend_function_entry wing_server_method[]={
+	ZEND_ME(wing_server,__construct,NULL,ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
+	ZEND_ME(wing_server,on,NULL,ZEND_ACC_PUBLIC)
+	ZEND_ME(wing_server,start,NULL,ZEND_ACC_PUBLIC)
+	{NULL,NULL,NULL}
+};
+
+//----------------------wing_server class--------------------------
 /* }}} */
 /* The previous line is mant for vim and emacs, so it can correctly fold and 
    unfold functions in source code. See the corresponding marks just before 
@@ -1302,6 +1339,23 @@ PHP_MINIT_FUNCTION(wing)
 	/* If you have INI entries, uncomment these lines 
 	REGISTER_INI_ENTRIES();
 	*/
+	//----wing_server-----
+	zend_class_entry _wing_server_ce;
+	INIT_CLASS_ENTRY(_wing_server_ce,"wing_server",wing_server_method);
+	wing_server_ce = zend_register_internal_class(&_wing_server_ce TSRMLS_CC);
+
+	//事件回调函数 默认为null
+	zend_declare_property_null(wing_server_ce,"onreceive",strlen("onreceive"),ZEND_ACC_PRIVATE TSRMLS_CC);
+	zend_declare_property_null(wing_server_ce,"onconnect",strlen("onconnect"),ZEND_ACC_PRIVATE TSRMLS_CC);
+	zend_declare_property_null(wing_server_ce,"onclose",  strlen("onclose"),  ZEND_ACC_PRIVATE TSRMLS_CC);
+	zend_declare_property_null(wing_server_ce,"onerror",  strlen("onerror"),  ZEND_ACC_PRIVATE TSRMLS_CC);
+
+	//端口和监听ip地址 默认值为 6998 和 0.0.0.0 最大连接数默认值为 1000
+	zend_declare_property_long(wing_server_ce,"port",     strlen("port"), 6998,  ZEND_ACC_PRIVATE TSRMLS_CC);
+	zend_declare_property_string(wing_server_ce,"listen",   strlen("listen"),"0.0.0.0",ZEND_ACC_PRIVATE TSRMLS_CC);
+	zend_declare_property_long(wing_server_ce,"max_connect",strlen("max_connect"),1000,ZEND_ACC_PRIVATE TSRMLS_CC);
+
+
 	//注册常量或者类等初始化操作
 	//REGISTER_STRING_CONSTANT("WING_VERSION",PHP_WING_VERSION,CONST_CS | CONST_PERSISTENT);
 	zend_register_string_constant("WING_VERSION", sizeof("WING_VERSION"), PHP_WING_VERSION,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
