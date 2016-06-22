@@ -24,7 +24,7 @@
 extern zend_module_entry wing_module_entry;
 #define phpext_wing_ptr &wing_module_entry
 
-#define PHP_WING_VERSION "1.0.2" /* Replace with version number for your extension */
+#define PHP_WING_VERSION "1.0.3" /* Replace with version number for your extension */
 
 
 #define WING_SUCCESS				 1
