@@ -1290,20 +1290,266 @@ ZEND_METHOD(wing_server,__construct){
 	
 	}
 
-	zend_declare_property_string(wing_server_ce,"listen",strlen("listen"),Z_STRVAL_P(listen),ZEND_ACC_PRIVATE TSRMLS_CC);
-	zend_declare_property_long(wing_server_ce,"port",strlen("port"),port,ZEND_ACC_PRIVATE TSRMLS_CC);
-	zend_declare_property_long(wing_server_ce,"max_connect",strlen("max_connect"),max_connect,ZEND_ACC_PRIVATE TSRMLS_CC);
+	
+	zend_update_property_string(wing_server_ce,getThis(),"listen",strlen("listen"),Z_STRVAL_P(listen) TSRMLS_CC);
+	zend_update_property_long(wing_server_ce,getThis(),"port",strlen("port"),port TSRMLS_CC);
+	zend_update_property_long(wing_server_ce,getThis(),"max_connect",strlen("max_connect"),max_connect TSRMLS_CC);
 }
 ZEND_METHOD(wing_server,on){
 	zval *pro = NULL;
 	zval *callback = NULL;
 	zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"zz",&pro,&callback);
 
-	zend_declare_property(wing_server_ce,Z_STRVAL_P(pro),Z_STRLEN_P(pro),callback,ZEND_ACC_PUBLIC TSRMLS_CC);
+	zend_update_property(wing_server_ce,getThis(),Z_STRVAL_P(pro),Z_STRLEN_P(pro),callback TSRMLS_CC);
 }
 
 ZEND_METHOD(wing_server,start){
 	//启动服务
+	zval *onreceive = NULL;
+	zval *onconnect = NULL;
+	zval *onclose = NULL;
+	zval *onerror = NULL;
+	zval *service_params = NULL;
+	int port = 0;
+	char *listen_ip = NULL;
+	int timeout = 0;
+	int max_connect = 1000;
+
+	MAKE_STD_ZVAL(onreceive);
+	MAKE_STD_ZVAL(onconnect);
+	MAKE_STD_ZVAL(onclose);
+	MAKE_STD_ZVAL(onerror);
+
+
+	onreceive	= zend_read_property(wing_server_ce,getThis(),"onreceive",strlen("onreceive"),0 TSRMLS_CC);
+	onconnect	= zend_read_property(wing_server_ce,getThis(),"onconnect",strlen("onconnect"),0 TSRMLS_CC);
+	onclose		= zend_read_property(wing_server_ce,getThis(),"onclose",strlen("onclose"),0 TSRMLS_CC);
+	onerror		= zend_read_property(wing_server_ce,getThis(),"onerror",strlen("onerror"),0 TSRMLS_CC);
+	zval *_listen=zend_read_property(wing_server_ce,getThis(),"listen",strlen("listen"),0 TSRMLS_CC);
+	listen_ip = Z_STRVAL_P(_listen);
+	zval *_port =zend_read_property(wing_server_ce,getThis(),"port",strlen("port"),0 TSRMLS_CC);
+	port = Z_LVAL_P(_port);
+
+	zval *_max_connect =zend_read_property(wing_server_ce,getThis(),"max_connect",strlen("max_connect"),0 TSRMLS_CC);
+	max_connect = Z_LVAL_P(_max_connect);
+
+	//初始化消息队列
+	wing_msg_queue_init();  
+
+	//初始化服务端socket 如果失败返回INVALID_SOCKET
+	SOCKET m_sockListen = wing_socket_init((const char *)listen_ip,(const int)port,(const int)max_connect,(const int) timeout);
+	if( INVALID_SOCKET == m_sockListen ) 
+	{
+		wing_socket_clear();
+		RETURN_LONG(WING_ERROR_FAILED);
+		return;
+	}
+	
+	//消息队列载体
+	wing_msg_queue_element *msg = NULL;//消息
+	zend_printf("sockets pool %ld\r\n",wing_get_sockets_map_size());
+
+	while( true )
+	{ 
+		//获取消息 没有的时候会阻塞
+		wing_msg_queue_get(&msg);
+		zend_printf("sockets pool %ld\r\n",wing_get_sockets_map_size());
+
+		//根据消息ID进行不同的处理
+		switch(msg->message_id){
+			
+			case WM_ONCONNECT:
+			{
+				//新的连接
+				//zend_printf("===================================new connect===================================\r\n");
+				
+				zval *params[5] = {0};
+				zval *retval_ptr = NULL;
+
+				unsigned long socket_connect = (unsigned long)msg->wparam;
+				MYOVERLAPPED *lpol = (MYOVERLAPPED *)wing_get_from_sockets_map(socket_connect);
+
+				MAKE_STD_ZVAL(params[0]);
+				MAKE_STD_ZVAL(params[1]);
+				MAKE_STD_ZVAL(params[2]);
+				MAKE_STD_ZVAL(params[3]);
+				MAKE_STD_ZVAL(params[4]);
+
+				ZVAL_LONG(params[0],(long)msg->wparam);//socket资源
+				ZVAL_STRING(params[1],inet_ntoa(lpol->m_addrClient.sin_addr),1);//ip
+				ZVAL_LONG(params[2],ntohs(lpol->m_addrClient.sin_port));//port
+				ZVAL_LONG(params[3],lpol->m_addrClient.sin_family);//协议类型
+				ZVAL_STRING(params[4],lpol->m_addrClient.sin_zero,1);//这个zero不知道干嘛的 这里也直接支持返回
+
+				MAKE_STD_ZVAL(retval_ptr);
+				
+				zend_try{
+					//通过回调 把相关信息传回给php
+					if( SUCCESS != call_user_function(EG(function_table),NULL,onconnect,retval_ptr,5,params TSRMLS_CC ) ){
+						zend_error(E_USER_WARNING,"onconnect call_user_function fail");
+					}
+				}
+				zend_catch{
+					zend_printf("php syntax error\r\n");
+				}
+				zend_end_try();
+
+				//释放资源
+				zval_ptr_dtor(&retval_ptr);
+				zval_ptr_dtor(&params[0]);
+				zval_ptr_dtor(&params[1]);
+				zval_ptr_dtor(&params[2]);
+				zval_ptr_dtor(&params[3]);
+				zval_ptr_dtor(&params[4]);
+						  
+			}
+			break;
+			case WM_ONSEND:{
+				//zend_printf("onsend\r\n");
+					//GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
+					//zend_printf("size-onsend:%d\r\n",pmc.WorkingSetSize-msg->size);	   
+			}break;
+			//目前暂时没有用到 先留着
+			case WM_ACCEPT_ERROR:
+			{
+				//zend_printf("onaccepterror\r\n");
+				//zend_printf("accept error\r\n");
+				//GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
+				//zend_printf("size-accepterror:%d\r\n",pmc.WorkingSetSize-msg->size);	
+			}
+			break;
+			//收到消息
+			case WM_ONRECV:
+			{
+				
+				//zend_printf("===================================onrecv===================================\r\n");	
+				///
+				RECV_MSG *temp = (RECV_MSG*)msg->lparam;
+				SOCKET client = (SOCKET)msg->wparam;
+
+				zval *params[2] = {0};
+				zval *retval_ptr = NULL;
+
+				MAKE_STD_ZVAL(params[0]);
+				MAKE_STD_ZVAL(params[1]);
+				MAKE_STD_ZVAL(retval_ptr);
+
+				ZVAL_LONG(params[0],(long)client);
+				ZVAL_STRINGL(params[1],temp->msg,temp->len,1);
+
+				zend_try{
+					if( SUCCESS != call_user_function(EG(function_table),NULL,onreceive,retval_ptr,2,params TSRMLS_CC) ){
+						zend_error(E_USER_WARNING,"onreceive call_user_function fail");
+					}
+				}
+				zend_catch{
+					zend_printf("php syntax error\r\n");
+				}
+				zend_end_try();
+
+				zval_ptr_dtor(&retval_ptr);
+				zval_ptr_dtor(&params[0]);
+				zval_ptr_dtor(&params[1]);
+
+				delete[] temp->msg;
+				temp->msg = NULL;
+
+				delete temp;
+				temp = NULL;
+			}
+			break;
+			//调用 _close_socket 服务端主动关闭socket
+			case WM_ONCLOSE_EX:{
+				//zend_printf("===================================onclose ex===================================\r\n");	
+
+				unsigned long socket_to_close = (unsigned long)msg->wparam;
+				MYOVERLAPPED *lpol = (MYOVERLAPPED *)wing_get_from_sockets_map(socket_to_close);
+				wing_socket_on_close(lpol);
+			}break;
+			
+			//客户端掉线了
+			case WM_ONCLOSE:
+			{
+				//zend_printf("===================================onclose===================================\r\n");	
+				
+				//那个客户端掉线了
+				SOCKET client =(SOCKET)msg->wparam;
+
+				zval *params = NULL;
+				zval *retval_ptr = NULL;
+
+				MAKE_STD_ZVAL(params);
+				ZVAL_LONG(params,(long)client);
+				MAKE_STD_ZVAL(retval_ptr);
+	 
+				zend_try{
+					if( SUCCESS != call_user_function(EG(function_table),NULL,onclose,retval_ptr,1,&params TSRMLS_CC ) ){
+						zend_error(E_USER_WARNING,"WM_ONCLOSE call_user_function fail\r\n");
+					}
+				}
+				zend_catch{
+					zend_printf("php syntax error\r\n");
+				}
+				zend_end_try();
+							 
+				zval_ptr_dtor(&retval_ptr);
+				zval_ptr_dtor(&params);
+
+			}
+			break; 
+			//发生错误 目前暂时也还没有用到
+			case WM_ONERROR:{
+				
+				//zend_printf("===============onerror===============r\n");	
+				zval *params[3] = {0};
+				zval *retval_ptr = NULL;
+
+				MAKE_STD_ZVAL(params[0]);
+				MAKE_STD_ZVAL(params[1]);
+				MAKE_STD_ZVAL(params[2]);
+
+				ZVAL_LONG(params[0],(long)msg->eparam);//发生错误的socket
+				ZVAL_LONG(params[1],(long)msg->wparam);//自定义错误编码
+				ZVAL_LONG(params[2],(long)msg->lparam);//WSAGetLasterror 错误码
+
+				MAKE_STD_ZVAL(retval_ptr);
+				
+				zend_try{
+					if( SUCCESS != call_user_function(EG(function_table),NULL,onerror,retval_ptr,3,params TSRMLS_CC ) ){
+						zend_error(E_USER_WARNING,"onerror call_user_function fail");
+					}	
+				}
+				zend_catch{
+					zend_printf("php syntax error\r\n");
+				}
+				zend_end_try();
+
+				zval_ptr_dtor(&retval_ptr);
+				zval_ptr_dtor(&params[0]);
+				zval_ptr_dtor(&params[1]);
+				zval_ptr_dtor(&params[2]);	
+			}
+			break;
+			//退出服务 暂时没有测试
+			case WM_ONQUIT:
+			{
+				//析构函数
+				wing_msg_queue_clear();
+				
+				delete msg;
+				msg = NULL;
+
+				RETURN_LONG(WING_SUCCESS);
+				return;
+			}break;
+
+		}
+
+		delete msg;
+		msg = NULL;  
+    } 
+	wing_socket_clear();
+	RETURN_LONG( WING_SUCCESS );
 }
 
 static zend_function_entry wing_server_method[]={
