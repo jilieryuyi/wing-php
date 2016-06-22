@@ -1350,6 +1350,14 @@ ZEND_METHOD(wing_server,on){
 	zend_update_property(wing_server_ce,getThis(),Z_STRVAL_P(pro),Z_STRLEN_P(pro),callback TSRMLS_CC);
 }
 
+
+int wing_is_call_able(zval **var TSRMLS_DC){
+	 char *error;
+	bool is_call_able = zend_is_callable_ex(*var, NULL, 0, NULL, NULL, NULL, &error TSRMLS_CC);
+	if(error)efree(error);
+	return is_call_able?1:0;
+}
+
 ZEND_METHOD(wing_server,start){
 	//启动服务
 	zval *onreceive = NULL;
@@ -1435,11 +1443,12 @@ ZEND_METHOD(wing_server,start){
 				MAKE_STD_ZVAL(retval_ptr);
 				
 				zend_try{
-					if( Z_TYPE_P(onconnect)  != IS_NULL){
-					//通过回调 把相关信息传回给php
-					if( SUCCESS != call_user_function(EG(function_table),NULL,onconnect,retval_ptr,1,&wing_client TSRMLS_CC ) ){
-						zend_error(E_USER_WARNING,"onconnect call_user_function fail");
-					}
+					
+					if( wing_is_call_able(&onconnect TSRMLS_CC) ){
+						//通过回调 把相关信息传回给php
+						if( SUCCESS != call_user_function(EG(function_table),NULL,onconnect,retval_ptr,1,&wing_client TSRMLS_CC ) ){
+							zend_error(E_USER_WARNING,"onconnect call_user_function fail");
+						}
 					}
 				}
 				zend_catch{
@@ -1503,10 +1512,10 @@ ZEND_METHOD(wing_server,start){
 				ZVAL_STRING(params[1],recv_msg,1);
 
 				zend_try{
-					if( Z_TYPE_P(onreceive)  != IS_NULL){
-					if( SUCCESS != call_user_function(EG(function_table),NULL,onreceive,retval_ptr,2,params TSRMLS_CC) ){
-						zend_error(E_USER_WARNING,"onreceive call_user_function fail");
-					}
+					if( wing_is_call_able(&onreceive TSRMLS_CC) ){
+						if( SUCCESS != call_user_function(EG(function_table),NULL,onreceive,retval_ptr,2,params TSRMLS_CC) ){
+							zend_error(E_USER_WARNING,"onreceive call_user_function fail");
+						}
 					}
 				}
 				zend_catch{
@@ -1569,10 +1578,10 @@ ZEND_METHOD(wing_server,start){
 				MAKE_STD_ZVAL(retval_ptr);
 	 
 				zend_try{
-					if( Z_TYPE_P(onclose)  != IS_NULL){
-					if( SUCCESS != call_user_function(EG(function_table),NULL,onclose,retval_ptr,1,&wing_client TSRMLS_CC ) ){
-						zend_error(E_USER_WARNING,"WM_ONCLOSE call_user_function fail\r\n");
-					}
+					if( wing_is_call_able(&onclose TSRMLS_CC) ){
+						if( SUCCESS != call_user_function(EG(function_table),NULL,onclose,retval_ptr,1,&wing_client TSRMLS_CC ) ){
+							zend_error(E_USER_WARNING,"WM_ONCLOSE call_user_function fail\r\n");
+						}
 					}
 				}
 				zend_catch{
@@ -1627,7 +1636,7 @@ ZEND_METHOD(wing_server,start){
 				MAKE_STD_ZVAL(retval_ptr);
 				
 				zend_try{
-					if( Z_TYPE_P(onerror) != IS_NULL){
+					if( wing_is_call_able(&onerror TSRMLS_CC) ){
 						if( SUCCESS != call_user_function(EG(function_table),NULL,onerror,retval_ptr,3,params TSRMLS_CC ) ){
 							zend_error(E_USER_WARNING,"onerror call_user_function fail");
 						}

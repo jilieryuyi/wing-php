@@ -5,12 +5,13 @@
  * @email 297341015@qq.com
  * @tcp--> http服务器
  */
-$server = new wing_server("0.0.0.0",9998,10000,0);
-$server->on("onreceive",function($client,$recv_msg){
+$server = new wing_server( "0.0.0.0" , 9998 , 10000 , 0 );
+$server->on( "onreceive" , function( $client , $recv_msg ){
 
     echo "recv from:",$client->socket,"=>",$recv_msg,"\r\n";
-    $response_content = "hello from wing php";
-    $headers = [
+
+    $response_content   = "hello from wing php";
+    $headers            = [
         "HTTP/1.1 200 OK",
         "Connection: Close",
         "Server: wing php ".WING_VERSION,
