@@ -1,4 +1,4 @@
-﻿生成启动时间为 2016/6/22 19:52:37。
+﻿生成启动时间为 2016/6/22 20:14:37。
      1>项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\wing.vcxproj”在节点 2 上(Build 个目标)。
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I"D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\zxing\cli\src" /I"D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\zxing\core\src\\" /I..\.. /I..\..\main /I..\..\Zend /I..\..\..\bindlib_w32 /I..\..\TSRM /I"C:\Program Files (x86)\Visual Leak Detector\include" /Zi /nologo /W3 /WX- /O2 /Oy- /D ZEND_DEBUG=1 /D WIN32 /D NDEBUG /D _WINDOWS /D _USRDLL /D WING_EXPORTS /D COMPILE_DL_WING /D ZTS=1 /D ZEND_WIN32 /D PHP_WIN32 /D HAVE_WING=1 /D _VC80_UPGRADE=0x0600 /D _WINDLL /D _MBCS /GF /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo".\Debug_TS\\" /Fd".\Debug_TS\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt wing.c
@@ -17,4 +17,4 @@
 
 生成成功。
 
-已用时间 00:00:01.04
+已用时间 00:00:01.09

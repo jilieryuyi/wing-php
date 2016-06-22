@@ -3,12 +3,12 @@
  * @author yuyi
  * @created 2016/6/22 7:31
  * @email 297341015@qq.com
- * @tcp 服务器
+ * @tcp--> http服务器
  */
-$server = new wing_server("0.0.0.0",9998,10000);
-$server->on("onreceive",function($client,$recv_meg){
+$server = new wing_server("0.0.0.0",9998,10000,0);
+$server->on("onreceive",function($client,$recv_msg){
 
-    echo "recv from:",$client->socket,"=>",$recv_meg,"\r\n";
+    echo "recv from:",$client->socket,"=>",$recv_msg,"\r\n";
     $response_content = "hello from wing php";
     $headers = [
         "HTTP/1.1 200 OK",

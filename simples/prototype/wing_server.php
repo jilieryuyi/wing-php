@@ -15,6 +15,10 @@ class wing_server{
     private $port=6998;
     private $listen="0.0.0.0";
     private $max_connect = 1000;
+    public function __construct($listen_ip='0.0.0.0',$port=6998,$max_connect=1000,$timeout=0)
+    {
+    }
+
     //注册回调事件
     public function on($event,$callback){}
     //启动服务

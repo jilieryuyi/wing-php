@@ -1327,15 +1327,20 @@ zend_class_entry *wing_server_ce;
 ZEND_METHOD(wing_server,__construct){
 	//构造方法 ip 端口 最大连接数
 	zval *listen = NULL;
+	MAKE_STD_ZVAL(listen);
+	ZVAL_STRING(listen,"0.0.0.0",1);
+
 	int port = 6998;
 	int max_connect = 1000;
+	int timeout = 0;
 
-	if( SUCCESS != zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"|zll",&listen,&port,&max_connect)){
+	if( SUCCESS != zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"|zlll",&listen,&port,&max_connect,&timeout)){
 	
 	}
 	zend_update_property_string(wing_server_ce,getThis(),"listen",strlen("listen"),Z_STRVAL_P(listen) TSRMLS_CC);
 	zend_update_property_long(wing_server_ce,getThis(),"port",strlen("port"),port TSRMLS_CC);
 	zend_update_property_long(wing_server_ce,getThis(),"max_connect",strlen("max_connect"),max_connect TSRMLS_CC);
+	zend_update_property_long(wing_server_ce,getThis(),"timeout",strlen("timeout"),timeout TSRMLS_CC);
 }
 ZEND_METHOD(wing_server,on){
 	zval *pro = NULL;
@@ -1374,6 +1379,9 @@ ZEND_METHOD(wing_server,start){
 
 	zval *_max_connect	= zend_read_property(wing_server_ce,getThis(),"max_connect",strlen("max_connect"),0 TSRMLS_CC);
 	max_connect = Z_LVAL_P(_max_connect);
+
+	zval *_timeout =  zend_read_property(wing_server_ce,getThis(),"timeout",strlen("timeout"),0 TSRMLS_CC);
+	timeout = Z_LVAL_P(_timeout);
 
 	//初始化消息队列
 	wing_msg_queue_init();  
@@ -1727,6 +1735,7 @@ PHP_MINIT_FUNCTION(wing)
 	zend_declare_property_long(wing_server_ce,"port",     strlen("port"), 6998,  ZEND_ACC_PRIVATE TSRMLS_CC);
 	zend_declare_property_string(wing_server_ce,"listen",   strlen("listen"),"0.0.0.0",ZEND_ACC_PRIVATE TSRMLS_CC);
 	zend_declare_property_long(wing_server_ce,"max_connect",strlen("max_connect"),1000,ZEND_ACC_PRIVATE TSRMLS_CC);
+	zend_declare_property_long(wing_server_ce,"timeout",strlen("timeout"),0,ZEND_ACC_PRIVATE TSRMLS_CC);
 
 
 	//注册常量或者类等初始化操作
