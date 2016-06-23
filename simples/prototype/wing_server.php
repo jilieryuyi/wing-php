@@ -16,8 +16,8 @@ class wing_server{
     private $listen="0.0.0.0";
     private $max_connect = 1000;
     public function __construct(
-        $listen_ip='0.0.0.0',
-        $port=6998,
+        $listen_ip,
+        $port,
         $max_connect=1000,
         $timeout=0/*发送和接收数据的超时时间*/
     )

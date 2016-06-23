@@ -1327,14 +1327,14 @@ zend_class_entry *wing_server_ce;
 ZEND_METHOD(wing_server,__construct){
 	//构造方法 ip 端口 最大连接数
 	zval *listen = NULL;
-	MAKE_STD_ZVAL(listen);
-	ZVAL_STRING(listen,"0.0.0.0",1);
+	//MAKE_STD_ZVAL(listen);
+	//ZVAL_STRING(listen,"0.0.0.0",1);
 
 	int port = 6998;
 	int max_connect = 1000;
 	int timeout = 0;
 
-	if( SUCCESS != zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"|zlll",&listen,&port,&max_connect,&timeout)){
+	if( SUCCESS != zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"zl|ll",&listen,&port,&max_connect,&timeout)){
 	
 	}
 	zend_update_property_string(wing_server_ce,getThis(),"listen",strlen("listen"),Z_STRVAL_P(listen) TSRMLS_CC);
