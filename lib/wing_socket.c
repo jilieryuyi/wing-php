@@ -124,25 +124,16 @@ void wing_socket_on_accept(MYOVERLAPPED* &pMyOL){
 		::setsockopt(pMyOL->m_skClient, SOL_SOCKET,SO_RCVTIMEO, (const char*)&pMyOL->m_timeout,sizeof(pMyOL->m_timeout));
 	}
 
+
+	//设置keep alive 用于异常掉线检测
 	int Opt = 1;  
 	DWORD dw;
-	tcp_keepalive live,liveout;     
-	live.keepaliveinterval=1000;      
-	live.keepalivetime=3000; //勘误  1分钟是 60000 以此类推     
-	live.onoff=TRUE;     
+	tcp_keepalive live;     
+	live.keepaliveinterval = 1000;      
+	live.keepalivetime = 3000; //勘误  1分钟是 60000 以此类推     
+	live.onoff = TRUE;     
 	setsockopt(pMyOL->m_skClient,SOL_SOCKET,SO_KEEPALIVE,(char *)&Opt,sizeof(Opt));   
 	WSAIoctl(pMyOL->m_skClient,SIO_KEEPALIVE_VALS,&live,sizeof(live),NULL,0,&dw,&pMyOL->m_ol,NULL);
-
-
-/*
-int keepAlive = 1;   // 开启keepalive属性. 缺省值: 0(关闭)  
-int keepIdle = 60;   // 如果在60秒内没有任何数据交互,则进行探测. 缺省值:7200(s)  
-int keepInterval = 5;   // 探测时发探测包的时间间隔为5秒. 缺省值:75(s)  
-int keepCount = 2;   // 探测重试的次数. 全部超时则认定连接失效..缺省值:9(次)  
-setsockopt(pMyOL->m_skClient, SOL_SOCKET, SO_KEEPALIVE, (void*)&keepAlive, sizeof(keepAlive));  
-setsockopt(pMyOL->m_skClient, SOL_TCP, TCP_KEEPIDLE, (void*)&keepIdle, sizeof(keepIdle));  
-setsockopt(pMyOL->m_skClient, SOL_TCP, TCP_KEEPINTVL, (void*)&keepInterval, sizeof(keepInterval));  
-setsockopt(pMyOL->m_skClient, SOL_TCP, TCP_KEEPCNT, (void*)&keepCount, sizeof(keepCount));  */
 
 
 
