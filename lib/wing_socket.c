@@ -372,17 +372,6 @@ SOCKET wing_socket_init(const char *listen_ip,const int port,const int max_conne
 		return INVALID_SOCKET;
 	}
 
-
-	
-	
-	/*tcp_keepalive live,liveout;     
-	live.keepaliveinterval=1;      
-	live.keepalivetime=3000; //勘误  1分钟是 60000 以此类推     
-	live.onoff=TRUE;     
-	int iRet = setsockopt(m_sockListen,SOL_SOCKET,SO_KEEPALIVE,(char *)&Opt,sizeof(Opt));   
-	WSAIoctl(m_sockListen,SIO_KEEPALIVE_VALS,&live,sizeof(live),&liveout,sizeof(liveout),&dw,NULL,NULL);*/
-
-
 	//设置 SO_REUSEADDR 
 	BOOL bReuse = TRUE;
 	BOOL bind_status = ::BindIoCompletionCallback((HANDLE)m_sockListen,wing_icop_thread, 0);
@@ -455,10 +444,6 @@ SOCKET wing_socket_init(const char *listen_ip,const int port,const int max_conne
 		pMyOL->m_skClient	= client;
 		pMyOL->m_timeout	= timeout;
 		pMyOL->m_isUsed     = WING_SOCKET_IS_SLEEP;
-
-  
-
-		
 
 		int server_size = sizeof(pMyOL->m_addrServer);  
 		ZeroMemory(&pMyOL->m_addrServer,server_size);
