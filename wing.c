@@ -1416,7 +1416,11 @@ ZEND_METHOD(wing_server,start){
 
 		//根据消息ID进行不同的处理
 		switch(msg->message_id){
-			
+			case WM_THREAD_RUN:
+			{
+				zend_printf("thread run %ld last error %ld\r\n",msg->wparam,msg->lparam);
+			}
+			break;
 			case WM_ONCONNECT:
 			{
 				//zend_printf("===================================new connect===================================\r\n");

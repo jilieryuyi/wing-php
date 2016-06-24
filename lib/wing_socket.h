@@ -42,6 +42,7 @@
 #define WM_ONQUIT           WM_USER+65
 #define WM_ONCLOSE_EX		WM_USER+66
 #define WM_ONSEND			WM_USER+67
+#define WM_THREAD_RUN		WM_USER+71
 
 //测试消息
 #define WM_TEST				WM_USER+68
@@ -53,6 +54,7 @@
 #define WING_ERROR_ACCEPT		-4002
 #define WING_ERROR_MALLOC		-4003
 #define WING_BAD_ERROR			-4
+#define WING_ERROR_KEEP_ALIVE	-4004
 
 
 #define WING_SOCKET_IS_ALIVE 1 //标记socket是否激活状态

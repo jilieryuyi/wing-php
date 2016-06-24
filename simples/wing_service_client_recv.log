@@ -1,0 +1,42 @@
+HTTP/1.1 200 OK
+
+
+Connection: Close
+
+
+Server: wing php 1.0.3
+
+
+Date: Thu,23 Jun 2016 21:06:12 GMT
+
+
+Content-Type: text/html
+
+
+Content-Length: 19
+
+
+
+
+
+HTTP/1.1 200 OK
+
+
+Connection: Close
+
+
+Server: wing php 1.0.3
+
+
+Date: Thu,23 Jun 2016 21:06:25 GMT
+
+
+Content-Type: text/html
+
+
+Content-Length: 19
+
+
+
+
+

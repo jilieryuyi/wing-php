@@ -124,6 +124,28 @@ void wing_socket_on_accept(MYOVERLAPPED* &pMyOL){
 		::setsockopt(pMyOL->m_skClient, SOL_SOCKET,SO_RCVTIMEO, (const char*)&pMyOL->m_timeout,sizeof(pMyOL->m_timeout));
 	}
 
+	int Opt = 1;  
+	DWORD dw;
+	tcp_keepalive live,liveout;     
+	live.keepaliveinterval=1000;      
+	live.keepalivetime=3000; //勘误  1分钟是 60000 以此类推     
+	live.onoff=TRUE;     
+	setsockopt(pMyOL->m_skClient,SOL_SOCKET,SO_KEEPALIVE,(char *)&Opt,sizeof(Opt));   
+	WSAIoctl(pMyOL->m_skClient,SIO_KEEPALIVE_VALS,&live,sizeof(live),NULL,0,&dw,&pMyOL->m_ol,NULL);
+
+
+/*
+int keepAlive = 1;   // 开启keepalive属性. 缺省值: 0(关闭)  
+int keepIdle = 60;   // 如果在60秒内没有任何数据交互,则进行探测. 缺省值:7200(s)  
+int keepInterval = 5;   // 探测时发探测包的时间间隔为5秒. 缺省值:75(s)  
+int keepCount = 2;   // 探测重试的次数. 全部超时则认定连接失效..缺省值:9(次)  
+setsockopt(pMyOL->m_skClient, SOL_SOCKET, SO_KEEPALIVE, (void*)&keepAlive, sizeof(keepAlive));  
+setsockopt(pMyOL->m_skClient, SOL_TCP, TCP_KEEPIDLE, (void*)&keepIdle, sizeof(keepIdle));  
+setsockopt(pMyOL->m_skClient, SOL_TCP, TCP_KEEPINTVL, (void*)&keepInterval, sizeof(keepInterval));  
+setsockopt(pMyOL->m_skClient, SOL_TCP, TCP_KEEPCNT, (void*)&keepCount, sizeof(keepCount));  */
+
+
+
 	linger so_linger;
 	so_linger.l_onoff = TRUE;
 	so_linger.l_linger = 0; //拒绝close wait状态
@@ -280,15 +302,20 @@ void wing_socket_on_close(MYOVERLAPPED*  &pMyOL){
 //iocp工作线程
 VOID CALLBACK wing_icop_thread(DWORD dwErrorCode,DWORD dwBytesTrans,LPOVERLAPPED lpOverlapped)
 {
+	int error_code = WSAGetLastError();
 	//IOCP回调函数
 	if( NULL == lpOverlapped )
 	{
+		wing_post_queue_msg(WM_THREAD_RUN,dwErrorCode,error_code);
 		//没有真正的完成
 		SleepEx(20,TRUE);//故意置成可警告状态
 		return;
 	}
 
-	int error_code = WSAGetLastError();
+	
+
+	
+	wing_post_queue_msg(WM_THREAD_RUN,dwErrorCode,error_code);
 	//这里还原ovl
 	MYOVERLAPPED*  pOL = CONTAINING_RECORD(lpOverlapped, MYOVERLAPPED, m_ol);
 
@@ -353,6 +380,17 @@ SOCKET wing_socket_init(const char *listen_ip,const int port,const int max_conne
 		WSACleanup();
 		return INVALID_SOCKET;
 	}
+
+
+	
+	
+	/*tcp_keepalive live,liveout;     
+	live.keepaliveinterval=1;      
+	live.keepalivetime=3000; //勘误  1分钟是 60000 以此类推     
+	live.onoff=TRUE;     
+	int iRet = setsockopt(m_sockListen,SOL_SOCKET,SO_KEEPALIVE,(char *)&Opt,sizeof(Opt));   
+	WSAIoctl(m_sockListen,SIO_KEEPALIVE_VALS,&live,sizeof(live),&liveout,sizeof(liveout),&dw,NULL,NULL);*/
+
 
 	//设置 SO_REUSEADDR 
 	BOOL bReuse = TRUE;
@@ -426,6 +464,10 @@ SOCKET wing_socket_init(const char *listen_ip,const int port,const int max_conne
 		pMyOL->m_skClient	= client;
 		pMyOL->m_timeout	= timeout;
 		pMyOL->m_isUsed     = WING_SOCKET_IS_SLEEP;
+
+  
+
+		
 
 		int server_size = sizeof(pMyOL->m_addrServer);  
 		ZeroMemory(&pMyOL->m_addrServer,server_size);
