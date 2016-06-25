@@ -26,6 +26,8 @@
     $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 //连接服务器端socket
     $connection = socket_connect($socket, '127.0.0.1', 9998);
+
+    sleep(60);
     socket_write($socket, "$send_data\n");
 
      //echo $c,"\n";

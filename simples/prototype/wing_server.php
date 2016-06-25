@@ -15,11 +15,14 @@ class wing_server{
     private $port=6998;
     private $listen="0.0.0.0";
     private $max_connect = 1000;
+    private $active_timeout = 0;
     public function __construct(
         $listen_ip,
         $port,
-        $max_connect=1000,
-        $timeout=0/*发送和接收数据的超时时间*/
+        $max_connect = 1000,
+        $timeout = 0 ,        //发送和接收数据的超时时间 单位为毫秒 0为永不超时
+        $active_timeout = 0 , //检测很长时间没有活动的 socket 多长时间没有活动提醒 单位毫秒 0为永不超时 ontimeout事件
+        $tick = 0             //时钟 如果启用 请设置大于零的值 如1000 毫秒 表示 1秒提醒一次 ontick事件
     )
     {
     }

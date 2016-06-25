@@ -1,7 +1,7 @@
 #include <iostream>
 #include <hash_map>
 using namespace std;
-
+/*
 hash_map<unsigned long,unsigned long> wing_sockets_hash_map;
 
 void wing_add_to_sockets_map(unsigned long socket,unsigned long ovl){
@@ -25,4 +25,4 @@ unsigned int wing_get_sockets_map_size(){
 
 hash_map<unsigned long,unsigned long> wing_get_sockets_map(){
 	return wing_sockets_hash_map;
-}
+}*/

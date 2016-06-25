@@ -2,8 +2,71 @@
 #include "wing_msg_queue.h"
 #include "synchapi.h"
 #include "time.h"
+#include <iostream>
+#include <hash_map>
 
+using namespace std;
 SOCKET m_sockListen;//服务socket
+hash_map<unsigned long,unsigned long> wing_sockets_hash_map;
+
+void wing_add_to_sockets_map(unsigned long socket,unsigned long ovl){
+	if( socket <=0 || ovl<=0 ) return;
+	wing_sockets_hash_map[socket] = ovl;
+}
+
+unsigned long wing_get_from_sockets_map(unsigned long socket){
+	if( wing_sockets_hash_map.find(socket) == wing_sockets_hash_map.end() ) return 0;
+	return wing_sockets_hash_map[socket];
+}
+
+void wing_remove_from_sockets_map(unsigned long socket){
+	if( socket <=0 ) return;
+	wing_sockets_hash_map.erase(socket);
+}
+
+unsigned int wing_get_sockets_map_size(){
+	return wing_sockets_hash_map.size();
+}
+
+hash_map<unsigned long,unsigned long> wing_get_sockets_map(){
+	return wing_sockets_hash_map;
+}
+
+void wing_sockets_check_active_timeout(int timeout)
+{
+	if( timeout<=0 || wing_sockets_hash_map.size()<=0 ) {
+		//printf("timeout value 0\r\n");
+		return ;
+	}
+	hash_map<unsigned long,unsigned long>::iterator item;
+	for( item = wing_sockets_hash_map.begin(); item != wing_sockets_hash_map.end(); item++ )
+	{
+		wing_myoverlapped *ovl = (wing_myoverlapped*)item->second;
+		//printf("bumanzu socket=%ld m_isUsed=%ld  m_active=%ld  timeout=%ld  timelen=%ld\r\n",ovl->m_skClient,ovl->m_isUsed,ovl->m_active,timeout,(time(NULL) - ovl->m_active) );
+
+		if( ovl->m_isUsed == WING_SOCKET_IS_ALIVE && ovl->m_active > 0 && (time(NULL) - ovl->m_active) > timeout && ovl )
+		{
+			wing_post_queue_msg( WM_TIMEOUT, 0, (unsigned long)ovl );
+		}else {
+			
+		}
+	}
+}
+
+
+//socket 活动超时检测
+//有些socket很长时间没有活动了 可以考虑清理掉
+unsigned int __stdcall wing_socket_check_active_timeout(PVOID params)  
+{
+	int timeout = *(int*)params;
+	//做些什么
+	while(true) 
+	{
+		wing_sockets_check_active_timeout(timeout);
+		Sleep(2000);
+	}
+	return 0;
+}
 
 /*********************************************************************
  * @ post 队列消息
@@ -177,10 +240,10 @@ void wing_socket_on_accept(MYOVERLAPPED* &pMyOL){
 	pMyOL->m_isUsed = WING_SOCKET_IS_ALIVE;
 	pMyOL->m_active = time(NULL);
 	
-	setsockopt(pMyOL->m_skClient, SOL_SOCKET,SO_UPDATE_ACCEPT_CONTEXT,(const char *)&pMyOL->m_skServer,sizeof(pMyOL->m_skServer));
+	setsockopt( pMyOL->m_skClient, SOL_SOCKET,SO_UPDATE_ACCEPT_CONTEXT,(const char *)&pMyOL->m_skServer,sizeof(pMyOL->m_skServer) );
 
 	
-	// 设置发送、接收超时时间 
+	// 设置发送、接收超时时间 单位为毫秒
 	if( pMyOL->m_timeout > 0 )
 	{
 		setsockopt(pMyOL->m_skClient, SOL_SOCKET,SO_SNDTIMEO, (const char*)&pMyOL->m_timeout,sizeof(pMyOL->m_timeout));
@@ -208,13 +271,13 @@ void wing_socket_on_accept(MYOVERLAPPED* &pMyOL){
 	//keepalive 设置 这里有坑 还不知道怎么解 在设置keep alive以后 disconnectex 会报错，无效的句柄，(An invalid handle was specified。)
 	//多线程以及心跳检测冲突？iocp要如何设置心跳检测，未知
 	setsockopt( pMyOL->m_skClient, SOL_SOCKET, SO_KEEPALIVE, (char *)&dt,sizeof(dt) );               
-	WSAIoctl(   pMyOL->m_skClient, SIO_KEEPALIVE_VALS, &live, sizeof(live), NULL, 0, &dw, NULL , NULL );
+	WSAIoctl(   pMyOL->m_skClient, SIO_KEEPALIVE_VALS, &live, sizeof(live), NULL, 0, &dw, &pMyOL->m_ol , NULL );
 
 	//测试
 	wing_post_queue_msg( WM_ONERROR, pMyOL->m_skClient, 9999, WSAGetLastError() );
 
 	//post onconnect 队列消息
-	wing_post_queue_msg(WM_ONCONNECT, pMyOL->m_skClient,0);
+	wing_post_queue_msg(WM_ONCONNECT, pMyOL->m_skClient, (unsigned long)pMyOL );
 	//投递一次 recv
 	if( !wing_socket_post_recv( pMyOL ) )
 	{
@@ -257,8 +320,9 @@ void wing_socket_on_recv(MYOVERLAPPED*  &pOL){
  *****************************************************************/
 void wing_socket_on_close( MYOVERLAPPED*  &pMyOL )
 {
+	//if( !pMyOL || !pMyOL->m_skClient ) return;
 	//发送掉线事件
-	wing_post_queue_msg( WM_ONCLOSE , pMyOL->m_skClient );
+	wing_post_queue_msg( WM_ONCLOSE , pMyOL->m_skClient , (unsigned long) pMyOL);
 
 	//socket回收
 	WingDisconnectEx( pMyOL->m_skClient , &pMyOL->m_ol , TF_REUSE_SOCKET , 0 );
@@ -273,83 +337,117 @@ void wing_socket_on_close( MYOVERLAPPED*  &pMyOL )
 	int last_error = WSAGetLastError() ;
 
 	unsigned long w_client = (unsigned long)pMyOL->m_skClient;
+	SOCKET s_server = pMyOL->m_skServer;
+	int timeout = pMyOL->m_timeout;
 	
 	if( !error_code && ERROR_IO_PENDING != last_error )
 	{
-		
+		////如果发生错误应该要有增补方案 否则到最后可用socket为0了就不好了
+		//触发onerror 会新建一个 socket 然后重用 pMyOL 所以 pMyOL不要删除
+		wing_post_queue_msg(WM_ONERROR,w_client,WING_ERROR_ACCEPT, WSAGetLastError());
+		//wing_post_queue_msg(WM_ADD_CLIENT,0,(unsigned long)pMyOL);
 		//如果socket发生了错误 并且是可用的socket
 		if( INVALID_SOCKET != pMyOL->m_skClient ) 
 		{
+			wing_remove_from_sockets_map( (unsigned long)pMyOL->m_skClient );
 			//关掉这个错误的socket
 			closesocket(pMyOL->m_skClient);
+			delete pMyOL;
 			
 			//创建一个新的socket
 			SOCKET new_client   = WSASocket(AF_INET,SOCK_STREAM,IPPROTO_TCP,0,0,WSA_FLAG_OVERLAPPED);
-				
-			//如果创建的新的socket可用
-			if( INVALID_SOCKET != new_client ) 
-			{	
-				//如果绑定完成端口错误
-				if( !BindIoCompletionCallback((HANDLE)new_client ,wing_icop_thread,0) )
-				{
-					//将老的socket 从关系映射中移除
-					wing_remove_from_sockets_map((unsigned long)w_client);
-					//关闭刚才创建的新的socket
-					closesocket(new_client);
-					new_client = INVALID_SOCKET;
-					//清理资源
-					delete pMyOL;
-					pMyOL = NULL; 
-					wing_post_queue_msg(WM_ONERROR,w_client,WING_ERROR_ACCEPT,last_error);
-					return;
-				}
-				else
-				{
-					//如果绑定iocp成功		
-					pMyOL->m_skClient = new_client;
-
-					int error_code = WingAcceptEx(pMyOL->m_skServer,pMyOL->m_skClient,pMyOL->m_pBuf,0,sizeof(SOCKADDR_IN)+16,sizeof(SOCKADDR_IN)+16,NULL, (LPOVERLAPPED)pMyOL);
-					int last_error = WSAGetLastError() ;
-					
-					//如果acceptex错误 啊！好复杂有木有 感谢掉进了死循环
-					if( !error_code && ERROR_IO_PENDING != last_error ){
-						
-						//将老的socket从关系映射移除
-						wing_remove_from_sockets_map((unsigned long)w_client);
-						//关闭掉新的socket
-						closesocket(new_client);
-						new_client = pMyOL->m_skClient = INVALID_SOCKET;
-						//清理资源
-						delete pMyOL;
-						pMyOL = NULL; 
-						wing_post_queue_msg(WM_ONERROR,w_client,WING_ERROR_ACCEPT,last_error);
-						return;
-
-					}else{
-						//如果没错误 添加到map映射 后面需要使用
-						wing_add_to_sockets_map( (unsigned long)new_client, (unsigned long)pMyOL );
-						wing_remove_from_sockets_map( (unsigned long)w_client );
-					}
-				}
+			BindIoCompletionCallback((HANDLE)new_client ,wing_icop_thread,0);
+			
+			pMyOL = new wing_myoverlapped();
+			if( !pMyOL ) {
+				wing_post_queue_msg(WM_ONERROR,new_client,WING_BAD_ERROR, WSAGetLastError());
+				exit(0);
 			}
-			else
+
+			DWORD dwBytes = 0;
+			ZeroMemory(pMyOL,sizeof(wing_myoverlapped));
+		
+			pMyOL->m_iOpType	= OPE_ACCEPT;
+			pMyOL->m_skServer	= s_server;
+			pMyOL->m_skClient	= new_client;
+			pMyOL->m_timeout	= timeout;
+			pMyOL->m_isUsed     = WING_SOCKET_IS_SLEEP;
+			pMyOL->m_active     = 0; 
+
+			int server_size = sizeof(pMyOL->m_addrServer);  
+			ZeroMemory(&pMyOL->m_addrServer,server_size);
+			getpeername(pMyOL->m_skServer,(SOCKADDR *)&pMyOL->m_addrServer,&server_size);  
+
+			int error_code = WingAcceptEx( m_sockListen,pMyOL->m_skClient,pMyOL->m_pBuf,0,sizeof(SOCKADDR_IN)+16,sizeof(SOCKADDR_IN)+16,NULL, (LPOVERLAPPED)pMyOL );
+			int last_error = WSAGetLastError() ;
+			if( !error_code && ERROR_IO_PENDING != last_error )
 			{
-				wing_remove_from_sockets_map((unsigned long)w_client);
+			
+				closesocket( new_client );
+				new_client = pMyOL->m_skClient = INVALID_SOCKET;
 				delete pMyOL;
 				pMyOL = NULL; 
-				wing_post_queue_msg(WM_ONERROR,w_client,WING_ERROR_ACCEPT,last_error);
-				return;		
+				wing_post_queue_msg(WM_ONERROR,new_client,WING_BAD_ERROR, WSAGetLastError());
+				return;
 			}
+			//添加到hash map映射 后面需要使用
+			wing_add_to_sockets_map( (unsigned long)new_client , (unsigned long)pMyOL );
+			
 		}	
-
-		////如果发生错误应该要有增补方案 否则到最后可用socket为0了就不好了
-		//触发onerror 会新建一个 socket 然后重用 pMyOL 所以 pMyOL不要删除
-		wing_post_queue_msg(WM_ONERROR,w_client,WING_ERROR_ACCEPT,last_error);
 		return;
 	}
 
 	//注意在这个SOCKET被重新利用后，后面的再次捆绑到完成端口的操作会返回一个已设置的错误，这个错误直接被忽略即可
 	::BindIoCompletionCallback((HANDLE)pMyOL->m_skClient,wing_icop_thread, 0);
+}
+
+
+void wing_socket_add_client(wing_myoverlapped *&pMyOL){
+	wing_remove_from_sockets_map( (unsigned long)pMyOL->m_skClient );
+	SOCKET s_server = pMyOL->m_skServer;
+	int timeout = pMyOL->m_timeout;
+	//关掉这个错误的socket
+	if( INVALID_SOCKET != pMyOL->m_skClient)
+	closesocket(pMyOL->m_skClient);
+	delete pMyOL;
+	pMyOL = NULL;
+	pMyOL->m_skClient = INVALID_SOCKET;
+			
+	//创建一个新的socket
+	SOCKET new_client   = WSASocket(AF_INET,SOCK_STREAM,IPPROTO_TCP,0,0,WSA_FLAG_OVERLAPPED);
+	BindIoCompletionCallback((HANDLE)new_client ,wing_icop_thread,0);
+			
+	pMyOL = new wing_myoverlapped();
+		
+
+	DWORD dwBytes = 0;
+	ZeroMemory(pMyOL,sizeof(wing_myoverlapped));
+		
+	pMyOL->m_iOpType	= OPE_ACCEPT;
+	pMyOL->m_skServer	= s_server;
+	pMyOL->m_skClient	= new_client;
+	pMyOL->m_timeout	= timeout;
+	pMyOL->m_isUsed     = WING_SOCKET_IS_SLEEP;
+	pMyOL->m_active     = 0; 
+
+	int server_size = sizeof(pMyOL->m_addrServer);  
+	ZeroMemory(&pMyOL->m_addrServer,server_size);
+	getpeername(pMyOL->m_skServer,(SOCKADDR *)&pMyOL->m_addrServer,&server_size);  
+
+	int error_code = WingAcceptEx( m_sockListen,pMyOL->m_skClient,pMyOL->m_pBuf,0,sizeof(SOCKADDR_IN)+16,sizeof(SOCKADDR_IN)+16,NULL, (LPOVERLAPPED)pMyOL );
+	int last_error = WSAGetLastError() ;
+	if( !error_code && ERROR_IO_PENDING != last_error )
+	{
+			
+		closesocket( new_client );
+		new_client = pMyOL->m_skClient = INVALID_SOCKET;
+		delete pMyOL;
+		pMyOL = NULL; 
+		wing_post_queue_msg(WM_ONERROR,new_client,WING_BAD_ERROR, WSAGetLastError());
+		return;
+	}
+	//添加到hash map映射 后面需要使用
+	wing_add_to_sockets_map( (unsigned long)new_client , (unsigned long)pMyOL );
 }
 
 /********************************************************************************************
@@ -367,11 +465,20 @@ VOID CALLBACK wing_icop_thread(DWORD dwErrorCode,DWORD dwBytesTrans,LPOVERLAPPED
 		SleepEx(20,TRUE);//故意置成可警告状态
 		return;
 	}
-	//这句是用来调试用的，用来观察错误
-	wing_post_queue_msg(WM_THREAD_RUN,dwErrorCode,error_code);
+	
 
 	//这里还原ovl
 	wing_myoverlapped*  pOL = CONTAINING_RECORD(lpOverlapped, wing_myoverlapped, m_ol);
+	//这句是用来调试用的，用来观察错误
+	wing_post_queue_msg(WM_THREAD_RUN,dwErrorCode,error_code,(unsigned long)pOL);
+
+	if( 0 != dwErrorCode && error_code == 997 ) {
+		//shutdown(pOL->m_skClient,SD_BOTH);
+		//send(pOL->m_skClient,"0",1,0);
+		wing_socket_on_close(pOL);
+		return;
+	}
+	if( error_code == 997) return;
 
 	if( 0 != dwErrorCode ) {
 		//这里用来判断客户端掉线的
