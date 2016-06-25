@@ -472,21 +472,13 @@ VOID CALLBACK wing_icop_thread(DWORD dwErrorCode,DWORD dwBytesTrans,LPOVERLAPPED
 	//这句是用来调试用的，用来观察错误
 	wing_post_queue_msg(WM_THREAD_RUN,dwErrorCode,error_code,(unsigned long)pOL);
 
-	if( 0 != dwErrorCode && error_code == 997 ) {
-		//shutdown(pOL->m_skClient,SD_BOTH);
-		//send(pOL->m_skClient,"0",1,0);
+	if( 0 != dwErrorCode && ( 10054 == error_code || 64 == error_code || 997 == error_code) ) {
+		//这里用来判断客户端掉线的
 		wing_socket_on_close(pOL);
 		return;
 	}
-	if( error_code == 997) return;
 
-	if( 0 != dwErrorCode ) {
-		//这里用来判断客户端掉线的
-		if( 0 == dwBytesTrans || 10054 == error_code || 64 == error_code){
-			wing_socket_on_close(pOL);
-			return;
-		}
-	}
+	if( error_code == 997) return;
 	
 	switch( pOL->m_iOpType )
 	{
