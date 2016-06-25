@@ -63,18 +63,19 @@
 
 //iocp消息结构体
 struct MYOVERLAPPED{
-	OVERLAPPED	m_ol;//异步依赖
-	int			m_iOpType;//操作类型
-	SOCKET		m_skServer;//服务端socket
-	SOCKET		m_skClient;//客户端
-	DWORD		m_recvBytes;//接收的消息长度
-	char		m_pBuf[DATA_BUFSIZE];//接收消息的缓冲区
-	WSABUF		m_DataBuf; //消息缓冲
-	int			m_timeout;//设置超时
-	SOCKADDR_IN m_addrClient;//客户端实际的地址
-	SOCKADDR_IN m_addrServer;//服务端实际的地址
-	int			m_isUsed;//标志是否已被激活使用 1已被激活 0待激活
-	//LPVOID      m_client;//wing_client 对象
+	OVERLAPPED	m_ol;                          //异步依赖
+	int			m_iOpType;                     //操作类型
+	SOCKET		m_skServer;                    //服务端socket
+	SOCKET		m_skClient;                    //客户端
+	DWORD		m_recvBytes;                   //接收的消息长度
+	char		m_pBuf[DATA_BUFSIZE];          //接收消息的缓冲区
+	WSABUF		m_DataBuf;                     //消息缓冲
+	int			m_timeout;                     //设置超时
+	SOCKADDR_IN m_addrClient;                  //客户端实际的地址
+	SOCKADDR_IN m_addrServer;                  //服务端实际的地址
+	int			m_isUsed;                      //标志是否已被激活使用 1已被激活 0待激活
+	unsigned    m_active;                      //最后的活动时间
+	//LPVOID      m_client;                    //wing_client 对象
 };
 typedef SOCKET wing_socket;
 typedef MYOVERLAPPED wing_myoverlapped;

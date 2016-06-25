@@ -1,6 +1,7 @@
 #include "wing_socket.h"
 #include "wing_msg_queue.h"
 #include "synchapi.h"
+#include "time.h"
 
 SOCKET m_sockListen;//服务socket
 
@@ -30,9 +31,8 @@ void wing_post_queue_msg( int message_id,unsigned long wparam,unsigned long lpar
  *********************************************************************/
 BOOL WingLoadWSAFunc(GUID &funGuid,void* &pFun)
 {
-	//本函数利用参数返回函数指针
 	DWORD dwBytes = 0;
-	pFun = NULL;
+	pFun          = NULL;
 
 	//随便创建一个SOCKET供WSAIoctl使用 并不一定要像下面这样创建
 	SOCKET skTemp = ::WSASocket(AF_INET,SOCK_STREAM, IPPROTO_TCP, NULL,0, WSA_FLAG_OVERLAPPED);
@@ -175,6 +175,7 @@ void wing_socket_on_accept(MYOVERLAPPED* &pMyOL){
 	int lenClient	= sizeof(sockaddr_in) + 16;
 
 	pMyOL->m_isUsed = WING_SOCKET_IS_ALIVE;
+	pMyOL->m_active = time(NULL);
 	
 	setsockopt(pMyOL->m_skClient, SOL_SOCKET,SO_UPDATE_ACCEPT_CONTEXT,(const char *)&pMyOL->m_skServer,sizeof(pMyOL->m_skServer));
 
@@ -197,7 +198,7 @@ void wing_socket_on_accept(MYOVERLAPPED* &pMyOL){
 	getpeername( pMyOL->m_skClient , (SOCKADDR *)&pMyOL->m_addrClient , &client_size );  
 
 	//设置keep alive 用于异常掉线检测
-	/*int dt		= 1;
+	int dt		= 1;
 	DWORD dw	= 0;
 	tcp_keepalive live;     
 	live.keepaliveinterval	= 5000;   //连接之后 多长时间发现无活动 开始发送心跳吧 单位为毫秒 
@@ -207,7 +208,10 @@ void wing_socket_on_accept(MYOVERLAPPED* &pMyOL){
 	//keepalive 设置 这里有坑 还不知道怎么解 在设置keep alive以后 disconnectex 会报错，无效的句柄，(An invalid handle was specified。)
 	//多线程以及心跳检测冲突？iocp要如何设置心跳检测，未知
 	setsockopt( pMyOL->m_skClient, SOL_SOCKET, SO_KEEPALIVE, (char *)&dt,sizeof(dt) );               
-	WSAIoctl(   pMyOL->m_skClient, SIO_KEEPALIVE_VALS, &live, sizeof(live), NULL, 0, &dw, &pMyOL->m_ol , NULL );*/	
+	WSAIoctl(   pMyOL->m_skClient, SIO_KEEPALIVE_VALS, &live, sizeof(live), NULL, 0, &dw, NULL , NULL );
+
+	//测试
+	wing_post_queue_msg( WM_ONERROR, pMyOL->m_skClient, 9999, WSAGetLastError() );
 
 	//post onconnect 队列消息
 	wing_post_queue_msg(WM_ONCONNECT, pMyOL->m_skClient,0);
@@ -224,7 +228,7 @@ void wing_socket_on_accept(MYOVERLAPPED* &pMyOL){
  * @ 还没有完全理解此函数的运行原理以及机制
  ****************************************************/
 void wing_socket_on_send( MYOVERLAPPED*  pOL){
-
+	pOL->m_active = time(NULL);
 }
 
 /**************************************************
@@ -232,6 +236,8 @@ void wing_socket_on_send( MYOVERLAPPED*  pOL){
  **************************************************/
 void wing_socket_on_recv(MYOVERLAPPED*  &pOL){
 	
+	pOL->m_active = time(NULL);
+
 	char *recvmsg = new char[DATA_BUFSIZE];	    //构建消息
 	ZeroMemory(recvmsg,DATA_BUFSIZE);           //清零
 
@@ -257,6 +263,7 @@ void wing_socket_on_close( MYOVERLAPPED*  &pMyOL )
 	//socket回收
 	WingDisconnectEx( pMyOL->m_skClient , &pMyOL->m_ol , TF_REUSE_SOCKET , 0 );
 	
+	pMyOL->m_active     = 0;
 	pMyOL->m_iOpType	= OPE_ACCEPT;                     //AcceptEx操作
 	pMyOL->m_isUsed     = WING_SOCKET_IS_SLEEP;           //重置socket状态为休眠状态，后面会用来判断哪些socket当前是活动的
 	ZeroMemory(pMyOL->m_pBuf,sizeof(char)*DATA_BUFSIZE);  //缓冲区清零
@@ -511,6 +518,7 @@ SOCKET wing_socket_init(const char *listen_ip,const int port,const int max_conne
 		pMyOL->m_skClient	= client;
 		pMyOL->m_timeout	= timeout;
 		pMyOL->m_isUsed     = WING_SOCKET_IS_SLEEP;
+		pMyOL->m_active     = 0; 
 
 		int server_size = sizeof(pMyOL->m_addrServer);  
 		ZeroMemory(&pMyOL->m_addrServer,server_size);
