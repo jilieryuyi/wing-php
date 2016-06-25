@@ -6,13 +6,11 @@
  */
 
 
-$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-//连接服务器端socket
-$connection = socket_connect($socket, '127.0.0.1', 9998);
+
 //sleep(5);
 //$c =0;
 
-while(1)
+//while(1)
  {
 
 //exec("ab -n 20000 -c 20000 http://127.0.0.1:6998/");
@@ -25,7 +23,9 @@ while(1)
 
 //要发送到服务端的信息。
     $send_data = "1\r\n";
-
+    $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+//连接服务器端socket
+    $connection = socket_connect($socket, '127.0.0.1', 9998);
     socket_write($socket, "$send_data\n");
 
      //echo $c,"\n";

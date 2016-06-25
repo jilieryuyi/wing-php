@@ -55,6 +55,7 @@
 #define WING_ERROR_MALLOC		-4003
 #define WING_BAD_ERROR			-4
 #define WING_ERROR_KEEP_ALIVE	-4004
+#define WING_ERROR_POST_RECV    -4005
 
 
 #define WING_SOCKET_IS_ALIVE 1 //标记socket是否激活状态
@@ -75,13 +76,15 @@ struct MYOVERLAPPED{
 	int			m_isUsed;//标志是否已被激活使用 1已被激活 0待激活
 	//LPVOID      m_client;//wing_client 对象
 };
-
+typedef SOCKET wing_socket;
+typedef MYOVERLAPPED wing_myoverlapped;
+typedef LPOVERLAPPED wing_lpoverlapped;
 //消息队列传递的消息
 typedef struct{
 	long len;
 	char *msg;//[DATA_BUFSIZE+1]; 
 } RECV_MSG;
-
+typedef RECV_MSG wing_msg;
 
 //iocp 线程池 工作线程
 VOID CALLBACK wing_icop_thread(DWORD dwErrorCode,DWORD dwBytesTrans,LPOVERLAPPED lpOverlapped);
@@ -101,7 +104,7 @@ extern unsigned int		wing_get_sockets_map_size();
 //异常退出
 void   wing_socket_throw_error( int error_code );
 //服务端socket初始化
-SOCKET wing_socket_init(const char *listen_ip,const int port,const int max_connect,const int timeout);
+SOCKET wing_socket_init(const char *listen_ip,const int port,const int max_connect = 10000,const int timeout = 0);
 //socket结束后的资源清理
 void   wing_socket_clear();
 //掉线回调函数

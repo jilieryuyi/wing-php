@@ -984,7 +984,7 @@ ZEND_FUNCTION(wing_service){
 				//zend_printf("===================================onrecv===================================\r\n");	
 				///
 				RECV_MSG *temp = (RECV_MSG*)msg->lparam;
-				SOCKET client = (SOCKET)msg->wparam;
+				SOCKET client  = (SOCKET)msg->wparam;
 
 				zval *params[2] = {0};
 				zval *retval_ptr = NULL;
@@ -993,7 +993,7 @@ ZEND_FUNCTION(wing_service){
 				MAKE_STD_ZVAL(params[1]);
 				MAKE_STD_ZVAL(retval_ptr);
 
-				ZVAL_LONG(params[0],(long)client);
+				ZVAL_LONG(params[0],client);
 				ZVAL_STRINGL(params[1],temp->msg,temp->len,1);
 
 				zend_try{
@@ -1304,8 +1304,6 @@ ZEND_METHOD(wing_client,send){
 		return;
 	}
 
-	//此处没有使用完成端口 完成端口发送后 如果直接调用 socketclose 
-	//关闭socket 有坑，处理不好会有内存泄漏
 	if( SOCKET_ERROR == send((SOCKET)Z_LVAL_P(socket),Z_STRVAL_P(msg),Z_STRLEN_P(msg),0)){
 		RETURN_LONG(WING_ERROR_FAILED);
 		return;
@@ -1360,31 +1358,31 @@ int wing_is_call_able(zval **var TSRMLS_DC){
 
 ZEND_METHOD(wing_server,start){
 	//启动服务
-	zval *onreceive = NULL;
-	zval *onconnect = NULL;
-	zval *onclose = NULL;
-	zval *onerror = NULL;
+	zval *onreceive      = NULL;
+	zval *onconnect      = NULL;
+	zval *onclose        = NULL;
+	zval *onerror        = NULL;
 	zval *service_params = NULL;
 
-	int port = 0;
+	int port        = 0;
 	char *listen_ip = NULL;
-	int timeout = 0;
+	int timeout     = 0;
 	int max_connect = 1000;
 
-	MAKE_STD_ZVAL(onreceive);
-	MAKE_STD_ZVAL(onconnect);
-	MAKE_STD_ZVAL(onclose);
-	MAKE_STD_ZVAL(onerror);
+	MAKE_STD_ZVAL( onreceive );
+	MAKE_STD_ZVAL( onconnect );
+	MAKE_STD_ZVAL( onclose );
+	MAKE_STD_ZVAL( onerror );
 
 
-	onreceive			= zend_read_property( wing_server_ce,getThis(),"onreceive",	strlen("onreceive"),	0 TSRMLS_CC);
-	onconnect			= zend_read_property( wing_server_ce,getThis(),"onconnect",	strlen("onconnect"),	0 TSRMLS_CC);
-	onclose				= zend_read_property( wing_server_ce,getThis(),"onclose",	strlen("onclose"),		0 TSRMLS_CC);
-	onerror				= zend_read_property( wing_server_ce,getThis(),"onerror",	strlen("onerror"),		0 TSRMLS_CC);
-	zval *_listen		= zend_read_property( wing_server_ce,getThis(),"listen",	strlen("listen"),		0 TSRMLS_CC);
-	zval *_port			= zend_read_property( wing_server_ce,getThis(),"port",		strlen("port"),			0 TSRMLS_CC);
-	zval *_max_connect	= zend_read_property( wing_server_ce,getThis(),"max_connect",strlen("max_connect"),	0 TSRMLS_CC);
-	zval *_timeout		= zend_read_property( wing_server_ce,getThis(),"timeout",	strlen("timeout"),		0 TSRMLS_CC);
+	onreceive			= zend_read_property( wing_server_ce,getThis(),"onreceive",	  strlen("onreceive"),	0 TSRMLS_CC);
+	onconnect			= zend_read_property( wing_server_ce,getThis(),"onconnect",	  strlen("onconnect"),	0 TSRMLS_CC);
+	onclose				= zend_read_property( wing_server_ce,getThis(),"onclose",	  strlen("onclose"),    0 TSRMLS_CC);
+	onerror				= zend_read_property( wing_server_ce,getThis(),"onerror",	  strlen("onerror"),    0 TSRMLS_CC);
+	zval *_listen		= zend_read_property( wing_server_ce,getThis(),"listen",	  strlen("listen"),		0 TSRMLS_CC);
+	zval *_port			= zend_read_property( wing_server_ce,getThis(),"port",		  strlen("port"),	    0 TSRMLS_CC);
+	zval *_max_connect	= zend_read_property( wing_server_ce,getThis(),"max_connect", strlen("max_connect"),0 TSRMLS_CC);
+	zval *_timeout		= zend_read_property( wing_server_ce,getThis(),"timeout",	  strlen("timeout"),    0 TSRMLS_CC);
 
 	timeout				= Z_LVAL_P(_timeout);
 	listen_ip			= Z_STRVAL_P(_listen);
@@ -1404,18 +1402,15 @@ ZEND_METHOD(wing_server,start){
 		return;
 	}
 	
-	//消息队列载体
 	wing_msg_queue_element *msg = NULL;//消息
-	//zend_printf("sockets pool %ld\r\n",wing_get_sockets_map_size());
 
 	while( true )
 	{ 
 		//获取消息 没有的时候会阻塞
 		wing_msg_queue_get(&msg);
-		//zend_printf("sockets pool %ld\r\n",wing_get_sockets_map_size());
 
-		//根据消息ID进行不同的处理
-		switch(msg->message_id){
+		switch( msg->message_id ){
+			//这部分主要用于debug观察
 			case WM_THREAD_RUN:
 			{
 				zend_printf("thread run %ld last error %ld\r\n",msg->wparam,msg->lparam);
@@ -1424,121 +1419,105 @@ ZEND_METHOD(wing_server,start){
 			case WM_ONCONNECT:
 			{
 				//zend_printf("===================================new connect===================================\r\n");
-				
-				//zval *params;//[5] = {0};
-				zval *retval_ptr = NULL;
+				zval *wing_client            = NULL;
+				zval *retval_ptr		     = NULL;
+				wing_ulong socket_connect    = msg->wparam;
+				wing_myoverlapped *lpol      = (wing_myoverlapped*)wing_get_from_sockets_map(socket_connect);
 
-				unsigned long socket_connect = (unsigned long)msg->wparam;
-				MYOVERLAPPED *lpol = (MYOVERLAPPED *)wing_get_from_sockets_map(socket_connect);
+				//构建wing_client对象 
+				MAKE_STD_ZVAL( wing_client);
+				MAKE_STD_ZVAL(retval_ptr);
 
-				//构建wing_client 对象 此对象在close或者error发生时释放
-				zval *wing_client;
-				MAKE_STD_ZVAL(wing_client);
-				object_init_ex(wing_client,wing_client_ce);
+				object_init_ex( wing_client , wing_client_ce );
 
 				//初始化
-				zend_update_property_string(wing_client_ce,wing_client,"sin_addr",strlen("sin_addr"),inet_ntoa(lpol->m_addrClient.sin_addr) TSRMLS_CC);
-				zend_update_property_long(wing_client_ce,wing_client,"sin_port",strlen("sin_port"),ntohs(lpol->m_addrClient.sin_port) TSRMLS_CC);
-				zend_update_property_long(wing_client_ce,wing_client,"sin_family",strlen("sin_family"),lpol->m_addrClient.sin_family TSRMLS_CC);
-				zend_update_property_string(wing_client_ce,wing_client,"sin_zero",strlen("sin_zero"),lpol->m_addrClient.sin_zero TSRMLS_CC);
-				zend_update_property_long(wing_client_ce,wing_client,"socket",strlen("socket"),(long)msg->wparam TSRMLS_CC);
-				//zend_printf("===================================new connect 2===================================\r\n");
+				if( lpol ) {
+					zend_update_property_string(wing_client_ce,wing_client,"sin_addr",   strlen("sin_addr"),   inet_ntoa(lpol->m_addrClient.sin_addr)  TSRMLS_CC);
+					zend_update_property_long(  wing_client_ce,wing_client,"sin_port",   strlen("sin_port"),   ntohs(lpol->m_addrClient.sin_port)      TSRMLS_CC);
+					zend_update_property_long(  wing_client_ce,wing_client,"sin_family", strlen("sin_family"), lpol->m_addrClient.sin_family           TSRMLS_CC);
+					zend_update_property_string(wing_client_ce,wing_client,"sin_zero",   strlen("sin_zero"),   lpol->m_addrClient.sin_zero             TSRMLS_CC);
+				}
+				zend_update_property_long(      wing_client_ce,wing_client,"socket",     strlen("socket"),     socket_connect                          TSRMLS_CC);
 
-				MAKE_STD_ZVAL(retval_ptr);
-				
-				zend_try{
-					
-					if( wing_is_call_able(&onconnect TSRMLS_CC) ){
+				zend_try
+				{
+					if( wing_is_call_able(&onconnect TSRMLS_CC) )
+					{
 						//通过回调 把相关信息传回给php
-						if( SUCCESS != call_user_function(EG(function_table),NULL,onconnect,retval_ptr,1,&wing_client TSRMLS_CC ) ){
+						if( SUCCESS != call_user_function(EG(function_table),NULL,onconnect,retval_ptr,1,&wing_client TSRMLS_CC ) )
+						{
 							zend_error(E_USER_WARNING,"onconnect call_user_function fail");
 						}
 					}
 				}
-				zend_catch{
-					zend_printf("php syntax error\r\n");
+				zend_catch
+				{
+					//php脚本语法错误
 				}
 				zend_end_try();
 
 				//释放资源
-				zval_ptr_dtor(&retval_ptr);
-				zval_ptr_dtor(&wing_client);
-				//zend_printf("===================================new connect 3===================================\r\n");
-						  
+				zval_ptr_dtor( &retval_ptr );
+				zval_ptr_dtor( &wing_client );		  
 			}
 			break;
 			case WM_ONSEND:{
-				//zend_printf("onsend\r\n");
-					//GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
-					//zend_printf("size-onsend:%d\r\n",pmc.WorkingSetSize-msg->size);	   
-			}break;
-			//目前暂时没有用到 先留着
-			case WM_ACCEPT_ERROR:
-			{
-				//zend_printf("onaccepterror\r\n");
-				//zend_printf("accept error\r\n");
-				//GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
-				//zend_printf("size-accepterror:%d\r\n",pmc.WorkingSetSize-msg->size);	
+				//zend_printf("onsend\r\n");   
 			}
 			break;
 			//收到消息
 			case WM_ONRECV:
 			{
 				
-				//zend_printf("===================================onrecv===================================\r\n");	
-				///
-				char *recv_msg = (char*)msg->lparam;
-				SOCKET client = (SOCKET)msg->wparam;
 
-				zval *params[2] = {0};
-				zval *retval_ptr = NULL;
+				char *recv_msg			= (char*)msg->lparam;
+				wing_socket client		= (wing_socket)msg->wparam;
+				zval *params[2]			= {0};
+				zval *retval_ptr		= NULL;
+				wing_myoverlapped *lpol	= (wing_myoverlapped*)wing_get_from_sockets_map((unsigned long)msg->wparam);
 
-			
-
-
-				MYOVERLAPPED *lpol = (MYOVERLAPPED *)wing_get_from_sockets_map((unsigned long)msg->wparam);
-
-				//构建wing_client 对象 此对象在close或者error发生时释放
-				
-				MAKE_STD_ZVAL(params[0]);
-				MAKE_STD_ZVAL(params[1]);
-				MAKE_STD_ZVAL(retval_ptr);
-
+				MAKE_STD_ZVAL( params[0] );
+				MAKE_STD_ZVAL( params[1] );
+				MAKE_STD_ZVAL( retval_ptr );
 
 				object_init_ex(params[0],wing_client_ce);
-				//初始化
-				zend_update_property_string(wing_client_ce,params[0],"sin_addr",strlen("sin_addr"),inet_ntoa(lpol->m_addrClient.sin_addr) TSRMLS_CC);
-				zend_update_property_long(wing_client_ce,params[0],"sin_port",strlen("sin_port"),ntohs(lpol->m_addrClient.sin_port) TSRMLS_CC);
-				zend_update_property_long(wing_client_ce,params[0],"sin_family",strlen("sin_family"),lpol->m_addrClient.sin_family TSRMLS_CC);
-				zend_update_property_string(wing_client_ce,params[0],"sin_zero",strlen("sin_zero"),lpol->m_addrClient.sin_zero TSRMLS_CC);
-				zend_update_property_long(wing_client_ce,params[0],"socket",strlen("socket"),(long)msg->wparam TSRMLS_CC);
 				
-				ZVAL_STRING(params[1],recv_msg,1);
+				//初始化
+				if( lpol ) {
+					zend_update_property_string( wing_client_ce,params[0],"sin_addr",   strlen("sin_addr"),   inet_ntoa(lpol->m_addrClient.sin_addr) TSRMLS_CC);
+					zend_update_property_long(   wing_client_ce,params[0],"sin_port",   strlen("sin_port"),   ntohs(lpol->m_addrClient.sin_port)     TSRMLS_CC);
+					zend_update_property_long(   wing_client_ce,params[0],"sin_family", strlen("sin_family"), lpol->m_addrClient.sin_family          TSRMLS_CC);
+					zend_update_property_string( wing_client_ce,params[0],"sin_zero",   strlen("sin_zero"),   lpol->m_addrClient.sin_zero            TSRMLS_CC);
+				}
+				zend_update_property_long(       wing_client_ce,params[0],"socket",     strlen("socket"),     client                                 TSRMLS_CC);
+				
+				ZVAL_STRING( params[1] , recv_msg , 1 );
 
-				zend_try{
-					if( wing_is_call_able(&onreceive TSRMLS_CC) ){
-						if( SUCCESS != call_user_function(EG(function_table),NULL,onreceive,retval_ptr,2,params TSRMLS_CC) ){
+				zend_try
+				{
+					if( wing_is_call_able(&onreceive TSRMLS_CC) )
+					{
+						if( SUCCESS != call_user_function(EG(function_table),NULL,onreceive,retval_ptr,2,params TSRMLS_CC) )
+						{
 							zend_error(E_USER_WARNING,"onreceive call_user_function fail");
 						}
 					}
 				}
-				zend_catch{
-					zend_printf("php syntax error\r\n");
+				zend_catch
+				{
+					//php语法错误
 				}
 				zend_end_try();
 
-				zval_ptr_dtor(&retval_ptr);
-				zval_ptr_dtor(&params[0]);
-				zval_ptr_dtor(&params[1]);
+				zval_ptr_dtor( &retval_ptr );
+				zval_ptr_dtor( &params[0] );
+				zval_ptr_dtor( &params[1] );
 
 				delete[] recv_msg;
 				recv_msg = NULL;
-
-				//delete temp;
-				//temp = NULL;
 			}
 			break;
-			//调用 _close_socket 服务端主动关闭socket
+			//服务端主动关闭socket
 			case WM_ONCLOSE_EX:{
 				//zend_printf("===================================onclose ex===================================\r\n");	
 
@@ -1567,15 +1546,18 @@ ZEND_METHOD(wing_server,start){
 				MAKE_STD_ZVAL(wing_client);
 				object_init_ex(wing_client,wing_client_ce);
 
-				if(_lovl!=0){
+				if( _lovl ){
+
 					MYOVERLAPPED *lpol = (MYOVERLAPPED *)wing_get_from_sockets_map((unsigned long)msg->wparam);
 					//初始化
 					zend_update_property_string(wing_client_ce,wing_client,"sin_addr",strlen("sin_addr"),inet_ntoa(lpol->m_addrClient.sin_addr) TSRMLS_CC);
 					zend_update_property_long(wing_client_ce,wing_client,"sin_port",strlen("sin_port"),ntohs(lpol->m_addrClient.sin_port) TSRMLS_CC);
 					zend_update_property_long(wing_client_ce,wing_client,"sin_family",strlen("sin_family"),lpol->m_addrClient.sin_family TSRMLS_CC);
 					zend_update_property_string(wing_client_ce,wing_client,"sin_zero",strlen("sin_zero"),lpol->m_addrClient.sin_zero TSRMLS_CC);
-					zend_update_property_long(wing_client_ce,wing_client,"socket",strlen("socket"),(long)msg->wparam TSRMLS_CC);
+					
 				}
+
+				zend_update_property_long(wing_client_ce,wing_client,"socket",strlen("socket"),(long)msg->wparam TSRMLS_CC);
 				
 				
 				
@@ -1609,33 +1591,25 @@ ZEND_METHOD(wing_server,start){
 				MAKE_STD_ZVAL(params[1]);
 				MAKE_STD_ZVAL(params[2]);
 
-				//ZVAL_LONG(params[0],(long)msg->wparam);//发生错误的socket
-
-
 				unsigned long _lovl = wing_get_from_sockets_map((unsigned long)msg->wparam);
-				
-				
 				
 				object_init_ex(params[0],wing_client_ce);
 
-				if(_lovl!=0){
+				if( _lovl ){
+					
 					MYOVERLAPPED *lpol = (MYOVERLAPPED *)wing_get_from_sockets_map((unsigned long)msg->wparam);
 					//初始化
-					zend_update_property_string(wing_client_ce,params[0],"sin_addr",strlen("sin_addr"),inet_ntoa(lpol->m_addrClient.sin_addr) TSRMLS_CC);
-					zend_update_property_long(wing_client_ce,params[0],"sin_port",strlen("sin_port"),ntohs(lpol->m_addrClient.sin_port) TSRMLS_CC);
-					zend_update_property_long(wing_client_ce,params[0],"sin_family",strlen("sin_family"),lpol->m_addrClient.sin_family TSRMLS_CC);
-					zend_update_property_string(wing_client_ce,params[0],"sin_zero",strlen("sin_zero"),lpol->m_addrClient.sin_zero TSRMLS_CC);
-					zend_update_property_long(wing_client_ce,params[0],"socket",strlen("socket"),(long)msg->wparam TSRMLS_CC);
+					zend_update_property_string(wing_client_ce,params[0],"sin_addr",   strlen("sin_addr"),  inet_ntoa(lpol->m_addrClient.sin_addr) TSRMLS_CC);
+					zend_update_property_long(  wing_client_ce,params[0],"sin_port",   strlen("sin_port"),  ntohs(lpol->m_addrClient.sin_port) TSRMLS_CC);
+					zend_update_property_long(  wing_client_ce,params[0],"sin_family", strlen("sin_family"),lpol->m_addrClient.sin_family TSRMLS_CC);
+					zend_update_property_string(wing_client_ce,params[0],"sin_zero",   strlen("sin_zero"),  lpol->m_addrClient.sin_zero TSRMLS_CC);
+					
 				}
 
+				zend_update_property_long(wing_client_ce,params[0],"socket",strlen("socket"),(long)msg->wparam TSRMLS_CC);
 
-
-
-
-
-
-				ZVAL_LONG(params[1],(long)msg->lparam);//自定义错误编码
-				ZVAL_LONG(params[2],(long)msg->eparam);//WSAGetLasterror 错误码
+				ZVAL_LONG(params[1],(long)msg->lparam);  //自定义错误编码
+				ZVAL_LONG(params[2],(long)msg->eparam);  //WSAGetLasterror 错误码
 
 				MAKE_STD_ZVAL(retval_ptr);
 				
@@ -1715,74 +1689,59 @@ PHP_MINIT_FUNCTION(wing)
 	REGISTER_INI_ENTRIES();
 	*/
 
-	zend_class_entry _wing_client_ce;
-	INIT_CLASS_ENTRY(_wing_client_ce,"wing_client",wing_client_method);
-	wing_client_ce = zend_register_internal_class(&_wing_client_ce TSRMLS_CC);
-	////ZVAL_STRING(params[1],inet_ntoa(lpol->m_addrClient.sin_addr),1);//ip
-	//			ZVAL_LONG(params[2],ntohs(lpol->m_addrClient.sin_port));//port
-	//			ZVAL_LONG(params[3],lpol->m_addrClient.sin_family);//协议类型
-	//			ZVAL_STRING(params[4],lpol->m_addrClient.sin_zero,1);//这个zero不知道干嘛的 这里也直接支持返回
-	zend_declare_property_string(wing_client_ce,"sin_addr",strlen("sin_addr"),"",ZEND_ACC_PUBLIC TSRMLS_CC);
-	zend_declare_property_long(wing_client_ce,"sin_port",strlen("sin_port"),0,ZEND_ACC_PUBLIC TSRMLS_CC);
-	zend_declare_property_long(wing_client_ce,"sin_family",strlen("sin_family"),0,ZEND_ACC_PUBLIC TSRMLS_CC);
-	zend_declare_property_string(wing_client_ce,"sin_zero",strlen("sin_zero"),"",ZEND_ACC_PUBLIC TSRMLS_CC);
-	zend_declare_property_long(wing_client_ce,"socket",strlen("socket"),0,ZEND_ACC_PUBLIC TSRMLS_CC);
+	zend_class_entry  _wing_client_ce;
+	INIT_CLASS_ENTRY( _wing_client_ce , "wing_client" , wing_client_method );
+	wing_client_ce = zend_register_internal_class( &_wing_client_ce TSRMLS_CC );
+
+	zend_declare_property_string( wing_client_ce,"sin_addr",    strlen("sin_addr"),   "", ZEND_ACC_PUBLIC TSRMLS_CC );
+	zend_declare_property_long(   wing_client_ce,"sin_port",    strlen("sin_port"),   0,  ZEND_ACC_PUBLIC TSRMLS_CC );
+	zend_declare_property_long(   wing_client_ce,"sin_family",  strlen("sin_family"), 0,  ZEND_ACC_PUBLIC TSRMLS_CC );
+	zend_declare_property_string( wing_client_ce,"sin_zero",    strlen("sin_zero"),   "", ZEND_ACC_PUBLIC TSRMLS_CC );
+	zend_declare_property_long(   wing_client_ce,"socket",      strlen("socket"),     0,  ZEND_ACC_PUBLIC TSRMLS_CC );
 	
 
 
 	//----wing_server-----
-	zend_class_entry _wing_server_ce;
-	INIT_CLASS_ENTRY(_wing_server_ce,"wing_server",wing_server_method);
-	wing_server_ce = zend_register_internal_class(&_wing_server_ce TSRMLS_CC);
+	zend_class_entry  _wing_server_ce;
+	INIT_CLASS_ENTRY( _wing_server_ce,"wing_server", wing_server_method );
+	wing_server_ce = zend_register_internal_class( &_wing_server_ce TSRMLS_CC );
 	
-
-
-
 	//事件回调函数 默认为null
-	zend_declare_property_null(wing_server_ce,"onreceive",strlen("onreceive"),ZEND_ACC_PRIVATE TSRMLS_CC);
-	zend_declare_property_null(wing_server_ce,"onconnect",strlen("onconnect"),ZEND_ACC_PRIVATE TSRMLS_CC);
-	zend_declare_property_null(wing_server_ce,"onclose",  strlen("onclose"),  ZEND_ACC_PRIVATE TSRMLS_CC);
-	zend_declare_property_null(wing_server_ce,"onerror",  strlen("onerror"),  ZEND_ACC_PRIVATE TSRMLS_CC);
+	zend_declare_property_null(    wing_server_ce,"onreceive",   strlen("onreceive"),ZEND_ACC_PRIVATE TSRMLS_CC);
+	zend_declare_property_null(    wing_server_ce,"onconnect",   strlen("onconnect"),ZEND_ACC_PRIVATE TSRMLS_CC);
+	zend_declare_property_null(    wing_server_ce,"onclose",     strlen("onclose"),  ZEND_ACC_PRIVATE TSRMLS_CC);
+	zend_declare_property_null(    wing_server_ce,"onerror",     strlen("onerror"),  ZEND_ACC_PRIVATE TSRMLS_CC);
 
-	//端口和监听ip地址 默认值为 6998 和 0.0.0.0 最大连接数默认值为 1000
-	zend_declare_property_long(wing_server_ce,"port",     strlen("port"), 6998,  ZEND_ACC_PRIVATE TSRMLS_CC);
-	zend_declare_property_string(wing_server_ce,"listen",   strlen("listen"),"0.0.0.0",ZEND_ACC_PRIVATE TSRMLS_CC);
-	zend_declare_property_long(wing_server_ce,"max_connect",strlen("max_connect"),1000,ZEND_ACC_PRIVATE TSRMLS_CC);
-	zend_declare_property_long(wing_server_ce,"timeout",strlen("timeout"),0,ZEND_ACC_PRIVATE TSRMLS_CC);
+	//端口和监听ip地址 
+	zend_declare_property_long(   wing_server_ce,"port",         strlen("port"),       6998,      ZEND_ACC_PRIVATE TSRMLS_CC);
+	zend_declare_property_string( wing_server_ce,"listen",       strlen("listen"),     "0.0.0.0", ZEND_ACC_PRIVATE TSRMLS_CC);
+	zend_declare_property_long(   wing_server_ce,"max_connect",  strlen("max_connect"),1000,      ZEND_ACC_PRIVATE TSRMLS_CC);
+	zend_declare_property_long(   wing_server_ce,"timeout",      strlen("timeout"),    0,         ZEND_ACC_PRIVATE TSRMLS_CC);
 
 
 	//注册常量或者类等初始化操作
 	//REGISTER_STRING_CONSTANT("WING_VERSION",PHP_WING_VERSION,CONST_CS | CONST_PERSISTENT);
-	zend_register_string_constant("WING_VERSION", sizeof("WING_VERSION"), PHP_WING_VERSION,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	
 	
 	PHP_PATH = new char[MAX_PATH];
-	//memory_add();
-
-	//memory_add("add memory PHP_MINIT_FUNCTION 1596 \r\n");
-	if(GetModuleFileName(NULL,PHP_PATH,MAX_PATH) != 0){
-		zend_register_string_constant("WING_PHP", sizeof("WING_PHP"), PHP_PATH,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
-	}
-	
-	//WAIT_TIMEOUT
-	zend_register_long_constant("WING_WAIT_TIMEOUT", sizeof("WING_WAIT_TIMEOUT"), WAIT_TIMEOUT,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
-	//WAIT_FAILED
-	zend_register_long_constant("WING_WAIT_FAILED", sizeof("WING_WAIT_FAILED"), WAIT_FAILED,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
-	//INFINITE
-	zend_register_long_constant("WING_INFINITE", sizeof("WING_INFINITE"), INFINITE,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
-	//WAIT_OBJECT_0
-	zend_register_long_constant("WING_WAIT_OBJECT_0", sizeof("WING_WAIT_OBJECT_0"), WAIT_OBJECT_0,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
-	//WAIT_ABANDONED
-	zend_register_long_constant("WING_WAIT_ABANDONED", sizeof("WING_WAIT_ABANDONED"), WAIT_ABANDONED,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
-
-
-	zend_register_long_constant("WING_ERROR_ALREADY_EXISTS",sizeof("WING_ERROR_ALREADY_EXISTS"),ERROR_ALREADY_EXISTS,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
-	zend_register_long_constant("WING_ERROR_PARAMETER_ERROR",sizeof("WING_ERROR_PARAMETER_ERROR"),WING_ERROR_PARAMETER_ERROR,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
-	zend_register_long_constant("WING_ERROR_FAILED",sizeof("WING_ERROR_FAILED"),WING_ERROR_FAILED,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
-	zend_register_long_constant("WING_ERROR_CALLBACK_FAILED",sizeof("WING_ERROR_CALLBACK_FAILED"),WING_ERROR_CALLBACK_FAILED,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
-	zend_register_long_constant("WING_CALLBACK_SUCCESS",sizeof("WING_CALLBACK_SUCCESS"),WING_CALLBACK_SUCCESS,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
-	zend_register_long_constant("WING_ERROR_PROCESS_NOT_EXISTS",sizeof("WING_ERROR_PROCESS_NOT_EXISTS"),WING_ERROR_PROCESS_NOT_EXISTS,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
-	zend_register_long_constant("WING_SUCCESS",sizeof("WING_SUCCESS"),WING_SUCCESS,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);	
-	zend_register_long_constant("WING_PROCESS_IS_RUNNING",sizeof("WING_PROCESS_IS_RUNNING"),WING_PROCESS_IS_RUNNING,CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	if( 0 != GetModuleFileName(NULL,PHP_PATH,MAX_PATH) )
+	{
+		zend_register_string_constant("WING_PHP",                    sizeof("WING_PHP"),                     PHP_PATH,                      CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	} 
+	zend_register_string_constant( "WING_VERSION",                   sizeof("WING_VERSION"),                 PHP_WING_VERSION,              CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant(   "WING_WAIT_TIMEOUT",              sizeof("WING_WAIT_TIMEOUT"),            WAIT_TIMEOUT,                  CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant(   "WING_WAIT_FAILED",               sizeof("WING_WAIT_FAILED"),             WAIT_FAILED,                   CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant(   "WING_INFINITE",                  sizeof("WING_INFINITE"),                INFINITE,                      CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant(   "WING_WAIT_OBJECT_0",             sizeof("WING_WAIT_OBJECT_0"),           WAIT_OBJECT_0,                 CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant(   "WING_WAIT_ABANDONED",            sizeof("WING_WAIT_ABANDONED"),          WAIT_ABANDONED,                CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant(   "WING_ERROR_ALREADY_EXISTS",      sizeof("WING_ERROR_ALREADY_EXISTS"),    ERROR_ALREADY_EXISTS,          CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant(   "WING_ERROR_PARAMETER_ERROR",     sizeof("WING_ERROR_PARAMETER_ERROR"),   WING_ERROR_PARAMETER_ERROR,    CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant(   "WING_ERROR_FAILED",              sizeof("WING_ERROR_FAILED"),            WING_ERROR_FAILED,             CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant(   "WING_ERROR_CALLBACK_FAILED",     sizeof("WING_ERROR_CALLBACK_FAILED"),   WING_ERROR_CALLBACK_FAILED,    CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant(   "WING_CALLBACK_SUCCESS",          sizeof("WING_CALLBACK_SUCCESS"),        WING_CALLBACK_SUCCESS,         CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant(   "WING_ERROR_PROCESS_NOT_EXISTS",  sizeof("WING_ERROR_PROCESS_NOT_EXISTS"),WING_ERROR_PROCESS_NOT_EXISTS, CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant(   "WING_SUCCESS",                   sizeof("WING_SUCCESS"),                 WING_SUCCESS,                  CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);	
+	zend_register_long_constant(   "WING_PROCESS_IS_RUNNING",        sizeof("WING_PROCESS_IS_RUNNING"),      WING_PROCESS_IS_RUNNING,       CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 
 	return SUCCESS;
 }
@@ -1823,7 +1782,11 @@ PHP_RSHUTDOWN_FUNCTION(wing)
 PHP_MINFO_FUNCTION(wing)
 {
 	php_info_print_table_start();
-	php_info_print_table_header(2, "wing support", "enabled");
+	php_info_print_table_header( 2, "wing support",    "enabled"          );
+	php_info_print_table_row(    2, "version",         PHP_WING_VERSION   );
+	php_info_print_table_row(    2, "author","         yuyi"              );
+	php_info_print_table_row(    2, "email",           "297341015@qq.com" );
+	php_info_print_table_row(    2, "qq-group",        "535218312"        );
 	php_info_print_table_end();
 
 	/* Remove comments if you have entries in php.ini
@@ -1839,11 +1802,7 @@ PHP_MINFO_FUNCTION(wing)
  */
 const zend_function_entry wing_functions[] = {
 	PHP_FE(wing_version,NULL)
-	//PHP_FE(wing_qrdecode,NULL)
-	//PHP_FE(wing_qrencode,NULL)
-	//wing_create_thread
 	PHP_FE(wing_create_thread,NULL)
-	//wing_create_process
 	PHP_FE(wing_create_process,NULL) //wing_thread_wait
 	PHP_FE(wing_get_process_params,NULL)
 	PHP_FE(wing_create_process_ex,NULL)

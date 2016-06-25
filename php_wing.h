@@ -27,15 +27,17 @@ extern zend_module_entry wing_module_entry;
 #define PHP_WING_VERSION "1.0.3" /* Replace with version number for your extension */
 
 
-#define WING_SUCCESS				 1
-#define WING_CALLBACK_SUCCESS		 0
-#define WING_ERROR_PARAMETER_ERROR	-1
-#define WING_ERROR_FAILED			-2
-#define WING_NOTICE_IGNORE			-3
-#define WING_ERROR_CALLBACK_FAILED  -4
-#define WING_ERROR_PROCESS_NOT_EXISTS -5
-#define WING_ERROR_WINDOW_NOT_FOUND -6
-#define WING_PROCESS_IS_RUNNING		1
+#define WING_SUCCESS				       1
+#define WING_CALLBACK_SUCCESS		       0
+#define WING_ERROR_PARAMETER_ERROR	      -1
+#define WING_ERROR_FAILED			      -2
+#define WING_NOTICE_IGNORE			      -3
+#define WING_ERROR_CALLBACK_FAILED        -4
+#define WING_ERROR_PROCESS_NOT_EXISTS     -5
+#define WING_ERROR_WINDOW_NOT_FOUND       -6
+#define WING_PROCESS_IS_RUNNING		       1
+
+typedef DWORD wing_ulong;
 
 
 #ifdef PHP_WIN32
