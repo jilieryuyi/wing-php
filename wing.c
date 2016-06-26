@@ -1488,7 +1488,7 @@ ZEND_METHOD(wing_server,start){
 			case WM_THREAD_RUN:
 			{
 				MYOVERLAPPED *lpol            = (MYOVERLAPPED*) msg->eparam;
-				zend_printf("thread run %ld last error %ld socket=%ld\r\n",msg->wparam,msg->lparam,lpol->m_skClient);
+				zend_printf("thread run %ld last error %ld socket=%ld\r\n",msg->wparam,msg->lparam,0);
 			}break;
 			case WM_ADD_CLIENT:
 				{

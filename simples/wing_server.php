@@ -4,7 +4,7 @@
  * @created 2016/6/24 6:17
  * @email 297341015@qq.com
  */
-$server = new wing_server( "0.0.0.0" , 9998 , 1, 1000, 3000, 1000 );
+$server = new wing_server( "0.0.0.0" , 9998 , 2, 1000, 3000, 1000 );
 $server->on( "onreceive" , function( $client , $recv_msg ) {
     echo "recv from:",$client->socket,"=>",$recv_msg,"\r\n";
     $client->send( "hello client\r\n" );

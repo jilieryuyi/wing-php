@@ -59,6 +59,7 @@
 #define WING_ERROR_KEEP_ALIVE	-4004
 #define WING_ERROR_POST_RECV    -4005
 #define WING_BAD_ERROR          -4006
+#define WING_ERROR_DISCONNECTEX -4007
 
 
 #define WING_SOCKET_IS_ALIVE 1 //标记socket是否激活状态
@@ -79,6 +80,7 @@ struct MYOVERLAPPED{
 	int			m_isUsed;                      //标志是否已被激活使用 1已被激活 0待激活
 	unsigned    m_active;                      //最后的活动时间
 	//LPVOID      m_client;                    //wing_client 对象
+	int         m_isCrashed;                   //是否发生错误需要回收 0非 1是
 };
 typedef SOCKET wing_socket;
 typedef MYOVERLAPPED wing_myoverlapped;
