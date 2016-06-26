@@ -27,18 +27,19 @@ $threads[] = wing_create_thread(function(){
 });
 
 while(1){
-    foreach($threads as $key => $thread_id){
+    foreach( $threads as $key => $thread_id ){
         //100 Milliseconds timeout 等待100毫秒
         //第二个参数不传或者设置为常量 WING_INFINITE 则永不超时
         $exit_code = wing_thread_wait($thread_id,100);
         //if return wait timeout,thread is still running
         //如果返回超时 说明线程还在运行
-        if(WING_WAIT_TIMEOUT == $exit_code)usleep(10000);
+        if( WING_WAIT_TIMEOUT == $exit_code )usleep(10000);
         else {
             unset($threads[$key]);
             echo $thread_id," exit with code ",$exit_code,"\r\n";
         }
     }
     //if thread is all exit 如果线程已经全部退出
-    if(count($threads)<=0)break;
+    if( count($threads) <= 0 )
+        break;
 }

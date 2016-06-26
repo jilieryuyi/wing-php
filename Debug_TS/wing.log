@@ -1,11 +1,11 @@
-﻿生成启动时间为 2016/6/26 9:30:53。
+﻿生成启动时间为 2016/6/26 16:33:22。
      1>项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\wing.vcxproj”在节点 2 上(Build 个目标)。
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I"D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\zxing\cli\src" /I"D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\zxing\core\src\\" /I..\.. /I..\..\main /I..\..\Zend /I..\..\..\bindlib_w32 /I..\..\TSRM /I"C:\Program Files (x86)\Visual Leak Detector\include" /Zi /nologo /W3 /WX- /O2 /Oy- /D ZEND_DEBUG=1 /D WIN32 /D NDEBUG /D _WINDOWS /D _USRDLL /D WING_EXPORTS /D COMPILE_DL_WING /D ZTS=1 /D ZEND_WIN32 /D PHP_WIN32 /D HAVE_WING=1 /D _VC80_UPGRADE=0x0600 /D _WINDLL /D _MBCS /GF /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo".\Debug_TS\\" /Fd".\Debug_TS\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt wing.c
          wing.c
      1>d:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib/wing_socket.h(61): warning C4005: “WING_BAD_ERROR”: 宏重定义
                  d:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib/wing_socket.h(58) : 参见“WING_BAD_ERROR”的前一个定义
-     1>wing.c(1360): warning C4800: “zend_bool”: 将值强制为布尔值“true”或“false”(性能警告)
+     1>wing.c(1398): warning C4800: “zend_bool”: 将值强制为布尔值“true”或“false”(性能警告)
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V110\Microsoft.CppBuild.targets(1137,5): warning MSB8012: TargetPath(D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\.\Debug_TS\wing.dll) does not match the Linker's OutputFile property value (D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\Debug_TS\php_wing.dll). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V110\Microsoft.CppBuild.targets(1139,5): warning MSB8012: TargetName(wing) does not match the Linker's OutputFile property value (php_wing). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
        Link:
@@ -20,4 +20,4 @@
 
 生成成功。
 
-已用时间 00:00:01.11
+已用时间 00:00:01.13

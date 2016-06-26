@@ -117,20 +117,24 @@ unsigned long create_process(char *command,char *params_ex=NULL,int params_ex_le
 /********************************************************************************************************
  * @ 进程参数校验，该怎么说这个函数的作用呢，这么说吧，这个函数用来确认是否让阻塞的函数异步执行的
  ********************************************************************************************************/
-void command_params_check(char* &command_params,int *run_process,int *last_value){
+void command_params_check(char* &command_params,int *run_process,int *last_value TSRMLS_DC){
 	
-	TSRMLS_FETCH();
-	zval **argv = NULL;
-	int argc = 0;
+	zval **argv         = NULL;
+	int argc            = 0;
 	HashTable *arr_hash = NULL;
+	command_params      = (char*)emalloc(1024);
+
+	memset( command_params , 0 ,1024 );
 	
 	//char *target = NULL;
 	//获取命令行参数
-	if ( zend_hash_find(&EG(symbol_table),"argv",sizeof("argv"),(void**)&argv) == SUCCESS ){
-		zval  **data = NULL;
+	if ( zend_hash_find( &EG(symbol_table), "argv", sizeof("argv"), (void**)&argv) == SUCCESS ){
+
+		zval  **data         = NULL;
 		HashPosition pointer = NULL;
-		arr_hash	= Z_ARRVAL_PP(argv);
-		argc		= zend_hash_num_elements(arr_hash);
+		arr_hash	         = Z_ARRVAL_PP(argv);
+		argc		         = zend_hash_num_elements(arr_hash);
+
 		for( zend_hash_internal_pointer_reset_ex(arr_hash, &pointer); 
 			 zend_hash_get_current_data_ex(arr_hash, (void**) &data, &pointer) == SUCCESS; 
 			 zend_hash_move_forward_ex(arr_hash, &pointer)
@@ -140,17 +144,20 @@ void command_params_check(char* &command_params,int *run_process,int *last_value
 				*run_process = 1;
 			}
 
-			char *key = NULL;
-			int key_len = 0 ,index = 0;
+			char *key   = NULL;
+			int key_len = 0 ;
+			int index   = 0;
 
 			zend_hash_get_current_key_ex(arr_hash, &key, (uint*)&key_len, (ulong*)&index, 0, &pointer);
 
-			if( index > 0 ){
+			if( index > 0 ) {
 				char *p = (char*)Z_LVAL_PP(data);
 				if(p[0]!='\"')
-					spprintf(&command_params,0,"%s \"%s\" ",command_params,p);
+					sprintf(command_params,"%s \"%s\" ",command_params,p);
+					//spprintf(&command_params,0,"%s \"%s\" ",command_params,p);
 				else 
-					spprintf(&command_params,0,"%s %s ",command_params,p);
+					sprintf(command_params,"%s %s ",command_params,p);
+					//spprintf(&command_params,0,"%s %s ",command_params,p);
 			}
 
 			if(index == argc-1&&last_value != NULL){
@@ -196,153 +203,206 @@ PHP_FUNCTION(wing_version){
 PHP_FUNCTION(wing_process_wait){
 	
 	int thread_id,timeout = INFINITE;
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l|l",&thread_id,&timeout)!=SUCCESS){
+	if( zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC, "l|l", &thread_id, &timeout ) != SUCCESS ) {
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
-	HANDLE handle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, thread_id);
 
+	if( thread_id<=0 ) {
+		RETURN_LONG(WING_ERROR_FAILED);
+		return;
+	}
+
+	HANDLE handle     = OpenProcess(PROCESS_ALL_ACCESS, FALSE, thread_id);
 	DWORD wait_result = 0;
-
 	DWORD wait_status = WaitForSingleObject(handle,timeout);
 	 
-	 if( wait_status != WAIT_OBJECT_0 ){
+	if( wait_status != WAIT_OBJECT_0 ) {
+		CloseHandle( handle );
 		RETURN_LONG(wait_status);
 		return;
-	 }
-
-	 //WING_WAIT_OBJECT_0
-	 
-	 if(GetExitCodeProcess(handle,&wait_result) == 0) 
-		 RETURN_LONG(WING_ERROR_FAILED);
-
-	 RETURN_LONG(wait_result);
+	}
+	if( GetExitCodeProcess(handle,&wait_result) == 0 ) {
+		CloseHandle( handle );
+		RETURN_LONG(WING_ERROR_FAILED);
+		return;
+	}
+	CloseHandle( handle );
+	RETURN_LONG(wait_result);
+	return;
 }
 
 /******************************************************************
  *@创建多线程，使用进程模拟
  *****************************************************************/
-PHP_FUNCTION(wing_create_thread){
+PHP_FUNCTION( wing_create_thread ){
 	
 	wing_thread_count++;
-	zval *callback = NULL;
-	
-	MAKE_STD_ZVAL(callback);
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &callback) != SUCCESS) {
+	zval *callback   = NULL;
+	zval *retval_ptr = NULL;
+	
+	MAKE_STD_ZVAL( callback );
+
+	if ( zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC, "z", &callback ) != SUCCESS ) {
+		zval_ptr_dtor(&callback);
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
 
 	char *command_params = NULL;
-	int run_process = 0;
-	int command_index = 0;
-	int last_value = 0;
-	char *command = NULL;
+	int run_process      = 0;
+	int command_index    = 0;
+	int last_value       = 0;
+	char *command        = NULL;
+	unsigned long pid    = 0; 
 
-	command_params_check(command_params,&run_process,&last_value);
+	command_params_check( command_params, &run_process, &last_value TSRMLS_CC );
 
-	spprintf(&command, 0, "%s %s %s wing-process %ld",PHP_PATH, zend_get_executed_filename(TSRMLS_C),command_params,wing_thread_count);
+	spprintf( &command, 0, "%s %s %s wing-process %ld", PHP_PATH , zend_get_executed_filename( TSRMLS_C ), command_params, wing_thread_count );
 
-	if(!run_process){
-		unsigned long pid = create_process(command,NULL,0);
+	if( !run_process ) {
+		pid = create_process( command, NULL, 0 );
+		
 		efree(command);
 		efree(command_params);
+		zval_ptr_dtor(&callback);
+
 		RETURN_LONG(pid);	
 		return;
 	}
 
-	if(wing_thread_count != last_value){
+	if( wing_thread_count != last_value ) {
+		
 		efree(command);
 		efree(command_params);
+		zval_ptr_dtor(&callback);
+
 		RETURN_LONG(WING_NOTICE_IGNORE);
 		return;
 	}
 	
 	efree(command);
 	efree(command_params);
-
-	zval *retval_ptr = NULL;
 			
 	MAKE_STD_ZVAL(retval_ptr);
-	if(SUCCESS != call_user_function(EG(function_table),NULL,callback,retval_ptr,0,NULL TSRMLS_CC)){
+
+	if( SUCCESS != call_user_function(EG(function_table),NULL,callback,retval_ptr,0,NULL TSRMLS_CC ) ){
 		
+		zval_ptr_dtor(&callback);
+		zval_ptr_dtor(&retval_ptr);
+
 		RETURN_LONG(WING_ERROR_CALLBACK_FAILED);
 		return;
-
 	}
+
+	zval_ptr_dtor(&callback);
+	zval_ptr_dtor(&retval_ptr);
 			
 	RETURN_LONG(WING_CALLBACK_SUCCESS);
 }
+
+
+
 /*************************************************************************
  *@get data from create process
  *@从父进程获取数据 这里使用了一个小伎俩，性能，待考量
  *return string or null
  *************************************************************************/
 ZEND_FUNCTION(wing_get_process_params){
-			HANDLE m_hRead = GetStdHandle(STD_INPUT_HANDLE);
-
-			DWORD data_len = 1024;
-			int step = 1024;
-
-			char *buf = new char[data_len];
-
-			ZeroMemory(buf,sizeof(buf));
-			DWORD dwRead;
-			DWORD lBytesRead;
 	
-			if(!PeekNamedPipe(m_hRead,buf,data_len,&lBytesRead,0,0)){
+	HANDLE m_hRead	 = GetStdHandle(STD_INPUT_HANDLE);
+	DWORD data_len	 = 1024;
+	int step		 = 1024;
+	char *buf		 = new char[data_len];
+	DWORD dwRead     = 0;
+	DWORD lBytesRead = 0;
 
-				delete[] buf;
-				buf = NULL;
-				RETURN_NULL();
-				return;
-			}
+	ZeroMemory( buf, data_len );
+	
+	if( !PeekNamedPipe( m_hRead,buf, data_len, &lBytesRead, 0, 0 ) ) {
+		
+		delete[] buf;
+		buf = NULL;
+		RETURN_NULL();
+		return;
+	}
 
-			if(lBytesRead<=0){
+	if( lBytesRead <= 0 ){
 
-				delete[] buf;
-				buf = NULL;
-				RETURN_NULL();
-				return;
-			}
+		delete[] buf;
+		buf = NULL;
+		RETURN_NULL();
+		return;
+	}
 
-			while(lBytesRead>=data_len){
+	while( lBytesRead >= data_len ){
 
-				delete[] buf;
-				buf = NULL;
-				data_len+=step;
+		delete[] buf;
+		buf = NULL;
+		data_len += step;
 				
-				buf = new char[data_len];
+		buf = new char[data_len];
 				
-				ZeroMemory(buf,sizeof(buf));
-				if(!PeekNamedPipe(m_hRead,buf,data_len,&lBytesRead,0,0)){
+		ZeroMemory( buf, data_len );
+		if( !PeekNamedPipe( m_hRead,buf, data_len, &lBytesRead, 0, 0 ) ){
 
-					delete[] buf;
-					buf = NULL;
-					RETURN_NULL();
-					return;
-				}
-			}
-				
-			if (ReadFile(m_hRead, buf, lBytesRead+1, &dwRead, NULL))// 从管道中读取数据 
-			{
-				ZVAL_STRINGL(return_value,buf,dwRead,1);
-
-				delete[] buf;
-				buf = NULL;
-				
-				return;
-			}
+			delete[] buf;
+			buf = NULL;
 			RETURN_NULL();
+			return;
+		}
+	}
+				
+	if ( ReadFile(m_hRead, buf, lBytesRead+1, &dwRead, NULL ) ) {
+		// 从管道中读取数据 
+		ZVAL_STRINGL( return_value, buf, dwRead, 1 );
+		delete[] buf;
+		buf = NULL;	
+		return;
+	}
+	RETURN_NULL();
+	return;
 }
+
+
+/*****************************************************************
+ *@create process 创建进程
+ *@param command path 程序路径
+ *@param command params 命令行参数
+ ****************************************************************/
+PHP_FUNCTION(wing_create_process){
+	char *exe           = NULL;   //创建进程必须的可执行文件 一般为 exe bat等可以直接运行的文件
+	int	  exe_len       = 0;
+	char *params        = NULL;   //可选命令行参数
+	int	  params_len    = 0;
+	char *params_ex     = NULL;   //需要传递到子进程能的参数 通过api wing_get_process_params 获取
+	int   params_ex_len = 0;
+	char *command       = NULL;   //创建进程的参数
+	unsigned long pid   = 0;      //进程id
+
+	if ( zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC, "s|ss", &exe, &exe_len, &params, &params_len, &params_ex, &params_ex_len ) != SUCCESS ) {
+		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
+		return;
+	}
+	
+	spprintf( &command, 0, "%s %s\0", exe, params );
+
+	pid = create_process( command, params_ex, params_ex_len );
+
+	efree(command);
+	RETURN_LONG(pid);	
+	return;
+}
+
+//---------------------代码review到这里啦----------------
 
 /*******************************************************************
  *@创建进程，把一个php文件直接放到一个进程里面执行
  *@param command path 程序路径
  *@param command params 命令行参数
  ********************************************************************/
-PHP_FUNCTION(wing_create_process_ex){
+PHP_FUNCTION( wing_create_process_ex ){
 	
 	char *params = NULL;
 	int	params_len = 0;
@@ -361,28 +421,6 @@ PHP_FUNCTION(wing_create_process_ex){
 }
 
 
-/*****************************************************************
- *@create process 创建进程
- *@param command path 程序路径
- *@param command params 命令行参数
- ****************************************************************/
-PHP_FUNCTION(wing_create_process){
-	char *exe=NULL;
-	int	exe_len=0;
-	char *params=NULL;
-	int	params_len=0;
-	char *params_ex=NULL;
-	int params_ex_len=0;
-
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|ss", &exe,&exe_len,&params,&params_len,&params_ex,&params_ex_len) != SUCCESS) {
-		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
-		return;
-	}
-	char *command = NULL;
-	spprintf(&command, 0, "%s %s\0",exe,params);
-	efree(command);
-	RETURN_LONG(create_process(command,params_ex,params_ex_len));	
-}
 /*******************************************************************
  *@杀死进程
  ******************************************************************/
@@ -714,7 +752,7 @@ ZEND_FUNCTION(wing_timer){
 	int command_index		= 0;
 	int last_value			= 0;
 	
-	command_params_check(command_params,&run_process,&last_value);
+	command_params_check(command_params,&run_process,&last_value TSRMLS_CC);
 
 	char *command = NULL;
 	 

@@ -15,12 +15,12 @@ $process_id = wing_create_process(
     "hello,i come from parent parent process"
 );*/
 
-if($process_id == WING_ERROR_PARAMETER_ERROR){
+if( $process_id == WING_ERROR_PARAMETER_ERROR ){
     echo "parameter error";
     exit;
 }
 
-if($process_id == WING_ERROR_FAILED){
+if( $process_id == WING_ERROR_FAILED){
     echo "create process fail";
     exit;
 }
@@ -28,7 +28,7 @@ if($process_id == WING_ERROR_FAILED){
 
 
 //WING_INFINITE 永不超时 即线程不退出 一直等待
-$exit_code =  wing_thread_wait($process_id,WING_INFINITE);
+$exit_code =  wing_process_wait( $process_id, WING_INFINITE );
 if($exit_code == WING_WAIT_TIMEOUT){
     echo "wait timeout";
     exit;
