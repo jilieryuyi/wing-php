@@ -78,6 +78,37 @@ ZEND_END_MODULE_GLOBALS(wing)
 #define WING_G(v) (wing_globals.v)
 #endif
 
+
+
+//timer 进程计数器 用于控制多个timer的创建和运行
+//static int wing_timer_count = 0;
+//线程计数器 用于多线程控制
+
+
+//unsigned long create_process(char *command,char *params_ex=NULL,int params_ex_len=0);
+//void command_params_check(char* &command_params,int *run_process,int *last_value TSRMLS_DC);
+
+PHP_FUNCTION(wing_process_wait);
+PHP_FUNCTION( wing_create_thread );
+ZEND_FUNCTION(wing_get_process_params);
+PHP_FUNCTION(wing_create_process);
+PHP_FUNCTION( wing_create_process_ex );
+ZEND_FUNCTION(wing_process_kill);
+ZEND_FUNCTION(wing_get_current_process_id);
+ZEND_FUNCTION(wing_create_mutex);
+ZEND_FUNCTION(wing_close_mutex);
+ZEND_FUNCTION(wing_process_isalive);
+ZEND_FUNCTION(wing_get_env);
+ZEND_FUNCTION(wing_set_env);
+ZEND_FUNCTION( wing_get_command_path );
+ZEND_FUNCTION(wing_timer);
+
+ZEND_FUNCTION(wing_send_msg);
+ZEND_FUNCTION( wing_create_window );
+ZEND_FUNCTION(wing_destory_window);
+ZEND_FUNCTION(wing_message_loop);
+ZEND_FUNCTION(wing_message_box);
+
 #endif	/* PHP_WING_H */
 
 

@@ -51,56 +51,54 @@ ZEND_DECLARE_MODULE_GLOBALS(wing)
 
 /* True global resources - no need for thread safety here */
 static int le_wing = 0;
-char  *PHP_PATH = NULL;
-//timer 进程计数器 用于控制多个timer的创建和运行
-static int wing_timer_count = 0;
-//线程计数器 用于多线程控制
-static int wing_thread_count =0;
+//extern char  *PHP_PATH;
 
+static int wing_thread_count = 0;
+static int wing_timer_count  = 0;
+char  *PHP_PATH              = NULL;
 /****************************************************************************
  * @ 创建进程
  * @ param command 要在进程中执行的指令 
  * @ param params_ex 额外参数 用于传输给生成的子进程 默认为 NULL，即不传输参数
  * @ param params_ex_len 额外参数长度 默认为0，即参数为 params_ex = NULL
  ***************************************************************************/
-unsigned long create_process(char *command,char *params_ex=NULL,int params_ex_len=0){
+unsigned long create_process( char *command, char *params_ex, int params_ex_len ){
 	    
-	HANDLE m_hRead = NULL;
-	HANDLE m_hWrite = NULL;
+	HANDLE m_hRead         = NULL;
+	HANDLE m_hWrite        = NULL;
 	STARTUPINFO sui;    
-	PROCESS_INFORMATION pi; // 保存了所创建子进程的信息
-	SECURITY_ATTRIBUTES sa;   // 父进程传递给子进程的一些信息
+	PROCESS_INFORMATION pi;                        // 保存了所创建子进程的信息
+	SECURITY_ATTRIBUTES sa;                        // 父进程传递给子进程的一些信息
 		
-	char *params = NULL;
-	int params_len = 0;
+	char *params     = NULL;
+	int   params_len = 0;
     
-	sa.bInheritHandle = TRUE; // 还记得我上面的提醒吧，这个来允许子进程继承父进程的管道句柄
+	sa.bInheritHandle       = TRUE;                // 还记得我上面的提醒吧，这个来允许子进程继承父进程的管道句柄
 	sa.lpSecurityDescriptor = NULL;
-	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+	sa.nLength              = sizeof(SECURITY_ATTRIBUTES);
 	
 	if (!CreatePipe(&m_hRead, &m_hWrite, &sa, 0))
 	{
 		return WING_ERROR_FAILED;
 	}
 
-	ZeroMemory(&sui, sizeof(STARTUPINFO)); // 对一个内存区清零，最好用ZeroMemory, 它的速度要快于memset
+	ZeroMemory(&sui, sizeof(STARTUPINFO));         // 对一个内存区清零，最好用ZeroMemory, 它的速度要快于memset
 	
-	sui.cb = sizeof(STARTUPINFO);
-	sui.dwFlags	= STARTF_USESTDHANDLES;  
-	sui.hStdInput = m_hRead;
+	sui.cb         = sizeof(STARTUPINFO);
+	sui.dwFlags	   = STARTF_USESTDHANDLES;  
+	sui.hStdInput  = m_hRead;
 	sui.hStdOutput = m_hWrite;
-	sui.hStdError = GetStdHandle(STD_ERROR_HANDLE);
+	sui.hStdError  = GetStdHandle(STD_ERROR_HANDLE);
 		
-	if( params_ex_len >0 && params_ex != NULL ){
+	if( params_ex_len >0 && params_ex != NULL ) {
 		DWORD d;
-		if(::WriteFile(m_hWrite,params_ex,params_ex_len,&d,NULL)==FALSE){
+		if( ::WriteFile(m_hWrite,params_ex,params_ex_len,&d,NULL) == FALSE ) {
 			//告警
 			zend_error(E_USER_WARNING,"write params to process error");
 		}
 	}
 
-	if (!CreateProcess(NULL,command, NULL, NULL, TRUE, 0, NULL, NULL, &sui, &pi))
-	{
+	if ( !CreateProcess(NULL,command, NULL, NULL, TRUE, 0, NULL, NULL, &sui, &pi ) ) {
 		CloseHandle(m_hRead);
 		CloseHandle(m_hWrite);
 		return WING_ERROR_FAILED;
@@ -108,8 +106,8 @@ unsigned long create_process(char *command,char *params_ex=NULL,int params_ex_le
 		
 	CloseHandle(m_hRead);
 	CloseHandle(m_hWrite);
-	CloseHandle(pi.hProcess); // 子进程的进程句柄
-	CloseHandle(pi.hThread); // 子进程的线程句柄，windows中进程就是一个线程的容器，每个进程至少有一个线程在执行
+	CloseHandle(pi.hProcess);  // 子进程的进程句柄
+	CloseHandle(pi.hThread);   // 子进程的线程句柄，windows中进程就是一个线程的容器，每个进程至少有一个线程在执行
 		
 	return pi.dwProcessId;	
 }
@@ -166,32 +164,7 @@ void command_params_check(char* &command_params,int *run_process,int *last_value
 		} 
 	}
 }
-//-----------------------function--end---------------------------------------------------
 
-
-
-/* {{{ PHP_INI
- */
-/* Remove comments and fill if you need to have entries in php.ini
-PHP_INI_BEGIN()
-    STD_PHP_INI_ENTRY("wing.global_value",      "42", PHP_INI_ALL, OnUpdateLong, global_value, zend_wing_globals, wing_globals)
-    STD_PHP_INI_ENTRY("wing.global_string", "foobar", PHP_INI_ALL, OnUpdateString, global_string, zend_wing_globals, wing_globals)
-PHP_INI_END()
-*/
-/* }}} */
-
-/* Remove the following function when you have successfully modified config.m4
-   so that your module can be compiled into PHP, it exists only for testing
-   purposes. */
-
-/***************************************************************
- * @ 获取 wing php的版本号 或者使用常量 WING_VERSION                
- **************************************************************/
-PHP_FUNCTION(wing_version){
-	char *string = NULL;
-    int len = spprintf(&string, 0, "%s", PHP_WING_VERSION);
-    RETURN_STRING(string,0);
-}
 
 
 /***************************************************************
@@ -231,6 +204,7 @@ PHP_FUNCTION(wing_process_wait){
 	RETURN_LONG(wait_result);
 	return;
 }
+
 
 /******************************************************************
  *@创建多线程，使用进程模拟
@@ -413,8 +387,8 @@ PHP_FUNCTION( wing_create_process_ex ){
 	int   pid            = 0;
 
 	if ( zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC, "s|s", &params, &params_len, &params_ex, &params_ex_len ) != SUCCESS ) {
-		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
-		return;
+		 RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
+		 return;
 	}
 	
 	
@@ -494,9 +468,9 @@ ZEND_FUNCTION(wing_create_mutex){
 	}
 
     if ( ERROR_ALREADY_EXISTS == GetLastError() ) {
-        CloseHandle(m_hMutex);
-		RETURN_LONG( ERROR_ALREADY_EXISTS );
-        return;
+         CloseHandle(m_hMutex);
+		 RETURN_LONG( ERROR_ALREADY_EXISTS );
+         return;
 	}
 
 	RETURN_LONG( (long)m_hMutex );
@@ -539,7 +513,7 @@ ZEND_FUNCTION(wing_process_isalive)
 		return;
 	}
 
-	if( process_id<= 0 ) {
+	if( process_id <= 0 ) {
 		RETURN_LONG( WING_ERROR_PARAMETER_ERROR );
 		return;
 	}
@@ -649,6 +623,184 @@ ZEND_FUNCTION( wing_get_command_path ){
 }
 
 
+
+
+/********************************************************************************
+ *@毫秒级别定时器
+ *@author yuyi
+ *@created 2016-05-15
+ ********************************************************************************/
+ZEND_FUNCTION(wing_timer){
+	
+	wing_timer_count++;
+	
+	zval *callback         = NULL;
+	zval *dwMilliseconds   = NULL;
+	int   max_run_times    = 0;
+	long  accuracy         = 10000; //设置相对时间为1秒 1000 0000。
+	char *command_params   = NULL;
+	int   run_process      = 0;
+	int   command_index	   = 0;
+	int   last_value	   = 0;
+	char *command          = NULL;
+	unsigned long pid      = 0;
+
+	MAKE_STD_ZVAL( callback );
+	MAKE_STD_ZVAL( dwMilliseconds );
+
+	if ( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zz|lll",&dwMilliseconds, &callback,&max_run_times,&accuracy) != SUCCESS ) {
+		 zval_ptr_dtor( &callback );
+		 zval_ptr_dtor( &dwMilliseconds ); 
+		 RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
+		 return;
+	}
+
+	convert_to_long_ex(&dwMilliseconds);
+	command_params_check(command_params,&run_process,&last_value TSRMLS_CC);
+	spprintf(&command, 0, "%s %s %s wing-process %ld",PHP_PATH, zend_get_executed_filename(TSRMLS_C),command_params,wing_timer_count);
+
+	if(!run_process){
+		pid = create_process(command,NULL,0);
+		efree( command );
+		efree( command_params );
+		zval_ptr_dtor( &callback );
+		zval_ptr_dtor( &dwMilliseconds );
+		RETURN_LONG(pid);	
+		return;
+	}
+
+	if(wing_timer_count!=last_value){
+		efree( command );
+		efree( command_params );
+		zval_ptr_dtor( &callback );
+		zval_ptr_dtor( &dwMilliseconds );
+		RETURN_LONG(WING_NOTICE_IGNORE);
+		return;
+	}
+
+	HANDLE hTimer             = NULL;
+	LARGE_INTEGER liDueTime;
+	zval *retval_ptr          = NULL;
+	int times                 = 0;
+	LONGLONG time             = (-1)*accuracy*Z_LVAL_P(dwMilliseconds);
+    char *timername           = NULL;
+	liDueTime.QuadPart        = time; //设置相对时间为1秒 10000000。
+	
+	
+	spprintf(&timername,0,"wing_waitable_timer-%s",create_guid());
+    hTimer = CreateWaitableTimer(NULL, TRUE, timername);  //创建定时器。
+	
+	efree(timername);
+	efree(command);
+	efree( command_params );
+
+    if( !hTimer ) {       
+		 zval_ptr_dtor( &callback );
+		 zval_ptr_dtor( &dwMilliseconds );
+		 RETURN_LONG(WING_ERROR_FAILED);	
+		 return;
+    }
+ 
+    if (!SetWaitableTimer(hTimer, &liDueTime, 0, NULL, NULL, 0)) {         
+         CloseHandle(hTimer);
+		 zval_ptr_dtor( &callback );
+		 zval_ptr_dtor( &dwMilliseconds );
+		 RETURN_LONG(WING_ERROR_FAILED);	
+         return;
+    }
+ 
+    //等定时器有信号。
+	while(true)
+	{
+		if ( WaitForSingleObject(hTimer, INFINITE) != WAIT_OBJECT_0) {
+			 CloseHandle(hTimer);
+			 zval_ptr_dtor( &callback );
+		     zval_ptr_dtor( &dwMilliseconds );
+			 RETURN_LONG(WING_ERROR_FAILED);	
+			 return;
+		}
+		else 
+		{
+			//时钟到达。
+            //SetWaitableTimer(hTimer, &liDueTime, 0, NULL, NULL, 0);//将hTimer信息重置为无信号，如果不然就会不断的输出
+
+			MAKE_STD_ZVAL(retval_ptr);
+			
+			if( SUCCESS != call_user_function(EG(function_table),NULL,callback,retval_ptr,0,NULL TSRMLS_CC ) ) {
+				zval_ptr_dtor( &retval_ptr );
+				zval_ptr_dtor( &callback );
+				zval_ptr_dtor( &dwMilliseconds );
+				RETURN_LONG(WING_ERROR_FAILED);	
+				return;
+			}
+			zval_ptr_dtor( &retval_ptr );
+
+			if( max_run_times>0 ) {
+				times++;
+				if( times >= max_run_times ) break;
+			}
+
+
+			 if ( !SetWaitableTimer(hTimer, &liDueTime, 0, NULL, NULL, 0)) {         
+                   CloseHandle(hTimer);
+			       zval_ptr_dtor( &callback );
+			       zval_ptr_dtor( &dwMilliseconds );
+			       RETURN_LONG(WING_ERROR_FAILED);	
+                   return;
+			 }
+
+		}  
+	}
+	SetWaitableTimer(hTimer, &liDueTime, 0, NULL, NULL, 0);
+    CloseHandle(hTimer);
+	zval_ptr_dtor( &callback );
+	zval_ptr_dtor( &dwMilliseconds );
+	RETURN_LONG(WING_SUCCESS);	
+	return;
+}
+
+
+//-----------------------function--end---------------------------------------------------
+
+//---------------------代码review到这里啦----------------
+
+/* {{{ PHP_INI
+ */
+/* Remove comments and fill if you need to have entries in php.ini
+PHP_INI_BEGIN()
+    STD_PHP_INI_ENTRY("wing.global_value",      "42", PHP_INI_ALL, OnUpdateLong, global_value, zend_wing_globals, wing_globals)
+    STD_PHP_INI_ENTRY("wing.global_string", "foobar", PHP_INI_ALL, OnUpdateString, global_string, zend_wing_globals, wing_globals)
+PHP_INI_END()
+*/
+/* }}} */
+
+/* Remove the following function when you have successfully modified config.m4
+   so that your module can be compiled into PHP, it exists only for testing
+   purposes. */
+
+/***************************************************************
+ * @ 获取 wing php的版本号 或者使用常量 WING_VERSION                
+ **************************************************************/
+PHP_FUNCTION(wing_version){
+	char *string = NULL;
+    int len = spprintf(&string, 0, "%s", PHP_WING_VERSION);
+    RETURN_STRING(string,0);
+}
+
+/****************************************************************
+ *@获取最后发生的错误
+ ****************************************************************/
+ZEND_FUNCTION(wing_get_last_error){
+	RETURN_LONG(GetLastError());
+}
+
+ZEND_FUNCTION(wing_wsa_get_last_error){
+	RETURN_LONG(WSAGetLastError());
+}
+
+
+
+
 /*************************************************************************************************
  *@通过WM_COPYDATA发送进程间消息 只能发给窗口程序
  *@注：只能给窗口程序发消息
@@ -707,6 +859,8 @@ ZEND_FUNCTION(wing_send_msg){
 	RETURN_LONG(status);
 	return;
 }
+
+
 
 
 /**********************************************************************
@@ -816,135 +970,6 @@ ZEND_FUNCTION(wing_message_box){
 	MessageBox(0,content,title,0);
 	RETURN_NULL();
 }
-/********************************************************************************
- *@获取最后发生的错误
- ********************************************************************************/
-ZEND_FUNCTION(wing_get_last_error){
-	RETURN_LONG(GetLastError());
-}
-
-
-//---------------------代码review到这里啦----------------
-/********************************************************************************
- *@毫秒级别定时器
- *@author yuyi
- *@created 2016-05-15
- ********************************************************************************/
-ZEND_FUNCTION(wing_timer){
-	wing_timer_count++;
-	zval *callback;
-	zval *dwMilliseconds;
-	MAKE_STD_ZVAL(callback);
-	MAKE_STD_ZVAL(dwMilliseconds);
-
-	int max_run_times = 0;
-	//设置相对时间为1秒 1000 0000。
-	long accuracy = 10000;
-
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zz|lll",&dwMilliseconds, &callback,&max_run_times,&accuracy) != SUCCESS) {
-		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
-		return;
-	}
-	convert_to_long_ex(&dwMilliseconds);
-
-	char *command_params	= "";
-	int run_process			= 0;
-	int command_index		= 0;
-	int last_value			= 0;
-	
-	command_params_check(command_params,&run_process,&last_value TSRMLS_CC);
-
-	char *command = NULL;
-	 
-	
-	spprintf(&command, 0, "%s %s %s wing-process %ld",PHP_PATH, zend_get_executed_filename(TSRMLS_C),command_params,wing_timer_count);
-
-	if(!run_process){
-		unsigned long pid = create_process(command,NULL,0);
-		efree(command);
-		RETURN_LONG(pid);	
-		return;
-	}
-
-	if(wing_timer_count!=last_value){
-		efree(command);
-		RETURN_LONG(WING_NOTICE_IGNORE);
-		return;
-	}
-
-	efree(command);
-
-	HANDLE hTimer = NULL;
-    LARGE_INTEGER liDueTime;
-	zval *retval_ptr;
-	int times=0;
-
-	LONGLONG time = (-1)*accuracy*Z_LVAL_P(dwMilliseconds);
-
-    //设置相对时间为1秒 10000000。
-	liDueTime.QuadPart = time;
-	char *timername = NULL;
-	spprintf(&timername,0,"wing_waitable_timer-%s",create_guid());
-    //创建定时器。
-    hTimer = CreateWaitableTimer(NULL, TRUE, timername);
-	efree(timername);
-
-    if(!hTimer)
-    {       
-		RETURN_LONG(WING_ERROR_FAILED);	
-		return;
-    }
- 
-    if (!SetWaitableTimer(hTimer, &liDueTime, 0, NULL, NULL, 0))
-    {         
-        CloseHandle(hTimer);
-		RETURN_LONG(WING_ERROR_FAILED);	
-        return;
-    }
- 
-    //等定时器有信号。
-	while(true)
-	{
-		if (WaitForSingleObject(hTimer, INFINITE) != WAIT_OBJECT_0)
-		{
-			CloseHandle(hTimer);
-			RETURN_LONG(WING_ERROR_FAILED);	
-			return;
-		}
-		else
-		{
-			//时钟到达。
-            //SetWaitableTimer(hTimer, &liDueTime, 0, NULL, NULL, 0);//将hTimer信息重置为无信号，如果不然就会不断的输出
-
-			MAKE_STD_ZVAL(retval_ptr);
-			if(SUCCESS != call_user_function(EG(function_table),NULL,callback,retval_ptr,0,NULL TSRMLS_CC)){
-				zval_ptr_dtor(&retval_ptr);
-				RETURN_LONG(WING_ERROR_FAILED);	
-				return;
-			}
-			
-			zval_ptr_dtor(&retval_ptr);
-
-			if(max_run_times>0){
-				times++;
-				if(times>=max_run_times)break;
-			}
-
-
-			 if (!SetWaitableTimer(hTimer, &liDueTime, 0, NULL, NULL, 0))
-			 {         
-               CloseHandle(hTimer);
-			   RETURN_LONG(WING_ERROR_FAILED);	
-               return;
-			 }
-
-		}  
-	}
-	SetWaitableTimer(hTimer, &liDueTime, 0, NULL, NULL, 0);
-    CloseHandle(hTimer);
-	RETURN_LONG(WING_SUCCESS);	
-}
-
 
 /*****************************************************************************************
  * @ socket
@@ -1743,7 +1768,7 @@ ZEND_METHOD(wing_server,start){
 	return;
 }
 
-static zend_function_entry wing_server_method[]={
+static zend_function_entry wing_server_methods[]={
 	ZEND_ME(wing_server,__construct,NULL,ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
 	ZEND_ME(wing_server,on,NULL,ZEND_ACC_PUBLIC)
 	ZEND_ME(wing_server,start,NULL,ZEND_ACC_PUBLIC)
@@ -1793,7 +1818,7 @@ PHP_MINIT_FUNCTION(wing)
 
 	//----wing_server-----
 	zend_class_entry  _wing_server_ce;
-	INIT_CLASS_ENTRY( _wing_server_ce,"wing_server", wing_server_method );
+	INIT_CLASS_ENTRY( _wing_server_ce,"wing_server", wing_server_methods );
 	wing_server_ce = zend_register_internal_class( &_wing_server_ce TSRMLS_CC );
 	
 	//事件回调函数 默认为null
@@ -1922,7 +1947,10 @@ const zend_function_entry wing_functions[] = {
 	PHP_FE(wing_get_command_path,NULL)
 	PHP_FE(wing_set_env,NULL)
 	PHP_FE(wing_send_msg,NULL)
+
 	PHP_FE(wing_get_last_error,NULL)
+	PHP_FE(wing_wsa_get_last_error,NULL)
+
 	PHP_FE(wing_create_window,NULL)
 	PHP_FE(wing_message_loop,NULL)
 	PHP_FE(wing_destory_window,NULL)
