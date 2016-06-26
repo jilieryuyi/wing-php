@@ -372,6 +372,7 @@ ZEND_FUNCTION(wing_get_process_params){
  *@param command params 命令行参数
  ****************************************************************/
 PHP_FUNCTION(wing_create_process){
+
 	char *exe           = NULL;   //创建进程必须的可执行文件 一般为 exe bat等可以直接运行的文件
 	int	  exe_len       = 0;
 	char *params        = NULL;   //可选命令行参数
@@ -395,7 +396,7 @@ PHP_FUNCTION(wing_create_process){
 	return;
 }
 
-//---------------------代码review到这里啦----------------
+
 
 /*******************************************************************
  *@创建进程，把一个php文件直接放到一个进程里面执行
@@ -404,20 +405,25 @@ PHP_FUNCTION(wing_create_process){
  ********************************************************************/
 PHP_FUNCTION( wing_create_process_ex ){
 	
-	char *params = NULL;
-	int	params_len = 0;
-	char *params_ex	= NULL;
-	int params_ex_len = 0;
+	char *params         = NULL;
+	int	  params_len     = 0;
+	char *params_ex	     = NULL;
+	int   params_ex_len  = 0;
+	char *command        = NULL;
+	int   pid            = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s", &params,&params_len,&params_ex,&params_ex_len) != SUCCESS) {
+	if ( zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC, "s|s", &params, &params_len, &params_ex, &params_ex_len ) != SUCCESS ) {
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
 	
-	char *command = NULL;
-	spprintf(&command, 0, "%s %s\0",PHP_PATH,params);
+	
+	spprintf( &command, 0, "%s %s\0", PHP_PATH, params );
+	pid = create_process( command, params_ex, params_ex_len );
+
 	efree(command);
-	RETURN_LONG(create_process(command,params_ex,params_ex_len));	
+	RETURN_LONG(pid);	
+	return;
 }
 
 
@@ -427,7 +433,7 @@ PHP_FUNCTION( wing_create_process_ex ){
 ZEND_FUNCTION(wing_process_kill)
 {
 	long process_id = 0;
-	if( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l",&process_id) != SUCCESS ){
+	if( zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC,"l",&process_id ) != SUCCESS ) {
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
@@ -436,11 +442,14 @@ ZEND_FUNCTION(wing_process_kill)
 		RETURN_LONG(WING_ERROR_PROCESS_NOT_EXISTS);
         return;
 	}
-    if( !TerminateProcess( hProcess , 0 ) ){
+    if( !TerminateProcess( hProcess , 0 ) ) {
+		CloseHandle(hProcess);
 		RETURN_LONG(WING_ERROR_FAILED);
         return;
 	}
+	CloseHandle(hProcess);
     RETURN_LONG(WING_SUCCESS);
+	return;
 }
 
 
@@ -457,13 +466,16 @@ ZEND_FUNCTION(wing_get_current_process_id){
  *@-3创建互斥锁失败 long handle创建互斥锁成功  
  **************************************************************/
 ZEND_FUNCTION(wing_create_mutex){
-	char *mutex_name = NULL;
-	int mutex_name_len = 0;
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&mutex_name,&mutex_name_len) != SUCCESS){
+
+	char *mutex_name     = NULL;
+	int   mutex_name_len = 0;
+	
+	if( zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC, "s", &mutex_name, &mutex_name_len ) != SUCCESS ) {
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
-	if(mutex_name_len<=0){
+
+	if( mutex_name_len <= 0 ){
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
@@ -475,21 +487,20 @@ ZEND_FUNCTION(wing_create_mutex){
 	sa.bInheritHandle = TRUE;*/
 
 	HANDLE m_hMutex =  CreateMutex(NULL,TRUE,mutex_name);//CreateMutex(&sa,TRUE,mutex_name);
-    DWORD dwRet = GetLastError();
-    if ( m_hMutex )
-    {
-        if ( ERROR_ALREADY_EXISTS == dwRet )
-        {
-            CloseHandle(m_hMutex);
-			RETURN_LONG(ERROR_ALREADY_EXISTS);
-            return;
-		}else{
-			RETURN_LONG((long)m_hMutex);
-			return;
-		}
-    }
-   
-	RETURN_LONG(WING_ERROR_FAILED);
+
+    if ( !m_hMutex ) {
+		RETURN_LONG(WING_ERROR_FAILED);
+		return;
+	}
+
+    if ( ERROR_ALREADY_EXISTS == GetLastError() ) {
+        CloseHandle(m_hMutex);
+		RETURN_LONG( ERROR_ALREADY_EXISTS );
+        return;
+	}
+
+	RETURN_LONG( (long)m_hMutex );
+	return;
 }
 
 
@@ -498,17 +509,17 @@ ZEND_FUNCTION(wing_create_mutex){
  ****************************************************************/
 ZEND_FUNCTION(wing_close_mutex){
 	long mutex_handle = 0;
-	if( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l",&mutex_handle) != SUCCESS )
-	{
+	if( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l",&mutex_handle) != SUCCESS ) {
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
-	if( mutex_handle <= 0 )
-	{
+	if( mutex_handle <= 0 ) {
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
-	RETURN_LONG(CloseHandle((HANDLE)mutex_handle)?WING_SUCCESS:WING_ERROR_FAILED);
+	int status_code = CloseHandle((HANDLE)mutex_handle) ? WING_SUCCESS : WING_ERROR_FAILED ;
+	RETURN_LONG( status_code );
+	return;
 }
 
 
@@ -518,18 +529,31 @@ ZEND_FUNCTION(wing_close_mutex){
 ZEND_FUNCTION(wing_process_isalive)
 {
 	long process_id = 0;
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l",&process_id) != SUCCESS){
+	HANDLE hProcess = NULL;
+	
+	if( zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC,"l",&process_id) != SUCCESS ) {
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
-    HANDLE hProcess=OpenProcess(PROCESS_TERMINATE,FALSE,process_id);
-    if(hProcess==NULL){
+
+	if( process_id<= 0 ) {
+		RETURN_LONG( WING_ERROR_PARAMETER_ERROR );
+		return;
+	}
+
+    hProcess = OpenProcess( PROCESS_TERMINATE , FALSE , process_id );
+    
+	if( hProcess == NULL ){
 		RETURN_LONG(WING_ERROR_PROCESS_NOT_EXISTS);
         return;
 	}
+
+	CloseHandle( hProcess );
 	RETURN_LONG(WING_PROCESS_IS_RUNNING);
+	return;
 }
 
+//---------------------代码review到这里啦----------------
 /***************************************************************************************************
  *@获取环境变量
  **************************************************************************************************/

@@ -5,7 +5,8 @@
  * Date: 2016/5/12
  * Time: 8:28
  */
-$process_id = wing_create_process_ex(__DIR__."/wing_create_process_runner.php",
+$process_id = wing_create_process_ex(
+    __DIR__."/wing_create_process_runner.php",
     "hello"//send hello to child process
 );
 
@@ -21,7 +22,7 @@ if($process_id == WING_ERROR_FAILED){
 
 
 //WING_INFINITE 永不超时 即线程不退出 一直等待
-$exit_code =  wing_thread_wait($process_id,WING_INFINITE);
+$exit_code =  wing_process_wait($process_id,WING_INFINITE);
 
 if($exit_code == WING_WAIT_TIMEOUT){
     echo "wait timeout";
