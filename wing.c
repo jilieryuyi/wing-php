@@ -509,14 +509,17 @@ ZEND_FUNCTION(wing_create_mutex){
  ****************************************************************/
 ZEND_FUNCTION(wing_close_mutex){
 	long mutex_handle = 0;
+	
 	if( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l",&mutex_handle) != SUCCESS ) {
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
+
 	if( mutex_handle <= 0 ) {
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
+
 	int status_code = CloseHandle((HANDLE)mutex_handle) ? WING_SUCCESS : WING_ERROR_FAILED ;
 	RETURN_LONG( status_code );
 	return;
@@ -553,48 +556,72 @@ ZEND_FUNCTION(wing_process_isalive)
 	return;
 }
 
-//---------------------代码review到这里啦----------------
+
 /***************************************************************************************************
  *@获取环境变量
  **************************************************************************************************/
 ZEND_FUNCTION(wing_get_env){
 	
-	char *name = NULL;
-	int name_len = 0;
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&name,&name_len) != SUCCESS){
-		RETURN_NULL();
-		return;
-	}
-	int len = GetEnvironmentVariable(name,NULL,0);
-	if(len<=0){
-		RETURN_NULL();
-		return;
-	}
-	char *var= new char[len];  
+	char *name     = NULL;
+	int   name_len = 0;
+	int   size     = 0;
+	char *var      = NULL;
 	
-	ZeroMemory(var,sizeof(var));
+	if( zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC,"s", &name, &name_len ) != SUCCESS ) {
+		RETURN_EMPTY_STRING();
+		return;
+	}
 
-	GetEnvironmentVariable(name,var,len);
-	ZVAL_STRINGL(return_value,var,len-1,1);
+	size = GetEnvironmentVariable(name,NULL,0);
+
+	if( size<=0 || GetLastError() == ERROR_ENVVAR_NOT_FOUND ) {
+		RETURN_EMPTY_STRING();
+		return;
+	}
+	
+	var = new char[size];  
+	
+	ZeroMemory( var , size );
+
+	size = GetEnvironmentVariable(name,var,size);
+
+	if (size == 0) {
+		delete[] var;
+		var = NULL;
+		RETURN_EMPTY_STRING();
+		return;
+	}
+
+	ZVAL_STRINGL( return_value, var, size, 1 );
 
 	delete[] var;
 	var = NULL;
+	return;
 }
 
 /****************************************************************************************************
  * @ 设置环境变量，子进程和父进程可以共享，可以简单用作进程间的通信方式
  ***************************************************************************************************/
 ZEND_FUNCTION(wing_set_env){
-	char *name = NULL;
-	zval *value = NULL;
-	int name_len = 0;
+
+	char *name     = NULL;
+	zval *value    = NULL;
+	int   name_len = 0;
+	int   res      = 0;
+
 	MAKE_STD_ZVAL(value);
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"sz",&name,&name_len,&value) != SUCCESS){
-		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
+	
+	if( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"sz", &name, &name_len, &value) != SUCCESS ) {
+		zval_ptr_dtor( &value );
+		RETURN_LONG( WING_ERROR_PARAMETER_ERROR );
 		return;
 	}
 	convert_to_string(value);
-	RETURN_LONG(SetEnvironmentVariableA(name,(LPCTSTR)Z_STRVAL_P(value)));
+	
+	res = SetEnvironmentVariableA( name,(LPCTSTR)Z_STRVAL_P(value) ) ? WING_SUCCESS : WING_ERROR_FAILED;
+	zval_ptr_dtor(&value);
+
+	RETURN_LONG( res );
 }
 
 
@@ -602,16 +629,23 @@ ZEND_FUNCTION(wing_set_env){
  * @ 获取一个命令所在的绝对文件路径
  * @ 比如说获取php的安装目录，不过wing php里面可以直接使用常量 WING_PHP 代表的书php的安装路径
  *************************************************************************************************/
-ZEND_FUNCTION(wing_get_command_path){ 
-	char *name = 0;
-	int name_len = 0;
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&name,&name_len) != SUCCESS){
-		RETURN_NULL();
+ZEND_FUNCTION( wing_get_command_path ){ 
+
+	char *name     = 0;
+	int   name_len = 0;
+	char *path     = NULL;
+
+	if( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &name, &name_len ) != SUCCESS ) {
+		RETURN_EMPTY_STRING();
 		return;
 	}
-	char path[MAX_PATH] = {0};
-	get_command_path((const char*)name,path);
-	RETURN_STRING(path,1);
+	
+	path = (char*)emalloc(MAX_PATH);
+	
+	get_command_path( (const char*)name, path );
+	
+	RETURN_STRING(path,0);
+	return;
 }
 
 
@@ -620,31 +654,58 @@ ZEND_FUNCTION(wing_get_command_path){
  *@注：只能给窗口程序发消息
  ************************************************************************************************/
 ZEND_FUNCTION(wing_send_msg){
-	zval *console_title;
-	zval *message_id;
-	zval *message;
+	
+	zval *console_title = NULL;
+	zval *message_id    = NULL;
+	zval *message       = NULL;
+	HWND  hwnd          = NULL;
 
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"zzz",&console_title,&message_id,&message) != SUCCESS){
+	MAKE_STD_ZVAL( console_title );
+	MAKE_STD_ZVAL( message_id );
+	MAKE_STD_ZVAL( message );
+
+	if( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"zzz",&console_title,&message_id,&message ) != SUCCESS) {
+
+		zval_ptr_dtor( &console_title );
+		zval_ptr_dtor( &message_id );
+		zval_ptr_dtor( &message );
+
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
-	convert_to_cstring(console_title);
-	convert_to_long(message_id);
-	convert_to_cstring(message);
 
-	HWND hwnd=FindWindow (Z_STRVAL_P(console_title),NULL);
-	if(hwnd==NULL){
+	convert_to_string( console_title );
+	convert_to_long( message_id );
+	convert_to_string( message );
+
+	hwnd = FindWindow( Z_STRVAL_P(console_title), NULL );
+
+	if( hwnd == NULL ) {
+
+		zval_ptr_dtor( &console_title );
+		zval_ptr_dtor( &message_id );
+		zval_ptr_dtor( &message );
 		RETURN_LONG(WING_ERROR_WINDOW_NOT_FOUND);
 		return;
 	}
-	//WM_USER
+	
+
 	COPYDATASTRUCT CopyData; 
-	CopyData.dwData	= Z_LVAL_P(message_id);  
-	CopyData.cbData	= Z_STRLEN_P(message);  
-	CopyData.lpData = Z_STRVAL_P(message);  //WM_COPYDATA
-	SendMessageA(hwnd,WM_COPYDATA,NULL,(LPARAM)&CopyData);
-	long status = GetLastError()==0 ? WING_SUCCESS:WING_ERROR_FAILED;
+
+	CopyData.dwData	= Z_LVAL_P( message_id );  
+	CopyData.cbData	= Z_STRLEN_P( message );  
+	CopyData.lpData = Z_STRVAL_P( message );  //WM_COPYDATA
+	
+	SendMessageA( hwnd, WM_COPYDATA, NULL, (LPARAM)&CopyData );
+	
+	long status = GetLastError() == 0 ? WING_SUCCESS:WING_ERROR_FAILED;
+
+	zval_ptr_dtor( &console_title );
+	zval_ptr_dtor( &message_id );
+	zval_ptr_dtor( &message );
+
 	RETURN_LONG(status);
+	return;
 }
 
 
@@ -666,20 +727,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 /*********************************************************************
  *@创建一个窗口 纯属测试
  *********************************************************************/
-ZEND_FUNCTION(wing_create_window){
-	zval *console_title;
+ZEND_FUNCTION( wing_create_window ){
+	
+	zval *console_title = NULL;
 
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"z",&console_title) != SUCCESS){
+	MAKE_STD_ZVAL(console_title);
+
+	if( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"z",&console_title) != SUCCESS ) {
+		zval_ptr_dtor(&console_title);
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
-	convert_to_cstring(console_title);
+	convert_to_string( console_title );
 	
 	HINSTANCE hInstance;
 	WNDCLASSEX wcex;
 
 	
-	hInstance=GetModuleHandle(NULL);
+	hInstance   = GetModuleHandle(NULL);
 	wcex.cbSize = sizeof(WNDCLASSEX);
 
 	wcex.style			= CS_HREDRAW | CS_VREDRAW;
@@ -696,24 +761,32 @@ ZEND_FUNCTION(wing_create_window){
 
 	RegisterClassEx(&wcex);
 
-	HWND hWnd=CreateWindowA(Z_STRVAL_P(console_title),Z_STRVAL_P(console_title), WS_OVERLAPPEDWINDOW,
-    CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
+	HWND hWnd = CreateWindowA(Z_STRVAL_P(console_title),Z_STRVAL_P(console_title), WS_OVERLAPPEDWINDOW,CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
 
-	ShowWindow(hWnd, 1);
-    UpdateWindow(hWnd);
-	RETURN_LONG((long)hWnd);
+	ShowWindow( hWnd, 1 );
+    UpdateWindow( hWnd );
+	zval_ptr_dtor( &console_title );
+	RETURN_LONG( (long)hWnd );
+	return;
 }
 /********************************************************************************
  *@销毁一个窗口
  ********************************************************************************/
 ZEND_FUNCTION(wing_destory_window){
-	long hwnd;
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l",&hwnd) != SUCCESS){
-		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
+	long hwnd = 0;
+	
+	if( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l",&hwnd ) != SUCCESS ){
+		RETURN_LONG( WING_ERROR_PARAMETER_ERROR );
 		return;
 	}
-	long  status = DestroyWindow((HWND)hwnd)?WING_SUCCESS:WING_ERROR_FAILED;
-	RETURN_BOOL(status);
+
+	if( hwnd <= 0 ) {
+		RETURN_LONG( WING_ERROR_PARAMETER_ERROR );
+		return;
+	}
+
+	long  status = DestroyWindow((HWND)hwnd) ? WING_SUCCESS : WING_ERROR_FAILED;
+	RETURN_LONG(status);
 }
 /*******************************************************************************
  *@启用消息循环 创建窗口必用 阻塞
@@ -730,10 +803,13 @@ ZEND_FUNCTION(wing_message_loop){
  *@简单的消息弹窗
  *******************************************************************************/
 ZEND_FUNCTION(wing_message_box){
-	char *content;
-	int c_len,t_len;
-	char *title;
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"ss",&content,&c_len,&title,&t_len) != SUCCESS){
+
+	char *content = NULL;
+	int   c_len   = 0;
+	int   t_len   = 0; 
+	char *title   = NULL;
+
+	if( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"ss", &content, &c_len, &title, &t_len) != SUCCESS ) {
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
@@ -748,7 +824,7 @@ ZEND_FUNCTION(wing_get_last_error){
 }
 
 
-
+//---------------------代码review到这里啦----------------
 /********************************************************************************
  *@毫秒级别定时器
  *@author yuyi

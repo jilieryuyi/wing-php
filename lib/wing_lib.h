@@ -14,7 +14,7 @@
 
 
 
-void get_command_path(const char *name,char *output);
+void get_command_path(const char *name,char *&output);
 const char* create_guid() ;
 
 #endif

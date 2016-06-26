@@ -20,42 +20,43 @@ void memory_sub(){
 /**************************************
  * @获取命令的绝对路径
  **************************************/
-void get_command_path(const char *name,char *output){
+void get_command_path(const char *name,char *&output){
 
-	int env_len		= GetEnvironmentVariable("PATH",NULL,0)+1;
-	char *env_var	= new char[env_len];
-	ZeroMemory(env_var,sizeof(char)*(env_len));
+	int   size      = GetEnvironmentVariable("PATH",NULL,0);
+	char *env_var	= new char[size];
+	char *temp      = NULL;
+	char *start     = NULL;
+	char *var_begin = NULL;
+	
+	ZeroMemory( env_var,size );
 
-	GetEnvironmentVariable("PATH",env_var,env_len);
-
-	char *temp = NULL;
-	char *start = NULL,*var_begin = NULL;
+	GetEnvironmentVariable("PATH",env_var,size);
 
 	start		= env_var;
 	var_begin	= env_var;
 
 	char _temp_path[MAX_PATH] = {0};
 
-	while( temp = strchr(var_begin,';') ){
+	while( temp = strchr(var_begin,';') ) {
 		
 		long len_temp	= temp-start;
 		long _len_temp	= len_temp+sizeof("\\")+sizeof(".exe")+1;
 		
-		ZeroMemory(output,sizeof(char)*MAX_PATH);
+		ZeroMemory( output, MAX_PATH );
 
-		strncpy_s(_temp_path,_len_temp,var_begin,len_temp);
-		sprintf_s(output,MAX_PATH,"%s\\%s.exe\0",_temp_path,name);
+		strncpy_s( _temp_path, _len_temp,var_begin, len_temp );
+		sprintf_s( output, MAX_PATH, "%s\\%s.exe\0", _temp_path, name );
 
-		if(PathFileExists(output)){
+		if( PathFileExists( output ) ) {
 			delete[] env_var;
 			env_var = NULL;
 			return;
 		}
 
-		ZeroMemory(output,sizeof(char)*MAX_PATH);
-		sprintf_s(output,MAX_PATH,"%s\\%s.bat\0",_temp_path,name);
+		ZeroMemory( output , MAX_PATH );
+		sprintf_s( output, MAX_PATH , "%s\\%s.bat\0", _temp_path, name );
 
-		if(PathFileExists(output)){
+		if( PathFileExists( output ) ) {
 			delete[] env_var;
 			env_var = NULL;
 			return;
