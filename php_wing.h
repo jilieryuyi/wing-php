@@ -78,7 +78,7 @@ ZEND_END_MODULE_GLOBALS(wing)
 #define WING_G(v) (wing_globals.v)
 #endif
 
-
+char  *PHP_PATH              = NULL;
 
 //timer 进程计数器 用于控制多个timer的创建和运行
 //static int wing_timer_count = 0;
@@ -108,6 +108,10 @@ ZEND_FUNCTION( wing_create_window );
 ZEND_FUNCTION(wing_destory_window);
 ZEND_FUNCTION(wing_message_loop);
 ZEND_FUNCTION(wing_message_box);
+
+PHP_FUNCTION(wing_version);
+ZEND_FUNCTION(wing_get_last_error);
+ZEND_FUNCTION(wing_wsa_get_last_error);
 
 #endif	/* PHP_WING_H */
 

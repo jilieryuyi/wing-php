@@ -30,6 +30,15 @@
     <ClCompile Include="lib\wing_lib.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="wing_window.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wing_process.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wing_base.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="php_wing.h">
