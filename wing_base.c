@@ -25,7 +25,9 @@ PHP_FUNCTION(wing_version){
 ZEND_FUNCTION(wing_get_last_error){
 	RETURN_LONG(GetLastError());
 }
-
+/****************************************************************
+ *@获取WSA系列函数的最后错误
+ ***************************************************************/
 ZEND_FUNCTION(wing_wsa_get_last_error){
 	RETURN_LONG(WSAGetLastError());
 }

@@ -177,7 +177,6 @@
     <ClCompile Include="lib\wing_lib.c" />
     <ClCompile Include="lib\wing_msg_queue.c" />
     <ClCompile Include="lib\wing_socket.c" />
-    <ClCompile Include="lib\wing_sockets_map.cpp" />
     <ClCompile Include="wing_base.c" />
     <ClCompile Include="wing_process.c" />
     <ClCompile Include="wing_window.c" />
