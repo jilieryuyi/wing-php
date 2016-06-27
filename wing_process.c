@@ -21,7 +21,7 @@ static int wing_timer_count  = 0;
  * @ param params_ex 额外参数 用于传输给生成的子进程 默认为 NULL，即不传输参数
  * @ param params_ex_len 额外参数长度 默认为0，即参数为 params_ex = NULL
  ***************************************************************************/
-unsigned long create_process( char *command, char *params_ex, int params_ex_len ){
+unsigned long create_process( char *command, char *params_ex, int params_ex_len TSRMLS_DC){
 	    
 	HANDLE m_hRead         = NULL;
 	HANDLE m_hWrite        = NULL;
@@ -31,6 +31,7 @@ unsigned long create_process( char *command, char *params_ex, int params_ex_len 
 		
 	char *params     = NULL;
 	int   params_len = 0;
+	DWORD byteWrite  = 0;
     
 	sa.bInheritHandle       = TRUE;                // 还记得我上面的提醒吧，这个来允许子进程继承父进程的管道句柄
 	sa.lpSecurityDescriptor = NULL;
@@ -49,18 +50,16 @@ unsigned long create_process( char *command, char *params_ex, int params_ex_len 
 	sui.hStdOutput = m_hWrite;
 	sui.hStdError  = GetStdHandle(STD_ERROR_HANDLE);
 		
-	if( params_ex_len >0 && params_ex != NULL ) {
-		DWORD d;
-		if( ::WriteFile(m_hWrite,params_ex,params_ex_len,&d,NULL) == FALSE ) {
-			//告警
-			zend_error(E_USER_WARNING,"write params to process error");
+	if( params_ex_len >0 && params_ex != NULL ) {	
+		if( ::WriteFile(m_hWrite,params_ex,params_ex_len,&byteWrite,NULL) == FALSE ) {
+			php_error_docref(NULL TSRMLS_CC, E_WARNING, "write data to process error");
 		}
 	}
 
 	if ( !CreateProcess(NULL,command, NULL, NULL, TRUE, 0, NULL, NULL, &sui, &pi ) ) {
-		CloseHandle(m_hRead);
-		CloseHandle(m_hWrite);
-		return WING_ERROR_FAILED;
+		  CloseHandle(m_hRead);
+		  CloseHandle(m_hWrite);
+		  return WING_ERROR_FAILED;
 	}
 		
 	CloseHandle(m_hRead);
@@ -195,7 +194,7 @@ PHP_FUNCTION( wing_create_thread ){
 	spprintf( &command, 0, "%s %s %s wing-process %ld", PHP_PATH , zend_get_executed_filename( TSRMLS_C ), command_params, wing_thread_count );
 
 	if( !run_process ) {
-		pid = create_process( command, NULL, 0 );
+		pid = create_process( command, NULL, 0 TSRMLS_CC);
 		
 		efree(command);
 		efree(command_params);
@@ -322,7 +321,7 @@ PHP_FUNCTION(wing_create_process){
 	
 	spprintf( &command, 0, "%s %s\0", exe, params );
 
-	pid = create_process( command, params_ex, params_ex_len );
+	pid = create_process( command, params_ex, params_ex_len TSRMLS_CC);
 
 	efree(command);
 	RETURN_LONG(pid);	
@@ -352,7 +351,7 @@ PHP_FUNCTION( wing_create_process_ex ){
 	
 	
 	spprintf( &command, 0, "%s %s\0", PHP_PATH, params );
-	pid = create_process( command, params_ex, params_ex_len );
+	pid = create_process( command, params_ex, params_ex_len TSRMLS_CC);
 
 	efree(command);
 	RETURN_LONG(pid);	
@@ -619,7 +618,7 @@ ZEND_FUNCTION(wing_timer){
 	spprintf(&command, 0, "%s %s %s wing-process %ld",PHP_PATH, zend_get_executed_filename(TSRMLS_C),command_params,wing_timer_count);
 
 	if(!run_process){
-		pid = create_process(command,NULL,0);
+		pid = create_process( command,NULL,0 TSRMLS_CC);
 		efree( command );
 		efree( command_params );
 		zval_ptr_dtor( &callback );

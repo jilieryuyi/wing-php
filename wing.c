@@ -207,7 +207,7 @@ ZEND_FUNCTION(wing_service){
 				zend_try{
 					//通过回调 把相关信息传回给php
 					if( SUCCESS != call_user_function(EG(function_table),NULL,onconnect,retval_ptr,5,params TSRMLS_CC ) ){
-						zend_error(E_USER_WARNING,"onconnect call_user_function fail");
+						php_error_docref(NULL TSRMLS_CC, E_WARNING, "onconnect callback fail");
 					}
 				}
 				zend_catch{
@@ -260,7 +260,7 @@ ZEND_FUNCTION(wing_service){
 
 				zend_try{
 					if( SUCCESS != call_user_function(EG(function_table),NULL,onreceive,retval_ptr,2,params TSRMLS_CC) ){
-						zend_error(E_USER_WARNING,"onreceive call_user_function fail");
+						php_error_docref(NULL TSRMLS_CC, E_WARNING, "onreceive callback fail");
 					}
 				}
 				zend_catch{
@@ -305,7 +305,7 @@ ZEND_FUNCTION(wing_service){
 	 
 				zend_try{
 					if( SUCCESS != call_user_function(EG(function_table),NULL,onclose,retval_ptr,1,&params TSRMLS_CC ) ){
-						zend_error(E_USER_WARNING,"WM_ONCLOSE call_user_function fail\r\n");
+						php_error_docref(NULL TSRMLS_CC, E_WARNING, "onclose callback fail");
 					}
 				}
 				zend_catch{
@@ -337,7 +337,7 @@ ZEND_FUNCTION(wing_service){
 				
 				zend_try{
 					if( SUCCESS != call_user_function(EG(function_table),NULL,onerror,retval_ptr,3,params TSRMLS_CC ) ){
-						zend_error(E_USER_WARNING,"onerror call_user_function fail");
+						php_error_docref(NULL TSRMLS_CC, E_WARNING, "onerror callback fail");
 					}	
 				}
 				zend_catch{
@@ -616,18 +616,20 @@ ZEND_METHOD(wing_server,on){
 
 
 int wing_is_call_able(zval **var TSRMLS_DC){
-	 char *error;
-	bool is_call_able = zend_is_callable_ex(*var, NULL, 0, NULL, NULL, NULL, &error TSRMLS_CC);
-	if(error)efree(error);
-	return is_call_able?1:0;
+	char *error = NULL;
+	zend_bool is_call_able = zend_is_callable_ex(*var, NULL, 0, NULL, NULL, NULL, &error TSRMLS_CC);
+	if( error ) 
+		efree( error );
+	return is_call_able ? 1 : 0;
 }
 
 void wing_call_func( zval **func TSRMLS_DC ,int params_count = 0 ,zval **params = NULL) {
 	if( !wing_is_call_able(func TSRMLS_CC) ) return;
 	zval *retval_ptr = NULL;
 	MAKE_STD_ZVAL(retval_ptr);
-	if( SUCCESS != call_user_function( EG(function_table),NULL,*func,retval_ptr,params_count,params TSRMLS_CC ) )
-		zend_error(E_USER_WARNING,"call_user_function fail");
+	if( SUCCESS != call_user_function( EG(function_table),NULL,*func,retval_ptr,params_count,params TSRMLS_CC ) ) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "call user func fail");
+	}
 	zval_ptr_dtor(&retval_ptr);
 }
 void wing_create_wing_client(zval **client , wing_myoverlapped *&lpol TSRMLS_DC){
