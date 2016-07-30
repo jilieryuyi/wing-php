@@ -18,16 +18,16 @@
     <ClCompile Include="wing.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="message_queue.c">
+    <ClCompile Include="wing_utf8.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="iocp_utf8.c">
+    <ClCompile Include="wing_iocp_message_queue.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="iocp_socket_map.c">
+    <ClCompile Include="wing_message_queue.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="iocp_message_queue.c">
+    <ClCompile Include="wing_iocp_socket_map.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -35,16 +35,16 @@
     <ClInclude Include="php_wing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="message_queue.h">
+    <ClInclude Include="wing_utf8.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="iocp_utf8.h">
+    <ClInclude Include="wing_iocp_message_queue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="iocp_socket_map.h">
+    <ClInclude Include="wing_message_queue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="iocp_message_queue.h">
+    <ClInclude Include="wing_iocp_socket_map.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

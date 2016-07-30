@@ -62,9 +62,9 @@ char *PHP_PATH = NULL;
 #pragma comment(lib,"Winmm.lib")
 #pragma comment(lib,"Ws2_32.lib")
 
-#include "message_queue.h"
-#include "iocp_message_queue.h"
-#include "iocp_utf8.h"
+#include "wing_message_queue.h"
+#include "wing_iocp_message_queue.h"
+#include "wing_utf8.h"
 //#include "iocp.h"
 //#include <hash_map>
 //#include "iocp_socket_map.h"

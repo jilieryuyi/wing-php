@@ -135,17 +135,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="iocp_message_queue.c" />
-    <ClCompile Include="iocp_socket_map.c" />
-    <ClCompile Include="iocp_utf8.c" />
-    <ClCompile Include="message_queue.c" />
+    <ClCompile Include="wing_iocp_message_queue.c" />
+    <ClCompile Include="wing_iocp_socket_map.c" />
+    <ClCompile Include="wing_utf8.c" />
+    <ClCompile Include="wing_message_queue.c" />
     <ClCompile Include="wing.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="iocp_message_queue.h" />
-    <ClInclude Include="iocp_socket_map.h" />
-    <ClInclude Include="iocp_utf8.h" />
-    <ClInclude Include="message_queue.h" />
+    <ClInclude Include="wing_iocp_message_queue.h" />
+    <ClInclude Include="wing_iocp_socket_map.h" />
+    <ClInclude Include="wing_utf8.h" />
+    <ClInclude Include="wing_message_queue.h" />
     <ClInclude Include="php_wing.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
