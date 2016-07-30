@@ -16,8 +16,6 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id$ */
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -55,6 +53,10 @@ char *PHP_PATH = NULL;
 #include <ws2tcpip.h>//ipv4 ipv6
 //int getaddrinfo( const char *hostname, const char *service, const struct addrinfo *hints, struct addrinfo **result );
 //https://msdn.microsoft.com/en-us/library/windows/desktop/ms742203(v=vs.85).aspx
+
+//#include <comdef.h>    
+//#include <Wbemidl.h>    
+//#pragma comment(lib, "wbemuuid.lib")  
 
 #pragma comment(lib,"Kernel32.lib")
 #pragma comment(lib,"Shlwapi.lib")
@@ -1476,7 +1478,7 @@ PHP_FUNCTION( wing_create_process_ex ){
 /**
  *@杀死进程
  */
-ZEND_FUNCTION(wing_process_kill)
+ZEND_FUNCTION( wing_process_kill )
 {
 	long process_id = 0;
 	if( zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC,"l",&process_id ) != SUCCESS ) {
@@ -1553,7 +1555,8 @@ ZEND_FUNCTION(wing_create_mutex){
 /**
  *@关闭互斥量
  */
-ZEND_FUNCTION(wing_close_mutex){
+ZEND_FUNCTION( wing_close_mutex )
+{
 	long mutex_handle = 0;
 	
 	if( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l",&mutex_handle) != SUCCESS ) {
@@ -1685,7 +1688,7 @@ ZEND_FUNCTION( wing_get_command_path ){
 	
 	path = (char*)emalloc(MAX_PATH);
 	
-	int   size      = GetEnvironmentVariable("PATH",NULL,0);
+	int   size      = GetEnvironmentVariableA("PATH",NULL,0);
 	char *env_var	= (char*)emalloc(size);
 	char *temp      = NULL;
 	char *start     = NULL;
@@ -1693,7 +1696,9 @@ ZEND_FUNCTION( wing_get_command_path ){
 	
 	ZeroMemory( env_var,size );
 
-	GetEnvironmentVariable("PATH",env_var,size);
+	GetEnvironmentVariableA("PATH",env_var,size);
+
+	//zend_printf("%s",env_var);
 
 	start		= env_var;
 	var_begin	= env_var;
@@ -1713,6 +1718,7 @@ ZEND_FUNCTION( wing_get_command_path ){
 		if( PathFileExists( path ) ) {
 			efree( env_var );
 			env_var = NULL;
+			RETURN_STRING(path,0);
 			return;
 		}
 
@@ -1722,6 +1728,7 @@ ZEND_FUNCTION( wing_get_command_path ){
 		if( PathFileExists( path ) ) {
 			efree( env_var );
 			env_var = NULL;
+			RETURN_STRING(path,0);
 			return;
 		}
 		var_begin	= temp+1;
@@ -1732,6 +1739,75 @@ ZEND_FUNCTION( wing_get_command_path ){
 	
 	RETURN_STRING(path,0);
 	return;
+}
+
+
+ZEND_FUNCTION( wing_find_process ) {
+
+	int i=0;  
+    PROCESSENTRY32 pe32;  
+    pe32.dwSize = sizeof(pe32);   
+    HANDLE hProcessSnap = ::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);  
+    if(hProcessSnap == INVALID_HANDLE_VALUE)  
+    {  
+        i+=0;  
+    }  
+    BOOL bMore = ::Process32First(hProcessSnap, &pe32);  
+    while(bMore)  
+    {  
+
+		HANDLE hProcess = ::OpenProcess(PROCESS_CREATE_THREAD|PROCESS_VM_OPERATION|PROCESS_VM_WRITE|PROCESS_VM_READ, FALSE, pe32.th32ProcessID);
+     
+    if (!hProcess)
+    {
+		zend_printf("1 error:%ld\r\n\r\n\r\n",GetLastError());
+		bMore = ::Process32Next(hProcessSnap, &pe32); 
+        continue;
+    }
+ 
+    DWORD dwThreadId = 0;
+    HANDLE hThread  = ::CreateRemoteThread(hProcess, NULL, NULL, (LPTHREAD_START_ROUTINE)GetCommandLine, NULL, 0, &dwThreadId);
+ 
+	
+	if (!hThread){
+		zend_printf("2 error:%ld\r\n\r\n\r\n",GetLastError());
+		bMore = ::Process32Next(hProcessSnap, &pe32); 
+        continue;
+	}
+	
+    DWORD dwExitCode = 0;
+    DWORD dwReaded = 0;
+   char lpszCommandLine[10240] = {0};
+        ::WaitForSingleObject(hThread, 500);
+        ::GetExitCodeThread(hThread, &dwExitCode);
+		if(!::ReadProcessMemory(hProcess, (LPCVOID)dwExitCode, lpszCommandLine, sizeof(lpszCommandLine), &dwReaded)){
+		bMore = ::Process32Next(hProcessSnap, &pe32); 
+		zend_printf("3 error:%ld\r\n\r\n\r\n",GetLastError());
+        continue;
+		}
+    
+
+
+
+
+		//进程的可执行文件名称。要获得可执行文件的完整路径，应调用Module32First函数，再检查其返回的MODULEENTRY32结构的szExePath成员。
+		//但是，如果被调用进程是一个64位程序，您必须调用QueryFullProcessImageName函数去获取64位进程的可执行文件完整路径名。
+		//pe32.
+		zend_printf("%s\r\n\r\n\r\n",lpszCommandLine);
+        //printf(" 进程名称：%s \n", pe32.szExeFile);  
+        if(stricmp("进程名",pe32.szExeFile)==0)  
+        {  
+            //printf("进程运行中");  
+            i+=1;  
+        }  
+        bMore = ::Process32Next(hProcessSnap, &pe32);  
+    }  
+    if(i>1){           //大于1，排除自身  
+       // return true;  
+    }else{  
+       // return false;  
+    }  
+
 }
 
 //process-end-------------------------------------------------------------------------------------------------------------
@@ -1876,25 +1952,27 @@ PHP_MINIT_FUNCTION(wing)
 	*/
 
 	//常量定义
-	PHP_PATH = (char*)emalloc(MAX_PATH);
-	if( 0 != GetModuleFileName(NULL,PHP_PATH,MAX_PATH) )
-	{
-		zend_register_string_constant("WING_PHP",                    sizeof("WING_PHP"),                     PHP_PATH,                      CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
-	} 
+	PHP_PATH = new char[MAX_PATH];
+	//(char*)emalloc(MAX_PATH); 测试发现这里不能用php的内存分配 如果使用php的内存分配 在使用WING_PHP常量的时候会拿不到值
+	GetModuleFileName( NULL, PHP_PATH, MAX_PATH );
+	
+	zend_register_string_constant( "WING_PHP",                       sizeof("WING_PHP"),                     PHP_PATH,                      CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	zend_register_string_constant( "WING_VERSION",                   sizeof("WING_VERSION"),                 PHP_WING_VERSION,              CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	
 	zend_register_long_constant(   "WING_WAIT_TIMEOUT",              sizeof("WING_WAIT_TIMEOUT"),            WAIT_TIMEOUT,                  CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	zend_register_long_constant(   "WING_WAIT_FAILED",               sizeof("WING_WAIT_FAILED"),             WAIT_FAILED,                   CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	zend_register_long_constant(   "WING_INFINITE",                  sizeof("WING_INFINITE"),                INFINITE,                      CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	zend_register_long_constant(   "WING_WAIT_OBJECT_0",             sizeof("WING_WAIT_OBJECT_0"),           WAIT_OBJECT_0,                 CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	zend_register_long_constant(   "WING_WAIT_ABANDONED",            sizeof("WING_WAIT_ABANDONED"),          WAIT_ABANDONED,                CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	
 	zend_register_long_constant(   "WING_ERROR_ALREADY_EXISTS",      sizeof("WING_ERROR_ALREADY_EXISTS"),    ERROR_ALREADY_EXISTS,          CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	zend_register_long_constant(   "WING_ERROR_PARAMETER_ERROR",     sizeof("WING_ERROR_PARAMETER_ERROR"),   WING_ERROR_PARAMETER_ERROR,    CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	zend_register_long_constant(   "WING_ERROR_FAILED",              sizeof("WING_ERROR_FAILED"),            WING_ERROR_FAILED,             CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	zend_register_long_constant(   "WING_ERROR_CALLBACK_FAILED",     sizeof("WING_ERROR_CALLBACK_FAILED"),   WING_ERROR_CALLBACK_FAILED,    CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
-	zend_register_long_constant(   "WING_CALLBACK_SUCCESS",          sizeof("WING_CALLBACK_SUCCESS"),        WING_ERROR_CALLBACK_SUCCESS,   CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant(   "WING_ERROR_CALLBACK_SUCCESS",    sizeof("WING_ERROR_CALLBACK_SUCCESS"),  WING_ERROR_CALLBACK_SUCCESS,   CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	zend_register_long_constant(   "WING_ERROR_PROCESS_NOT_EXISTS",  sizeof("WING_ERROR_PROCESS_NOT_EXISTS"),WING_ERROR_PROCESS_NOT_EXISTS, CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
-	zend_register_long_constant(   "WING_SUCCESS",                   sizeof("WING_SUCCESS"),                 WING_ERROR_SUCCESS,            CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);	
-	zend_register_long_constant(   "WING_PROCESS_IS_RUNNING",        sizeof("WING_PROCESS_IS_RUNNING"),      WING_ERROR_PROCESS_IS_RUNNING, CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant(   "WING_ERROR_SUCCESS",             sizeof("WING_ERROR_SUCCESS"),           WING_ERROR_SUCCESS,            CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);	
+	zend_register_long_constant(   "WING_ERROR_PROCESS_IS_RUNNING",  sizeof("WING_ERROR_PROCESS_IS_RUNNING"),WING_ERROR_PROCESS_IS_RUNNING, CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 
 
 	return SUCCESS;
@@ -1908,7 +1986,8 @@ PHP_MSHUTDOWN_FUNCTION(wing)
 	/* uncomment this line if you have INI entries
 	UNREGISTER_INI_ENTRIES();
 	*/
-	efree(PHP_PATH);
+	//efree(PHP_PATH);
+	delete[] PHP_PATH;
 	return SUCCESS;
 }
 /* }}} */
@@ -1965,6 +2044,7 @@ const zend_function_entry wing_functions[] = {
 	PHP_FE(wing_process_wait,NULL)
 	//wing_thread_wait 是别名
 	//ZEND_FALIAS(wing_thread_wait,wing_process_wait,NULL)
+	PHP_FE( wing_find_process , NULL )
 
 	PHP_FE(wing_process_kill,NULL)
 	ZEND_FALIAS(wing_kill_process,wing_process_kill,NULL)
