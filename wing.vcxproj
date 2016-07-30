@@ -5,18 +5,6 @@
       <Configuration>Debug_TS</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="R64|Win32">
-      <Configuration>R64</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release64_TS|Win32">
-      <Configuration>Release64_TS</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release64|Win32">
-      <Configuration>Release64</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Release_TS|Win32">
       <Configuration>Release_TS</Configuration>
       <Platform>Win32</Platform>
@@ -25,7 +13,7 @@
   <PropertyGroup Label="Globals">
     <SccProjectName />
     <SccLocalPath />
-    <ProjectGuid>{3B68AC64-9078-4349-BAE5-7AC58BB6F568}</ProjectGuid>
+    <ProjectGuid>{EE433BCB-45AD-4AE0-8C25-96180D3E12F6}</ProjectGuid>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_TS|Win32'" Label="Configuration">
@@ -33,23 +21,12 @@
     <PlatformToolset>v110</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
-    <UseOfAtl>false</UseOfAtl>
-    <CLRSupport>false</CLRSupport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_TS|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <PlatformToolset>v110</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release64|Win32'">
-    <PlatformToolset>v110</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release64_TS|Win32'">
-    <PlatformToolset>v110</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='R64|Win32'">
-    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -69,25 +46,20 @@
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_TS|Win32'">
-    <OutDir>..\..\Release_TS\</OutDir>
-    <IntDir>..\..\Release_TS\</IntDir>
+    <OutDir>.\Release_TS\</OutDir>
+    <IntDir>.\Release_TS\</IntDir>
     <LinkIncremental>false</LinkIncremental>
-    <TargetName>php_$(ProjectName)</TargetName>
-    <ReferencePath>$(VCInstallDir)atlmfc\lib;$(VCInstallDir)lib;</ReferencePath>
-    <IncludePath>$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\zxing\core\src\zxing;$(WindowsSDK_IncludePath)</IncludePath>
-    <LibraryPath>D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\zxing\build\Release;$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSDK_LibraryPath_x86)</LibraryPath>
-    <SourcePath>$(VCInstallDir)atlmfc\src\mfc;$(VCInstallDir)atlmfc\src\mfcm;$(VCInstallDir)atlmfc\src\atl;$(VCInstallDir)crt\src;</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_TS|Win32'">
     <ClCompile>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <StringPooling>true</StringPooling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <Optimization>MaxSpeed</Optimization>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\zxing\cli\src;D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\zxing\core\src\;..\..;..\..\main;..\..\Zend;..\..\..\bindlib_w32;..\..\TSRM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..;..\..\main;..\..\Zend;..\..\..\bindlib_w32;..\..\TSRM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>ZEND_DEBUG=1;WIN32;NDEBUG;_WINDOWS;_USRDLL;WING_EXPORTS;COMPILE_DL_WING;ZTS=1;ZEND_WIN32;PHP_WIN32;HAVE_WING=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Debug_TS\</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>.\Debug_TS\wing.pch</PrecompiledHeaderOutputFile>
@@ -118,30 +90,24 @@
       <ImportLibrary>.\Debug_TS\php_wing.lib</ImportLibrary>
       <AdditionalLibraryDirectories>..\..\Debug_TS;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>odbc32.lib;odbccp32.lib;php5ts_debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalOptions>/FORCE:MULTIPLE %(AdditionalOptions)</AdditionalOptions>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_TS|Win32'">
     <ClCompile>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <StringPooling>true</StringPooling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <Optimization>MaxSpeed</Optimization>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\zxing\core\src\win32\zxing;D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\zxing\cli\src;..\..;..\..\main;..\..\Zend;..\..\..\bindlib_w32;..\..\TSRM;%(AdditionalIncludeDirectories);D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\src\zxing-cpp\core\src;D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\lib\zxing\core\src</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ZEND_DEBUG=0;WIN32;NDEBUG;_WINDOWS;_USRDLL;WING_EXPORTS;COMPILE_DL_WING;ZTS=1;ZEND_WIN32;PHP_WIN32;HAVE_WING=1;%(PreprocessorDefinitions);HYCOMMONWINAPI_EXPORTS;_XKEYCHECK_H</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..;..\..\main;..\..\Zend;..\..\..\bindlib_w32;..\..\TSRM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ZEND_DEBUG=0;WIN32;NDEBUG;_WINDOWS;_USRDLL;WING_EXPORTS;COMPILE_DL_WING;ZTS=1;ZEND_WIN32;PHP_WIN32;HAVE_WING=1;LIBZEND_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Release_TS\</AssemblerListingLocation>
       <BrowseInformation>true</BrowseInformation>
       <PrecompiledHeaderOutputFile>.\Release_TS\wing.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>.\Release_TS\</ObjectFileName>
       <ProgramDataBaseFileName>.\Release_TS\</ProgramDataBaseFileName>
-      <CompileAs>CompileAsCpp</CompileAs>
-      <AdditionalOptions> %(AdditionalOptions)</AdditionalOptions>
-      <DisableSpecificWarnings>
-      </DisableSpecificWarnings>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -166,26 +132,20 @@
       <ImportLibrary>.\Release_TS\php_wing.lib</ImportLibrary>
       <AdditionalLibraryDirectories>..\..\Release_TS;..\..\Release_TS_Inline;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>odbc32.lib;odbccp32.lib;php5ts.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreSpecificDefaultLibraries>
-      </IgnoreSpecificDefaultLibraries>
-      <IgnoreAllDefaultLibraries>
-      </IgnoreAllDefaultLibraries>
-      <AdditionalOptions>/FORCE:MULTIPLE %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="lib\wing_lib.c" />
-    <ClCompile Include="lib\wing_msg_queue.c" />
-    <ClCompile Include="lib\wing_socket.c" />
-    <ClCompile Include="wing_base.c" />
-    <ClCompile Include="wing_process.c" />
-    <ClCompile Include="wing_window.c" />
+    <ClCompile Include="iocp_message_queue.c" />
+    <ClCompile Include="iocp_socket_map.c" />
+    <ClCompile Include="iocp_utf8.c" />
+    <ClCompile Include="message_queue.c" />
     <ClCompile Include="wing.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="lib\wing_lib.h" />
-    <ClInclude Include="lib\wing_msg_queue.h" />
-    <ClInclude Include="lib\wing_socket.h" />
+    <ClInclude Include="iocp_message_queue.h" />
+    <ClInclude Include="iocp_socket_map.h" />
+    <ClInclude Include="iocp_utf8.h" />
+    <ClInclude Include="message_queue.h" />
     <ClInclude Include="php_wing.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

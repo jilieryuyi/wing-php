@@ -24,21 +24,7 @@
 extern zend_module_entry wing_module_entry;
 #define phpext_wing_ptr &wing_module_entry
 
-#define PHP_WING_VERSION "1.0.3" /* Replace with version number for your extension */
-
-
-#define WING_SUCCESS				       1
-#define WING_CALLBACK_SUCCESS		       0
-#define WING_ERROR_PARAMETER_ERROR	      -1
-#define WING_ERROR_FAILED			      -2
-#define WING_NOTICE_IGNORE			      -3
-#define WING_ERROR_CALLBACK_FAILED        -4
-#define WING_ERROR_PROCESS_NOT_EXISTS     -5
-#define WING_ERROR_WINDOW_NOT_FOUND       -6
-#define WING_PROCESS_IS_RUNNING		       1
-
-typedef DWORD wing_ulong;
-
+#define PHP_WING_VERSION "0.1.0" /* Replace with version number for your extension */
 
 #ifdef PHP_WIN32
 #	define PHP_WING_API __declspec(dllexport)
@@ -77,41 +63,6 @@ ZEND_END_MODULE_GLOBALS(wing)
 #else
 #define WING_G(v) (wing_globals.v)
 #endif
-
-char  *PHP_PATH              = NULL;
-
-//timer 进程计数器 用于控制多个timer的创建和运行
-//static int wing_timer_count = 0;
-//线程计数器 用于多线程控制
-
-
-//unsigned long create_process(char *command,char *params_ex=NULL,int params_ex_len=0);
-//void command_params_check(char* &command_params,int *run_process,int *last_value TSRMLS_DC);
-
-PHP_FUNCTION(wing_process_wait);
-PHP_FUNCTION( wing_create_thread );
-ZEND_FUNCTION(wing_get_process_params);
-PHP_FUNCTION(wing_create_process);
-PHP_FUNCTION( wing_create_process_ex );
-ZEND_FUNCTION(wing_process_kill);
-ZEND_FUNCTION(wing_get_current_process_id);
-ZEND_FUNCTION(wing_create_mutex);
-ZEND_FUNCTION(wing_close_mutex);
-ZEND_FUNCTION(wing_process_isalive);
-ZEND_FUNCTION(wing_get_env);
-ZEND_FUNCTION(wing_set_env);
-ZEND_FUNCTION( wing_get_command_path );
-ZEND_FUNCTION(wing_timer);
-
-ZEND_FUNCTION(wing_send_msg);
-ZEND_FUNCTION( wing_create_window );
-ZEND_FUNCTION(wing_destory_window);
-ZEND_FUNCTION(wing_message_loop);
-ZEND_FUNCTION(wing_message_box);
-
-PHP_FUNCTION(wing_version);
-ZEND_FUNCTION(wing_get_last_error);
-ZEND_FUNCTION(wing_wsa_get_last_error);
 
 #endif	/* PHP_WING_H */
 

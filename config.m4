@@ -59,7 +59,5 @@ if test "$PHP_WING" != "no"; then
   dnl
   dnl PHP_SUBST(WING_SHARED_LIBADD)
 
-  wing_source_file=“wing.c”
-  
-  PHP_NEW_EXTENSION(wing, $wing_source_file, $ext_shared)
+  PHP_NEW_EXTENSION(wing, wing.c, $ext_shared)
 fi
