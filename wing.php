@@ -2,7 +2,7 @@
 $br = (php_sapi_name() == "cli")? "":"<br>";
 
 if(!extension_loaded('wing')) {
-	dl('php_wing.' . PHP_SHLIB_SUFFIX);
+	dl('php_php_wing.' . PHP_SHLIB_SUFFIX);
 }
 $module = 'wing';
 $functions = get_extension_funcs($module);

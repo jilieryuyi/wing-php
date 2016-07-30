@@ -1,10 +1,6 @@
 .deps
 *.lo
 *.la
-*.sdf
-.opensdf
-wing.sdf
-wing.opensdf
 .libs
 acinclude.m4
 aclocal.m4
@@ -37,8 +33,3 @@ tests/*/*.php
 tests/*/*.exp
 tests/*/*.log
 tests/*/*.sh
-Release_TS
-_UpgradeReport_Files
-Backup
-ipch
-simples/.idea

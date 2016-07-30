@@ -5,7 +5,7 @@
 // ARG_WITH("wing", "for wing support", "no");
 
 // Otherwise, use ARG_ENABLE
-ARG_ENABLE("wing", "enable wing support", "no");
+// ARG_ENABLE("wing", "enable wing support", "no");
 
 if (PHP_WING != "no") {
 	EXTENSION("wing", "wing.c");
