@@ -223,9 +223,6 @@ const char* create_guid()
 //base function end---------------------------
 
 
-void iocp_onclose( iocp_overlapped*  &pOL );
-BOOL iocp_create_client(SOCKET m_sockListen , int timeout);
-void iocp_onrecv( iocp_overlapped*  &pOL);
 
 /* {{{ PHP_INI
  */
@@ -244,6 +241,9 @@ PHP_INI_END()
 /* Every user-visible function in PHP should document itself in the source */
 /* {{{ proto string (string arg)
    Return a string to confirm that the module is compiled in */
+void iocp_onclose( iocp_overlapped*  &pOL );
+BOOL iocp_create_client(SOCKET m_sockListen , int timeout);
+void iocp_onrecv( iocp_overlapped*  &pOL);
 
 
 /**
