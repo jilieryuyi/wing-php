@@ -1967,9 +1967,6 @@ const zend_function_entry wing_functions[] = {
 	//ZEND_FALIAS(wing_thread_wait,wing_process_wait,NULL)
 
 	PHP_FE(wing_process_kill,NULL)
-	//ZEND_FALIAS(wing_thread_kill,wing_process_kill,NULL)
-	//ZEND_FALIAS(wing_kill_thread,wing_process_kill,NULL)
-	//ZEND_FALIAS(wing_kill_timer,wing_process_kill,NULL)
 	ZEND_FALIAS(wing_kill_process,wing_process_kill,NULL)
 
 	PHP_FE(wing_process_isalive,NULL)
@@ -1985,24 +1982,8 @@ const zend_function_entry wing_functions[] = {
 
 	PHP_FE(wing_get_last_error,NULL)
 	PHP_FE(wing_wsa_get_last_error,NULL)
-
-	//PHP_FE(wing_create_window,NULL)
-	//PHP_FE(wing_message_loop,NULL)
-	//PHP_FE(wing_destory_window,NULL)
 	PHP_FE(wing_message_box,NULL)
-	//PHP_FE(wing_timer,NULL)
-	//PHP_FE(wing_service,NULL)
-	//ZEND_FALIAS(wing_socket,wing_service,NULL)
-	//ZEND_FALIAS(wing_tcp_server,wing_service,NULL)
-
-	//PHP_FE(wing_socket_info,NULL)
-	//PHP_FE(wing_socket_send_msg,NULL)
-	//PHP_FE(wing_service_stop,NULL)
-	//PHP_FE(wing_close_socket,NULL)
 	PHP_FE(wing_get_memory_used,NULL)
-	//PHP_FE(wing_async,NULL)
-	
-	/* For testing, remove later. */
 	PHP_FE_END	/* Must be the last line in wing_functions[] */
 };
 /* }}} */
