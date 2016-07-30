@@ -13,6 +13,6 @@ file_put_contents("wing_create_process.log",
     "进程id：".$current_process_id."\r\n从父进程获取到的参数：".
     $data."\r\n从父进程获取到的环境变量：".$env."\r\n");
 
-sleep(1000);
+sleep(10000);
 
 exit(999);

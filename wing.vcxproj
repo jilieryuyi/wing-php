@@ -102,12 +102,13 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level3</WarningLevel>
       <AdditionalIncludeDirectories>..\..;..\..\main;..\..\Zend;..\..\..\bindlib_w32;..\..\TSRM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ZEND_DEBUG=0;WIN32;NDEBUG;_WINDOWS;_USRDLL;WING_EXPORTS;COMPILE_DL_WING;ZTS=1;ZEND_WIN32;PHP_WIN32;HAVE_WING=1;LIBZEND_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ZEND_DEBUG=0;WIN32;NDEBUG;_WINDOWS;_USRDLL;WING_EXPORTS;COMPILE_DL_WING;ZTS=1;ZEND_WIN32;PHP_WIN32;HAVE_WING=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Release_TS\</AssemblerListingLocation>
       <BrowseInformation>true</BrowseInformation>
       <PrecompiledHeaderOutputFile>.\Release_TS\wing.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>.\Release_TS\</ObjectFileName>
       <ProgramDataBaseFileName>.\Release_TS\</ProgramDataBaseFileName>
+      <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>

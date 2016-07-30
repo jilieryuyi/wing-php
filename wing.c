@@ -1805,7 +1805,7 @@ ZEND_FUNCTION( wing_find_process ) {
     if(i>1){           //大于1，排除自身  
        // return true;  
     }else{  
-       // return false;  
+       // return;  
     }  
 
 }

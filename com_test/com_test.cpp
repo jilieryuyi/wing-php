@@ -14,6 +14,12 @@ using namespace std;
   
 int main(int argc, char **argv)  
 {  
+	/**
+	BSTR strClassProp = SysAllocString(L"__CLASS");
+HRESULT hr;
+hr = pObj->Get(strClassProp, 0, &v, 0, 0);
+SysFreeString(strClassProp);
+	*/
     HRESULT hres;  
   
     // Step 1: --------------------------------------------------  
@@ -171,10 +177,38 @@ int main(int argc, char **argv)
   
         VARIANT vtProp;  
   
+		
         // Get the value of the Name property  
         hr = pclsObj->Get(L"CommandLine", 0, &vtProp, 0, 0);  
-        wcout << " CommandLine : " << vtProp.bstrVal << endl;  
+
+		if (SUCCEEDED(hr) && (V_VT(&vtProp) == VT_BSTR)){
+			 wcout << " CommandLine : " << vtProp.bstrVal << "\r\n\r\n\r\n";  
+		}
+		else
+           {
+			   wcout <<"get commandline faile\r\n\r\n\r\n"; 
+
+		}
         VariantClear(&vtProp);  
+
+
+
+		VARIANT vtProp2;  
+
+		 hr = pclsObj->Get(L"ExecutablePath", 0, &vtProp2, 0, 0);  
+
+		if (SUCCEEDED(hr) && (V_VT(&vtProp2) == VT_BSTR)){
+			 wcout << " ExecutablePath : " << vtProp2.bstrVal << "\r\n\r\n\r\n";  
+		}
+		else
+           {
+			   wcout <<"get ExecutablePath faile\r\n\r\n\r\n"; 
+
+		}
+        VariantClear(&vtProp2); 
+
+
+
   
         pclsObj->Release();  
     }  
@@ -193,7 +227,7 @@ int main(int argc, char **argv)
     pSvc->Release();  
     pLoc->Release();  
     pEnumerator->Release();  
-    pclsObj->Release();  
+   // pclsObj->Release();  
     CoUninitialize();  
   
     return 0;   // Program successfully completed.  
