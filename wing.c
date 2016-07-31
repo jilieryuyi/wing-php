@@ -1802,9 +1802,6 @@ ZEND_FUNCTION( wing_find_process ) {
 			continue;
 		}
 	
-
-
-	
 		DWORD dwExitCode        = 0;
 		DWORD dwReaded          = 0;
 		int buf_size            = 10240;
@@ -1871,6 +1868,7 @@ ZEND_FUNCTION( wing_find_process ) {
 			{
 				//一般这样就不会失败啦 如果还是失败 那就没办法了 我也不知道怎么处理了 这段代码测试了好久 看了好多资料
 				//因为ReadProcessMemory没法返回需要多大内存的api，好坑有木有，而且超过了就299错误，坑坑坑爹
+				//还有另外一种枚举进程获取启动参数的方式，那就是com啦，win32_process
 				zend_printf("read commandline faile\r\n\r\n\r\n");
 			}
 		}
