@@ -30,6 +30,9 @@
     <ClCompile Include="wing_iocp_socket_map.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="wing_socket_api.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="php_wing.h">
@@ -45,6 +48,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="wing_iocp_socket_map.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wing_socket_api.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

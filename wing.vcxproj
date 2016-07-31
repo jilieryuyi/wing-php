@@ -102,12 +102,13 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level3</WarningLevel>
       <AdditionalIncludeDirectories>..\..;..\..\main;..\..\Zend;..\..\..\bindlib_w32;..\..\TSRM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ZEND_DEBUG=0;WIN32;NDEBUG;_WINDOWS;_USRDLL;WING_EXPORTS;COMPILE_DL_WING;ZTS=1;ZEND_WIN32;PHP_WIN32;HAVE_WING=1;LIBZEND_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ZEND_DEBUG=0;WIN32;NDEBUG;_WINDOWS;_USRDLL;WING_EXPORTS;COMPILE_DL_WING;ZTS=1;ZEND_WIN32;PHP_WIN32;HAVE_WING=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Release_TS\</AssemblerListingLocation>
       <BrowseInformation>true</BrowseInformation>
       <PrecompiledHeaderOutputFile>.\Release_TS\wing.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>.\Release_TS\</ObjectFileName>
       <ProgramDataBaseFileName>.\Release_TS\</ProgramDataBaseFileName>
+      <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -137,6 +138,7 @@
   <ItemGroup>
     <ClCompile Include="wing_iocp_message_queue.c" />
     <ClCompile Include="wing_iocp_socket_map.c" />
+    <ClCompile Include="wing_socket_api.c" />
     <ClCompile Include="wing_utf8.c" />
     <ClCompile Include="wing_message_queue.c" />
     <ClCompile Include="wing.c" />
@@ -144,6 +146,7 @@
   <ItemGroup>
     <ClInclude Include="wing_iocp_message_queue.h" />
     <ClInclude Include="wing_iocp_socket_map.h" />
+    <ClInclude Include="wing_socket_api.h" />
     <ClInclude Include="wing_utf8.h" />
     <ClInclude Include="wing_message_queue.h" />
     <ClInclude Include="php_wing.h" />
