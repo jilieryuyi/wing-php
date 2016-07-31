@@ -3,6 +3,7 @@
  * @author yuyi
  * @created 2016/7/30 20:00
  * @email 297341015@qq.com
+ * @创建新的进程
  */
 
 /*function com_find_process( $keyword ){
@@ -23,7 +24,7 @@ wing_set_env("data","这句话将被传到子进程");
 $command = WING_PHP." ".__DIR__."/wing_create_process_runer.php";
 //$process_id = wing_create_process( $command, "这句话也会被传到子进程");
 $process_id = wing_create_process_ex(__DIR__."/wing_create_process_runer.php","这句话将被传到子进程");
-
+//wing_create_process_ex专属php文件的创建进程方式 即把php文件作为一个单独的进程中执行
 echo "进程id:",$process_id,"\r\n";
 
 
