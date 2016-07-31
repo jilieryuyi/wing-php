@@ -1742,7 +1742,33 @@ ZEND_FUNCTION( wing_get_command_path ){
 }
 
 
+ZEND_FUNCTION( wing_get_command_line){
+	RETURN_STRING(GetCommandLineA(),1);
+}
+
+
 ZEND_FUNCTION( wing_find_process ) {
+
+	
+
+
+   HANDLE hToken;
+  BOOL fOk=FALSE;
+  if(OpenProcessToken(GetCurrentProcess(),TOKEN_ADJUST_PRIVILEGES,&hToken)) //Get Token
+  {
+    TOKEN_PRIVILEGES tp;
+    tp.PrivilegeCount=1;
+    LookupPrivilegeValue(NULL,SE_DEBUG_NAME,&tp.Privileges[0].Luid);//Get Luid
+      //printf("Can't lookup privilege value.\n");
+    tp.Privileges[0].Attributes=SE_PRIVILEGE_ENABLED;//这一句很关键，修改其属性为SE_PRIVILEGE_ENABLED
+    AdjustTokenPrivileges(hToken,FALSE,&tp,sizeof(tp),NULL,NULL);//Adjust Token
+     // printf("Can't adjust privilege value.\n");
+    fOk=(GetLastError()==ERROR_SUCCESS);
+    CloseHandle(hToken);
+  }
+
+
+
 
 	int i=0;  
     PROCESSENTRY32 pe32;  
@@ -1756,22 +1782,37 @@ ZEND_FUNCTION( wing_find_process ) {
     while(bMore)  
     {  
 
-		HANDLE hProcess = ::OpenProcess(PROCESS_CREATE_THREAD|PROCESS_VM_OPERATION|PROCESS_VM_WRITE|PROCESS_VM_READ, FALSE, pe32.th32ProcessID);
+		zend_printf("%s\r\n\r\n\r\n",pe32.szExeFile);
+
+
+		HANDLE hProcess = ::OpenProcess( PROCESS_CREATE_THREAD | PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, FALSE, pe32.th32ProcessID );
      
+
+		 DWORD dwOldProt, dwNewProt = 0,dwRead=4;
+		  MEMORY_BASIC_INFORMATION mbi;
+        ZeroMemory(&mbi,sizeof(MEMORY_BASIC_INFORMATION));
+		DWORD dwAddr = *(DWORD*)((DWORD)GetCommandLine + 1);	
+  // VirtualQueryEx(hProcess, (LPCVOID)dwAddr, &mbi, sizeof(MEMORY_BASIC_INFORMATION));
+  // VirtualProtectEx(hProcess, (LPVOID)dwAddr, mbi.RegionSize, PAGE_READWRITE, &dwOldProt);
+  // VirtualProtectEx(hProcess,mbi.BaseAddress, mbi.RegionSize, PAGE_READWRITE, & mbi.Protect);
     if (!hProcess)
     {
 		zend_printf("1 error:%ld\r\n\r\n\r\n",GetLastError());
 		bMore = ::Process32Next(hProcessSnap, &pe32); 
+
+		//VirtualProtectEx(hProcess, (void*) dwAddr, mbi.RegionSize, dwOldProt, &dwNewProt);
         continue;
     }
  
     DWORD dwThreadId = 0;
-    HANDLE hThread  = ::CreateRemoteThread(hProcess, NULL, NULL, (LPTHREAD_START_ROUTINE)GetCommandLine, NULL, 0, &dwThreadId);
+    HANDLE hThread  = ::CreateRemoteThread( hProcess, NULL, NULL, (LPTHREAD_START_ROUTINE)GetCommandLine, NULL, 0, &dwThreadId);
  
 	
 	if (!hThread){
 		zend_printf("2 error:%ld\r\n\r\n\r\n",GetLastError());
 		bMore = ::Process32Next(hProcessSnap, &pe32); 
+
+		//VirtualProtectEx(hProcess, (void*) dwAddr, mbi.RegionSize, dwOldProt, &dwNewProt);
         continue;
 	}
 	
@@ -1780,15 +1821,71 @@ ZEND_FUNCTION( wing_find_process ) {
    char lpszCommandLine[10240] = {0};
         ::WaitForSingleObject(hThread, 500);
         ::GetExitCodeThread(hThread, &dwExitCode);
-		if(!::ReadProcessMemory(hProcess, (LPCVOID)dwExitCode, lpszCommandLine, sizeof(lpszCommandLine), &dwReaded)){
-		bMore = ::Process32Next(hProcessSnap, &pe32); 
-		zend_printf("3 error:%ld\r\n\r\n\r\n",GetLastError());
-        continue;
+
+		zend_printf("dwExitCode:%ld\r\n\r\n\r\n",dwExitCode);
+
+
+
+/*
+//MEMORY_BASIC_INFORMATION mbi;
+SIZE_T mbi_size = sizeof(mbi);
+ 
+DWORD startaddr=0,     //начальный адрес
+lowaddr,             //нижняя граница
+highaddr;            //верхняя граница
+ 
+ 
+do
+    {
+        if( VirtualQueryEx(hProcess,(LPCVOID)startaddr,&mbi,mbi_size) != sizeof(mbi))
+        {
+                   break;
+        }
+        startaddr+=(DWORD)mbi.RegionSize;
+    }while(mbi.State != MEM_COMMIT);
+lowaddr = (DWORD)mbi.BaseAddress; //типа нашли нижнюю границу процесса.
+
+
+
+
+
+
+if(!::ReadProcessMemory(hProcess, (LPCVOID)lowaddr, lpszCommandLine, sizeof(lpszCommandLine), &dwReaded)){
+		
+		zend_printf("3 error:%ld-->%ld\r\n\r\n\r\n",GetLastError(),dwReaded);
+		//zend_printf("%s\r\n\r\n\r\n",lpszCommandLine);
+
+		//bMore = ::Process32Next(hProcessSnap, &pe32); 
+
+		//VirtualProtectEx(hProcess, (void*) dwAddr, mbi.RegionSize, dwOldProt, &dwNewProt);
+       // continue;
 		}
+
+zend_printf("%s\r\n\r\n\r\n",lpszCommandLine);
+
+*/
+
+
+
+		//VirtualQueryEx(hProcess, (LPCVOID)dwExitCode, &mbi, sizeof(MEMORY_BASIC_INFORMATION));
+		//VirtualProtectEx(hProcess,mbi.BaseAddress, mbi.RegionSize, PAGE_READWRITE, & mbi.Protect);
+		//  VirtualProtectEx(hProcess, (void*) dwExitCode, sizeof(lpszCommandLine), PAGE_EXECUTE_READWRITE | PAGE_READWRITE , &dwOldProt);//PAGE_READWRITE
+		if(!::ReadProcessMemory(hProcess, (LPCVOID)dwExitCode, lpszCommandLine, sizeof(lpszCommandLine), &dwReaded)){
+		
+		zend_printf("3 error:%ld-->%ld\r\n\r\n\r\n",GetLastError(),dwReaded);
+		//zend_printf("%s\r\n\r\n\r\n",lpszCommandLine);
+
+		//bMore = ::Process32Next(hProcessSnap, &pe32); 
+
+		//VirtualProtectEx(hProcess, (void*) dwAddr, mbi.RegionSize, dwOldProt, &dwNewProt);
+       // continue;
+		}
+
+		// VirtualProtectEx(hProcess, (void*) dwExitCode, sizeof(lpszCommandLine), dwOldProt, &dwNewProt);
     
 
 
-
+//VirtualProtectEx(hProcess, (void*) dwAddr, mbi.RegionSize, dwOldProt, &dwNewProt);
 
 		//进程的可执行文件名称。要获得可执行文件的完整路径，应调用Module32First函数，再检查其返回的MODULEENTRY32结构的szExePath成员。
 		//但是，如果被调用进程是一个64位程序，您必须调用QueryFullProcessImageName函数去获取64位进程的可执行文件完整路径名。
@@ -2051,6 +2148,7 @@ const zend_function_entry wing_functions[] = {
 
 	PHP_FE(wing_process_isalive,NULL)
 	ZEND_FALIAS(wing_thread_isalive,wing_process_isalive,NULL)
+	PHP_FE( wing_get_command_line , NULL )
 
 	PHP_FE(wing_get_current_process_id,NULL)
 	PHP_FE(wing_create_mutex,NULL)
