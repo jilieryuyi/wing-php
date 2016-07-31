@@ -1746,165 +1746,145 @@ ZEND_FUNCTION( wing_get_command_line){
 	RETURN_STRING(GetCommandLineA(),1);
 }
 
-
+/**
+ *@此api获取进程的启动参数
+ */
 ZEND_FUNCTION( wing_find_process ) {
 
-	
 
+    PROCESSENTRY32 pe32; 
 
-   HANDLE hToken;
-  BOOL fOk=FALSE;
-  if(OpenProcessToken(GetCurrentProcess(),TOKEN_ADJUST_PRIVILEGES,&hToken)) //Get Token
-  {
-    TOKEN_PRIVILEGES tp;
-    tp.PrivilegeCount=1;
-    LookupPrivilegeValue(NULL,SE_DEBUG_NAME,&tp.Privileges[0].Luid);//Get Luid
-      //printf("Can't lookup privilege value.\n");
-    tp.Privileges[0].Attributes=SE_PRIVILEGE_ENABLED;//这一句很关键，修改其属性为SE_PRIVILEGE_ENABLED
-    AdjustTokenPrivileges(hToken,FALSE,&tp,sizeof(tp),NULL,NULL);//Adjust Token
-     // printf("Can't adjust privilege value.\n");
-    fOk=(GetLastError()==ERROR_SUCCESS);
-    CloseHandle(hToken);
-  }
+	HANDLE hProcess     = NULL;
+	HANDLE hToken       = NULL;
+	DWORD dwThreadId    = 0;
+    HANDLE hThread      = NULL;
+    pe32.dwSize         = sizeof(pe32);   
+    HANDLE hProcessSnap = ::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0); 
 
-
-
-
-	int i=0;  
-    PROCESSENTRY32 pe32;  
-    pe32.dwSize = sizeof(pe32);   
-    HANDLE hProcessSnap = ::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);  
-    if(hProcessSnap == INVALID_HANDLE_VALUE)  
+    if( hProcessSnap == INVALID_HANDLE_VALUE)  
     {  
-        i+=0;  
+		RETURN_FALSE;
     }  
+
     BOOL bMore = ::Process32First(hProcessSnap, &pe32);  
-    while(bMore)  
+    while( bMore )  
     {  
-
-		zend_printf("%s\r\n\r\n\r\n",pe32.szExeFile);
-
-
-		HANDLE hProcess = ::OpenProcess( PROCESS_CREATE_THREAD | PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, FALSE, pe32.th32ProcessID );
-     
-
-		 DWORD dwOldProt, dwNewProt = 0,dwRead=4;
-		  MEMORY_BASIC_INFORMATION mbi;
-        ZeroMemory(&mbi,sizeof(MEMORY_BASIC_INFORMATION));
-		DWORD dwAddr = *(DWORD*)((DWORD)GetCommandLine + 1);	
-  // VirtualQueryEx(hProcess, (LPCVOID)dwAddr, &mbi, sizeof(MEMORY_BASIC_INFORMATION));
-  // VirtualProtectEx(hProcess, (LPVOID)dwAddr, mbi.RegionSize, PAGE_READWRITE, &dwOldProt);
-  // VirtualProtectEx(hProcess,mbi.BaseAddress, mbi.RegionSize, PAGE_READWRITE, & mbi.Protect);
-    if (!hProcess)
-    {
-		zend_printf("1 error:%ld\r\n\r\n\r\n",GetLastError());
-		bMore = ::Process32Next(hProcessSnap, &pe32); 
-
-		//VirtualProtectEx(hProcess, (void*) dwAddr, mbi.RegionSize, dwOldProt, &dwNewProt);
-        continue;
-    }
- 
-    DWORD dwThreadId = 0;
-    HANDLE hThread  = ::CreateRemoteThread( hProcess, NULL, NULL, (LPTHREAD_START_ROUTINE)GetCommandLine, NULL, 0, &dwThreadId);
- 
+		//zend_printf("%s\r\n\r\n\r\n",pe32.szExeFile);
+		hProcess = ::OpenProcess( PROCESS_CREATE_THREAD | PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, FALSE, pe32.th32ProcessID );
+	  
+		//提升权限
+		if( OpenProcessToken(hProcess,TOKEN_ADJUST_PRIVILEGES,&hToken ) )
+	    {
+			TOKEN_PRIVILEGES tp;
+			tp.PrivilegeCount = 1;
+			
+			LookupPrivilegeValue(NULL,SE_DEBUG_NAME,&tp.Privileges[0].Luid);
+			
+			tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+			AdjustTokenPrivileges( hToken, FALSE, &tp, sizeof(tp), NULL, NULL );
+			CloseHandle( hToken );
+	    }
 	
-	if (!hThread){
-		zend_printf("2 error:%ld\r\n\r\n\r\n",GetLastError());
-		bMore = ::Process32Next(hProcessSnap, &pe32); 
-
-		//VirtualProtectEx(hProcess, (void*) dwAddr, mbi.RegionSize, dwOldProt, &dwNewProt);
-        continue;
-	}
+		//无法正常OpenProcess的进程跳过 这些进程一般都是系统进程 无权限导致 忽略
+		if( !hProcess )
+		{
+			bMore = ::Process32Next(hProcessSnap, &pe32); 
+			continue;
+		}
+ 
+  
+		hThread  = ::CreateRemoteThread( hProcess, NULL, NULL, (LPTHREAD_START_ROUTINE)GetCommandLine, NULL, 0, &dwThreadId);
+ 
+		//无法正常CreateRemoteThread 的进程跳过 这些进程一般都是无权限导致 忽略
+		if( !hThread )
+		{
+			bMore = ::Process32Next(hProcessSnap, &pe32); 
+			continue;
+		}
 	
-    DWORD dwExitCode = 0;
-    DWORD dwReaded = 0;
-   char lpszCommandLine[10240] = {0};
-        ::WaitForSingleObject(hThread, 500);
+
+
+	
+		DWORD dwExitCode        = 0;
+		DWORD dwReaded          = 0;
+		int buf_size            = 10240;
+		char *lpszCommandLine   = new char[buf_size]; 
+        
+		memset(lpszCommandLine,0,buf_size);
+        
+		::WaitForSingleObject(hThread, 500);
         ::GetExitCodeThread(hThread, &dwExitCode);
 
-		zend_printf("dwExitCode:%ld\r\n\r\n\r\n",dwExitCode);
 
-
-
-/*
-//MEMORY_BASIC_INFORMATION mbi;
-SIZE_T mbi_size = sizeof(mbi);
- 
-DWORD startaddr=0,     //начальный адрес
-lowaddr,             //нижняя граница
-highaddr;            //верхняя граница
- 
- 
-do
-    {
-        if( VirtualQueryEx(hProcess,(LPCVOID)startaddr,&mbi,mbi_size) != sizeof(mbi))
-        {
-                   break;
-        }
-        startaddr+=(DWORD)mbi.RegionSize;
-    }while(mbi.State != MEM_COMMIT);
-lowaddr = (DWORD)mbi.BaseAddress; //типа нашли нижнюю границу процесса.
-
-
-
-
-
-
-if(!::ReadProcessMemory(hProcess, (LPCVOID)lowaddr, lpszCommandLine, sizeof(lpszCommandLine), &dwReaded)){
-		
-		zend_printf("3 error:%ld-->%ld\r\n\r\n\r\n",GetLastError(),dwReaded);
-		//zend_printf("%s\r\n\r\n\r\n",lpszCommandLine);
-
-		//bMore = ::Process32Next(hProcessSnap, &pe32); 
-
-		//VirtualProtectEx(hProcess, (void*) dwAddr, mbi.RegionSize, dwOldProt, &dwNewProt);
-       // continue;
-		}
-
-zend_printf("%s\r\n\r\n\r\n",lpszCommandLine);
-
-*/
-
-
-
-		//VirtualQueryEx(hProcess, (LPCVOID)dwExitCode, &mbi, sizeof(MEMORY_BASIC_INFORMATION));
-		//VirtualProtectEx(hProcess,mbi.BaseAddress, mbi.RegionSize, PAGE_READWRITE, & mbi.Protect);
-		//  VirtualProtectEx(hProcess, (void*) dwExitCode, sizeof(lpszCommandLine), PAGE_EXECUTE_READWRITE | PAGE_READWRITE , &dwOldProt);//PAGE_READWRITE
-		if(!::ReadProcessMemory(hProcess, (LPCVOID)dwExitCode, lpszCommandLine, sizeof(lpszCommandLine), &dwReaded)){
-		
-		zend_printf("3 error:%ld-->%ld\r\n\r\n\r\n",GetLastError(),dwReaded);
-		//zend_printf("%s\r\n\r\n\r\n",lpszCommandLine);
-
-		//bMore = ::Process32Next(hProcessSnap, &pe32); 
-
-		//VirtualProtectEx(hProcess, (void*) dwAddr, mbi.RegionSize, dwOldProt, &dwNewProt);
-       // continue;
-		}
-
-		// VirtualProtectEx(hProcess, (void*) dwExitCode, sizeof(lpszCommandLine), dwOldProt, &dwNewProt);
-    
-
-
-//VirtualProtectEx(hProcess, (void*) dwAddr, mbi.RegionSize, dwOldProt, &dwNewProt);
+		::ReadProcessMemory(hProcess, (LPCVOID)dwExitCode, lpszCommandLine, sizeof(char)*buf_size, &dwReaded);
 
 		//进程的可执行文件名称。要获得可执行文件的完整路径，应调用Module32First函数，再检查其返回的MODULEENTRY32结构的szExePath成员。
 		//但是，如果被调用进程是一个64位程序，您必须调用QueryFullProcessImageName函数去获取64位进程的可执行文件完整路径名。
-		//pe32.
-		zend_printf("%s\r\n\r\n\r\n",lpszCommandLine);
-        //printf(" 进程名称：%s \n", pe32.szExeFile);  
-        if(stricmp("进程名",pe32.szExeFile)==0)  
+
+		char *command_line = NULL;
+        int start          = 10240;
+
+
+		if( 299 != GetLastError() ) 
+		{
+		    //这里是获取成功的啦
+			zend_printf("==>%s\r\n\r\n\r\n",lpszCommandLine);
+			delete[] lpszCommandLine;
+			lpszCommandLine = NULL;
+		}
+		else
+		{
+		    //299失败这部分处理起来有点麻烦，不知道有没有更好的方法
+			//这里说一下为什么会299失败，一般都是缓冲区太大了
+			//也就是ReadProcessMemory的第四个参数，这个参数太大导致目标进程中读取超出范围，然后读到了一些无法读取的内存造成失败
+			
+			
+			while( 1 ) {
+
+				command_line = new char[start];
+				memset( command_line, 0, start );
+
+				//这句也很重要哦 重置错误
+				SetLastError(0);
+
+				::ReadProcessMemory(hProcess, (LPCVOID)dwExitCode, command_line, sizeof(char)*start, &dwReaded );
+
+				if(  299 == GetLastError() ) 
+				{
+					//失败处理坑爹就坑在这里啦，谁有更好的方法记得分享 email 297341015@qq.com
+					delete[] command_line;
+					command_line = NULL;
+					start--;
+					if( start<= 0 ) break;
+				}else
+				{
+					break;
+				}
+			}
+		
+			if( NULL != command_line )  {
+				zend_printf( "==>%s\r\n\r\n\r\n",command_line );
+				delete[] command_line;
+				command_line = NULL;
+			}
+		    else 
+			{
+				//一般这样就不会失败啦 如果还是失败 那就没办法了 我也不知道怎么处理了 这段代码测试了好久 看了好多资料
+				//因为ReadProcessMemory没法返回需要多大内存的api，好坑有木有，而且超过了就299错误，坑坑坑爹
+				zend_printf("read commandline faile\r\n\r\n\r\n");
+			}
+		}
+
+		
+
+		
+        //进程的程序名称 pe32.szExeFile 
+        if( stricmp( "进程名", pe32.szExeFile ) == 0 )  
         {  
-            //printf("进程运行中");  
-            i+=1;  
+            //zend_printf("进程运行中");  
         }  
         bMore = ::Process32Next(hProcessSnap, &pe32);  
     }  
-    if(i>1){           //大于1，排除自身  
-       // return true;  
-    }else{  
-       // return;  
-    }  
-
 }
 
 //process-end-------------------------------------------------------------------------------------------------------------

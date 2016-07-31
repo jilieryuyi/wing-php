@@ -15,4 +15,5 @@ file_put_contents("wing_create_process.log",
 file_put_contents("wing_create_process_cmd.log",
     wing_get_command_line());
 
+sleep(100000);
 exit(999);
