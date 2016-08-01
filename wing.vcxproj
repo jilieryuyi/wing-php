@@ -90,6 +90,7 @@
       <ImportLibrary>.\Debug_TS\php_wing.lib</ImportLibrary>
       <AdditionalLibraryDirectories>..\..\Debug_TS;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>odbc32.lib;odbccp32.lib;php5ts_debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_TS|Win32'">

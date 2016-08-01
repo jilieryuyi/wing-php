@@ -18,12 +18,12 @@
     return false;
 }*/
 
-
+$handle = wing_create_mutex("a test mutex"); //这里的内核对象 $handle 会被子进程继承
 
 wing_set_env("data","这句话将被传到子进程");
 $command = WING_PHP." ".__DIR__."/wing_create_process_runer.php";
 //$process_id = wing_create_process( $command, "这句话也会被传到子进程");
-$process_id = wing_create_process_ex(__DIR__."/wing_create_process_runer.php","这句话将被传到子进程");
+$process_id = wing_create_process_ex(__DIR__."/wing_create_process_runer.php handle=".$handle,"这句话将被传到子进程");
 //wing_create_process_ex专属php文件的创建进程方式 即把php文件作为一个单独的进程中执行
 echo "进程id:",$process_id,"\r\n";
 
@@ -38,6 +38,10 @@ echo "进程id:",$process_id,"\r\n";
 }else{
     echo $process_id,"未运行\r\n";
 }*/
+
+//sleep(60);
+//查看引用计数器
+echo "引用计数",wing_query_object( $handle ),"\r\n";
 
 
 /*if( WING_ERROR_PROCESS_IS_RUNNING == wing_process_isalive( $process_id ) ) {
@@ -72,3 +76,10 @@ switch( $wait_code ) {
         echo "进程退出码：",$wait_code,"\r\n"; //在子进程调用exit时传入的参数
 }
 
+
+//查看引用计数器 比子进程退出之前小了1 也可以通过这种方式去判断子进程是否还在运行~
+echo "引用计数",wing_query_object( $handle ),"\r\n";
+//wing_query_object 无法识别$handle是否有效 请在wing_close_mutex调用前使用此函数
+
+wing_close_mutex($handle);
+$handle = 0; //记住 close之后 $handle=0 清理 很重要 防止后面 被误用

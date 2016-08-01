@@ -54,6 +54,9 @@ char *PHP_PATH = NULL;
 //int getaddrinfo( const char *hostname, const char *service, const struct addrinfo *hints, struct addrinfo **result );
 //https://msdn.microsoft.com/en-us/library/windows/desktop/ms742203(v=vs.85).aspx
 
+
+#include "Winternl.h" //NtQueryObject
+
 //#include <comdef.h>    
 //#include <Wbemidl.h>    
 //#pragma comment(lib, "wbemuuid.lib")  
@@ -1509,11 +1512,73 @@ ZEND_FUNCTION( wing_get_current_process_id ){
 }
 
 
+
+
+
+typedef NTSTATUS (NTAPI* lpNtQueryObject)(
+   HANDLE                   ,
+   OBJECT_INFORMATION_CLASS ,
+   PVOID                    ,
+   ULONG                    ,
+   PULONG                   
+);
+
+typedef   struct   _SYSTEM_HANDLE_STATE   { 
+DWORD   r1; 
+DWORD   GrantedAccess; 
+DWORD   HandleCount;      // 减1为句柄计数 
+DWORD   ReferenceCount;   // 减1为指针引用计数 
+DWORD   r5; 
+DWORD   r6; 
+DWORD   r7; 
+DWORD   r8; 
+DWORD   r9; 
+DWORD   r10;   
+DWORD   r11;   
+DWORD   r12;   
+DWORD   r13;   
+DWORD   r14;   
+}SYSTEM_HANDLE_STATE,   *PSYSTEM_HANDLE_STATE;
+ZEND_FUNCTION( wing_query_object ){
+
+	int handle = 0;
+
+	if( zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC, "l", &handle ) != SUCCESS ) 
+	{
+		RETURN_LONG(0);
+		return;
+	}
+
+	if( handle <= 0 ) 
+	{
+	    RETURN_LONG(0);
+		return;
+	}
+
+	lpNtQueryObject NtQueryObject     = (lpNtQueryObject)GetProcAddress( GetModuleHandleA("ntdll.dll"), "NtQueryObject" );
+    SYSTEM_HANDLE_STATE *pOutBuffer   = ( SYSTEM_HANDLE_STATE *)malloc(0x38);
+	
+	memset(pOutBuffer,0,0x38);
+
+	if( NtQueryObject( (HANDLE)handle, ObjectBasicInformation, pOutBuffer, 0x38, NULL ) != 0 )
+	{
+		free( pOutBuffer );
+		RETURN_LONG(0);
+		return;
+	}
+
+	int count =  pOutBuffer->HandleCount;
+	free( pOutBuffer );
+
+	RETURN_LONG( count );
+	return;
+}
+
 /**
  *@返回 0程序正在运行 -1 获取参数错误 -2 参数不能为空 
  *@-3创建互斥锁失败 long handle创建互斥锁成功  
  */
-ZEND_FUNCTION(wing_create_mutex){
+ZEND_FUNCTION( wing_create_mutex ) {
 
 	char *mutex_name     = NULL;
 	int   mutex_name_len = 0;
@@ -1528,13 +1593,13 @@ ZEND_FUNCTION(wing_create_mutex){
 		return;
 	}
 
-	/*---跨边界共享内核对象需要的参数 这里不用
+	//---跨边界共享内核对象需要的参数
 	SECURITY_ATTRIBUTES sa;
 	sa.nLength = sizeof(sa);
 	sa.lpSecurityDescriptor = NULL;
-	sa.bInheritHandle = TRUE;*/
+	sa.bInheritHandle = TRUE;
 
-	HANDLE m_hMutex =  CreateMutex(NULL,TRUE,mutex_name);//CreateMutex(&sa,TRUE,mutex_name);
+	HANDLE m_hMutex =  CreateMutex( &sa ,TRUE, mutex_name );//CreateMutex(&sa,TRUE,mutex_name);
 
     if ( !m_hMutex ) {
 		RETURN_LONG(WING_ERROR_FAILED);
@@ -1569,7 +1634,7 @@ ZEND_FUNCTION( wing_close_mutex )
 		return;
 	}
 
-	int status_code = CloseHandle((HANDLE)mutex_handle) ? WING_ERROR_SUCCESS : WING_ERROR_FAILED ;
+	int status_code = CloseHandle( (HANDLE)mutex_handle ) ? WING_ERROR_SUCCESS : WING_ERROR_FAILED ;
 	RETURN_LONG( status_code );
 	return;
 }
@@ -1660,7 +1725,7 @@ ZEND_FUNCTION( wing_set_env ){
 	int   value_len = 0;
 	int   res       = 0;
 	
-	if( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"ss", &name, &name_len, &value,&value_len) != SUCCESS ) {
+	if( zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC, "ss",  &name, &name_len, &value,&value_len ) != SUCCESS ) {
 		RETURN_LONG( WING_ERROR_PARAMETER_ERROR );
 		return;
 	}
@@ -2153,6 +2218,7 @@ const zend_function_entry wing_functions[] = {
 	PHP_FE(wing_process_isalive,NULL)
 	ZEND_FALIAS(wing_thread_isalive,wing_process_isalive,NULL)
 	PHP_FE( wing_get_command_line , NULL )
+	PHP_FE( wing_query_object , NULL )
 
 	PHP_FE(wing_get_current_process_id,NULL)
 	PHP_FE(wing_create_mutex,NULL)
