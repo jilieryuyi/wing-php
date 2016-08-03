@@ -26,7 +26,7 @@ for( $i=0; $i<$argc; $i++ ){
 
 for( $i=0; $i<$argc; $i++ )
 file_put_contents("wing_create_process_arg.log",
-    $argv[$i]."\r\n\r\n");
+    $argv[$i]."\r\n\r\n",FILE_APPEND);
 
 sleep(3);
 exit(999);

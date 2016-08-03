@@ -55,7 +55,8 @@ char *PHP_PATH = NULL;
 //https://msdn.microsoft.com/en-us/library/windows/desktop/ms742203(v=vs.85).aspx
 
 
-#include "Winternl.h" //NtQueryObject
+#include "Winternl.h" //NtQueryObject Winternl.h
+//#include "ntstatus.h"
 
 //#include <comdef.h>    
 //#include <Wbemidl.h>    
@@ -1515,14 +1516,7 @@ ZEND_FUNCTION( wing_get_current_process_id ){
 
 
 
-typedef NTSTATUS (NTAPI* lpNtQueryObject)(
-   HANDLE                   ,
-   OBJECT_INFORMATION_CLASS ,
-   PVOID                    ,
-   ULONG                    ,
-   PULONG                   
-);
-
+typedef NTSTATUS (NTAPI* WingNtQueryObject)( HANDLE, OBJECT_INFORMATION_CLASS, PVOID, ULONG, PULONG );
 typedef   struct   _SYSTEM_HANDLE_STATE   { 
 DWORD   r1; 
 DWORD   GrantedAccess; 
@@ -1539,6 +1533,11 @@ DWORD   r12;
 DWORD   r13;   
 DWORD   r14;   
 }SYSTEM_HANDLE_STATE,   *PSYSTEM_HANDLE_STATE;
+/**
+ *@获取windows内核对象的引用次数
+ *@param int  内核对象句柄，在php内部表示即为int类型
+ *@return int
+ */
 ZEND_FUNCTION( wing_query_object ){
 
 	int handle = 0;
@@ -1555,7 +1554,7 @@ ZEND_FUNCTION( wing_query_object ){
 		return;
 	}
 
-	lpNtQueryObject NtQueryObject     = (lpNtQueryObject)GetProcAddress( GetModuleHandleA("ntdll.dll"), "NtQueryObject" );
+	WingNtQueryObject NtQueryObject   = ( WingNtQueryObject )GetProcAddress( GetModuleHandleA("ntdll.dll"), "NtQueryObject" );
     SYSTEM_HANDLE_STATE *pOutBuffer   = ( SYSTEM_HANDLE_STATE *)malloc(0x38);
 	
 	memset(pOutBuffer,0,0x38);
@@ -1902,6 +1901,10 @@ void wing_get_command_line( DWORD process_id, char* &lpszCommandLine ){
 		}
 }
 
+
+
+
+
 /**
  *@此api获取进程的启动参数
  *@支持通过进程id获取 通过进程id获取返回单个字符串
@@ -1911,7 +1914,7 @@ ZEND_FUNCTION( wing_find_process ) {
 
 	zval *keyword = NULL;
 
-	MAKE_STD_ZVAL(keyword);
+	MAKE_STD_ZVAL( keyword );
 	ZVAL_STRING( keyword ,"",1 );
 
 	if( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|z", &keyword ) != SUCCESS ) {
@@ -1964,10 +1967,15 @@ ZEND_FUNCTION( wing_find_process ) {
 		
 		if( NULL != command_line ) {
 			if( Z_TYPE_P(keyword) == IS_NULL || Z_STRLEN_P(keyword) == 0  )
-			    add_next_index_string( return_value, command_line , 1 );
-			else{
+			{
+				add_next_index_string( return_value, command_line , 1 );
+			}
+			else
+			{
 				if( strstr( command_line,(const char*)Z_STRVAL_P(keyword) ) != NULL )
+				{
 					add_next_index_string( return_value, command_line , 1 );
+				}
 			}
 			delete[] command_line;
 		}
