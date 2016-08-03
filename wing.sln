@@ -9,6 +9,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "socket_select", "socket_sel
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "socket_client", "socket_client\socket_client.vcxproj", "{5DB5C1C6-A30E-45E5-9316-D996F1322048}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "socket_async_select", "socket_async_select\socket_async_select.vcxproj", "{70544108-D281-438E-BEB0-D8DA8E4BD94F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "socket_event_select", "socket_event_select\socket_event_select.vcxproj", "{514C5C3C-749E-4625-8D47-53B607D0390A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug_TS|Win32 = Debug_TS|Win32
@@ -49,6 +53,22 @@ Global
 		{5DB5C1C6-A30E-45E5-9316-D996F1322048}.Release_TS|Win32.Build.0 = Release|Win32
 		{5DB5C1C6-A30E-45E5-9316-D996F1322048}.Release|Win32.ActiveCfg = Release|Win32
 		{5DB5C1C6-A30E-45E5-9316-D996F1322048}.Release|Win32.Build.0 = Release|Win32
+		{70544108-D281-438E-BEB0-D8DA8E4BD94F}.Debug_TS|Win32.ActiveCfg = Debug|Win32
+		{70544108-D281-438E-BEB0-D8DA8E4BD94F}.Debug_TS|Win32.Build.0 = Debug|Win32
+		{70544108-D281-438E-BEB0-D8DA8E4BD94F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{70544108-D281-438E-BEB0-D8DA8E4BD94F}.Debug|Win32.Build.0 = Debug|Win32
+		{70544108-D281-438E-BEB0-D8DA8E4BD94F}.Release_TS|Win32.ActiveCfg = Release|Win32
+		{70544108-D281-438E-BEB0-D8DA8E4BD94F}.Release_TS|Win32.Build.0 = Release|Win32
+		{70544108-D281-438E-BEB0-D8DA8E4BD94F}.Release|Win32.ActiveCfg = Release|Win32
+		{70544108-D281-438E-BEB0-D8DA8E4BD94F}.Release|Win32.Build.0 = Release|Win32
+		{514C5C3C-749E-4625-8D47-53B607D0390A}.Debug_TS|Win32.ActiveCfg = Debug|Win32
+		{514C5C3C-749E-4625-8D47-53B607D0390A}.Debug_TS|Win32.Build.0 = Debug|Win32
+		{514C5C3C-749E-4625-8D47-53B607D0390A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{514C5C3C-749E-4625-8D47-53B607D0390A}.Debug|Win32.Build.0 = Debug|Win32
+		{514C5C3C-749E-4625-8D47-53B607D0390A}.Release_TS|Win32.ActiveCfg = Release|Win32
+		{514C5C3C-749E-4625-8D47-53B607D0390A}.Release_TS|Win32.Build.0 = Release|Win32
+		{514C5C3C-749E-4625-8D47-53B607D0390A}.Release|Win32.ActiveCfg = Release|Win32
+		{514C5C3C-749E-4625-8D47-53B607D0390A}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

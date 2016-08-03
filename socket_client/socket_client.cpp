@@ -35,7 +35,7 @@ int main()
 	server.sin_port = htons(PORT);
 
 	connect(sClient, (struct sockaddr *)&server, sizeof(SOCKADDR_IN));
-
+	char *recvmsg = new char[MSGSIZE];
 	while (TRUE)
 	{
 
@@ -46,14 +46,14 @@ int main()
 		send(sClient, szMessage, strlen(szMessage), 0);
 
 		// Receive message
-		char *recvmsg = new char[MSGSIZE];
+		
 		memset(recvmsg,0,MSGSIZE);
 		ret = recv(sClient, recvmsg, MSGSIZE, 0);
 		printf("Received [%d bytes]: ¡®%s¡¯\n", ret, recvmsg);
-		delete[] recvmsg;
+		
 
 	}
-
+	delete[] recvmsg;
 	// Clean up
 	closesocket(sClient);
 	WSACleanup();

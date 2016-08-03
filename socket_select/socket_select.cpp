@@ -116,7 +116,7 @@ DWORD WINAPI WorkerThread(LPVOID lpParam)
 				else
 				{
 					//We received a message from client
-					szMessage[ret] = '\0';
+					//szMessage[ret] = '\0';
 					send(g_CliSocketArr[i], szMessage, strlen(szMessage), 0);
 				}
 
