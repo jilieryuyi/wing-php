@@ -2071,40 +2071,152 @@ ZEND_FUNCTION(wing_get_memory_used){
 #define MSGSIZE    1024
 int    g_iTotalConn = 0;
 SOCKET g_CliSocketArr[FD_SETSIZE];
+int timeout        = 0; //recv send 超时时间
+CRITICAL_SECTION select_lock;
+
+struct SELECT_ITEM{
+	SOCKET socket;
+	SOCKADDR_IN addr;
+	int active;
+	int online;
+};
+
+/**
+ *@创建服务端连接进来的客户端对象
+ */
+void select_create_wing_sclient(zval *&client , SELECT_ITEM *&item TSRMLS_DC){
+	
+	MAKE_STD_ZVAL(  client );
+	object_init_ex( client,wing_sclient_ce);
+				
+	//初始化
+	if( item ) {
+		zend_update_property_string( wing_sclient_ce, client,"sin_addr",   strlen("sin_addr"),   inet_ntoa(item->addr.sin_addr) TSRMLS_CC);
+		zend_update_property_long(   wing_sclient_ce, client,"sin_port",   strlen("sin_port"),   ntohs(item->addr.sin_port)     TSRMLS_CC);
+		zend_update_property_long(   wing_sclient_ce, client,"sin_family", strlen("sin_family"), item->addr.sin_family          TSRMLS_CC);
+		zend_update_property_string( wing_sclient_ce, client,"sin_zero",   strlen("sin_zero"),   item->addr.sin_zero            TSRMLS_CC);
+		zend_update_property_long(   wing_sclient_ce, client,"last_active",strlen("last_active"),item->active                         TSRMLS_CC);
+		zend_update_property_long(   wing_sclient_ce, client,"socket",     strlen("socket"),     item->socket                       TSRMLS_CC);
+		zend_update_property_long(   wing_sclient_ce, client,"online",     strlen("online"),     item->online                         TSRMLS_CC );
+	}
+
+}
+
+/**
+ *@select 模型新客户端连接事件
+ */
+void select_onconnect( SELECT_ITEM *&item){
+
+	item->active = time(NULL);
+	item->online = 1;
+
+	SOCKET socket = item->socket;
+
+	// 设置发送、接收超时时间 单位为毫秒
+	if( timeout > 0 )
+	{
+		if( setsockopt( socket, SOL_SOCKET,SO_SNDTIMEO, (const char*)&timeout,sizeof(timeout)) !=0 )
+		{
+			//setsockopt失败
+			//iocp_post_queue_msg( WM_ONERROR, (unsigned long)pOL, WSAGetLastError() );
+		}
+		if( setsockopt( socket, SOL_SOCKET,SO_RCVTIMEO, (const char*)&timeout,sizeof(timeout)) != 0 )
+		{
+			//setsockopt失败
+			//iocp_post_queue_msg( WM_ONERROR, (unsigned long)pOL, WSAGetLastError() );
+		}
+	}
+	
+	linger so_linger;
+	so_linger.l_onoff	= TRUE;
+	so_linger.l_linger	= 0; //拒绝close wait状态
+	setsockopt( socket,SOL_SOCKET,SO_LINGER,(const char*)&so_linger,sizeof(so_linger) );
+
+	//获取客户端ip地址、端口信息
+	//int client_size = sizeof(pOL->m_addrClient);  
+	//ZeroMemory( &pOL->m_addrClient , sizeof(pOL->m_addrClient) );
+	
+	//if( getpeername( pOL->m_skClient , (SOCKADDR *)&pOL->m_addrClient , &client_size ) != 0 ) 
+	//{
+		//getpeername失败
+	//	iocp_post_queue_msg( WM_ONERROR, (unsigned long)pOL, WSAGetLastError() );
+	//}
+
+	//keepalive 设置 这里有坑 还不知道怎么解 在设置keep alive以后 disconnectex 会报错，无效的句柄，(An invalid handle was specified。)
+	//多线程以及心跳检测冲突？iocp要如何设置心跳检测，未知
+	int dt		= 1;
+	DWORD dw	= 0;
+	tcp_keepalive live ;     
+	live.keepaliveinterval	= 5000;     //连接之后 多长时间发现无活动 开始发送心跳吧 单位为毫秒 
+	live.keepalivetime		= 1000;     //多长时间发送一次心跳包 1分钟是 60000 以此类推     
+	live.onoff				= TRUE;     //是否开启 keepalive
+
+	//if( setsockopt( socket, SOL_SOCKET, SO_KEEPALIVE, (char *)&dt, sizeof(dt) ) != 0 )
+	{
+		//setsockopt失败
+		//iocp_post_queue_msg( WM_ONERROR, (unsigned long)pOL, WSAGetLastError() );
+	}           
+	
+	//if( WSAIoctl(   socket, SIO_KEEPALIVE_VALS, &live, sizeof(live), NULL, 0, &dw, NULL , NULL ) != 0 )
+	{
+		//WSAIoctl 错误
+		//iocp_post_queue_msg( WM_ONERROR, (unsigned long)pOL, WSAGetLastError() );
+	}
+
+	iocp_post_queue_msg( WM_ONCONNECT, (unsigned long)item );
+	//iocp_post_recv( pOL );
+}
 
 unsigned int __stdcall  wing_select_server_accept( PVOID params ) {
 
 	SOCKET sClient;
 	SOCKET sListen = *(SOCKET*)(params);
-	SOCKADDR_IN client;
+	//SOCKADDR_IN client;
 	int iaddrSize = sizeof(SOCKADDR_IN);
 
 	while (TRUE)
 	{
 
+		SELECT_ITEM *item = new SELECT_ITEM();
+		item->online = 0;
+		item->active = 0;
+
 		// Accept a connection
-		sClient = accept(sListen, (struct sockaddr *)&client, &iaddrSize);
+		sClient = accept(sListen, (struct sockaddr *)&item->addr, &iaddrSize);
+		if( INVALID_SOCKET == sClient ) {
+			delete item;
+			continue;
+		}
 
-		printf("Accepted client:%s:%d\n", inet_ntoa(client.sin_addr), ntohs(client.sin_port));
+		
+		item->socket =  sClient;
 
+
+		//printf("Accepted client:%s:%d\n", inet_ntoa(item->addr.sin_addr), ntohs(item->addr.sin_port));
+
+		select_onconnect( item );
+
+		EnterCriticalSection(&select_lock);//LeaveCriticalSection(&select_lock);
 		// Add socket to g_CliSocketArr
 		g_CliSocketArr[g_iTotalConn++] = sClient;
+		LeaveCriticalSection(&select_lock);
 
 	}
+	return 0;
 }
 
 unsigned int __stdcall  wing_select_server_worder( PVOID params )
 {
-	int            i;
+	int            i = 0;
 	fd_set         fdread;
-	int            ret;
+	int            ret = 0;
 	struct timeval tv = {1, 0};
 	char           *szMessage=new char[MSGSIZE];
 	
 
 	while (TRUE)
 	{
-
+		EnterCriticalSection(&select_lock);//LeaveCriticalSection(&select_lock);
 		FD_ZERO(&fdread);//将fdread初始化空集
 
 		for (i = 0; i < g_iTotalConn; i++)
@@ -2112,11 +2224,11 @@ unsigned int __stdcall  wing_select_server_worder( PVOID params )
 			FD_SET(g_CliSocketArr[i], &fdread);//将要检查的套接口加入到集合中
 		}
 
- 
 		// We only care read event
 		ret = select(0, &fdread, NULL, NULL, &tv);//每隔一段时间，检查可读性的套接口
 		if (ret == 0)
 		{
+			LeaveCriticalSection(&select_lock);
 			// Time expired
 			continue;
 		}
@@ -2137,10 +2249,14 @@ unsigned int __stdcall  wing_select_server_worder( PVOID params )
 
 					closesocket(g_CliSocketArr[i]);
 
-					if (i < g_iTotalConn-1)
-					{
-						g_CliSocketArr[i--] = g_CliSocketArr[--g_iTotalConn];
-					}
+					//if (i < g_iTotalConn-1)
+					//{
+						//g_CliSocketArr[i--] = g_CliSocketArr[--g_iTotalConn];
+					for( int f=i;f<g_iTotalConn-1;f++)
+						g_CliSocketArr[f] = g_CliSocketArr[f+1];
+					g_CliSocketArr[g_iTotalConn-1] = INVALID_SOCKET;
+					g_iTotalConn -- ;
+					//}
 				}
 				else
 				{
@@ -2152,11 +2268,11 @@ unsigned int __stdcall  wing_select_server_worder( PVOID params )
 			}
 
 		}
+		LeaveCriticalSection(&select_lock);
 
 	}
 	delete[] szMessage;
 
-	return 0;
 	return 0;
 }
 
@@ -2186,6 +2302,8 @@ ZEND_METHOD( wing_select_server, __construct )
 	zend_update_property_long(    wing_select_server_ce, getThis(), "max_connect",    strlen("max_connect"),    max_connect          TSRMLS_CC);
 	zend_update_property_long(    wing_select_server_ce, getThis(), "timeout",        strlen("timeout"),        timeout              TSRMLS_CC);
 	zend_update_property_long(    wing_select_server_ce, getThis(), "active_timeout", strlen("active_timeout"), active_timeout       TSRMLS_CC);
+
+	InitializeCriticalSection( &select_lock );
 
 }
 /***
@@ -2217,7 +2335,7 @@ ZEND_METHOD(wing_select_server,start){
 
 	int port           = 0;
 	char *listen_ip    = NULL;
-	int timeout        = 0;
+	
 	int max_connect    = 1000;
 	int active_timeout = 0;
 	int tick           = 0;
@@ -2334,7 +2452,7 @@ ZEND_METHOD(wing_select_server,start){
 		    case WM_ONSEND:
 			{
 				//unsigned long socket    = msg->wparam;
-			    iocp_overlapped *povl   = (iocp_overlapped*)iocp_get_form_map(msg->wparam);
+			   /* iocp_overlapped *povl   = (iocp_overlapped*)iocp_get_form_map(msg->wparam);
 				long send_status        = msg->lparam;
 			
 				zval *params[2]			= {0};
@@ -2359,16 +2477,17 @@ ZEND_METHOD(wing_select_server,start){
 				zval_ptr_dtor( &params[0] );
 				zval_ptr_dtor( &params[1] );
 
-				zend_printf("WM_ONSEND\r\n");
+				zend_printf("WM_ONSEND\r\n");*/
 			}
 			break;
 			case WM_ONCONNECT:
 			{
-				iocp_overlapped *povl = (iocp_overlapped*)msg->wparam;
-				zend_printf("WM_ONCONNECT %ld\r\n\r\n",povl->m_skClient);
+				SELECT_ITEM *item =  (SELECT_ITEM*)msg->wparam;
+				
+				zend_printf("select WM_ONCONNECT %ld\r\n\r\n",item->socket);
 
 				zval *wing_sclient            = NULL;
-				iocp_create_wing_sclient( wing_sclient , povl TSRMLS_CC);
+				select_create_wing_sclient( wing_sclient , item TSRMLS_CC);
 				
 				zend_try
 				{
@@ -2382,13 +2501,14 @@ ZEND_METHOD(wing_select_server,start){
 
 				//释放资源
 				zval_ptr_dtor( &wing_sclient );
-				zend_printf("WM_ONCONNECT\r\n");
+				zend_printf("select WM_ONCONNECT\r\n");
+				delete item;
 
 			}
 			break;
 			case WM_ONCLOSE:
 			{
-				iocp_overlapped *povl = (iocp_overlapped*)msg->wparam;
+				/*iocp_overlapped *povl = (iocp_overlapped*)msg->wparam;
 				zend_printf("WM_ONCLOSE %ld\r\n\r\n",povl->m_skClient);
 
 				zval *wing_sclient            = NULL;
@@ -2405,14 +2525,14 @@ ZEND_METHOD(wing_select_server,start){
 				zend_end_try();
 
 				//释放资源
-				zval_ptr_dtor( &wing_sclient );
+				zval_ptr_dtor( &wing_sclient );*/
 		
 
 			}
 			break;
 			case WM_ONERROR:
 			{
-				iocp_overlapped *povl = (iocp_overlapped*)msg->wparam;
+				/*iocp_overlapped *povl = (iocp_overlapped*)msg->wparam;
 				int last_error        = (DWORD)msg->lparam;
 				
 				zend_printf("WM_ONERROR %ld=>error=>%ld,mark:%ld\r\n\r\n",povl->m_skClient,last_error,msg->eparam);
@@ -2479,13 +2599,13 @@ ZEND_METHOD(wing_select_server,start){
 
 				zval_ptr_dtor( &params[0] );
 				zval_ptr_dtor( &params[1] );
-				zval_ptr_dtor( &params[2] );
+				zval_ptr_dtor( &params[2] );*/
 
 			}
 			break;
 			case WM_ONRECV:
 			{
-				iocp_overlapped *povl   = (iocp_overlapped*)msg->wparam;
+				/*iocp_overlapped *povl   = (iocp_overlapped*)msg->wparam;
 				char *recv_msg          = (char*)msg->lparam;
 				long error_code         = msg->eparam;
 				zval *params[2]			= {0};
@@ -2514,13 +2634,13 @@ ZEND_METHOD(wing_select_server,start){
 
 				delete[] recv_msg;
 				recv_msg = NULL;
-				zend_printf("WM_ONRECV\r\n");
+				zend_printf("WM_ONRECV\r\n");*/
 			}
 			break;
 			case WM_ONBEAT:
 			{
-				iocp_overlapped *povl = (iocp_overlapped*)msg->wparam;
-				zend_printf("WM_ONBEAT %ld,last error:%ld,error code:%ld,type:%ld\r\n\r\n",povl->m_skClient,msg->lparam,msg->eparam,povl->m_iOpType);
+				//iocp_overlapped *povl = (iocp_overlapped*)msg->wparam;
+				//zend_printf("WM_ONBEAT %ld,last error:%ld,error code:%ld,type:%ld\r\n\r\n",povl->m_skClient,msg->lparam,msg->eparam,povl->m_iOpType);
 			}
 			break;
 		}
