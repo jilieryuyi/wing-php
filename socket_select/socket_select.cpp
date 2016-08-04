@@ -108,10 +108,8 @@ DWORD WINAPI WorkerThread(LPVOID lpParam)
 
 					closesocket(g_CliSocketArr[i]);
 
-					if (i < g_iTotalConn-1)
-					{
-						g_CliSocketArr[i--] = g_CliSocketArr[--g_iTotalConn];
-					}
+					for( int f=i;f<g_iTotalConn-1;f++)
+						g_CliSocketArr[f] = g_CliSocketArr[f+1];
 				}
 				else
 				{

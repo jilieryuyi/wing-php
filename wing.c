@@ -511,56 +511,39 @@ unsigned int __stdcall  iocp_free_thread( PVOID params ){
  */
 DWORD WINAPI iocp_begin_send_thread(PVOID *_node) {
 
-	iocp_send_node *node = (iocp_send_node*)_node;
-
+	iocp_send_node *node  = (iocp_send_node*)_node;
 	unsigned long _socket = (unsigned long)node->socket;
 
-	if( SOCKET_ERROR == send( node->socket ,node->msg ,strlen( node->msg ),0)){
-		delete[] node->msg;
-		delete node;
+	int send_status = 1;
+	int sendBytes   = send( node->socket ,node->msg ,strlen( node->msg ),0);
 
-		//iocp_overlapped *povl = (iocp_overlapped *)iocp_get_form_map( (unsigned long)node->socket );
-		iocp_post_queue_msg( WM_ONSEND,_socket, 0 );
-
-		return 0;
+	if( SOCKET_ERROR == sendBytes ){
+		send_status = 0;
 	}
 
-	delete[] node->msg;
-	delete node;
+	if( node->msg ) delete[] node->msg;
+	if( node )      delete node;
 
-	//iocp_overlapped *povl = (iocp_overlapped *)iocp_get_form_map( (unsigned long)node->socket );
-	iocp_post_queue_msg( WM_ONSEND,_socket, 1 );
-
-	/*WSABUF buf;
-	DWORD dwlen, flags=0;
-	int ret;
-
-	buf.buf="GET / HTTP/1.0\r\n\r\n";
-	buf.len=16;
-
-	// dwlen must be given but we can ignore it.  flags can be the normal recv() flags.
-	ret=WSASend(data->sock, &buf, 1, &dwlen, 0, &data->ovl, NULL);
-	if(ret!=SOCKET_ERROR || WSAGetLastError()==WSA_IO_PENDING) {
-		puts("send began successfully!");
-	}
-	else {
-		free(data);
-		puts("unable to begin recv!");
-	}*/
-
+	iocp_post_queue_msg( WM_ONSEND,_socket,send_status );
 	return 1;
 }
 
 /**
  *@发送消息
  */
-BOOL iocp_socket_send( SOCKET socket,char *&msg , BOOL async = true) {
+BOOL iocp_socket_send( SOCKET socket,char *&msg , BOOL async = true ) {
 
 	if( !async ) {
 		return SOCKET_ERROR != send( socket , msg ,strlen( msg ), 0 );
 	}
 
 	iocp_send_node *node = new iocp_send_node();
+
+	if( NULL == node ) {
+		iocp_post_queue_msg( WM_ONSEND,(unsigned long)socket, 0 );
+		return 0;
+	}
+
 	node->socket         = socket;
 	unsigned long len    = strlen(msg)+1;
 	node->msg            = new char[len];
@@ -573,7 +556,6 @@ BOOL iocp_socket_send( SOCKET socket,char *&msg , BOOL async = true) {
 		delete[] node->msg;
 		delete node;
 
-		//iocp_overlapped *povl = (iocp_overlapped *)iocp_get_form_map( (unsigned long)socket );
 		iocp_post_queue_msg( WM_ONSEND,(unsigned long)socket, 0 );
 
 		return 0;
@@ -2273,11 +2255,9 @@ unsigned int __stdcall  wing_select_server_worder( PVOID params )
 
 					closesocket(g_CliSocketArr[i]);
 
-					//if (i < g_iTotalConn-1)
-					//{
-						//g_CliSocketArr[i--] = g_CliSocketArr[--g_iTotalConn];
 					for( int f=i;f<g_iTotalConn-1;f++)
 						g_CliSocketArr[f] = g_CliSocketArr[f+1];
+
 					g_CliSocketArr[g_iTotalConn-1] = INVALID_SOCKET;
 					g_iTotalConn -- ;
 					//}
@@ -2335,8 +2315,6 @@ ZEND_METHOD( wing_select_server, __construct )
 	zend_update_property_long(    wing_select_server_ce, getThis(), "max_connect",    strlen("max_connect"),    max_connect          TSRMLS_CC);
 	zend_update_property_long(    wing_select_server_ce, getThis(), "timeout",        strlen("timeout"),        timeout              TSRMLS_CC);
 	zend_update_property_long(    wing_select_server_ce, getThis(), "active_timeout", strlen("active_timeout"), active_timeout       TSRMLS_CC);
-
-	InitializeCriticalSection( &select_lock );
 
 }
 /***
@@ -2406,19 +2384,22 @@ ZEND_METHOD(wing_select_server,start){
 	
 	//初始化消息队列
 	iocp_message_queue_init();  
+	InitializeCriticalSection( &select_lock );
 
 	//---start---------------------------------------------------------
 	//初始化服务端socket 如果失败返回INVALID_SOCKET
 	WSADATA wsaData; 
 	if( WSAStartup(MAKEWORD(2,2), &wsaData) != 0 )
 	{
+		DeleteCriticalSection( &select_lock );
 		return; 
 	}
 
 	// 检查是否申请了所需版本的套接字库   
 	if(LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2)
 	{
-        WSACleanup();  
+        WSACleanup(); 
+		DeleteCriticalSection( &select_lock );
         return;  
     }  
 
@@ -2427,6 +2408,7 @@ ZEND_METHOD(wing_select_server,start){
 	if( INVALID_SOCKET == m_sockListen )
 	{
 		WSACleanup();
+		DeleteCriticalSection( &select_lock );
 		return;
 	}
 
@@ -2455,6 +2437,7 @@ ZEND_METHOD(wing_select_server,start){
 	{
 		closesocket(m_sockListen);
 		WSACleanup();
+		DeleteCriticalSection( &select_lock );
 		return;
 	}  
 
@@ -2463,6 +2446,7 @@ ZEND_METHOD(wing_select_server,start){
 	{
 		closesocket(m_sockListen);
 		WSACleanup();
+		DeleteCriticalSection( &select_lock );
 		return;
 	}
 	HANDLE _thread;
@@ -2473,7 +2457,7 @@ ZEND_METHOD(wing_select_server,start){
 	 _thread = (HANDLE)_beginthreadex(NULL, 0, wing_select_server_worder, /*(void*)&active_timeout*/NULL, 0, NULL); 
 	CloseHandle( _thread );
 
-
+	SELECT_ITEM *item = NULL;
 	iocp_message_queue_element *msg = NULL;//消息
 	zend_printf("start message loop\r\n");
 	while( true )
@@ -2484,20 +2468,21 @@ ZEND_METHOD(wing_select_server,start){
 		switch( msg->message_id ){
 		    case WM_ONSEND:
 			{
-				//unsigned long socket    = msg->wparam;
+				
 				SOCKET socket     = (SOCKET)msg->wparam;
 				long send_status  = msg->lparam;
 
-				SELECT_ITEM *item = new SELECT_ITEM();
+				item = new SELECT_ITEM();
 
 				item->online  = 1;
 				item->active  = time(NULL);
 				item->socket  = socket;
 				int iaddrSize = sizeof(SOCKADDR_IN);
+				memset(&item->addr,0,iaddrSize);
 
-				getpeername( item->socket , (SOCKADDR *)&item->addr , &iaddrSize ); 
+				//getpeername( item->socket , (SOCKADDR *)&item->addr , &iaddrSize ); 
 				
-				zval *params[2]			= {0};
+				/*zval *params[2]	;//		= {0};
 				
 				MAKE_STD_ZVAL( params[0] );
 				MAKE_STD_ZVAL( params[1] );
@@ -2522,11 +2507,12 @@ ZEND_METHOD(wing_select_server,start){
 
 				zend_printf("WM_ONSEND\r\n");
 				delete item;
+				item = NULL;*/
 			}
 			break;
 			case WM_ONCONNECT:
 			{
-				SELECT_ITEM *item =  (SELECT_ITEM*)msg->wparam;
+				item =  (SELECT_ITEM*)msg->wparam;
 				
 				zend_printf("select WM_ONCONNECT %ld\r\n\r\n",item->socket);
 
@@ -2547,13 +2533,14 @@ ZEND_METHOD(wing_select_server,start){
 				zval_ptr_dtor( &wing_sclient );
 				zend_printf("select WM_ONCONNECT\r\n");
 				delete item;
+				item = NULL;
 
 			}
 			break;
 			case WM_ONCLOSE:
 			{
 				zend_printf("select WM_ONCLOSE\r\n");
-				SELECT_ITEM *item =  (SELECT_ITEM*)msg->wparam;
+				item =  (SELECT_ITEM*)msg->wparam;
 
 				zval *wing_sclient            = NULL;
 				select_create_wing_sclient( wing_sclient , item TSRMLS_CC);
@@ -2571,6 +2558,7 @@ ZEND_METHOD(wing_select_server,start){
 				//释放资源
 				zval_ptr_dtor( &wing_sclient );
 				delete item;
+				item = NULL;
 		
 
 			}
@@ -2578,7 +2566,7 @@ ZEND_METHOD(wing_select_server,start){
 			case WM_ONRECV:
 			{
 				zend_printf("select WM_ONRECV\r\n");
-				SELECT_ITEM *item =  (SELECT_ITEM*)msg->wparam;
+				item =  (SELECT_ITEM*)msg->wparam;
 
 			
 				zval *params[2]			= {0};
@@ -2608,6 +2596,7 @@ ZEND_METHOD(wing_select_server,start){
 				delete[] item->recv;
 				item->recv = NULL;
 				delete item;
+				item = NULL;
 				zend_printf("WM_ONRECV\r\n");
 			}
 			break;
@@ -2695,6 +2684,7 @@ ZEND_METHOD(wing_select_server,start){
 		delete msg;
 		msg = NULL;  
 	}
+	DeleteCriticalSection( &select_lock );
 	return;
 }
 
