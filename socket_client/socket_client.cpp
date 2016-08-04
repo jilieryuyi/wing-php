@@ -7,7 +7,7 @@
 
  
 #define SERVER_ADDRESS "127.0.0.1"
-#define PORT           5150
+#define PORT           9998
 #define MSGSIZE        1024
 #pragma comment(lib, "ws2_32.lib")
 

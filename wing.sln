@@ -13,6 +13,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "socket_async_select", "sock
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "socket_event_select", "socket_event_select\socket_event_select.vcxproj", "{514C5C3C-749E-4625-8D47-53B607D0390A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "socket_reio", "socket_reio\socket_reio.vcxproj", "{860CDBBE-F48C-453F-A3B2-308993577C04}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "socket_iocp", "socket_iocp\socket_iocp.vcxproj", "{4231BBA6-E526-408A-A554-A0D2A553C8F0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug_TS|Win32 = Debug_TS|Win32
@@ -69,6 +73,22 @@ Global
 		{514C5C3C-749E-4625-8D47-53B607D0390A}.Release_TS|Win32.Build.0 = Release|Win32
 		{514C5C3C-749E-4625-8D47-53B607D0390A}.Release|Win32.ActiveCfg = Release|Win32
 		{514C5C3C-749E-4625-8D47-53B607D0390A}.Release|Win32.Build.0 = Release|Win32
+		{860CDBBE-F48C-453F-A3B2-308993577C04}.Debug_TS|Win32.ActiveCfg = Debug|Win32
+		{860CDBBE-F48C-453F-A3B2-308993577C04}.Debug_TS|Win32.Build.0 = Debug|Win32
+		{860CDBBE-F48C-453F-A3B2-308993577C04}.Debug|Win32.ActiveCfg = Debug|Win32
+		{860CDBBE-F48C-453F-A3B2-308993577C04}.Debug|Win32.Build.0 = Debug|Win32
+		{860CDBBE-F48C-453F-A3B2-308993577C04}.Release_TS|Win32.ActiveCfg = Release|Win32
+		{860CDBBE-F48C-453F-A3B2-308993577C04}.Release_TS|Win32.Build.0 = Release|Win32
+		{860CDBBE-F48C-453F-A3B2-308993577C04}.Release|Win32.ActiveCfg = Release|Win32
+		{860CDBBE-F48C-453F-A3B2-308993577C04}.Release|Win32.Build.0 = Release|Win32
+		{4231BBA6-E526-408A-A554-A0D2A553C8F0}.Debug_TS|Win32.ActiveCfg = Debug|Win32
+		{4231BBA6-E526-408A-A554-A0D2A553C8F0}.Debug_TS|Win32.Build.0 = Debug|Win32
+		{4231BBA6-E526-408A-A554-A0D2A553C8F0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4231BBA6-E526-408A-A554-A0D2A553C8F0}.Debug|Win32.Build.0 = Debug|Win32
+		{4231BBA6-E526-408A-A554-A0D2A553C8F0}.Release_TS|Win32.ActiveCfg = Release|Win32
+		{4231BBA6-E526-408A-A554-A0D2A553C8F0}.Release_TS|Win32.Build.0 = Release|Win32
+		{4231BBA6-E526-408A-A554-A0D2A553C8F0}.Release|Win32.ActiveCfg = Release|Win32
+		{4231BBA6-E526-408A-A554-A0D2A553C8F0}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
