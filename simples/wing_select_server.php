@@ -44,7 +44,5 @@ $server->on( "onerror", function( $client, $error_code, $error_msg ) {
 $server->on( "ontimeout" , function( $client ) {
     echo $client->socket," is timeout\r\n";
 });
-$server->on("tick" , function() {
-    echo "on tick\r\n";
-});
+
 $server->start();

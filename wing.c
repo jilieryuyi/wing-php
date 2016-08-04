@@ -2075,10 +2075,11 @@ int timeout        = 0; //recv send 超时时间
 CRITICAL_SECTION select_lock;
 
 struct SELECT_ITEM{
-	SOCKET socket;
+	SOCKET      socket;
 	SOCKADDR_IN addr;
-	int active;
-	int online;
+	int         active;
+	int         online;
+	char       *recv;
 };
 
 /**
@@ -2151,22 +2152,37 @@ void select_onconnect( SELECT_ITEM *&item){
 	live.keepalivetime		= 1000;     //多长时间发送一次心跳包 1分钟是 60000 以此类推     
 	live.onoff				= TRUE;     //是否开启 keepalive
 
-	//if( setsockopt( socket, SOL_SOCKET, SO_KEEPALIVE, (char *)&dt, sizeof(dt) ) != 0 )
+	if( setsockopt( socket, SOL_SOCKET, SO_KEEPALIVE, (char *)&dt, sizeof(dt) ) != 0 )
 	{
 		//setsockopt失败
 		//iocp_post_queue_msg( WM_ONERROR, (unsigned long)pOL, WSAGetLastError() );
 	}           
 	
-	//if( WSAIoctl(   socket, SIO_KEEPALIVE_VALS, &live, sizeof(live), NULL, 0, &dw, NULL , NULL ) != 0 )
+	if( WSAIoctl(   socket, SIO_KEEPALIVE_VALS, &live, sizeof(live), NULL, 0, &dw, NULL , NULL ) != 0 )
 	{
 		//WSAIoctl 错误
 		//iocp_post_queue_msg( WM_ONERROR, (unsigned long)pOL, WSAGetLastError() );
 	}
 
 	iocp_post_queue_msg( WM_ONCONNECT, (unsigned long)item );
-	//iocp_post_recv( pOL );
 }
+void select_onclose( SELECT_ITEM *&item){
+	iocp_post_queue_msg( WM_ONCLOSE ,(unsigned long)item );
+}
+void select_onrecv(SELECT_ITEM *&item){
 
+		//获取客户端ip地址、端口信息
+	int client_size = sizeof(item->addr);  
+	ZeroMemory( &item->addr , sizeof(item->addr) );
+	
+	if( getpeername( item->socket , (SOCKADDR *)&item->addr , &client_size ) != 0 ) 
+{
+		//getpeername失败
+		//iocp_post_queue_msg( WM_ONERROR, (unsigned long)pOL, WSAGetLastError() );
+	}
+
+	iocp_post_queue_msg( WM_ONRECV , (unsigned long)item);
+}
 unsigned int __stdcall  wing_select_server_accept( PVOID params ) {
 
 	SOCKET sClient;
@@ -2204,6 +2220,8 @@ unsigned int __stdcall  wing_select_server_accept( PVOID params ) {
 	}
 	return 0;
 }
+
+
 
 unsigned int __stdcall  wing_select_server_worder( PVOID params )
 {
@@ -2247,6 +2265,12 @@ unsigned int __stdcall  wing_select_server_worder( PVOID params )
 					// Client socket closed
 					printf("Client socket %d closed.\n", g_CliSocketArr);
 
+					SELECT_ITEM *item = new SELECT_ITEM();
+					item->online = 0;
+					item->active = 0;
+					item->socket = g_CliSocketArr[i];
+					select_onclose(item);
+
 					closesocket(g_CliSocketArr[i]);
 
 					//if (i < g_iTotalConn-1)
@@ -2262,7 +2286,16 @@ unsigned int __stdcall  wing_select_server_worder( PVOID params )
 				{
 					//We received a message from client
 					//szMessage[ret] = '\0';
-					send(g_CliSocketArr[i], szMessage, strlen(szMessage), 0);
+					//send(g_CliSocketArr[i], szMessage, strlen(szMessage), 0);
+					int msglen = strlen(szMessage)+1;
+					SELECT_ITEM *item = new SELECT_ITEM();
+					item->online = 1;
+					item->active = time(NULL);
+					item->socket = g_CliSocketArr[i];
+					item->recv = new char[msglen];
+					memset(item->recv,0,msglen);
+					strcpy(item->recv,szMessage);
+					select_onrecv(item);
 				}
 
 			}
@@ -2452,15 +2485,25 @@ ZEND_METHOD(wing_select_server,start){
 		    case WM_ONSEND:
 			{
 				//unsigned long socket    = msg->wparam;
-			   /* iocp_overlapped *povl   = (iocp_overlapped*)iocp_get_form_map(msg->wparam);
-				long send_status        = msg->lparam;
-			
+				SOCKET socket     = (SOCKET)msg->wparam;
+				long send_status  = msg->lparam;
+
+				SELECT_ITEM *item = new SELECT_ITEM();
+
+				item->online  = 1;
+				item->active  = time(NULL);
+				item->socket  = socket;
+				int iaddrSize = sizeof(SOCKADDR_IN);
+
+				getpeername( item->socket , (SOCKADDR *)&item->addr , &iaddrSize ); 
+				
 				zval *params[2]			= {0};
 				
 				MAKE_STD_ZVAL( params[0] );
 				MAKE_STD_ZVAL( params[1] );
 
-				iocp_create_wing_sclient( params[0] , povl TSRMLS_CC);
+				
+				select_create_wing_sclient( params[0] , item TSRMLS_CC);
 
 				ZVAL_LONG( params[1] , send_status );
 				
@@ -2477,7 +2520,8 @@ ZEND_METHOD(wing_select_server,start){
 				zval_ptr_dtor( &params[0] );
 				zval_ptr_dtor( &params[1] );
 
-				zend_printf("WM_ONSEND\r\n");*/
+				zend_printf("WM_ONSEND\r\n");
+				delete item;
 			}
 			break;
 			case WM_ONCONNECT:
@@ -2508,11 +2552,11 @@ ZEND_METHOD(wing_select_server,start){
 			break;
 			case WM_ONCLOSE:
 			{
-				/*iocp_overlapped *povl = (iocp_overlapped*)msg->wparam;
-				zend_printf("WM_ONCLOSE %ld\r\n\r\n",povl->m_skClient);
+				zend_printf("select WM_ONCLOSE\r\n");
+				SELECT_ITEM *item =  (SELECT_ITEM*)msg->wparam;
 
 				zval *wing_sclient            = NULL;
-				iocp_create_wing_sclient( wing_sclient , povl TSRMLS_CC);
+				select_create_wing_sclient( wing_sclient , item TSRMLS_CC);
 				
 				zend_try
 				{
@@ -2525,9 +2569,46 @@ ZEND_METHOD(wing_select_server,start){
 				zend_end_try();
 
 				//释放资源
-				zval_ptr_dtor( &wing_sclient );*/
+				zval_ptr_dtor( &wing_sclient );
+				delete item;
 		
 
+			}
+			break;
+			case WM_ONRECV:
+			{
+				zend_printf("select WM_ONRECV\r\n");
+				SELECT_ITEM *item =  (SELECT_ITEM*)msg->wparam;
+
+			
+				zval *params[2]			= {0};
+
+	
+
+				
+				
+				MAKE_STD_ZVAL( params[0] );
+				MAKE_STD_ZVAL( params[1] );
+				select_create_wing_sclient( params[0] , item TSRMLS_CC);
+				ZVAL_STRING( params[1] , item->recv , 1 );
+				
+				zend_try
+				{
+					iocp_call_func( &onreceive TSRMLS_CC , 2 , params );
+				}
+				zend_catch
+				{
+					//php语法错误
+				}
+				zend_end_try();
+
+				zval_ptr_dtor( &params[0] );
+				zval_ptr_dtor( &params[1] );
+
+				delete[] item->recv;
+				item->recv = NULL;
+				delete item;
+				zend_printf("WM_ONRECV\r\n");
 			}
 			break;
 			case WM_ONERROR:
@@ -2603,40 +2684,7 @@ ZEND_METHOD(wing_select_server,start){
 
 			}
 			break;
-			case WM_ONRECV:
-			{
-				/*iocp_overlapped *povl   = (iocp_overlapped*)msg->wparam;
-				char *recv_msg          = (char*)msg->lparam;
-				long error_code         = msg->eparam;
-				zval *params[2]			= {0};
-
-				zend_printf("WM_ONRECV from %ld=>%s\r\nlast error:%ld\r\n\r\n",povl->m_skClient,recv_msg,error_code);
-
-				
-				
-				MAKE_STD_ZVAL( params[0] );
-				MAKE_STD_ZVAL( params[1] );
-				iocp_create_wing_sclient( params[0] , povl TSRMLS_CC);
-				ZVAL_STRING( params[1] , recv_msg , 1 );
-				
-				zend_try
-				{
-					iocp_call_func( &onreceive TSRMLS_CC , 2 , params );
-				}
-				zend_catch
-				{
-					//php语法错误
-				}
-				zend_end_try();
-
-				zval_ptr_dtor( &params[0] );
-				zval_ptr_dtor( &params[1] );
-
-				delete[] recv_msg;
-				recv_msg = NULL;
-				zend_printf("WM_ONRECV\r\n");*/
-			}
-			break;
+			
 			case WM_ONBEAT:
 			{
 				//iocp_overlapped *povl = (iocp_overlapped*)msg->wparam;
