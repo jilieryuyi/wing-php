@@ -689,7 +689,10 @@ ZEND_METHOD(wing_sclient,close){
 		return;
 	}
 	
-	shutdown( isocket, SD_BOTH );
+	/*if( 0 != shutdown( isocket, SD_BOTH ) ) {
+		RETURN_LONG(WING_ERROR_FAILED);
+		return;
+	}*/
 
 	//iocp_overlapped *povl = (iocp_overlapped *)iocp_get_form_map( isocket );
 	//iocp_post_queue_msg( WM_ONCLOSE, (unsigned long)povl );
@@ -2110,10 +2113,17 @@ static unsigned long    g_iTotalConn = 0;
 SOCKET g_CliSocketArr[65534];//FD_SETSIZE 65534为最大连接数 65534是最大动态端口数
 int timeout        = 0; //recv send 超时时间
 CRITICAL_SECTION select_lock;
+CRITICAL_SECTION close_socket_lock;
 
 unsigned long close_socket_count = 0;
 
 
+struct CLOSE_ITEM{
+	SOCKET socket;
+	int time;
+};
+
+unsigned long  close_socket_arr[65534];
 
 /**
  *@创建服务端连接进来的客户端对象
@@ -2241,12 +2251,9 @@ unsigned int __stdcall  wing_select_server_accept( PVOID params ) {
 		
 		item->socket =  sClient;
 
-
-		//printf("Accepted client:%s:%d\n", inet_ntoa(item->addr.sin_addr), ntohs(item->addr.sin_port));
-
 		select_onconnect( item );
 
-		EnterCriticalSection(&select_lock);//LeaveCriticalSection(&select_lock);
+		EnterCriticalSection(&select_lock);
 		g_CliSocketArr[g_iTotalConn++] = sClient;
 		LeaveCriticalSection(&select_lock);
 
@@ -2258,20 +2265,20 @@ unsigned int __stdcall  wing_select_server_accept( PVOID params ) {
 
 unsigned int __stdcall  wing_select_server_worder( PVOID params )
 {
-	int            i = 0;
-	fd_set         fdread;
+	int            i   = 0;
 	int            ret = 0;
-	struct timeval tv = {1, 0};
-	char           *szMessage=new char[MSGSIZE];
+	struct timeval tv  = {1, 0};
+	char *szMessage    = new char[MSGSIZE];
+	fd_set fdread;
 	
-
 	while (TRUE)
 	{
-		if( g_iTotalConn <= 0 ) {
+		if( g_iTotalConn <= 0 ) 
+		{
 			Sleep(10);
 			continue;
 		}
-		//LeaveCriticalSection(&select_lock);
+
 		FD_ZERO( &fdread );//将fdread初始化空集
 
 		for (i = 0; i < g_iTotalConn; i++)
@@ -2283,11 +2290,11 @@ unsigned int __stdcall  wing_select_server_worder( PVOID params )
 		ret = select(0, &fdread, NULL, NULL, &tv);//每隔一段时间，检查可读性的套接口
 		if( ret < 0 ) {
 			//bad error
+			//MessageBoxA(0,"bad error","error",0);
+			//exit(0);
 		}
 		if (ret == 0 )
 		{
-			Sleep(10);
-			//LeaveCriticalSection(&select_lock);
 			// Time expired
 			continue;
 		}
@@ -2302,24 +2309,13 @@ unsigned int __stdcall  wing_select_server_worder( PVOID params )
 
 				if (ret == 0 || (ret == SOCKET_ERROR && WSAGetLastError() == WSAECONNRESET))
 				{
-
-					// Client socket closed
-					//printf("Client socket %d closed.\n", g_CliSocketArr);
-
-					
 					SELECT_ITEM *item = new SELECT_ITEM();
 					item->online = 0;
 					item->active = 0;
 					item->socket = g_CliSocketArr[i];
 					select_onclose(item);
 
-					//closesocket(g_CliSocketArr[i]);
-					shutdown( g_CliSocketArr[i], SD_BOTH );
-					//
 					EnterCriticalSection(&select_lock);
-
-					
-					
 					g_CliSocketArr[i] = INVALID_SOCKET;
 					for( int f=i;f<g_iTotalConn-1;f++)
 						g_CliSocketArr[f] = g_CliSocketArr[f+1];
@@ -2327,14 +2323,9 @@ unsigned int __stdcall  wing_select_server_worder( PVOID params )
 					g_CliSocketArr[g_iTotalConn-1] = INVALID_SOCKET;
 					g_iTotalConn -- ;
 					LeaveCriticalSection(&select_lock);
-					//}
 				}
 				else
 				{
-					
-					//We received a message from client
-					//szMessage[ret] = '\0';
-					//send(g_CliSocketArr[i], szMessage, strlen(szMessage), 0);
 					int msglen = strlen(szMessage)+1;
 
 					if( msglen <= 1 ) {
@@ -2342,12 +2333,15 @@ unsigned int __stdcall  wing_select_server_worder( PVOID params )
 					}
 
 					SELECT_ITEM *item = new SELECT_ITEM();
+
 					item->online = 1;
 					item->active = time(NULL);
 					item->socket = g_CliSocketArr[i];
-					item->recv = new char[msglen];
+					item->recv   = new char[msglen];
+
 					memset(item->recv,0,msglen);
 					strcpy(item->recv,szMessage);
+
 					select_onrecv(item);
 				}
 
@@ -2362,6 +2356,58 @@ unsigned int __stdcall  wing_select_server_worder( PVOID params )
 	return 0;
 }
 
+
+/**
+ *@释放socket资源线程，shutdown之后延迟5秒释放，经测试，效果稳定，哇哈哈哈
+ */
+unsigned int __stdcall  wing_close_socket_thread( PVOID params ) {
+	
+	CLOSE_ITEM *_close_item = NULL;
+	int i                   = 0;
+	int _time               = 0;
+	
+	while( 1 ) {
+
+		if( close_socket_count<=0 ) 
+		{
+			Sleep(10);
+			continue;
+		}
+
+		EnterCriticalSection(&close_socket_lock);
+		
+		for( i=0;i<close_socket_count;i++ ) {
+			
+			_close_item = (CLOSE_ITEM *)close_socket_arr[i];
+			_time       = time(NULL);
+
+			if( ( _time-_close_item->time ) >= 5 ) {
+				
+				//清理socket，回收socket资源
+				closesocket( _close_item->socket );
+
+				//数组清理
+				for( int f=i;f<close_socket_count-1;f++)
+				{
+					close_socket_arr[f] = close_socket_arr[f+1];
+				}
+
+				//最后一条清零
+				close_socket_arr[close_socket_count-1] = 0;
+
+				//元素计数器减少
+				close_socket_count--;
+
+				//删除 清理内存
+				delete _close_item;
+
+			}
+		}
+				
+		LeaveCriticalSection(&close_socket_lock);
+	}
+	return 0;
+}
 
 zend_class_entry *wing_select_server_ce;
 
@@ -2458,6 +2504,7 @@ ZEND_METHOD(wing_select_server,start){
 	//初始化消息队列
 	iocp_message_queue_init();  
 	InitializeCriticalSection( &select_lock );
+	InitializeCriticalSection( &close_socket_lock );
 
 	//---start---------------------------------------------------------
 	//初始化服务端socket 如果失败返回INVALID_SOCKET
@@ -2465,6 +2512,7 @@ ZEND_METHOD(wing_select_server,start){
 	if( WSAStartup(MAKEWORD(2,2), &wsaData) != 0 )
 	{
 		DeleteCriticalSection( &select_lock );
+		DeleteCriticalSection( &close_socket_lock );
 		iocp_message_queue_clear();
 		return; 
 	}
@@ -2474,6 +2522,7 @@ ZEND_METHOD(wing_select_server,start){
 	{
         WSACleanup(); 
 		DeleteCriticalSection( &select_lock );
+		DeleteCriticalSection( &close_socket_lock );
 		iocp_message_queue_clear();
         return;  
     }  
@@ -2484,6 +2533,7 @@ ZEND_METHOD(wing_select_server,start){
 	{
 		WSACleanup();
 		DeleteCriticalSection( &select_lock );
+		DeleteCriticalSection( &close_socket_lock );
 		iocp_message_queue_clear();
 		return;
 	}
@@ -2514,6 +2564,7 @@ ZEND_METHOD(wing_select_server,start){
 		closesocket(m_sockListen);
 		WSACleanup();
 		DeleteCriticalSection( &select_lock );
+		DeleteCriticalSection( &close_socket_lock );
 		return;
 	}  
 
@@ -2523,6 +2574,7 @@ ZEND_METHOD(wing_select_server,start){
 		closesocket(m_sockListen);
 		WSACleanup();
 		DeleteCriticalSection( &select_lock );
+		DeleteCriticalSection( &close_socket_lock );
 		iocp_message_queue_clear();
 		return;
 	}
@@ -2532,6 +2584,9 @@ ZEND_METHOD(wing_select_server,start){
 	CloseHandle( _thread );
 
 	 _thread = (HANDLE)_beginthreadex(NULL, 0, wing_select_server_worder, /*(void*)&active_timeout*/NULL, 0, NULL); 
+	CloseHandle( _thread );
+
+	 _thread = (HANDLE)_beginthreadex(NULL, 0, wing_close_socket_thread, /*(void*)&active_timeout*/NULL, 0, NULL); 
 	CloseHandle( _thread );
 
 	SELECT_ITEM *item = NULL;
@@ -2626,6 +2681,31 @@ ZEND_METHOD(wing_select_server,start){
 
 				//这里还需要释放item->socket  即调用closesocket
 
+
+				EnterCriticalSection(&close_socket_lock);
+				CLOSE_ITEM *temp = NULL;
+				int has = 0;
+				if( close_socket_count > 0 ) {
+					for( int i=0; i < close_socket_count; i++ ) {
+						temp = (CLOSE_ITEM *)close_socket_arr[i];
+						if( (unsigned long)temp->socket ==(unsigned long)item->socket ){
+							has = 1;
+							break;
+						}
+					}
+				}
+
+				if( !has ) {
+					shutdown( item->socket, SD_BOTH );
+					CLOSE_ITEM *_close_item = new CLOSE_ITEM();
+					_close_item->socket = item->socket;
+					_close_item->time = time(NULL);
+					close_socket_arr[close_socket_count++] = (unsigned long)_close_item;
+				}
+				
+				LeaveCriticalSection(&close_socket_lock);
+
+
 				select_create_wing_sclient( wing_sclient , item TSRMLS_CC);
 				
 				zend_try
@@ -2693,6 +2773,7 @@ ZEND_METHOD(wing_select_server,start){
 		msg = NULL;  
 	}
 	DeleteCriticalSection( &select_lock );
+	DeleteCriticalSection( &close_socket_lock );
 	iocp_message_queue_clear();
 	return;
 }

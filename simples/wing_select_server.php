@@ -24,11 +24,9 @@ $server->on( "onreceive" , function( $client , $recv_msg ) {
     $client->send( implode("\r\n",$headers)."\r\n\r\n".$response_content );
 });
 $server->on( "onsend" , function( $client , $send_status ){
-    //http协议 发送完毕之后 close掉
     echo $client->socket;
     if( $send_status ) echo "发送成功";
     else echo "发送失败";
-    //$client->close();
     echo "\r\n";
 });
 $server->on( "onconnect",function( $client ) {

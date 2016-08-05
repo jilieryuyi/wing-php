@@ -114,8 +114,8 @@
       <file leaf-file-name="wing_select_server.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/wing_select_server.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="810">
-              <caret line="30" column="6" selection-start-line="30" selection-start-column="6" selection-end-line="30" selection-end-column="6" />
+            <state relative-caret-position="269">
+              <caret line="20" column="6" selection-start-line="20" selection-start-column="6" selection-end-line="20" selection-end-column="6" />
               <folding />
             </state>
           </provider>
@@ -148,8 +148,8 @@
         <option value="$PROJECT_DIR$/wing_create_process.php" />
         <option value="$PROJECT_DIR$/wing_create_process_runer.php" />
         <option value="$PROJECT_DIR$/wing_server.php" />
-        <option value="$PROJECT_DIR$/wing_select_server.php" />
         <option value="$PROJECT_DIR$/beta/test.php" />
+        <option value="$PROJECT_DIR$/wing_select_server.php" />
       </list>
     </option>
   </component>
@@ -295,15 +295,15 @@
       <workItem from="1470269251584" duration="1259000" />
       <workItem from="1470277912976" duration="1279000" />
       <workItem from="1470348990401" duration="2183000" />
-      <workItem from="1470363131380" duration="1909000" />
+      <workItem from="1470363131380" duration="5036000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="38117000" />
+    <option name="totallyTimeSpent" value="41244000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1604" height="876" extended-state="1" />
+    <frame x="-8" y="-8" width="1604" height="876" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.19836272" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -368,7 +368,7 @@
         <state relative-caret-position="54">
           <caret line="6" column="26" selection-start-line="6" selection-start-column="5" selection-end-line="6" selection-end-column="26" />
           <folding>
-            <element signature="e#6#84#0#PHP" expanded="true" />
+            <element signature="e#6#84#0#PHP" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -458,7 +458,7 @@
         <state relative-caret-position="54">
           <caret line="6" column="26" selection-start-line="6" selection-start-column="5" selection-end-line="6" selection-end-column="26" />
           <folding>
-            <element signature="e#6#84#0#PHP" expanded="true" />
+            <element signature="e#6#84#0#PHP" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -548,7 +548,7 @@
         <state relative-caret-position="54">
           <caret line="6" column="26" selection-start-line="6" selection-start-column="5" selection-end-line="6" selection-end-column="26" />
           <folding>
-            <element signature="e#6#84#0#PHP" expanded="true" />
+            <element signature="e#6#84#0#PHP" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -637,7 +637,7 @@
         <state relative-caret-position="54">
           <caret line="6" column="26" selection-start-line="6" selection-start-column="5" selection-end-line="6" selection-end-column="26" />
           <folding>
-            <element signature="e#6#84#0#PHP" expanded="true" />
+            <element signature="e#6#84#0#PHP" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -670,7 +670,7 @@
         <state relative-caret-position="54">
           <caret line="6" column="26" selection-start-line="6" selection-start-column="5" selection-end-line="6" selection-end-column="26" />
           <folding>
-            <element signature="e#6#84#0#PHP" expanded="true" />
+            <element signature="e#6#84#0#PHP" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -760,8 +760,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/wing_select_server.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="810">
-          <caret line="30" column="6" selection-start-line="30" selection-start-column="6" selection-end-line="30" selection-end-column="6" />
+        <state relative-caret-position="269">
+          <caret line="20" column="6" selection-start-line="20" selection-start-column="6" selection-end-line="20" selection-end-column="6" />
           <folding />
         </state>
       </provider>
