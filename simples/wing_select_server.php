@@ -4,9 +4,11 @@
  * @created 2016/8/4 10:32
  * @email 297341015@qq.com
  * @使用select模型的tcp服务器
+ * @可以用项目里面的socket_client.exe测试，也可以直接浏览器打开 http://127.0.0.1:9998/
  */
 $server = new wing_select_server( "0.0.0.0" , 9998 , 20000, 1000, 3000, 1000 );
 $server->on( "onreceive" , function( $client , $recv_msg ) {
+
     echo "recv from:",$client->socket,"=>",$recv_msg,"\r\n";
     // $client->send( "hello client\r\n" );
 
