@@ -102,9 +102,9 @@
         </entry>
       </file>
       <file leaf-file-name="wing_server.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wing_server.php">
+        <entry file="file://$PROJECT_DIR$/beta/wing_server.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="647">
+            <state relative-caret-position="1323">
               <caret line="49" column="17" selection-start-line="7" selection-start-column="0" selection-end-line="49" selection-end-column="17" />
               <folding />
             </state>
@@ -114,8 +114,8 @@
       <file leaf-file-name="wing_select_server.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/wing_select_server.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="513">
-              <caret line="46" column="0" selection-start-line="46" selection-start-column="0" selection-end-line="46" selection-end-column="0" />
+            <state relative-caret-position="161">
+              <caret line="21" column="0" selection-start-line="21" selection-start-column="0" selection-end-line="21" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -211,6 +211,20 @@
               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
             </PATH_ELEMENT>
           </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="simples" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="simples" />
+              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="beta" />
+              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+            </PATH_ELEMENT>
+          </PATH>
         </subPane>
       </pane>
       <pane id="Scratches" />
@@ -222,6 +236,7 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\simples\beta" />
       <recent name="D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\simples" />
     </key>
   </component>
@@ -278,15 +293,16 @@
       <workItem from="1470041654823" duration="12000" />
       <workItem from="1470269251584" duration="1259000" />
       <workItem from="1470277912976" duration="1279000" />
+      <workItem from="1470348990401" duration="1586000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="34025000" />
+    <option name="totallyTimeSpent" value="35611000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1604" height="876" extended-state="1" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.19836272" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -344,13 +360,10 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="54">
           <caret line="7" column="26" selection-start-line="7" selection-start-column="5" selection-end-line="7" selection-end-column="26" />
-          <folding>
-            <element signature="e#6#98#0#PHP" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wing_server.php">
+    <entry file="file://$PROJECT_DIR$/beta/wing_server.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -437,13 +450,10 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="54">
           <caret line="7" column="26" selection-start-line="7" selection-start-column="5" selection-end-line="7" selection-end-column="26" />
-          <folding>
-            <element signature="e#6#98#0#PHP" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wing_server.php">
+    <entry file="file://$PROJECT_DIR$/beta/wing_server.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -530,13 +540,10 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="54">
           <caret line="7" column="26" selection-start-line="7" selection-start-column="5" selection-end-line="7" selection-end-column="26" />
-          <folding>
-            <element signature="e#6#98#0#PHP" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wing_server.php">
+    <entry file="file://$PROJECT_DIR$/beta/wing_server.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -622,13 +629,10 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="54">
           <caret line="7" column="26" selection-start-line="7" selection-start-column="5" selection-end-line="7" selection-end-column="26" />
-          <folding>
-            <element signature="e#6#98#0#PHP" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wing_server.php">
+    <entry file="file://$PROJECT_DIR$/beta/wing_server.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -646,8 +650,8 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wing_server.php" />
-    <entry file="file://$PROJECT_DIR$/wing_server.php" />
+    <entry file="file://$PROJECT_DIR$/beta/wing_server.php" />
+    <entry file="file://$PROJECT_DIR$/beta/wing_server.php" />
     <entry file="file://$PROJECT_DIR$/wing_version.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="135">
@@ -666,9 +670,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="54">
           <caret line="7" column="26" selection-start-line="7" selection-start-column="5" selection-end-line="7" selection-end-column="26" />
-          <folding>
-            <element signature="e#6#98#0#PHP" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -747,9 +748,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wing_server.php">
+    <entry file="file://$PROJECT_DIR$/beta/wing_server.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="647">
+        <state relative-caret-position="1323">
           <caret line="49" column="17" selection-start-line="7" selection-start-column="0" selection-end-line="49" selection-end-column="17" />
           <folding />
         </state>
@@ -757,8 +758,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/wing_select_server.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="513">
-          <caret line="46" column="0" selection-start-line="46" selection-start-column="0" selection-end-line="46" selection-end-column="0" />
+        <state relative-caret-position="161">
+          <caret line="21" column="0" selection-start-line="21" selection-start-column="0" selection-end-line="21" selection-end-column="0" />
           <folding />
         </state>
       </provider>

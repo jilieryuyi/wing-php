@@ -41,4 +41,8 @@ void iocp_message_queue_get(iocp_message_queue_element *&msg){
 	}
 	message_queue_pop(_iocp_message_queue , msg);
 }
+
+void iocp_message_queue_clear(){
+	message_queue_clear(_iocp_message_queue);
+}
  
