@@ -130,7 +130,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <LinkDLL>true</LinkDLL>
       <SubSystem>Console</SubSystem>
-      <OutputFile>..\..\Release_TS/php_wing.dll</OutputFile>
+      <OutputFile>php_wing.dll</OutputFile>
       <ImportLibrary>.\Release_TS\php_wing.lib</ImportLibrary>
       <AdditionalLibraryDirectories>..\..\Release_TS;..\..\Release_TS_Inline;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>odbc32.lib;odbccp32.lib;php5ts.lib;%(AdditionalDependencies)</AdditionalDependencies>
