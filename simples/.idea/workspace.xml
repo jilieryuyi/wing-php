@@ -114,20 +114,20 @@
       <file leaf-file-name="wing_select_server.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/wing_select_server.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="161">
-              <caret line="21" column="0" selection-start-line="21" selection-start-column="0" selection-end-line="21" selection-end-column="0" />
+            <state relative-caret-position="810">
+              <caret line="30" column="6" selection-start-line="30" selection-start-column="6" selection-end-line="30" selection-end-column="6" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="wing_get_env.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wing_get_env.php">
+      <file leaf-file-name="test.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/beta/test.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="54">
-              <caret line="6" column="26" selection-start-line="6" selection-start-column="5" selection-end-line="6" selection-end-column="26" />
+            <state relative-caret-position="513">
+              <caret line="19" column="24" selection-start-line="19" selection-start-column="24" selection-end-line="19" selection-end-column="24" />
               <folding>
-                <element signature="e#6#84#0#PHP" expanded="true" />
+                <element signature="e#6#83#0#PHP" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -149,6 +149,7 @@
         <option value="$PROJECT_DIR$/wing_create_process_runer.php" />
         <option value="$PROJECT_DIR$/wing_server.php" />
         <option value="$PROJECT_DIR$/wing_select_server.php" />
+        <option value="$PROJECT_DIR$/beta/test.php" />
       </list>
     </option>
   </component>
@@ -192,7 +193,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -227,7 +228,7 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scratches" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -293,12 +294,13 @@
       <workItem from="1470041654823" duration="12000" />
       <workItem from="1470269251584" duration="1259000" />
       <workItem from="1470277912976" duration="1279000" />
-      <workItem from="1470348990401" duration="1586000" />
+      <workItem from="1470348990401" duration="2183000" />
+      <workItem from="1470363131380" duration="1909000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="35611000" />
+    <option name="totallyTimeSpent" value="38117000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1604" height="876" extended-state="1" />
@@ -330,16 +332,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/wing_create_process_runer.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="729">
-          <caret line="31" column="8" selection-start-line="31" selection-start-column="5" selection-end-line="31" selection-end-column="8" />
-          <folding>
-            <element signature="e#6#84#0#PHP" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/wing_create_process_arg.log">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="108">
@@ -756,10 +748,20 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/beta/test.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="513">
+          <caret line="19" column="24" selection-start-line="19" selection-start-column="24" selection-end-line="19" selection-end-column="24" />
+          <folding>
+            <element signature="e#6#83#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/wing_select_server.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="161">
-          <caret line="21" column="0" selection-start-line="21" selection-start-column="0" selection-end-line="21" selection-end-column="0" />
+        <state relative-caret-position="810">
+          <caret line="30" column="6" selection-start-line="30" selection-start-column="6" selection-end-line="30" selection-end-column="6" />
           <folding />
         </state>
       </provider>

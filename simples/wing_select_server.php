@@ -28,7 +28,7 @@ $server->on( "onsend" , function( $client , $send_status ){
     echo $client->socket;
     if( $send_status ) echo "发送成功";
     else echo "发送失败";
-    $client->close();
+    //$client->close();
     echo "\r\n";
 });
 $server->on( "onconnect",function( $client ) {

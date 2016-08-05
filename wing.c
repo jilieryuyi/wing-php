@@ -93,7 +93,6 @@ extern void iocp_remove_form_map( unsigned long socket );
 #define WM_ONCLOSE2			WM_USER + 75
 #define WM_ONBEAT			WM_USER + 76
 #define WM_POST_RECV_ERR    WM_USER + 77
-#define WM_SOCKET_CLOSE     WM_USER + 78
 
 
 //错误码
@@ -143,6 +142,17 @@ struct iocp_send_node{
 	SOCKET socket;
 	char   *msg;
 };
+
+struct SELECT_ITEM{
+	SOCKET      socket;
+	SOCKADDR_IN addr;
+	int         active;
+	int         online;
+	char       *recv;
+};
+
+#define CLIENT_IOCP   1
+#define CLIENT_SELECT 2
 
 //base function-----------------------------
 
@@ -671,15 +681,27 @@ ZEND_METHOD(wing_sclient,close){
 	zval *socket = zend_read_property(wing_sclient_ce,getThis(),"socket",strlen("socket"),0 TSRMLS_CC);
 	int isocket = Z_LVAL_P(socket);
 
+	zval *_client_type = zend_read_property(wing_sclient_ce,getThis(),"client_type",strlen("client_type"),0 TSRMLS_CC);
+	int client_type =  Z_LVAL_P(_client_type);
+
 	if(isocket<=0) {
 		RETURN_LONG(WING_ERROR_FAILED);
 		return;
 	}
 	
+	shutdown( isocket, SD_BOTH );
+
 	//iocp_overlapped *povl = (iocp_overlapped *)iocp_get_form_map( isocket );
 	//iocp_post_queue_msg( WM_ONCLOSE, (unsigned long)povl );
 	//iocp_onclose( povl );
-	iocp_post_queue_msg( WM_SOCKET_CLOSE , isocket );
+
+	if( client_type == CLIENT_SELECT ) {
+		SELECT_ITEM *item = new SELECT_ITEM();
+		item->online = 0;
+		item->active = 0;
+		item->socket = isocket;
+		iocp_post_queue_msg( WM_ONCLOSE , (unsigned long)item );
+	}
 	
 	RETURN_LONG(WING_ERROR_SUCCESS);
 }
@@ -746,6 +768,7 @@ void iocp_create_wing_sclient(zval *&client , iocp_overlapped *&lpol TSRMLS_DC){
 		zend_update_property_long(   wing_sclient_ce, client,"last_active",strlen("last_active"),lpol->m_active                         TSRMLS_CC);
 		zend_update_property_long(   wing_sclient_ce, client,"socket",     strlen("socket"),     lpol->m_skClient                       TSRMLS_CC);
 		zend_update_property_long(   wing_sclient_ce, client,"online",     strlen("online"),     lpol->m_online                         TSRMLS_CC );
+		zend_update_property_long(   wing_sclient_ce, client,"client_type", strlen("client_type"),CLIENT_IOCP                  TSRMLS_CC );
 	}
 
 }
@@ -2084,17 +2107,13 @@ ZEND_FUNCTION(wing_get_memory_used){
 //-------wing_select_server-----------------------------------------------------------------------
 #define MSGSIZE    1024
 static unsigned long    g_iTotalConn = 0;
-SOCKET g_CliSocketArr[FD_SETSIZE];
+SOCKET g_CliSocketArr[65534];//FD_SETSIZE 65534为最大连接数 65534是最大动态端口数
 int timeout        = 0; //recv send 超时时间
 CRITICAL_SECTION select_lock;
 
-struct SELECT_ITEM{
-	SOCKET      socket;
-	SOCKADDR_IN addr;
-	int         active;
-	int         online;
-	char       *recv;
-};
+unsigned long close_socket_count = 0;
+
+
 
 /**
  *@创建服务端连接进来的客户端对象
@@ -2106,13 +2125,14 @@ void select_create_wing_sclient(zval *&client , SELECT_ITEM *&item TSRMLS_DC){
 				
 	//初始化
 	if( item ) {
-		zend_update_property_string( wing_sclient_ce, client,"sin_addr",   strlen("sin_addr"),   inet_ntoa(item->addr.sin_addr) TSRMLS_CC);
-		zend_update_property_long(   wing_sclient_ce, client,"sin_port",   strlen("sin_port"),   ntohs(item->addr.sin_port)     TSRMLS_CC);
-		zend_update_property_long(   wing_sclient_ce, client,"sin_family", strlen("sin_family"), item->addr.sin_family          TSRMLS_CC);
-		zend_update_property_string( wing_sclient_ce, client,"sin_zero",   strlen("sin_zero"),   item->addr.sin_zero            TSRMLS_CC);
-		zend_update_property_long(   wing_sclient_ce, client,"last_active",strlen("last_active"),item->active                         TSRMLS_CC);
-		zend_update_property_long(   wing_sclient_ce, client,"socket",     strlen("socket"),     item->socket                       TSRMLS_CC);
-		zend_update_property_long(   wing_sclient_ce, client,"online",     strlen("online"),     item->online                         TSRMLS_CC );
+		zend_update_property_string( wing_sclient_ce, client,"sin_addr",    strlen("sin_addr"),   inet_ntoa(item->addr.sin_addr) TSRMLS_CC );
+		zend_update_property_long(   wing_sclient_ce, client,"sin_port",    strlen("sin_port"),   ntohs(item->addr.sin_port)     TSRMLS_CC );
+		zend_update_property_long(   wing_sclient_ce, client,"sin_family",  strlen("sin_family"), item->addr.sin_family          TSRMLS_CC );
+		zend_update_property_string( wing_sclient_ce, client,"sin_zero",    strlen("sin_zero"),   item->addr.sin_zero            TSRMLS_CC );
+		zend_update_property_long(   wing_sclient_ce, client,"last_active", strlen("last_active"),item->active                   TSRMLS_CC );
+		zend_update_property_long(   wing_sclient_ce, client,"socket",      strlen("socket"),     item->socket                   TSRMLS_CC );
+		zend_update_property_long(   wing_sclient_ce, client,"online",      strlen("online"),     item->online                   TSRMLS_CC );
+		zend_update_property_long(   wing_sclient_ce, client,"client_type", strlen("client_type"),CLIENT_SELECT                  TSRMLS_CC );
 	}
 
 }
@@ -2212,7 +2232,7 @@ unsigned int __stdcall  wing_select_server_accept( PVOID params ) {
 		item->active = 0;
 
 		// Accept a connection
-		sClient = accept(sListen, (struct sockaddr *)&item->addr, &iaddrSize);
+		sClient = accept( sListen, (struct sockaddr *)&item->addr, &iaddrSize );
 		if( INVALID_SOCKET == sClient ) {
 			delete item;
 			continue;
@@ -2247,8 +2267,12 @@ unsigned int __stdcall  wing_select_server_worder( PVOID params )
 
 	while (TRUE)
 	{
+		if( g_iTotalConn <= 0 ) {
+			Sleep(10);
+			continue;
+		}
 		//LeaveCriticalSection(&select_lock);
-		FD_ZERO(&fdread);//将fdread初始化空集
+		FD_ZERO( &fdread );//将fdread初始化空集
 
 		for (i = 0; i < g_iTotalConn; i++)
 		{
@@ -2262,6 +2286,7 @@ unsigned int __stdcall  wing_select_server_worder( PVOID params )
 		}
 		if (ret == 0 )
 		{
+			Sleep(10);
 			//LeaveCriticalSection(&select_lock);
 			// Time expired
 			continue;
@@ -2306,10 +2331,16 @@ unsigned int __stdcall  wing_select_server_worder( PVOID params )
 				}
 				else
 				{
+					
 					//We received a message from client
 					//szMessage[ret] = '\0';
 					//send(g_CliSocketArr[i], szMessage, strlen(szMessage), 0);
 					int msglen = strlen(szMessage)+1;
+
+					if( msglen <= 1 ) {
+						continue;
+					}
+
 					SELECT_ITEM *item = new SELECT_ITEM();
 					item->online = 1;
 					item->active = time(NULL);
@@ -2593,7 +2624,8 @@ ZEND_METHOD(wing_select_server,start){
 				zend_printf("select WM_ONCLOSE\r\n");
 				item =  (SELECT_ITEM*)msg->wparam;
 
-				//zval *wing_sclient            = NULL;
+				//这里还需要释放item->socket  即调用closesocket
+
 				select_create_wing_sclient( wing_sclient , item TSRMLS_CC);
 				
 				zend_try
@@ -2605,9 +2637,6 @@ ZEND_METHOD(wing_select_server,start){
 					//php脚本语法错误
 				}
 				zend_end_try();
-
-				//closesocket( item->socket );
-				//item->socket = INVALID_SOCKET;
 
 				//释放资源
 				zval_ptr_dtor( &wing_sclient );
@@ -2657,11 +2686,7 @@ ZEND_METHOD(wing_select_server,start){
 			}
 			break;
 			
-			case WM_SOCKET_CLOSE:
-			{
-				SOCKET close_socket = (SOCKET)msg->wparam;
-				//closesocket(close_socket);
-			}
+		
 			break;
 		}
 		delete msg;
@@ -2757,13 +2782,14 @@ PHP_MINIT_FUNCTION(wing)
 	INIT_CLASS_ENTRY( _wing_sclient_ce , "wing_sclient" , wing_sclient_method );
 	wing_sclient_ce = zend_register_internal_class( &_wing_sclient_ce TSRMLS_CC );
 
-	zend_declare_property_string( wing_sclient_ce,"sin_addr",    strlen("sin_addr"),   "", ZEND_ACC_PUBLIC TSRMLS_CC );
-	zend_declare_property_long(   wing_sclient_ce,"sin_port",    strlen("sin_port"),   0,  ZEND_ACC_PUBLIC TSRMLS_CC );
-	zend_declare_property_long(   wing_sclient_ce,"sin_family",  strlen("sin_family"), 0,  ZEND_ACC_PUBLIC TSRMLS_CC );
-	zend_declare_property_string( wing_sclient_ce,"sin_zero",    strlen("sin_zero"),   "", ZEND_ACC_PUBLIC TSRMLS_CC );
-	zend_declare_property_long(   wing_sclient_ce,"socket",      strlen("socket"),     0,  ZEND_ACC_PUBLIC TSRMLS_CC );
-	zend_declare_property_long(   wing_sclient_ce,"last_active", strlen("last_active"),0,  ZEND_ACC_PUBLIC TSRMLS_CC );
-	zend_declare_property_long(   wing_sclient_ce,"online",      strlen("online"),     0,  ZEND_ACC_PUBLIC TSRMLS_CC );
+	zend_declare_property_string( wing_sclient_ce,"sin_addr",    strlen("sin_addr"),   "",           ZEND_ACC_PUBLIC TSRMLS_CC );
+	zend_declare_property_long(   wing_sclient_ce,"sin_port",    strlen("sin_port"),   0,            ZEND_ACC_PUBLIC TSRMLS_CC );
+	zend_declare_property_long(   wing_sclient_ce,"sin_family",  strlen("sin_family"), 0,            ZEND_ACC_PUBLIC TSRMLS_CC );
+	zend_declare_property_string( wing_sclient_ce,"sin_zero",    strlen("sin_zero"),   "",           ZEND_ACC_PUBLIC TSRMLS_CC );
+	zend_declare_property_long(   wing_sclient_ce,"socket",      strlen("socket"),     0,            ZEND_ACC_PUBLIC TSRMLS_CC );
+	zend_declare_property_long(   wing_sclient_ce,"last_active", strlen("last_active"),0,            ZEND_ACC_PUBLIC TSRMLS_CC );
+	zend_declare_property_long(   wing_sclient_ce,"online",      strlen("online"),     0,            ZEND_ACC_PUBLIC TSRMLS_CC );
+	zend_declare_property_long(   wing_sclient_ce,"client_type", strlen("client_type"),CLIENT_IOCP,  ZEND_ACC_PUBLIC TSRMLS_CC );
 	/* If you have INI entries, uncomment these lines 
 	REGISTER_INI_ENTRIES();
 	*/
