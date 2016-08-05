@@ -2358,7 +2358,6 @@ unsigned int __stdcall  wing_select_server_worder( PVOID params )
 				else
 				{
 					int msglen = strlen(szMessage)+1;
-
 					if( msglen <= 1 ) {
 						continue;
 					}
@@ -2527,22 +2526,17 @@ ZEND_METHOD(wing_select_server,start){
 	max_connection		  = Z_LVAL_P(_max_connect);
 	active_timeout		  = Z_LVAL_P(_active_timeout);
 
-	zend_printf("-------------------------wing select server start with------------------------------------\r\n");
-	zend_printf("-------------------------ip:%s-------------------------\r\n",listen_ip);
-	zend_printf("-------------------------port:%d-------------------------\r\n",port);
-	zend_printf("----------------------------------------------------------------------------\r\n");
+	zend_printf("====================wing select server %s====================\r\n", PHP_WING_VERSION );
+	//zend_printf("-------------------------ip:%s-------------------------\r\n",listen_ip);
+	//zend_printf("-------------------------port:%d-------------------------\r\n",port);
+	//zend_printf("----------------------------------------------------------------------------\r\n");
 	
-	//初始化消息队列
-	iocp_message_queue_init();  
-	wing_select_server_init();
 
 	//---start---------------------------------------------------------
 	//初始化服务端socket 如果失败返回INVALID_SOCKET
 	WSADATA wsaData; 
 	if( WSAStartup(MAKEWORD(2,2), &wsaData) != 0 )
 	{
-		iocp_message_queue_clear();
-		wing_select_server_clear();
 		return; 
 	}
 
@@ -2550,8 +2544,6 @@ ZEND_METHOD(wing_select_server,start){
 	if(LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2)
 	{
         WSACleanup(); 
-		iocp_message_queue_clear();
-		wing_select_server_clear();
         return;  
     }  
 
@@ -2560,13 +2552,8 @@ ZEND_METHOD(wing_select_server,start){
 	if( INVALID_SOCKET == m_sockListen )
 	{
 		WSACleanup();
-		iocp_message_queue_clear();
-		wing_select_server_clear();
 		return;
 	}
-
-
-
 
 	BOOL bReuse = 1;
 	//可选设置 SO_REUSEADDR 
@@ -2590,8 +2577,6 @@ ZEND_METHOD(wing_select_server,start){
 	{
 		closesocket(m_sockListen);
 		WSACleanup();
-		iocp_message_queue_clear();
-		wing_select_server_clear();
 		return;
 	}  
 
@@ -2600,26 +2585,53 @@ ZEND_METHOD(wing_select_server,start){
 	{
 		closesocket(m_sockListen);
 		WSACleanup();
+		return;
+	}
+	
+
+	iocp_message_queue_init();  //初始化消息队列
+	wing_select_server_init();  //初始化一些全局变量
+
+	HANDLE _thread;
+
+	//负责accept新客户端的线程
+	_thread=(HANDLE)_beginthreadex(NULL, 0, wing_select_server_accept, (void*)&m_sockListen, 0, NULL); 
+	if( !_thread ) {
+		closesocket(m_sockListen);
+		WSACleanup();
 		iocp_message_queue_clear();
 		wing_select_server_clear();
 		return;
 	}
-	HANDLE _thread;
-
-	_thread=(HANDLE)_beginthreadex(NULL, 0, wing_select_server_accept, (void*)&m_sockListen, 0, NULL); 
 	CloseHandle( _thread );
-
+	
+	//负责select的线程
 	 _thread = (HANDLE)_beginthreadex(NULL, 0, wing_select_server_worder, /*(void*)&active_timeout*/NULL, 0, NULL); 
-	CloseHandle( _thread );
+	if( !_thread ) {
+		closesocket(m_sockListen);
+		WSACleanup();
+		iocp_message_queue_clear();
+		wing_select_server_clear();
+		return;
+	}
+	 CloseHandle( _thread );
 
+	//负责释放socket资源的线程
 	 _thread = (HANDLE)_beginthreadex(NULL, 0, wing_close_socket_thread, /*(void*)&active_timeout*/NULL, 0, NULL); 
-	CloseHandle( _thread );
+	if( !_thread ) {
+		closesocket(m_sockListen);
+		WSACleanup();
+		iocp_message_queue_clear();
+		wing_select_server_clear();
+		return;
+	}
+	 CloseHandle( _thread );
 
-	SELECT_ITEM *item = NULL;
-	zval *wing_sclient            = NULL;
+	SELECT_ITEM *item               = NULL;  //消息内容
+	zval *wing_sclient              = NULL;  //sclient连接到服务端的客户端
+	iocp_message_queue_element *msg = NULL;  //消息节点
 
-	iocp_message_queue_element *msg = NULL;//消息
-	zend_printf("start message loop\r\n");
+	//zend_printf("start message loop\r\n");
 	while( true )
 	{ 
 		//获取消息 没有的时候会阻塞
@@ -3032,7 +3044,7 @@ PHP_MINFO_FUNCTION(wing)
 	php_info_print_table_start();
 	php_info_print_table_header( 2, "wing support",    "enabled"          );
 	php_info_print_table_row(    2, "version",         PHP_WING_VERSION   );
-	php_info_print_table_row(    2, "author","         yuyi"              );
+	php_info_print_table_row(    2, "author",          "yuyi"             );
 	php_info_print_table_row(    2, "email",           "297341015@qq.com" );
 	php_info_print_table_row(    2, "qq-group",        "535218312"        );
 	php_info_print_table_end();
