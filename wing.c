@@ -141,6 +141,7 @@ struct iocp_overlapped{
 struct iocp_send_node{
 	SOCKET socket;
 	char   *msg;
+	int len;
 };
 
 struct SELECT_ITEM{
@@ -526,7 +527,7 @@ DWORD WINAPI iocp_begin_send_thread(PVOID *_node) {
 	unsigned long _socket = (unsigned long)node->socket;
 
 	int send_status = 1;
-	int sendBytes   = send( node->socket ,node->msg ,strlen( node->msg ),0);
+	int sendBytes   = send( node->socket ,node->msg ,node->len,0);
 
 	if( SOCKET_ERROR == sendBytes ){
 		send_status = 0;
@@ -542,11 +543,7 @@ DWORD WINAPI iocp_begin_send_thread(PVOID *_node) {
 /**
  *@发送消息
  */
-BOOL iocp_socket_send( SOCKET socket,char *&msg , BOOL async = true ) {
-
-	if( !async ) {
-		return SOCKET_ERROR != send( socket , msg ,strlen( msg ), 0 );
-	}
+BOOL iocp_socket_send( SOCKET socket,char *&msg , int len ) {
 
 	iocp_send_node *node = new iocp_send_node();
 
@@ -556,11 +553,12 @@ BOOL iocp_socket_send( SOCKET socket,char *&msg , BOOL async = true ) {
 	}
 
 	node->socket         = socket;
-	unsigned long len    = strlen(msg)+1;
 	node->msg            = new char[len];
+	node->len            = len;
 	
 	memset( node->msg, 0, len );
-	strcpy( node->msg, msg );
+	memcpy( node->msg , msg , len );
+
 
 	BOOL ret = QueueUserWorkItem( (LPTHREAD_START_ROUTINE)iocp_begin_send_thread, node, WT_EXECUTEINIOTHREAD);
 	if( !ret ) {
@@ -735,7 +733,11 @@ ZEND_METHOD( wing_sclient,send ){
 		return;
 	}
 
-	if( !iocp_socket_send( (SOCKET)Z_LVAL_P(socket) , msg, 1 )) 
+	//zend_printf("test-------------%ld,,,%s\r\n\r\n",strlen(msg),msg);
+
+	//send( (SOCKET)Z_LVAL_P(socket) , msg , msg_len , 0 );
+
+	if( !iocp_socket_send( (SOCKET)Z_LVAL_P(socket) , msg, msg_len )) 
 	{
 		RETURN_LONG(WING_ERROR_FAILED);
 		return;
@@ -2285,6 +2287,13 @@ unsigned int __stdcall  wing_select_server_accept( PVOID params ) {
 
 	while (TRUE)
 	{
+		if( wing_select_clients_num >= max_connection ) 
+		{
+			//已达到最大连接数
+			Sleep(10);
+			continue;
+		}
+
 		SELECT_ITEM *item = new SELECT_ITEM();
 		item->online = 1;
 		item->active = time(NULL);
@@ -2345,7 +2354,7 @@ unsigned int __stdcall  wing_select_server_worder( PVOID params )
 		{
 			if ( FD_ISSET( wing_server_clients_arr[i], &fdread ) )                           //如果可读
 			{
-				memset(szMessage,0,MSGSIZE);
+				memset( szMessage, 0, MSGSIZE );
 				ret = recv( wing_server_clients_arr[i], szMessage, MSGSIZE, 0 );             //接收消息
 
 				if (ret == 0 || (ret == SOCKET_ERROR && WSAGetLastError() == WSAECONNRESET)) //客户端掉线
@@ -2514,7 +2523,7 @@ ZEND_METHOD(wing_select_server,start){
 	max_connection		  = Z_LVAL_P(_max_connect);
 	active_timeout		  = Z_LVAL_P(_active_timeout);
 
-	zend_printf("====================wing select server %s====================\r\n", PHP_WING_VERSION );
+	zend_printf("==================== wing select server %s ====================\r\n", PHP_WING_VERSION );
 	//zend_printf("-------------------------ip:%s-------------------------\r\n",listen_ip);
 	//zend_printf("-------------------------port:%d-------------------------\r\n",port);
 	//zend_printf("----------------------------------------------------------------------------\r\n");

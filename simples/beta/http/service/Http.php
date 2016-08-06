@@ -59,7 +59,7 @@ class Http{
         $headers_tab        = explode("\r\n" , $headers_content[0] );
         //content
         $request_content    = $headers_content[1] ;
-        echo "request content:\r\n",$request_content,"\r\n\r\n";
+       // echo "request content:\r\n",$request_content,"\r\n\r\n";
 
         //分析这行得到请求文件
         $service_tab        = array_shift($headers_tab);
@@ -108,7 +108,7 @@ class Http{
 
 
     public function onreceive($http_client,$http_msg){
-        echo $http_msg,"\r\n\r\n";
+       // echo $http_msg,"\r\n\r\n";
 
         $http_request_file      = '';
         $_host = '';
@@ -117,94 +117,51 @@ class Http{
         //构建网站输出
         $http_response_content  = $this->response->output( $http_request_file,$_host ,$this->config["cookie"]);
 
+       // file_put_contents("D:/response.log",$http_response_content."\r\n\r\n\r\n");
+
         //echo "response:",$http_response_content,"\r\n";
         //输出信息到http请求页面
        // wing_socket_send_msg( $http_client, $http_response_content );
         //直接关闭连接
        // wing_close_socket( $http_client );
 
-        $response_content   = "hello from wing php";
-         $headers            = [
-             "HTTP/1.1 200 OK",
-             "Connection: Close",
-             "Server: wing php ".WING_VERSION,
-             "Date: " . gmdate("D,d M Y H:m:s")." GMT",
-             "Content-Type: text/html",
-             "Content-Length: " . strlen($response_content)
-         ];
+
 
         //输出信息到http请求页面
-        $http_client->send( implode("\r\n",$headers)."\r\n\r\n".$response_content );
+        $http_client->send( $http_response_content );
 
        // $http_client->send($http_response_content);
 
     }
     public function start(){
-        $_self = $this;
-        /*$params["onreceive"]    = function($client,$msg) use($_self){
-            $_self->onreceive($client,$msg);
-        };
-        $params["onconnect"]    = function($client, $client_ip, $client_port, $client_family, $client_sign_zero){
-            //也可以通过 wing_socket_info($client) 得到连接进来的客户端相关信息
-            //$info = wing_socket_info($client);
-            //unset($info);
-        };
-        $params["onclose"]      = function($client){
-           //此处不可以通过 wing_socket_info($client) 获取客户端相关的信息 因为已经掉线了
-        };
-        $params["onerror"]      = function($client,$error_code,$last_error){
-            $error_content = "{$client} some error happened:{$error_code},{$last_error}\r\n";
-            file_put_contents($this->config["error_log"],$error_content,FILE_APPEND);
-            echo $error_content;
-        };
-        $params["port"]         = $this->config["port"];
-        $params["listen"]       = $this->config["listen"];
-        //创建1000个备用socket 也就是最大并发数
-        //也就是所谓的socket池概念 性能好 稳定
-        $params["max_connect"]  = $this->config["max_connect"];
-        register_shutdown_function(function(){
-            wing_service_stop();
-        });
-        wing_service($params);*/
-
-        $server = new \wing_select_server( "0.0.0.0" , 9997 , 20000, 1000, 3000, 1000 );
+        $_self  = $this;
+        $server = new \wing_select_server(
+            $this->config["listen"],//"0.0.0.0" ,
+            $this->config["port"] ,
+            $this->config["max_connect"],
+            1000, 3000, 1000 );
         $server->on( "onreceive" , function( $client , $recv_msg ) use( $_self ) {
             $_self->onreceive($client,$recv_msg);
-            //echo "recv from:",$client->socket,"=>",$recv_msg,"\r\n";
-            // $client->send( "hello client\r\n" );
-
-            //$response_content   = "hello from wing php";
-           /* $headers            = [
-                "HTTP/1.1 200 OK",
-                "Connection: Close",
-                "Server: wing php ".WING_VERSION,
-                "Date: " . gmdate("D,d M Y H:m:s")." GMT",
-                "Content-Type: text/html",
-                "Content-Length: " . strlen($response_content)
-            ];*/
-
-            //输出信息到http请求页面
-           // $client->send( implode("\r\n",$headers)."\r\n\r\n".$response_content );
         });
         $server->on( "onsend" , function( $client , $send_status ){
-            echo $client->socket;
+            /*echo $client->socket;
             if( $send_status ) echo "发送成功";
             else echo "发送失败";
-            echo "\r\n";
+            echo "\r\n";*/
             //$client->close();
         });
         $server->on( "onconnect",function( $client ) {
-            echo "===============>",$client->socket," connect\r\n";
+           // echo "===============>",$client->socket," connect\r\n";
         });
         $server->on( "onclose",function( $client ) {
-            echo $client->socket," close \r\n";
+           // echo $client->socket," close \r\n";
         });
         $server->on( "onerror", function( $client, $error_code, $error_msg ) {
-            echo $client->socket," some error happened,",$error_code,",",
-            $error_msg, "\r\n";
+           // echo $client->socket," some error happened,",$error_code,",",
+           // $error_msg, "\r\n";
         });
         $server->on( "ontimeout" , function( $client ) {
-            echo $client->socket," is timeout\r\n";
+           // echo $client->socket," is timeout\r\n";
         });
 
         $server->start();
