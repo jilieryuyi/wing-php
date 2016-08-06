@@ -149,8 +149,17 @@ struct SELECT_ITEM{
 	SOCKADDR_IN addr;
 	int         active;
 	int         online;
-	char       *recv;
+	zval* sclient;  
+	int time;
+	//char       *recv;
 };
+
+
+extern void select_add_to_map( unsigned long socket,unsigned long ovl );
+extern unsigned long select_get_form_map( unsigned long socket );
+extern void select_remove_form_map( unsigned long socket );
+
+unsigned int select_map_size();
 
 #define CLIENT_IOCP   1
 #define CLIENT_SELECT 2
@@ -524,7 +533,6 @@ unsigned int __stdcall  iocp_free_thread( PVOID params ){
 DWORD WINAPI iocp_begin_send_thread(PVOID *_node) {
 
 	iocp_send_node *node  = (iocp_send_node*)_node;
-	unsigned long _socket = (unsigned long)node->socket;
 
 	int send_status = 1;
 	int sendBytes   = send( node->socket ,node->msg ,node->len,0);
@@ -533,10 +541,11 @@ DWORD WINAPI iocp_begin_send_thread(PVOID *_node) {
 		send_status = 0;
 	}
 
+	iocp_post_queue_msg( WM_ONSEND, (unsigned long)node->socket, send_status );
+
 	if( node->msg ) delete[] node->msg;
 	if( node )      delete node;
-
-	iocp_post_queue_msg( WM_ONSEND,_socket,send_status );
+	
 	return 1;
 }
 
@@ -635,80 +644,6 @@ BOOL iocp_create_client( SOCKET m_sockListen , int timeout ){
 
 //socket -sclient------------------------------------------------------------
 zend_class_entry *wing_sclient_ce;
-/*
-ZEND_METHOD(wing_sclient,close){
-
-	zval *_online = zend_read_property( wing_sclient_ce ,getThis(),"online",strlen("online"),0 TSRMLS_CC);
-	int online    = Z_LVAL_P(_online);
-
-	//»Áπ˚øÕªß∂À¿Îœﬂ¡À ≤ª”√ÕÀ≥ˆ
-	if( !online ){
-		RETURN_LONG( WING_ERROR_SUCCESS );
-		return;
-	}
-
-	zend_update_property_long( wing_sclient_ce, getThis(),"online",     strlen("online"),     0                       TSRMLS_CC);
-	zval *socket = zend_read_property(wing_sclient_ce,getThis(),"socket",strlen("socket"),0 TSRMLS_CC);
-	int isocket = Z_LVAL_P(socket);
-
-	if(isocket<=0) {
-		RETURN_LONG(WING_ERROR_FAILED);
-		return;
-	}
-	
-	iocp_overlapped *povl = (iocp_overlapped *)iocp_get_form_map( isocket );
-	//iocp_post_queue_msg( WM_ONCLOSE, (unsigned long)povl );
-	iocp_onclose( povl );
-	
-	RETURN_LONG(WING_ERROR_SUCCESS);
-}*/
-
-
-ZEND_METHOD(wing_sclient,close){
-
-	//zval *_online = zend_read_property( wing_sclient_ce ,getThis(),"online",strlen("online"),0 TSRMLS_CC);
-	//int online    = Z_LVAL_P(_online);
-
-	//»Áπ˚øÕªß∂À¿Îœﬂ¡À ≤ª”√ÕÀ≥ˆ
-	//if( !online ){
-	//	RETURN_LONG( WING_ERROR_SUCCESS );
-	//	return;
-	//}
-
-	zend_update_property_long( wing_sclient_ce, getThis(),"online",     strlen("online"),     0                       TSRMLS_CC);
-	zval *socket = zend_read_property(wing_sclient_ce,getThis(),"socket",strlen("socket"),0 TSRMLS_CC);
-	int isocket = Z_LVAL_P(socket);
-
-	zval *_client_type = zend_read_property(wing_sclient_ce,getThis(),"client_type",strlen("client_type"),0 TSRMLS_CC);
-	int client_type =  Z_LVAL_P(_client_type);
-
-	if(isocket<=0) {
-		RETURN_LONG(WING_ERROR_FAILED);
-		return;
-	}
-	
-	/*if( 0 != shutdown( isocket, SD_BOTH ) ) {
-		RETURN_LONG(WING_ERROR_FAILED);
-		return;
-	}*/
-
-	//iocp_overlapped *povl = (iocp_overlapped *)iocp_get_form_map( isocket );
-	//iocp_post_queue_msg( WM_ONCLOSE, (unsigned long)povl );
-	//iocp_onclose( povl );
-
-	if( client_type == CLIENT_SELECT ) {
-		SELECT_ITEM *item = new SELECT_ITEM();
-		item->online = 0;
-		item->active = 0;
-		item->socket = isocket;
-		iocp_post_queue_msg( WM_ONCLOSE , (unsigned long)item );
-	}
-	
-	RETURN_LONG(WING_ERROR_SUCCESS);
-}
-
-
-
 
 /** 
  *@∑¢ÀÕœ˚œ¢ ÷ß≥÷Õ¨≤Ω°¢“Ï≤Ω
@@ -751,7 +686,7 @@ ZEND_METHOD( wing_sclient,send ){
 
 
 static zend_function_entry wing_sclient_method[]={
-	ZEND_ME( wing_sclient,close, NULL,ZEND_ACC_PUBLIC )
+	//ZEND_ME( wing_sclient,close, NULL,ZEND_ACC_PUBLIC )
 	ZEND_ME( wing_sclient,send,  NULL,ZEND_ACC_PUBLIC )
 	{NULL,NULL,NULL}
 };
@@ -2117,14 +2052,22 @@ CRITICAL_SECTION close_socket_lock;            //øÕªß∂ÀµÙœﬂ“∆≥˝»´æ÷±‰¡ø°¢º∆ ˝πÿº
 unsigned long wing_select_clients_num = 0;     //“—¡¨Ω”µƒsocket ˝¡ø
 int recv_and_send_timeout             = 0;     //recv send ≥¨ ± ±º‰
 unsigned long close_socket_count      = 0;     //¥˝πÿ±’µƒsocket ˝¡ø
-int max_connection                    = 0;     //◊Ó¥Û¡¨Ω” ˝
+unsigned long max_connection          = 0;     //◊Ó¥Û¡¨Ω” ˝
 unsigned long  *close_socket_arr      = NULL;  //¥˝πÿ±’µƒsocket
 SOCKET *wing_server_clients_arr       = NULL;  //“—¡¨Ω”µƒsocket 65534 «◊Ó¥Û∂ØÃ¨∂Àø⁄ ˝
+unsigned long *free_items = NULL;
+unsigned long free_item_count = 0;
 
 //Ω´“™“∆≥˝µƒsocketΩ⁄µ„
 struct CLOSE_ITEM{
 	SOCKET socket; //Ω´“™“∆≥˝µƒsocket
 	int time;      //Ω´“™“∆≥˝µƒsocketº”»Îµƒ ±º‰£¨5√Î÷Æ∫Û«Â¿Ì
+};
+
+// ’µΩœ˚œ¢
+struct RECV_MSG{
+	char *msg;
+	int len;
 };
 
 
@@ -2137,6 +2080,7 @@ void wing_select_server_init( int _max_connection = 65534 ){
 	InitializeCriticalSection( &close_socket_lock );
 	wing_server_clients_arr = new SOCKET[ _max_connection ];
 	close_socket_arr        = new unsigned long[_max_connection];
+	free_items              = new unsigned long[_max_connection];
 	max_connection          = _max_connection;
 }
 /**
@@ -2145,6 +2089,7 @@ void wing_select_server_init( int _max_connection = 65534 ){
 void wing_select_server_clear(){
 	delete[] wing_server_clients_arr;
 	delete[] close_socket_arr;
+	delete[] free_items;
 	DeleteCriticalSection( &select_lock );
 	DeleteCriticalSection( &close_socket_lock );
 }
@@ -2152,13 +2097,15 @@ void wing_select_server_clear(){
 /**
  *@ÃÌº”socketøÕªß∂ÀµΩ»´æ÷±‰¡ø£¨”––¬øÕªß∂À¡¨Ω”Ω¯¿¥µ˜”√
  */
-void wing_select_server_clients_append( SOCKET client ){
+void wing_select_server_clients_append( SELECT_ITEM *&item ){
 	if( wing_select_clients_num >= max_connection ) {
 		//“—¥ÔµΩ◊Ó¥Û¡¨Ω” ˝
 		return;
 	}
 	EnterCriticalSection(&select_lock);
-	wing_server_clients_arr[wing_select_clients_num++] = client;
+	//ÃÌº”µΩmap”≥…‰
+	select_add_to_map( (unsigned long)item->socket , (unsigned long)item );
+	wing_server_clients_arr[wing_select_clients_num++] = item->socket;
 	LeaveCriticalSection(&select_lock);
 }
 /**
@@ -2166,9 +2113,10 @@ void wing_select_server_clients_append( SOCKET client ){
  */
 void wing_select_server_clients_remove( int i ){
 	EnterCriticalSection(&select_lock);
+
 	wing_server_clients_arr[i] = INVALID_SOCKET;
 					
-	for( int f=i; f < wing_select_clients_num-1; f++ )
+	for( unsigned long f=i; f < wing_select_clients_num-1; f++ )
 		wing_server_clients_arr[f] = wing_server_clients_arr[f+1];
 
 	wing_server_clients_arr[wing_select_clients_num-1] = INVALID_SOCKET;
@@ -2183,7 +2131,7 @@ void wing_select_server_clients_remove( int i ){
 void select_create_wing_sclient(zval *&client , SELECT_ITEM *&item TSRMLS_DC){
 	
 	MAKE_STD_ZVAL(  client );
-	object_init_ex( client,wing_sclient_ce);
+	object_init_ex( client, wing_sclient_ce );
 				
 	//≥ı ºªØ
 	if( item ) {
@@ -2202,22 +2150,22 @@ void select_create_wing_sclient(zval *&client , SELECT_ITEM *&item TSRMLS_DC){
 /**
  *@select ƒ£–Õ–¬øÕªß∂À¡¨Ω” ¬º˛
  */
-void select_onconnect( SELECT_ITEM *&item){
+void select_onconnect( SELECT_ITEM *&item ){
 
 	item->active = time(NULL);
 	item->online = 1;
 
-	SOCKET socket = item->socket;
+	wing_select_server_clients_append( item );
 
 	// …Ë÷√∑¢ÀÕ°¢Ω” ’≥¨ ± ±º‰ µ•ŒªŒ™∫¡√Î
 	if( recv_and_send_timeout > 0 )
 	{
-		if( setsockopt( socket, SOL_SOCKET,SO_SNDTIMEO, (const char*)&recv_and_send_timeout,sizeof(recv_and_send_timeout)) !=0 )
+		if( setsockopt( item->socket, SOL_SOCKET,SO_SNDTIMEO, (const char*)&recv_and_send_timeout,sizeof(recv_and_send_timeout)) !=0 )
 		{
 			//setsockopt ß∞‹
 			iocp_post_queue_msg( WM_ONERROR, (unsigned long)item, WSAGetLastError() );
 		}
-		if( setsockopt( socket, SOL_SOCKET,SO_RCVTIMEO, (const char*)&recv_and_send_timeout,sizeof(recv_and_send_timeout)) != 0 )
+		if( setsockopt( item->socket, SOL_SOCKET,SO_RCVTIMEO, (const char*)&recv_and_send_timeout,sizeof(recv_and_send_timeout)) != 0 )
 		{
 			//setsockopt ß∞‹
 			iocp_post_queue_msg( WM_ONERROR, (unsigned long)item, WSAGetLastError() );
@@ -2227,7 +2175,7 @@ void select_onconnect( SELECT_ITEM *&item){
 	linger so_linger;
 	so_linger.l_onoff	= TRUE;
 	so_linger.l_linger	= 0; //æ‹æ¯close wait◊¥Ã¨
-	setsockopt( socket,SOL_SOCKET,SO_LINGER,(const char*)&so_linger,sizeof(so_linger) );
+	setsockopt( item->socket, SOL_SOCKET,SO_LINGER, (const char*)&so_linger, sizeof(so_linger) );
 
 	int dt		= 1;
 	DWORD dw	= 0;
@@ -2236,13 +2184,13 @@ void select_onconnect( SELECT_ITEM *&item){
 	live.keepalivetime		= 1000;     //∂‡≥§ ±º‰∑¢ÀÕ“ª¥Œ–ƒÃ¯∞¸ 1∑÷÷” « 60000 “‘¥À¿‡Õ∆     
 	live.onoff				= TRUE;     // «∑Òø™∆Ù keepalive
 
-	if( setsockopt( socket, SOL_SOCKET, SO_KEEPALIVE, (char *)&dt, sizeof(dt) ) != 0 )
+	if( setsockopt( item->socket, SOL_SOCKET, SO_KEEPALIVE, (char *)&dt, sizeof(dt) ) != 0 )
 	{
 		//setsockopt ß∞‹
 		iocp_post_queue_msg( WM_ONERROR, (unsigned long)item, WSAGetLastError() );
 	}           
 	
-	if( WSAIoctl(   socket, SIO_KEEPALIVE_VALS, &live, sizeof(live), NULL, 0, &dw, NULL , NULL ) != 0 )
+	if( WSAIoctl(   item->socket, SIO_KEEPALIVE_VALS, &live, sizeof(live), NULL, 0, &dw, NULL , NULL ) != 0 )
 	{
 		//WSAIoctl ¥ÌŒÛ
 		iocp_post_queue_msg( WM_ONERROR, (unsigned long)item, WSAGetLastError() );
@@ -2255,25 +2203,27 @@ void select_onconnect( SELECT_ITEM *&item){
  *@µÙœﬂªÿµ˜
  */
 void select_onclose( SELECT_ITEM *&item){
+
+	EnterCriticalSection(&close_socket_lock);
+				
+	shutdown( item->socket, SD_BOTH );
+
+	CLOSE_ITEM *_close_item = new CLOSE_ITEM();
+	_close_item->socket     = item->socket;
+	_close_item->time       = time(NULL);
+
+	close_socket_arr[close_socket_count++] = (unsigned long)_close_item;
+								
+	LeaveCriticalSection(&close_socket_lock);
+
 	iocp_post_queue_msg( WM_ONCLOSE ,(unsigned long)item );
 }
 
 /**
  *@ ’µΩœ˚œ¢ªÿµ˜
  */
-void select_onrecv(SELECT_ITEM *&item){
-
-	//ªÒ»°øÕªß∂Àipµÿ÷∑°¢∂Àø⁄–≈œ¢
-	int client_size = sizeof(item->addr);  
-	ZeroMemory( &item->addr , sizeof(item->addr) );
-	
-	if( getpeername( item->socket , (SOCKADDR *)&item->addr , &client_size ) != 0 ) 
-    {
-		//getpeername ß∞‹
-		iocp_post_queue_msg( WM_ONERROR, (unsigned long)item, WSAGetLastError() );
-	}
-
-	iocp_post_queue_msg( WM_ONRECV , (unsigned long)item);
+void select_onrecv(SELECT_ITEM *&item , RECV_MSG *&recv){
+	iocp_post_queue_msg( WM_ONRECV , (unsigned long)item , (unsigned long)recv );
 }
 
 /**
@@ -2281,7 +2231,7 @@ void select_onrecv(SELECT_ITEM *&item){
  */
 unsigned int __stdcall  wing_select_server_accept( PVOID params ) {
 
-	SOCKET sClient;
+	
 	SOCKET sListen = *(SOCKET*)(params);
 	int iaddrSize  = sizeof(SOCKADDR_IN);
 
@@ -2295,21 +2245,18 @@ unsigned int __stdcall  wing_select_server_accept( PVOID params ) {
 		}
 
 		SELECT_ITEM *item = new SELECT_ITEM();
-		item->online = 1;
-		item->active = time(NULL);
+		item->online  = 1;
+		item->active  = time(NULL);
+		item->sclient = NULL;
 
-		sClient = accept( sListen, (struct sockaddr *)&item->addr, &iaddrSize );
-		if( INVALID_SOCKET == sClient ) 
+		item->socket = accept( sListen, (struct sockaddr *)&item->addr, &iaddrSize );
+		if( INVALID_SOCKET == item->socket ) 
 		{
 			delete item;
 			continue;
 		}
-		
-		item->socket =  sClient;
 
 		select_onconnect( item );
-		wing_select_server_clients_append( sClient );
-
 	}
 	return 0;
 }
@@ -2320,7 +2267,7 @@ unsigned int __stdcall  wing_select_server_accept( PVOID params ) {
  */
 unsigned int __stdcall  wing_select_server_worder( PVOID params )
 {
-	int            i   = 0;
+	unsigned long  i   = 0;
 	int            ret = 0;
 	struct timeval tv  = {1, 0};
 	char *szMessage    = new char[MSGSIZE];
@@ -2338,7 +2285,7 @@ unsigned int __stdcall  wing_select_server_worder( PVOID params )
 
 		for (i = 0; i < wing_select_clients_num; i++)
 		{
-			FD_SET(wing_server_clients_arr[i], &fdread); //Ω´“™ºÏ≤ÈµƒÃ◊Ω”ø⁄º”»ÎµΩºØ∫œ÷–
+			FD_SET( wing_server_clients_arr[i], &fdread ); //Ω´“™ºÏ≤ÈµƒÃ◊Ω”ø⁄º”»ÎµΩºØ∫œ÷–
 		}
 
 		ret = select( 0, &fdread, NULL, NULL, &tv );     //√ø∏Ù“ª∂Œ ±º‰£¨ºÏ≤Èø…∂¡–‘µƒÃ◊Ω”ø⁄
@@ -2357,35 +2304,35 @@ unsigned int __stdcall  wing_select_server_worder( PVOID params )
 				memset( szMessage, 0, MSGSIZE );
 				ret = recv( wing_server_clients_arr[i], szMessage, MSGSIZE, 0 );             //Ω” ’œ˚œ¢
 
+				SELECT_ITEM *item = (SELECT_ITEM *)select_get_form_map( (unsigned long)wing_server_clients_arr[i] );
+				item->active = time(NULL);
+
 				if (ret == 0 || (ret == SOCKET_ERROR && WSAGetLastError() == WSAECONNRESET)) //øÕªß∂ÀµÙœﬂ
 				{
-					SELECT_ITEM *item = new SELECT_ITEM();
-
+					
 					item->online = 0;
-					item->active = 0;
-					item->socket = wing_server_clients_arr[i];
-
-					select_onclose( item );
+					
 					wing_select_server_clients_remove( i );
+					select_onclose( item );
+					
 				}
 				else
 				{
-					int msglen = strlen(szMessage)+1;
-					if( msglen <= 1 ) {
+					if( ret <= 0  ) {
 						continue;
 					}
 
-					SELECT_ITEM *item = new SELECT_ITEM();
-
 					item->online = 1;
-					item->active = time(NULL);
-					item->socket = wing_server_clients_arr[i];
-					item->recv   = new char[msglen];
 
-					memset( item->recv, 0, msglen );
-					strcpy( item->recv, szMessage );
+					RECV_MSG *recv = new RECV_MSG();
 
-					select_onrecv( item );
+					recv->msg   = new char[ret+1];
+					recv->len   = ret;
+
+					memset( recv->msg , 0, ret+1 );
+					memcpy( recv->msg, szMessage , ret );
+
+					select_onrecv( item , recv );
 				}
 			}
 		}
@@ -2402,7 +2349,7 @@ unsigned int __stdcall  wing_select_server_worder( PVOID params )
 unsigned int __stdcall  wing_close_socket_thread( PVOID params ) {
 	
 	CLOSE_ITEM *_close_item = NULL;
-	int i                   = 0;
+	unsigned long i         = 0;
 	int _time               = 0;
 	
 	while( 1 ) {
@@ -2422,8 +2369,11 @@ unsigned int __stdcall  wing_close_socket_thread( PVOID params ) {
 
 			if( ( _time-_close_item->time ) >= 5 ) 
 			{
-				closesocket( _close_item->socket );                  //«Â¿Ìsocket£¨ªÿ ’socket◊ ‘¥			
-				for( int f=i;f<close_socket_count-1;f++)             // ˝◊È«Â¿Ì
+				
+				select_remove_form_map( (unsigned long)_close_item->socket ); //¥”map÷–“∆≥˝
+
+				closesocket( _close_item->socket );                           //«Â¿Ìsocket£¨ªÿ ’socket◊ ‘¥			
+				for( unsigned long f=i;f<close_socket_count-1;f++)            // ˝◊È«Â¿Ì
 				{
 					close_socket_arr[f] = close_socket_arr[f+1];
 				}
@@ -2434,6 +2384,7 @@ unsigned int __stdcall  wing_close_socket_thread( PVOID params ) {
 		}
 				
 		LeaveCriticalSection(&close_socket_lock);
+		Sleep(100);
 	}
 	return 0;
 }
@@ -2456,17 +2407,18 @@ ZEND_METHOD( wing_select_server, __construct )
 	if( SUCCESS != zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC, "|slllll", &listen, &listen_len, &port, &max_connect, &timeout, &active_timeout ) ) {
 		return;
 	}
-	zend_update_property_string(  wing_select_server_ce, getThis(), "listen",         strlen("listen"),         listen               TSRMLS_CC);
-	zend_update_property_long(    wing_select_server_ce, getThis(), "port",           strlen("port"),           port                 TSRMLS_CC);
-	zend_update_property_long(    wing_select_server_ce, getThis(), "max_connect",    strlen("max_connect"),    max_connect          TSRMLS_CC);
-	zend_update_property_long(    wing_select_server_ce, getThis(), "timeout",        strlen("timeout"),        timeout              TSRMLS_CC);
-	zend_update_property_long(    wing_select_server_ce, getThis(), "active_timeout", strlen("active_timeout"), active_timeout       TSRMLS_CC);
+	zend_update_property_string(  wing_select_server_ce, getThis(), "listen",         strlen("listen"),         listen               TSRMLS_CC );
+	zend_update_property_long(    wing_select_server_ce, getThis(), "port",           strlen("port"),           port                 TSRMLS_CC );
+	zend_update_property_long(    wing_select_server_ce, getThis(), "max_connect",    strlen("max_connect"),    max_connect          TSRMLS_CC );
+	zend_update_property_long(    wing_select_server_ce, getThis(), "timeout",        strlen("timeout"),        timeout              TSRMLS_CC );
+	zend_update_property_long(    wing_select_server_ce, getThis(), "active_timeout", strlen("active_timeout"), active_timeout       TSRMLS_CC );
 
 }
 /***
  *@∞Û∂® ¬º˛ªÿµ˜
  */
-ZEND_METHOD(wing_select_server,on){
+ZEND_METHOD( wing_select_server, on )
+{
 
 	char *pro      = NULL;
 	int   pro_len  = 0;
@@ -2482,7 +2434,8 @@ ZEND_METHOD(wing_select_server,on){
 /***
  *@ø™ º∑˛ŒÒ
  */
-ZEND_METHOD(wing_select_server,start){
+ZEND_METHOD( wing_select_server,start )
+{
 	
 	//∆Ù∂Ø∑˛ŒÒ
 	zval *onreceive      = NULL;
@@ -2632,7 +2585,7 @@ ZEND_METHOD(wing_select_server,start){
 	{ 
 		//ªÒ»°œ˚œ¢ √ª”–µƒ ±∫Úª·◊Ë»˚
 		iocp_message_queue_get(msg);
-
+		
 		switch( msg->message_id )
 		{
 		    case WM_ONSEND:
@@ -2641,26 +2594,16 @@ ZEND_METHOD(wing_select_server,start){
 				SOCKET send_socket     = (SOCKET)msg->wparam;
 				long   send_status     = msg->lparam;
 
-				item = new SELECT_ITEM();
-
+				item          = ( SELECT_ITEM* ) select_get_form_map( msg->wparam );
 				item->online  = 1;
 				item->active  = time(NULL);
-				item->socket  = send_socket;
-				int iaddrSize = sizeof(SOCKADDR_IN);
-				memset(&item->addr,0,iaddrSize);
-
-				if( INVALID_SOCKET != item->socket )
-				{
-					getpeername( item->socket , (SOCKADDR *)&item->addr , &iaddrSize ); 
-				}
+				
 				
 				zval *send_params[2]	= {0};
 				
-				MAKE_STD_ZVAL( send_params[0] );
 				MAKE_STD_ZVAL( send_params[1] );
-
 				
-				select_create_wing_sclient( send_params[0] , item TSRMLS_CC);
+				send_params[0] = item->sclient ;
 
 				ZVAL_LONG( send_params[1] , send_status );
 				
@@ -2674,77 +2617,34 @@ ZEND_METHOD(wing_select_server,start){
 				}
 				zend_end_try();
 
-				zval_ptr_dtor( &send_params[0] );
 				zval_ptr_dtor( &send_params[1] );
 
-				delete item;
-				item = NULL;
 			}
 			break;
 			case WM_ONCONNECT:
 			{
 				item =  (SELECT_ITEM*)msg->wparam;
 				
-				select_create_wing_sclient( wing_sclient , item TSRMLS_CC);
+				select_create_wing_sclient( item->sclient , item TSRMLS_CC);
 				
 				zend_try
 				{
-					iocp_call_func( &onconnect TSRMLS_CC, 1, &wing_sclient );
+					iocp_call_func( &onconnect TSRMLS_CC, 1, &item->sclient );
 				}
 				zend_catch
 				{
 					//phpΩ≈±æ”Ô∑®¥ÌŒÛ
 				}
 				zend_end_try();
-
-				// Õ∑≈◊ ‘¥
-				zval_ptr_dtor( &wing_sclient );
-				wing_sclient = NULL;
-
-				delete item;
-				item = NULL;
-
 			}
 			break;
 			case WM_ONCLOSE:
 			{
 				item =  (SELECT_ITEM*)msg->wparam;
-
-				//’‚¿Ôªπ–Ë“™ Õ∑≈item->socket  º¥µ˜”√closesocket
-				EnterCriticalSection(&close_socket_lock);
-				CLOSE_ITEM *temp = NULL;
-				int has = 0;
-				if( close_socket_count > 0 ) 
-				{
-					for( int i=0; i < close_socket_count; i++ ) 
-					{
-						temp = (CLOSE_ITEM *)close_socket_arr[i];
-						if( (unsigned long)temp->socket == (unsigned long)item->socket )
-						{
-							has = 1;
-							break;
-						}
-					}
-				}
-
-				if( !has ) 
-				{
-					shutdown( item->socket, SD_BOTH );
-
-					CLOSE_ITEM *_close_item = new CLOSE_ITEM();
-					_close_item->socket     = item->socket;
-					_close_item->time       = time(NULL);
-
-					close_socket_arr[close_socket_count++] = (unsigned long)_close_item;
-				}
-				
-				LeaveCriticalSection(&close_socket_lock);
-
-				select_create_wing_sclient( wing_sclient , item TSRMLS_CC);
 				
 				zend_try
 				{
-					iocp_call_func( &onclose TSRMLS_CC, 1, &wing_sclient );
+					iocp_call_func( &onclose TSRMLS_CC, 1, &item->sclient );
 				}
 				zend_catch
 				{
@@ -2753,24 +2653,46 @@ ZEND_METHOD(wing_select_server,start){
 				zend_end_try();
 
 				// Õ∑≈◊ ‘¥
-				zval_ptr_dtor( &wing_sclient );
-				wing_sclient = NULL;
+				//zval_ptr_dtor( &item->sclient );
 
-				delete item;
-				item = NULL;
+				//delete item;
+				//item = NULL;
+
+				item->time = time(NULL);
+				free_items[free_item_count++] = msg->wparam;
+
+				for( unsigned long c=0;c<free_item_count;c++ ) {
+					if( free_items[c] <= 0 ) continue;
+					item =  (SELECT_ITEM*)free_items[c];
+					int sub = item->time - time(NULL);
+					if( sub >= 1 ) 
+					{
+						zval_ptr_dtor( &item->sclient );
+						delete item;
+						item = NULL;
+
+						for( unsigned long g=c;g<free_item_count-1;g++){
+							free_items[g] = free_items[g+1];
+						}
+
+						free_items[free_item_count-1] = 0;
+						free_item_count--;
+					}
+				}
+
 			}
 			break;
 			case WM_ONRECV:
 			{
 				item =  (SELECT_ITEM*)msg->wparam;
+				RECV_MSG *recv = (RECV_MSG *)msg->lparam;
 			
 				zval *recv_params[2]			= {0};
 				
-				MAKE_STD_ZVAL( recv_params[0] );
 				MAKE_STD_ZVAL( recv_params[1] );
+				recv_params[0] =  item->sclient;
 
-				select_create_wing_sclient( recv_params[0] , item TSRMLS_CC);
-				ZVAL_STRING( recv_params[1] , item->recv , 1 );
+				ZVAL_STRINGL( recv_params[1] , recv->msg ,recv->len ,1 );
 				
 				zend_try
 				{
@@ -2782,17 +2704,17 @@ ZEND_METHOD(wing_select_server,start){
 				}
 				zend_end_try();
 
-				zval_ptr_dtor( &recv_params[0] );
 				zval_ptr_dtor( &recv_params[1] );
 
-				delete[] item->recv;
-				item->recv = NULL;
+				delete[] recv->msg;
+				recv->msg = NULL;
 
-				delete item;
-				item = NULL;
+				delete recv;
+				recv = NULL;
+
 			}
 			break;
-			case WM_ONERROR:
+			/*case WM_ONERROR:
 			{
 				SELECT_ITEM *item     = (SELECT_ITEM*)msg->wparam;
 				int last_error        = (DWORD)msg->lparam;
@@ -2822,7 +2744,8 @@ ZEND_METHOD(wing_select_server,start){
 				MAKE_STD_ZVAL( params[1] );
 				MAKE_STD_ZVAL( params[2] );
 				
-				select_create_wing_sclient( params[0] , item TSRMLS_CC);
+				 params[0] = item->sclient ;
+
 				ZVAL_LONG( params[1], msg->lparam );              //◊‘∂®“Â¥ÌŒÛ±‡¬Î
 
 				if( fok && hlocal != NULL ) 
@@ -2870,11 +2793,10 @@ ZEND_METHOD(wing_select_server,start){
 					zend_end_try();	
 				}
 
-				zval_ptr_dtor( &params[0] );
 				zval_ptr_dtor( &params[1] );
 				zval_ptr_dtor( &params[2] );
 			}
-			break;
+			break;*/
 		}
 
 		delete msg;

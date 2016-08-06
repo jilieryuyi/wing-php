@@ -9,7 +9,7 @@ while( 1 ) {
 
     $s = time();
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, "http://127.0.0.1:9998/");
+    curl_setopt($ch, CURLOPT_URL, "http://127.0.0.1:6998/");
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_HEADER, 0);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);

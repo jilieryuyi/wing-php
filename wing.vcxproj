@@ -139,6 +139,7 @@
   <ItemGroup>
     <ClCompile Include="wing_iocp_message_queue.c" />
     <ClCompile Include="wing_iocp_socket_map.c" />
+    <ClCompile Include="wing_select_socket_map.c" />
     <ClCompile Include="wing_socket_api.c" />
     <ClCompile Include="wing_utf8.c" />
     <ClCompile Include="wing_message_queue.c" />
