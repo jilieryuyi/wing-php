@@ -58,7 +58,7 @@ class Http{
         //headers
         $headers_tab        = explode("\r\n" , $headers_content[0] );
         //content
-        $request_content    = $headers_content[1] ;
+       // $request_content    = $headers_content[1] ;
        // echo "request content:\r\n",$request_content,"\r\n\r\n";
 
         //分析这行得到请求文件
