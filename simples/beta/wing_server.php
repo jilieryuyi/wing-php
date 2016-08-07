@@ -3,7 +3,7 @@
  * @author yuyi
  * @created 2016/7/25 13:37
  * @email 297341015@qq.com
- * @tcp服务器
+ * @iocp服务器
  */
 $server = new wing_server( "0.0.0.0" , 9998 , 20000, 1000, 3000, 1000 );
 $server->on( "onreceive" , function( $client , $recv_msg ) {
