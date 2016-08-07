@@ -60,7 +60,10 @@ class Http{
         //解析还原cookie实现$_SESSiON
         if( isset( $this->cookies[ $cookie_key ] ) ) {
             $_SESSION = $this->cookies[ $cookie_key ];
-        }
+        }/*else if( file_exists($this->config["cookie"]."/".$cookie_key.".cookie") ){
+            $cookie_json = file_get_contents( $this->config["cookie"]."/".$cookie_key.".cookie");
+            $_SESSION    = json_decode( $cookie_json, true );
+        }*/
         $this->cookie_key = $cookie_key;
 
     }
@@ -225,12 +228,6 @@ class Http{
         $_SERVER["SCRIPT_FILENAME"] = $http_request_file;
         $_SERVER["DOCUMENT_ROOT"]   = str_replace("\\","/",$this->config["document_root"]);
 
-        //这里要使用 PHPSESSID=a53tchtk9su5v8a1n0ssff67r3; 做session支持 暂未支持
-        //"PHPSESSID=a53tchtk9su5v8a1n0ssff67r3;
-        // _ga=GA1.2.659666694.1463541755;
-        // Hm_lvt_c4fb630bdc21e7a693a06c26ba5651c6=1465352549,1465894583,1466069135,1466335394;
-        // Hm_lpvt_c4fb630bdc21e7a693a06c26ba5651c6=1466335479
-
         if( isset( $_request_query["query"] ) )
             parse_str( $_request_query["query"] ,$_GET );         //解析get参数
 
@@ -276,6 +273,8 @@ class Http{
             $cookie_key = $this->cookie_key?$this->cookie_key:$this->createUnique();
             $this->setHeaders(["Set-Cookie" => "WINGPHPSESSID=" . $cookie_key ]);
             $this->cookies[ $cookie_key ] = $_SESSION;
+           /* file_put_contents( $this->config["cookie"]."/".$cookie_key.".cookie",
+                json_encode($_SESSION) );*/
         }
 
 
@@ -288,6 +287,15 @@ class Http{
     }
     public function start(){
         $_self  = $this;
+
+        set_error_handler( function( $errno, $errstr, $errfile, $errline) use( $_self ) {
+            $error =
+                date("Y-m-d H:i:s")."==>\r\nerrorno:".$errno."\r\n".
+                "errorsr:".$errstr."\r\nerrorfile:".$errfile."\r\n".
+                "errorline:".$errline."\r\n\r\n";
+            file_put_contents( $_self->config["error_log"] , $error, FILE_APPEND );
+        },E_ALL);
+
         $server = new \wing_select_server(
                 $this->config["listen"],
                 $this->config["port"] ,
@@ -312,8 +320,9 @@ class Http{
 
         });
 
-        $server->on( "onerror", function( $client, $error_code, $error_msg ) {
-
+        $server->on( "onerror", function( $client, $error_code, $error_msg ) use($_self) {
+            $error = date("Y-m-d H:i:s")."==>socket:".$client->socket.",code:".$error_code.",msg:".$error_msg."\r\n\r\n";
+            file_put_contents( $_self->config["error_log"] , $error, FILE_APPEND );
         });
 
         $server->on( "ontimeout" , function( $client ) {
