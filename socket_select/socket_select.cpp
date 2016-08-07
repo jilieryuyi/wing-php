@@ -75,7 +75,10 @@ DWORD WINAPI WorkerThread(LPVOID lpParam)
 
 	while (TRUE)
 	{
-
+		if( g_iTotalConn <=0 ) {
+			Sleep(10);
+			continue;
+		}
 		FD_ZERO(&fdread);//将fdread初始化空集
 
 		for (i = 0; i < g_iTotalConn; i++)
