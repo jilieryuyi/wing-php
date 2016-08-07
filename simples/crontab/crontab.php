@@ -37,7 +37,10 @@ command_support("stop",function(){
     wing_process_kill($pid);
     $process_info = wing_find_process("wing_crontab.php");
     if( !$process_info )
+    {
         echo "crontab was stop \r\n";
+        unlink($pid_file);
+    }
     else
         echo "crontab stop fail\r\n";
 });

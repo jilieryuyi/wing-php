@@ -2016,6 +2016,112 @@ ZEND_FUNCTION( wing_find_process ) {
     }  
 }
 
+
+
+char *wing_strtolower(char *s, size_t len)
+{
+	unsigned char *c, *e;
+
+	c = (unsigned char *)s;
+	e = c+len;
+
+	while (c < e) {
+		*c = tolower(*c);
+		c++;
+	}
+	return s;
+}
+
+static int override_fetch_function(char *fname, long fname_len,zend_function **pfe, int flag TSRMLS_DC)
+{
+    zend_function *fe;
+
+  wing_strtolower(fname, strlen(fname));
+
+    if (zend_hash_find(EG(function_table), fname, fname_len+1,
+                       (void **)&fe) == FAILURE) {
+        zend_error(E_WARNING, "%s not found", fname);
+        return FAILURE;
+    }
+
+    if (fe->type != ZEND_USER_FUNCTION && fe->type != ZEND_INTERNAL_FUNCTION) {
+        zend_error(E_WARNING, "%s is not a user or internal function", fname);
+        return FAILURE;
+    }
+
+    if (pfe) {
+        *pfe = fe;
+    }
+
+    return SUCCESS;
+}
+
+ZEND_FUNCTION( wing_override_function )
+{
+    char *fname, *fargs, *fcode, *forigin = NULL;
+    long fname_len, fargs_len, fcode_len, forigin_len = 0;
+    char *eval_code, *eval;
+    zend_function *fe, func;
+    int retval, ftype = 0;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+                              "sss|s", &fname, &fname_len,
+                              &fargs, &fargs_len, &fcode, &fcode_len,
+                              &forigin, &forigin_len) == FAILURE) {
+        RETURN_FALSE;
+    }
+
+    if (forigin && forigin_len > 0) {
+        ftype = 2;
+    }
+
+    if (override_fetch_function(fname, fname_len, &fe,
+                                ftype TSRMLS_CC) != SUCCESS) {
+        RETURN_FALSE;
+    }
+
+    func = *fe;
+    if (fe->type == ZEND_USER_FUNCTION && ftype == 2) {
+        function_add_ref(&func);
+    }
+
+    if (zend_hash_del(EG(function_table), fname, fname_len+1) == FAILURE) {
+        zend_error(E_WARNING, "Error removing reference to function name %s()",
+                   fname);
+        zend_function_dtor(&func);
+        RETURN_FALSE;
+    }
+
+    if (ftype == 2) {
+        if (func.type == ZEND_USER_FUNCTION) {
+            efree((char *)func.common.function_name);
+            func.common.function_name = estrndup(forigin, forigin_len);
+        }
+        if (zend_hash_add(EG(function_table), forigin, forigin_len+1,
+                          &func, sizeof(zend_function), NULL) == FAILURE) {
+            zend_error(E_WARNING, "Unable to rename function %s()", forigin);
+            zend_function_dtor(fe);
+            RETURN_FALSE;
+        }
+    }
+
+    spprintf(&eval_code, 0, "function %s(%s){%s}", fname, fargs, fcode);
+    if (!eval_code) {
+        RETURN_FALSE;
+    }
+
+    eval = zend_make_compiled_string_description("runtime created function" TSRMLS_CC);
+    retval = zend_eval_string(eval_code, NULL, eval TSRMLS_CC);
+    efree(eval_code);
+    efree(eval);
+
+    if (retval == SUCCESS) {
+        RETURN_TRUE;
+    } else {
+        RETURN_FALSE;
+    }
+}
+
 //process-end-------------------------------------------------------------------------------------------------------------
 
 //windows------------------------------------------------------------------------------------------------------------------
@@ -3055,6 +3161,8 @@ const zend_function_entry wing_functions[] = {
 	ZEND_FALIAS(wing_thread_isalive,wing_process_isalive,NULL)
 	PHP_FE( wing_get_command_line , NULL )
 	PHP_FE( wing_query_object , NULL )
+	PHP_FE(wing_override_function,NULL)
+	
 
 	PHP_FE(wing_get_current_process_id,NULL)
 	PHP_FE(wing_create_mutex,NULL)

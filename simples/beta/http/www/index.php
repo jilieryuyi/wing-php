@@ -4,11 +4,8 @@
  * @created 2016/6/3 21:59
  * @email 297341015@qq.com
  */
-\Service\Header::set(["Anthor"=>"yuyi","Email"=>"297341015@qq.com"]);
-\Service\Header::set("Version: ".WING_VERSION);
-//var_dump($_SERVER);
-//\Service\Cookie::set("user","yuyi");
-//echo \Service\Cookie::get("user");
+$_SESSION["a"] = 1; //session测试
+header(["Author"=>"yuyi"]); //等价于header("Author: yuyi");  设置header
 ?>
 <html>
 <head>
