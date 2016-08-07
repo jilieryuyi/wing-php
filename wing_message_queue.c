@@ -56,7 +56,10 @@ BOOL message_queue_lpush(iocp_message_queue *&message_queue , iocp_message_queue
 void message_queue_pop(iocp_message_queue *&message_queue ,iocp_message_queue_element *&temp)  
 {  
 	if( NULL == message_queue ) 
+	{
+		temp = NULL;
 		return;
+	}
 
 	EnterCriticalSection(&queue_lock);
 
@@ -71,7 +74,7 @@ void message_queue_pop(iocp_message_queue *&message_queue ,iocp_message_queue_el
     temp = message_queue->head->data;  
     p    = message_queue->head;  
     message_queue->head = message_queue->head->next;  
-    if(message_queue->head == NULL)  
+    if( message_queue->head == NULL )  
     {  
         message_queue->tail = NULL;  
     }  

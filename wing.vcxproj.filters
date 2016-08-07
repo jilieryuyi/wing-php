@@ -33,6 +33,9 @@
     <ClCompile Include="wing_socket_api.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="wing_select_socket_map.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="php_wing.h">
