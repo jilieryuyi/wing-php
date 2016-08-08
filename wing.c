@@ -160,8 +160,9 @@ struct SELECT_ITEM{
 
 /**
  * @生成随机字符串
+ * @buf会自动初始化 用完需要释放 
  */
-void wing_guid( char *&buf TSRMLS_DC)  
+void wing_guid( _Out_ char *&buf TSRMLS_DC)  
 {  
 	buf = (char*)emalloc(64);
 	CoInitialize(NULL);   
@@ -655,17 +656,11 @@ ZEND_METHOD( wing_sclient,send ){
 	
 	int isocket = Z_LVAL_P(socket);
 
-	zval_dtor(socket);
-
 	if( isocket <= 0 ) 
 	{
 		RETURN_LONG(WING_ERROR_FAILED);
 		return;
 	}
-
-	//zend_printf("test-------------%ld,,,%s\r\n\r\n",strlen(msg),msg);
-
-	//send( (SOCKET)Z_LVAL_P(socket) , msg , msg_len , 0 );
 
 	if( !iocp_socket_send( (SOCKET)isocket , msg, msg_len )) 
 	{
@@ -723,13 +718,15 @@ void iocp_call_func( zval **func TSRMLS_DC ,int params_count  ,zval **params ) {
 		return;
 	}
 
-	zval *retval_ptr = NULL;
-	MAKE_STD_ZVAL(retval_ptr);
+	zval *retval = NULL;
+	MAKE_STD_ZVAL(retval);
 
-	if( SUCCESS != call_user_function( EG(function_table),NULL, *func,retval_ptr,params_count,params TSRMLS_CC ) ) {
+	if( SUCCESS != call_user_function( EG(function_table), NULL, *func, retval, params_count, params TSRMLS_CC ) ) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "call user func fail");
 	}
-	zval_ptr_dtor(&retval_ptr);
+
+	if( retval )
+	zval_ptr_dtor(&retval);
 }
 
 
@@ -1953,6 +1950,10 @@ ZEND_FUNCTION( wing_find_process ) {
 	ZVAL_STRING( keyword ,"",1 );
 
 	if( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|z", &keyword ) != SUCCESS ) {
+		if( keyword ) 
+		{
+			zval_ptr_dtor( &keyword );
+		}
 		RETURN_NULL();
 		return;
 	}
@@ -1968,13 +1969,24 @@ ZEND_FUNCTION( wing_find_process ) {
 
 		if( NULL == command_line ) 
 		{
+			if( keyword ) 
+			{
+				zval_ptr_dtor( &keyword );
+			}
 			RETURN_EMPTY_STRING();
+			return;
 		}
 		else 
 		{
 			char *cmdline = NULL;
 			spprintf( &cmdline, 0, "%s", command_line );
 			delete[] command_line;
+
+			if( keyword ) 
+			{
+				zval_ptr_dtor( &keyword );
+			}
+
 			RETURN_STRING( cmdline, 0 );
 		}
 		return;
@@ -1988,7 +2000,12 @@ ZEND_FUNCTION( wing_find_process ) {
 
     if( hProcessSnap == INVALID_HANDLE_VALUE)  
     {  
+		if( keyword ) 
+		{
+			zval_ptr_dtor( &keyword );
+		}
 		RETURN_FALSE;
+		return;
     }  
 
     BOOL bMore = ::Process32First( hProcessSnap, &pe32 );  
@@ -2017,10 +2034,15 @@ ZEND_FUNCTION( wing_find_process ) {
 
 		bMore = ::Process32Next(hProcessSnap, &pe32); 
     }  
+
+	if( keyword ) 
+	{
+		zval_ptr_dtor( &keyword );
+	}
 }
 
 
-
+/*
 char *wing_strtolower(char *s, size_t len)
 {
 	unsigned char *c, *e;
@@ -2033,13 +2055,13 @@ char *wing_strtolower(char *s, size_t len)
 		c++;
 	}
 	return s;
-}
+}*/
 
 static int override_fetch_function(char *fname, long fname_len,zend_function **pfe, int flag TSRMLS_DC)
 {
-    zend_function *fe;
+    zend_function *fe = NULL;
 
-  wing_strtolower(fname, strlen(fname));
+	zend_str_tolower(fname, strlen(fname));
 
     if (zend_hash_find(EG(function_table), fname, fname_len+1,
                        (void **)&fe) == FAILURE) {
@@ -2750,7 +2772,7 @@ ZEND_METHOD( wing_select_server, start )
 		{
 		    case WM_ONSEND:
 			{
-				
+				/*
 				SOCKET send_socket     = (SOCKET)msg->wparam;
 				long   send_status     = msg->lparam;
 
@@ -2771,7 +2793,7 @@ ZEND_METHOD( wing_select_server, start )
 				
 				MAKE_STD_ZVAL( send_params[1] );
 
-				
+				//实例化一个对象
 				select_create_wing_sclient( send_params[0] , item TSRMLS_CC);
 
 				ZVAL_LONG( send_params[1] , send_status );
@@ -2786,20 +2808,19 @@ ZEND_METHOD( wing_select_server, start )
 				}
 				zend_end_try();
 
-				zval_dtor( send_params[0] );
-				zval_dtor( send_params[1] );
+				zval_ptr_dtor( &send_params[0] );
+				zval_ptr_dtor( &send_params[1] );
 
-				efree( send_params[0] );
-				efree( send_params[1] );
 
 				delete item;
-				item = NULL;
+				item = NULL;*/
 			}
 			break;
 			case WM_ONCONNECT:
 			{
 				item =  (SELECT_ITEM*)msg->wparam;
-				
+				/*
+				//wing_sclient 实例化一个对象
 				select_create_wing_sclient( wing_sclient , item TSRMLS_CC);
 				
 				zend_try
@@ -2813,9 +2834,9 @@ ZEND_METHOD( wing_select_server, start )
 				zend_end_try();
 
 				//释放资源
-				zval_dtor( wing_sclient );
-				efree(wing_sclient);
-				wing_sclient = NULL;
+				zval_ptr_dtor( &wing_sclient );
+
+				wing_sclient = NULL;*/
 
 				delete item;
 				item = NULL;
@@ -2825,7 +2846,7 @@ ZEND_METHOD( wing_select_server, start )
 			case WM_ONCLOSE:
 			{
 				item =  (SELECT_ITEM*)msg->wparam;
-
+				/*
 				select_create_wing_sclient( wing_sclient , item TSRMLS_CC);
 				
 				zend_try
@@ -2839,9 +2860,9 @@ ZEND_METHOD( wing_select_server, start )
 				zend_end_try();
 
 				//释放资源
-				zval_dtor( wing_sclient );
-				efree( wing_sclient );
-				wing_sclient = NULL;
+				zval_ptr_dtor( &wing_sclient );
+
+				wing_sclient = NULL;*/
 
 				delete item;
 				item = NULL;
@@ -2870,12 +2891,9 @@ ZEND_METHOD( wing_select_server, start )
 				}
 				zend_end_try();
 				
-	
+				zval_ptr_dtor( &recv_params[0] );
+				zval_ptr_dtor( &recv_params[1] );
 
-				zval_dtor( recv_params[0] );
-				zval_dtor( recv_params[1] );
-				efree( recv_params[0] );
-				efree( recv_params[1] );
 
 				delete[] item->recv;
 				item->recv = NULL;
@@ -2887,7 +2905,7 @@ ZEND_METHOD( wing_select_server, start )
 			case WM_ONERROR:
 			{
 				//这里不对item进行删除
-				SELECT_ITEM *item     = (SELECT_ITEM*)msg->wparam;
+				/*SELECT_ITEM *item     = (SELECT_ITEM*)msg->wparam;
 				int last_error        = (DWORD)msg->lparam;
 				
 			
@@ -2956,13 +2974,10 @@ ZEND_METHOD( wing_select_server, start )
 				}
 				zend_end_try();	
 
-				zval_dtor( params[0] );
-				zval_dtor( params[1] );
-				zval_dtor( params[2] );
-
-				efree( params[0] );
-				efree( params[1] );
-				efree( params[2] );
+				
+				zval_ptr_dtor( &params[0] );
+				zval_ptr_dtor( &params[1] );
+				zval_ptr_dtor( &params[2] );*/
 			}
 			break;
 		}
@@ -2978,6 +2993,25 @@ ZEND_METHOD( wing_select_server, start )
 	return;
 }
 
+
+ZEND_FUNCTION( wing_test ){
+	zval *callback;
+	zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC, "z",&callback );
+
+	while( 1 ) {
+
+		zval *retval = NULL;
+		MAKE_STD_ZVAL(retval);
+
+		if( SUCCESS != call_user_function( EG(function_table), NULL, callback, retval, 0, NULL TSRMLS_CC ) ) {
+			php_error_docref(NULL TSRMLS_CC, E_WARNING, "call user func fail");
+		}
+
+		if( retval )
+		zval_ptr_dtor(&retval);
+		Sleep(1000);
+	}
+}
 
 static zend_function_entry wing_select_server_methods[]={
 	ZEND_ME( wing_select_server,__construct,NULL,ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
@@ -3193,6 +3227,7 @@ const zend_function_entry wing_functions[] = {
 	PHP_FE(wing_message_box,NULL)
 	PHP_FE(wing_get_memory_used,NULL)
 	PHP_FE(wing_get_error_msg,NULL)
+	PHP_FE(wing_test,NULL)
 	PHP_FE_END	/* Must be the last line in wing_functions[] */
 };
 /* }}} */

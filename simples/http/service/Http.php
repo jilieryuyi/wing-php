@@ -30,6 +30,8 @@ class Http{
     private $connection  = "close";//connection close或者keep-alive
     private $cookies     = [];
     private $cookie_key;
+    private $memuse;
+    public $firstuse;
 
     /**
      * @构造函数 传入配置覆盖默认配置
@@ -41,6 +43,7 @@ class Http{
         foreach ( $configs as $key => $config ) {
             $this->config[$key] = $config;
         }
+        $this->memuse = memory_get_usage();
     }
 
     private function parseCookie( $cookie_str ) {
@@ -181,18 +184,20 @@ class Http{
         $_COOKIE  =
         $_SESSION =
         $_REQUEST =
-        $this->headers = [];
+            
+        $this->headers    = [];
         $this->cookie_key = '';
-
-
 
         $msgs        = explode("\r\n\r\n" , $http_msg );           //http协议 header 和 body 之间 通过两个 \r\n\r\n 分割（两个回车符）
         $headers_str = array_shift( $msgs );                       //请求过来的headers字符串，接下来要对这个字符串逐一解析
         $content_str = $msgs[0];                                   //请求过来的消息实体内容 get传输的话 一般都为空
 
+
         $request_headers     = explode("\r\n" , $headers_str );    //得到所有的headers数组
         $_request_mode_str   = array_shift( $request_headers );    //得到请求方式/请求文件/http协议版本行
         $_request_mode       = explode( " ", $_request_mode_str ); //解析得到请求方式/请求文件/http协议版本行
+
+
         $this->request_mode  = strtolower( $_request_mode[0] );    //http请求方式 get post
         $_request_query      = parse_url($_request_mode[1]);       //解析请求文件行 得到请求文件和get查询
         $this->request_file  = $_request_query["path"];            //请求的文件
@@ -214,7 +219,9 @@ class Http{
                 call_user_func( [ $this,$parseFunc ], $_header_value );
             }
 
-            $_SERVER["HTTP_".strtoupper( str_replace( "-","_",$_header_key ) )] = $_header_temp[1];
+            $_SERVER["HTTP_".strtoupper( str_replace( "-","_",$_header_key ) )]
+                = $_header_temp[1];
+            unset( $_header_temp, $_header_key, $_header_value, $parseFunc );
         }
 
         //$_SERVER 全局变量初始化
@@ -227,6 +234,7 @@ class Http{
         $_SERVER["REQUEST_METHOD"]  = strtoupper( $_request_mode[0] );//http请求方式 get post
         $_SERVER["SCRIPT_FILENAME"] = $http_request_file;
         $_SERVER["DOCUMENT_ROOT"]   = str_replace("\\","/",$this->config["document_root"]);
+
 
         if( isset( $_request_query["query"] ) )
             parse_str( $_request_query["query"] ,$_GET );         //解析get参数
@@ -268,15 +276,13 @@ class Http{
             "Content-Length" => strlen($response_content)
         ] );
 
+
         //如果$_SESSION不为空 需要设置一下cookie
         if( $_SESSION ) {
             $cookie_key = $this->cookie_key?$this->cookie_key:$this->createUnique();
             $this->setHeaders(["Set-Cookie" => "WINGPHPSESSID=" . $cookie_key ]);
             $this->cookies[ $cookie_key ] = $_SESSION;
-           /* file_put_contents( $this->config["cookie"]."/".$cookie_key.".cookie",
-                json_encode($_SESSION) );*/
         }
-
 
         $http_response_content =
             "HTTP/1.1 200 OK\r\n".
@@ -284,7 +290,29 @@ class Http{
             $response_content;
 
         $http_client->send( $http_response_content );
-        unset($http_client);
+
+        //常驻进程的资源释放很重要哇 必须要有 否则内存泄露
+        unset(
+            $response_mime_type,
+            $http_request_file,
+            $http_client,
+            $http_response_content,
+            $_SERVER, $request_headers,
+            $_GET, $msgs,
+            $_POST, $_request_mode_str,
+            $_COOKIE, $_request_query,
+            $_SESSION,
+            $_REQUEST, $_request_mode,
+            $response_content, $content_str
+        );
+        $this->headers       = NULL;
+        $this->cookie_key    = NULL;
+        $this->request_mode  = NULL;
+        $this->request_file  = NULL;
+        $this->request_query = NULL;
+        $this->http_version  = NULL;
+        $this->connection    = NULL;
+        $this->cookies       = NULL;
     }
     public function start(){
         $_self  = $this;
@@ -307,7 +335,9 @@ class Http{
 
         $server->on( "onreceive" , function( $client , $recv_msg ) use( $_self ) {
             $_self->onreceive($client,$recv_msg);
-            unset($client);
+            unset($client,$recv_msg);  //常驻进程的资源释放很重要哇
+            echo "增加了",( memory_get_usage() - $_self->firstuse ),"\r\n";
+            $_self->firstuse = memory_get_usage();
         });
 
         $server->on( "onsend" , function( $client , $send_status ){
