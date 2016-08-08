@@ -284,6 +284,7 @@ class Http{
             $response_content;
 
         $http_client->send( $http_response_content );
+        unset($http_client);
     }
     public function start(){
         $_self  = $this;
@@ -306,6 +307,7 @@ class Http{
 
         $server->on( "onreceive" , function( $client , $recv_msg ) use( $_self ) {
             $_self->onreceive($client,$recv_msg);
+            unset($client);
         });
 
         $server->on( "onsend" , function( $client , $send_status ){

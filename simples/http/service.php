@@ -9,7 +9,7 @@
  * @支持原生的$_SERVER $_GET $_POST $_REQUEST 和 $_SESSION
  */
 
-
+date_default_timezone_set("PRC");
 require_once "service/Http.php";
 define("HOME_PATH",__DIR__);
 

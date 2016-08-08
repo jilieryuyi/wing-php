@@ -654,6 +654,9 @@ ZEND_METHOD( wing_sclient,send ){
 	zval *socket = zend_read_property( wing_sclient_ce ,getThis(),"socket",strlen("socket"),0 TSRMLS_CC);
 	
 	int isocket = Z_LVAL_P(socket);
+
+	zval_dtor(socket);
+
 	if( isocket <= 0 ) 
 	{
 		RETURN_LONG(WING_ERROR_FAILED);
@@ -664,7 +667,7 @@ ZEND_METHOD( wing_sclient,send ){
 
 	//send( (SOCKET)Z_LVAL_P(socket) , msg , msg_len , 0 );
 
-	if( !iocp_socket_send( (SOCKET)Z_LVAL_P(socket) , msg, msg_len )) 
+	if( !iocp_socket_send( (SOCKET)isocket , msg, msg_len )) 
 	{
 		RETURN_LONG(WING_ERROR_FAILED);
 		return;
@@ -2766,7 +2769,6 @@ ZEND_METHOD( wing_select_server, start )
 				
 				zval *send_params[2]	= {0};
 				
-				MAKE_STD_ZVAL( send_params[0] );
 				MAKE_STD_ZVAL( send_params[1] );
 
 				
@@ -2784,8 +2786,11 @@ ZEND_METHOD( wing_select_server, start )
 				}
 				zend_end_try();
 
-				zval_ptr_dtor( &send_params[0] );
-				zval_ptr_dtor( &send_params[1] );
+				zval_dtor( send_params[0] );
+				zval_dtor( send_params[1] );
+
+				efree( send_params[0] );
+				efree( send_params[1] );
 
 				delete item;
 				item = NULL;
@@ -2808,7 +2813,8 @@ ZEND_METHOD( wing_select_server, start )
 				zend_end_try();
 
 				//释放资源
-				zval_ptr_dtor( &wing_sclient );
+				zval_dtor( wing_sclient );
+				efree(wing_sclient);
 				wing_sclient = NULL;
 
 				delete item;
@@ -2833,7 +2839,8 @@ ZEND_METHOD( wing_select_server, start )
 				zend_end_try();
 
 				//释放资源
-				zval_ptr_dtor( &wing_sclient );
+				zval_dtor( wing_sclient );
+				efree( wing_sclient );
 				wing_sclient = NULL;
 
 				delete item;
@@ -2846,10 +2853,11 @@ ZEND_METHOD( wing_select_server, start )
 			
 				zval *recv_params[2]			= {0};
 				
-				MAKE_STD_ZVAL( recv_params[0] );
 				MAKE_STD_ZVAL( recv_params[1] );
 
 				select_create_wing_sclient( recv_params[0] , item TSRMLS_CC);
+
+
 				ZVAL_STRINGL( recv_params[1] , item->recv , item->recv_bytes, 1 );
 				
 				zend_try
@@ -2861,9 +2869,13 @@ ZEND_METHOD( wing_select_server, start )
 					//php语法错误
 				}
 				zend_end_try();
+				
+	
 
-				zval_ptr_dtor( &recv_params[0] );
-				zval_ptr_dtor( &recv_params[1] );
+				zval_dtor( recv_params[0] );
+				zval_dtor( recv_params[1] );
+				efree( recv_params[0] );
+				efree( recv_params[1] );
 
 				delete[] item->recv;
 				item->recv = NULL;
@@ -2944,9 +2956,13 @@ ZEND_METHOD( wing_select_server, start )
 				}
 				zend_end_try();	
 
-				zval_ptr_dtor( &params[0] );
-				zval_ptr_dtor( &params[1] );
-				zval_ptr_dtor( &params[2] );
+				zval_dtor( params[0] );
+				zval_dtor( params[1] );
+				zval_dtor( params[2] );
+
+				efree( params[0] );
+				efree( params[1] );
+				efree( params[2] );
 			}
 			break;
 		}
