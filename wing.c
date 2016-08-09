@@ -2010,6 +2010,11 @@ ZEND_FUNCTION( wing_find_process ) {
 
     BOOL bMore = ::Process32First( hProcessSnap, &pe32 );  
 	array_init( return_value );
+	HANDLE hModuleShot;
+	MODULEENTRY32 module;
+	HANDLE hProcess;
+	char exepath[1024] = {0};
+	DWORD outsize = 0;
 
     while( bMore )  
     {  
@@ -2030,6 +2035,55 @@ ZEND_FUNCTION( wing_find_process ) {
 				}
 			}
 			delete[] command_line;
+		}else{
+			//pe32.szExeFile;
+			//hModuleShot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE,pe32.th32ProcessID);
+			SetLastError(0);
+			if(Module32First(hProcessSnap, &module)) {
+				
+				if( Z_TYPE_P(keyword) == IS_NULL || Z_STRLEN_P(keyword) == 0  )
+					add_next_index_string( return_value, module.szExePath , 1 );
+
+				else if( strstr( module.szExePath,(const char*)Z_STRVAL_P(keyword) ) != NULL )
+					add_next_index_string( return_value, module.szExePath , 1 );
+
+			}else{
+				SetLastError(0);
+				hProcess = ::OpenProcess( PROCESS_CREATE_THREAD | PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, FALSE, pe32.th32ProcessID );
+				
+				if( !hProcess ) 
+				{
+					if( Z_TYPE_P(keyword) == IS_NULL || Z_STRLEN_P(keyword) == 0  )
+						add_next_index_string( return_value, pe32.szExeFile , 1 );
+
+					else if( strstr( pe32.szExeFile,(const char*)Z_STRVAL_P(keyword) ) != NULL )
+						add_next_index_string( return_value, pe32.szExeFile , 1 );
+
+					bMore = ::Process32Next(hProcessSnap, &pe32); 
+					continue;
+				}
+
+				SetLastError(0);
+				memset(exepath,0,1024);
+				if( QueryFullProcessImageName( hProcess , 0, exepath , &outsize ) ){
+					
+					if( Z_TYPE_P(keyword) == IS_NULL || Z_STRLEN_P(keyword) == 0  )
+						add_next_index_string( return_value, exepath , 1 );
+
+					else if( strstr( exepath , (const char*)Z_STRVAL_P(keyword) ) != NULL )
+						add_next_index_string( return_value, exepath , 1 );
+
+				}else{
+
+					if( Z_TYPE_P(keyword) == IS_NULL || Z_STRLEN_P(keyword) == 0  )
+						add_next_index_string( return_value, pe32.szExeFile , 1 );
+
+					else if( strstr( pe32.szExeFile , (const char*)Z_STRVAL_P(keyword) ) != NULL )
+						add_next_index_string( return_value, pe32.szExeFile , 1 );
+				}
+				
+
+			}
 		}
 
 		bMore = ::Process32Next(hProcessSnap, &pe32); 
@@ -2039,6 +2093,7 @@ ZEND_FUNCTION( wing_find_process ) {
 	{
 		zval_ptr_dtor( &keyword );
 	}
+	//delete[] exepath;
 }
 
 
@@ -2772,7 +2827,7 @@ ZEND_METHOD( wing_select_server, start )
 		{
 		    case WM_ONSEND:
 			{
-				/*
+				
 				SOCKET send_socket     = (SOCKET)msg->wparam;
 				long   send_status     = msg->lparam;
 
@@ -2813,13 +2868,13 @@ ZEND_METHOD( wing_select_server, start )
 
 
 				delete item;
-				item = NULL;*/
+				item = NULL;
 			}
 			break;
 			case WM_ONCONNECT:
 			{
 				item =  (SELECT_ITEM*)msg->wparam;
-				/*
+				
 				//wing_sclient 实例化一个对象
 				select_create_wing_sclient( wing_sclient , item TSRMLS_CC);
 				
@@ -2836,7 +2891,7 @@ ZEND_METHOD( wing_select_server, start )
 				//释放资源
 				zval_ptr_dtor( &wing_sclient );
 
-				wing_sclient = NULL;*/
+				wing_sclient = NULL;
 
 				delete item;
 				item = NULL;
@@ -2846,7 +2901,7 @@ ZEND_METHOD( wing_select_server, start )
 			case WM_ONCLOSE:
 			{
 				item =  (SELECT_ITEM*)msg->wparam;
-				/*
+				
 				select_create_wing_sclient( wing_sclient , item TSRMLS_CC);
 				
 				zend_try
@@ -2862,7 +2917,7 @@ ZEND_METHOD( wing_select_server, start )
 				//释放资源
 				zval_ptr_dtor( &wing_sclient );
 
-				wing_sclient = NULL;*/
+				wing_sclient = NULL;
 
 				delete item;
 				item = NULL;
@@ -2905,7 +2960,7 @@ ZEND_METHOD( wing_select_server, start )
 			case WM_ONERROR:
 			{
 				//这里不对item进行删除
-				/*SELECT_ITEM *item     = (SELECT_ITEM*)msg->wparam;
+				SELECT_ITEM *item     = (SELECT_ITEM*)msg->wparam;
 				int last_error        = (DWORD)msg->lparam;
 				
 			
@@ -2977,7 +3032,7 @@ ZEND_METHOD( wing_select_server, start )
 				
 				zval_ptr_dtor( &params[0] );
 				zval_ptr_dtor( &params[1] );
-				zval_ptr_dtor( &params[2] );*/
+				zval_ptr_dtor( &params[2] );
 			}
 			break;
 		}
