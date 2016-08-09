@@ -16,7 +16,7 @@ define("HOME_PATH",__DIR__);
 //网站配置
 $config      = require_once "config/web.php";
 $http        = new \Service\Http( $config );
-$http->firstuse =  memory_get_usage();
+$http->memuse =  memory_get_usage();
 
 //重写header函数 使header函数也能正常设置header
 wing_override_function(

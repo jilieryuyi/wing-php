@@ -30,8 +30,7 @@ class Http{
     private $connection  = "close";//connection close或者keep-alive
     private $cookies     = [];
     private $cookie_key;
-    private $memuse;
-    public $firstuse;
+    public $memuse;
 
     /**
      * @构造函数 传入配置覆盖默认配置
@@ -184,7 +183,7 @@ class Http{
         $_COOKIE  =
         $_SESSION =
         $_REQUEST =
-            
+
         $this->headers    = [];
         $this->cookie_key = '';
 
@@ -268,6 +267,9 @@ class Http{
         if( $response_mime_type == "text/x-php" )
             $response_mime_type = "text/html";
 
+        if( $response_mime_type == "text/plain" )
+            $response_mime_type = "text/css";
+
         $this->setHeaders( [
             "Connection"     => $this->connection,
             "Server"         => "wing php ".WING_VERSION,
@@ -312,7 +314,6 @@ class Http{
         $this->request_query = NULL;
         $this->http_version  = NULL;
         $this->connection    = NULL;
-        $this->cookies       = NULL;
     }
     public function start(){
         $_self  = $this;
@@ -336,8 +337,8 @@ class Http{
         $server->on( "onreceive" , function( $client , $recv_msg ) use( $_self ) {
             $_self->onreceive($client,$recv_msg);
             unset($client,$recv_msg);  //常驻进程的资源释放很重要哇
-            echo "增加了",( memory_get_usage() - $_self->firstuse ),"\r\n";
-            $_self->firstuse = memory_get_usage();
+            echo "增加了",( memory_get_usage() - $_self->memuse ),"\r\n";
+            $_self->memuse = memory_get_usage();
         });
 
         $server->on( "onsend" , function( $client , $send_status ){
