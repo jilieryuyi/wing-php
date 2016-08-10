@@ -11,7 +11,7 @@
 echo "\r\n\r\n";
 
 //执行关键字查询进程 返回数组
-var_dump( wing_find_process( "mongod.exe" ) );
+var_dump( wing_find_process( "Note" ) );
 
 
 

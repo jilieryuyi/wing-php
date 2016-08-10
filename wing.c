@@ -2010,7 +2010,19 @@ ZEND_FUNCTION( wing_find_process ) {
 
     BOOL bMore = ::Process32First( hProcessSnap, &pe32 );  
 	array_init( return_value );
-	HANDLE hModuleShot;
+
+	/*
+	  zval *p,temp;
+                 MAKE_STD_ZVAL(p);
+                  array_init(p);
+                  add_assoc_string(p,"process_path",szProcessPath,1);
+                  add_assoc_long(p,"process_id",pe32.th32ProcessID);
+                  temp=*p;
+                  zval_copy_ctor(&temp);
+                  add_next_index_zval(return_value,&temp);
+                  zval_dtor(p);
+	*/
+
 	MODULEENTRY32 module;
 	HANDLE hProcess;
 	char exepath[1024] = {0};
@@ -2018,6 +2030,10 @@ ZEND_FUNCTION( wing_find_process ) {
 
     while( bMore )  
     {  
+		zval *item;
+		MAKE_STD_ZVAL(item);
+		array_init(item);
+
 
 		char *command_line = NULL;
 		wing_get_command_line( pe32.th32ProcessID, command_line );
@@ -2025,13 +2041,21 @@ ZEND_FUNCTION( wing_find_process ) {
 		if( NULL != command_line ) {
 			if( Z_TYPE_P(keyword) == IS_NULL || Z_STRLEN_P(keyword) == 0  )
 			{
-				add_next_index_string( return_value, command_line , 1 );
+				//add_next_index_string( return_value, command_line , 1 );
+
+				  add_assoc_string(    item,"process_info", command_line, 1     );
+                  add_assoc_long(      item,"process_id",   pe32.th32ProcessID  );
+				  add_next_index_zval( return_value, item );
+
 			}
 			else
 			{
 				if( strstr( command_line,(const char*)Z_STRVAL_P(keyword) ) != NULL )
 				{
-					add_next_index_string( return_value, command_line , 1 );
+					//add_next_index_string( return_value, command_line , 1 );
+					add_assoc_string(    item,"process_info", command_line, 1     );
+                    add_assoc_long(      item,"process_id",   pe32.th32ProcessID  );
+				    add_next_index_zval( return_value, item );
 				}
 			}
 			delete[] command_line;
@@ -2042,10 +2066,20 @@ ZEND_FUNCTION( wing_find_process ) {
 			if(Module32First(hProcessSnap, &module)) {
 				
 				if( Z_TYPE_P(keyword) == IS_NULL || Z_STRLEN_P(keyword) == 0  )
-					add_next_index_string( return_value, module.szExePath , 1 );
+				{
+					//add_next_index_string( return_value, module.szExePath , 1 );
+					add_assoc_string(    item,"process_info", module.szExePath, 1     );
+                    add_assoc_long(      item,"process_id",   pe32.th32ProcessID  );
+				    add_next_index_zval( return_value, item );
+				}
 
 				else if( strstr( module.szExePath,(const char*)Z_STRVAL_P(keyword) ) != NULL )
-					add_next_index_string( return_value, module.szExePath , 1 );
+				{	
+					//add_next_index_string( return_value, module.szExePath , 1 );
+					add_assoc_string(    item,"process_info", module.szExePath, 1     );
+                    add_assoc_long(      item,"process_id",   pe32.th32ProcessID  );
+				    add_next_index_zval( return_value, item );
+				}
 
 			}else{
 				SetLastError(0);
@@ -2054,10 +2088,20 @@ ZEND_FUNCTION( wing_find_process ) {
 				if( !hProcess ) 
 				{
 					if( Z_TYPE_P(keyword) == IS_NULL || Z_STRLEN_P(keyword) == 0  )
-						add_next_index_string( return_value, pe32.szExeFile , 1 );
+					{	
+						//add_next_index_string( return_value, pe32.szExeFile , 1 );
+						add_assoc_string(    item,"process_info", pe32.szExeFile, 1     );
+						add_assoc_long(      item,"process_id",   pe32.th32ProcessID  );
+						add_next_index_zval( return_value, item );
+					}
 
 					else if( strstr( pe32.szExeFile,(const char*)Z_STRVAL_P(keyword) ) != NULL )
-						add_next_index_string( return_value, pe32.szExeFile , 1 );
+					{	
+						//add_next_index_string( return_value, pe32.szExeFile , 1 );
+						add_assoc_string(    item,"process_info", pe32.szExeFile, 1     );
+						add_assoc_long(      item,"process_id",   pe32.th32ProcessID  );
+						add_next_index_zval( return_value, item );
+					}
 
 					bMore = ::Process32Next(hProcessSnap, &pe32); 
 					continue;
@@ -2068,18 +2112,37 @@ ZEND_FUNCTION( wing_find_process ) {
 				if( QueryFullProcessImageName( hProcess , 0, exepath , &outsize ) ){
 					
 					if( Z_TYPE_P(keyword) == IS_NULL || Z_STRLEN_P(keyword) == 0  )
-						add_next_index_string( return_value, exepath , 1 );
+					{	
+						//add_next_index_string( return_value, exepath , 1 );
+						add_assoc_string(    item,"process_info", exepath, 1     );
+						add_assoc_long(      item,"process_id",   pe32.th32ProcessID  );
+						add_next_index_zval( return_value, item );
+					}
 
 					else if( strstr( exepath , (const char*)Z_STRVAL_P(keyword) ) != NULL )
-						add_next_index_string( return_value, exepath , 1 );
+					{	
+						//add_next_index_string( return_value, exepath , 1 );
+						add_assoc_string(    item,"process_info", exepath, 1     );
+						add_assoc_long(      item,"process_id",   pe32.th32ProcessID  );
+						add_next_index_zval( return_value, item );
+					}
 
 				}else{
 
 					if( Z_TYPE_P(keyword) == IS_NULL || Z_STRLEN_P(keyword) == 0  )
-						add_next_index_string( return_value, pe32.szExeFile , 1 );
+					{	//add_next_index_string( return_value, pe32.szExeFile , 1 );
+						add_assoc_string(    item,"process_info",  pe32.szExeFile, 1     );
+						add_assoc_long(      item,"process_id",   pe32.th32ProcessID  );
+						add_next_index_zval( return_value, item );
+					}
 
 					else if( strstr( pe32.szExeFile , (const char*)Z_STRVAL_P(keyword) ) != NULL )
-						add_next_index_string( return_value, pe32.szExeFile , 1 );
+					{	
+						//add_next_index_string( return_value, pe32.szExeFile , 1 );
+						add_assoc_string(    item,"process_info",  pe32.szExeFile, 1     );
+						add_assoc_long(      item,"process_id",   pe32.th32ProcessID  );
+						add_next_index_zval( return_value, item );
+					}
 				}
 				
 
