@@ -2194,7 +2194,7 @@ ZEND_FUNCTION( wing_find_process ) {
 	me32.dwSize = sizeof( MODULEENTRY32 );
 
 
-	HANDLE hProcess;
+	HANDLE hModuleSnap = INVALID_HANDLE_VALUE;
 	char exepath[1024] = {0};
 	DWORD outsize      = 0;
 
@@ -2210,17 +2210,22 @@ ZEND_FUNCTION( wing_find_process ) {
 		//这种获取方式不是很给力 得想办法找新的方式
 		wing_get_command_line( pe32.th32ProcessID, _command_line );
 
-		if(_command_line)
+		if( _command_line )
 			spprintf( &command_line , 0 , "%s" , _command_line );
 		else 
 			spprintf( &command_line , 0 , "%s" , "" );
 
 
-		hProcess = ::CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pe32.th32ProcessID ); 
-		Module32First( hProcess , &me32 ); //QueryFullProcessImageName
-		CloseHandle( hProcess );
+		
+		hModuleSnap = ::CreateToolhelp32Snapshot( TH32CS_SNAPMODULE, pe32.th32ProcessID ); 
+		if( hModuleSnap != INVALID_HANDLE_VALUE )
+		{
+			Module32First( hModuleSnap , &me32 ); //QueryFullProcessImageName
+			CloseHandle( hModuleSnap );
+			hModuleSnap = INVALID_HANDLE_VALUE;
+		}
 
-
+		SetLastError(0);
 		//如果没有传输参数
 		if( Z_TYPE_P(keyword) == IS_NULL || Z_STRLEN_P(keyword) == 0  ) 
 		{
@@ -2243,6 +2248,7 @@ ZEND_FUNCTION( wing_find_process ) {
 				_command_line = NULL;
 			}
 			bMore = ::Process32Next(hProcessSnap, &pe32);
+
 			continue;
 		}
 
@@ -2414,22 +2420,6 @@ ZEND_FUNCTION( wing_find_process ) {
 	if( hProcessSnap ) 
 		CloseHandle( hProcessSnap );
 }
-
-
-/*
-char *wing_strtolower(char *s, size_t len)
-{
-	unsigned char *c, *e;
-
-	c = (unsigned char *)s;
-	e = c+len;
-
-	while (c < e) {
-		*c = tolower(*c);
-		c++;
-	}
-	return s;
-}*/
 
 static int override_fetch_function(char *fname, long fname_len,zend_function **pfe, int flag TSRMLS_DC)
 {

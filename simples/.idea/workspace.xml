@@ -85,8 +85,8 @@
       <file leaf-file-name="wing_find_process.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/wing_find_process.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="320">
-              <caret line="16" column="0" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
+            <state relative-caret-position="220">
+              <caret line="20" column="34" selection-start-line="20" selection-start-column="34" selection-end-line="20" selection-end-column="34" />
               <folding>
                 <element signature="e#6#505#0#PHP" expanded="true" />
               </folding>
@@ -322,12 +322,12 @@
       <workItem from="1470795201122" duration="1307000" />
       <workItem from="1470838787615" duration="27000" />
       <workItem from="1470876970710" duration="777000" />
-      <workItem from="1470882221716" duration="3658000" />
+      <workItem from="1470882221716" duration="7658000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="107445000" />
+    <option name="totallyTimeSpent" value="111445000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1604" height="876" extended-state="0" />
@@ -570,8 +570,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/wing_find_process.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="320">
-          <caret line="16" column="0" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
+        <state relative-caret-position="220">
+          <caret line="20" column="34" selection-start-line="20" selection-start-column="34" selection-end-line="20" selection-end-column="34" />
           <folding>
             <element signature="e#6#505#0#PHP" expanded="true" />
           </folding>

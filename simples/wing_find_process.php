@@ -18,7 +18,11 @@
 
 //var_dump( wing_find_process("cloudmusic.exe\"",WING_SEARCH_BY_COMMAND_LINE ));
 
-var_dump( wing_find_process( "18204" ));
+var_dump( wing_find_process( 14272 ));
+
+echo "\r\n\r\n";
+echo "\r\n\r\n";
+//var_dump( wing_find_process( "18204" ));
 //指定进程id 返回进程的启动参数 string
 //var_dump( wing_find_process( 47756 ) );
 
