@@ -1934,14 +1934,7 @@ void wing_get_command_line( DWORD process_id, char* &lpszCommandLine ){
 }
 
 
-
-
-
-/**
- *@此api获取进程的启动参数
- *@支持通过进程id获取 通过进程id获取返回单个字符串
- *@通过字符串关键字查询返回数组
- */
+/*
 ZEND_FUNCTION( wing_find_process ) {
 
 	zval *keyword = NULL;
@@ -2011,17 +2004,6 @@ ZEND_FUNCTION( wing_find_process ) {
     BOOL bMore = ::Process32First( hProcessSnap, &pe32 );  
 	array_init( return_value );
 
-	/*
-	  zval *p,temp;
-                 MAKE_STD_ZVAL(p);
-                  array_init(p);
-                  add_assoc_string(p,"process_path",szProcessPath,1);
-                  add_assoc_long(p,"process_id",pe32.th32ProcessID);
-                  temp=*p;
-                  zval_copy_ctor(&temp);
-                  add_next_index_zval(return_value,&temp);
-                  zval_dtor(p);
-	*/
 
 	MODULEENTRY32 module;
 	HANDLE hProcess;
@@ -2037,6 +2019,275 @@ ZEND_FUNCTION( wing_find_process ) {
 
 		char *command_line = NULL;
 		wing_get_command_line( pe32.th32ProcessID, command_line );
+		
+		if( NULL != command_line ) {
+			if( Z_TYPE_P(keyword) == IS_NULL || Z_STRLEN_P(keyword) == 0  )
+			{
+				//add_next_index_string( return_value, command_line , 1 );
+
+				  add_assoc_string(    item,"process_info", command_line, 1     );
+                  add_assoc_long(      item,"process_id",   pe32.th32ProcessID  );
+				  add_next_index_zval( return_value, item );
+
+			}
+			else
+			{
+				if( strstr( command_line,(const char*)Z_STRVAL_P(keyword) ) != NULL )
+				{
+					//add_next_index_string( return_value, command_line , 1 );
+					add_assoc_string(    item,"process_info", command_line, 1     );
+                    add_assoc_long(      item,"process_id",   pe32.th32ProcessID  );
+				    add_next_index_zval( return_value, item );
+				}
+			}
+			delete[] command_line;
+		}else{
+			//pe32.szExeFile;
+			//hModuleShot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE,pe32.th32ProcessID);
+			SetLastError(0);
+			if(Module32First(hProcessSnap, &module)) {
+				
+				if( Z_TYPE_P(keyword) == IS_NULL || Z_STRLEN_P(keyword) == 0  )
+				{
+					//add_next_index_string( return_value, module.szExePath , 1 );
+					add_assoc_string(    item,"process_info", module.szExePath, 1     );
+                    add_assoc_long(      item,"process_id",   pe32.th32ProcessID  );
+				    add_next_index_zval( return_value, item );
+				}
+
+				else if( strstr( module.szExePath,(const char*)Z_STRVAL_P(keyword) ) != NULL )
+				{	
+					//add_next_index_string( return_value, module.szExePath , 1 );
+					add_assoc_string(    item,"process_info", module.szExePath, 1     );
+                    add_assoc_long(      item,"process_id",   pe32.th32ProcessID  );
+				    add_next_index_zval( return_value, item );
+				}
+
+			}else{
+				SetLastError(0);
+				hProcess = ::OpenProcess( PROCESS_CREATE_THREAD | PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, FALSE, pe32.th32ProcessID );
+				
+				if( !hProcess ) 
+				{
+					if( Z_TYPE_P(keyword) == IS_NULL || Z_STRLEN_P(keyword) == 0  )
+					{	
+						//add_next_index_string( return_value, pe32.szExeFile , 1 );
+						add_assoc_string(    item,"process_info", pe32.szExeFile, 1     );
+						add_assoc_long(      item,"process_id",   pe32.th32ProcessID  );
+						add_next_index_zval( return_value, item );
+					}
+
+					else if( strstr( pe32.szExeFile,(const char*)Z_STRVAL_P(keyword) ) != NULL )
+					{	
+						//add_next_index_string( return_value, pe32.szExeFile , 1 );
+						add_assoc_string(    item,"process_info", pe32.szExeFile, 1     );
+						add_assoc_long(      item,"process_id",   pe32.th32ProcessID  );
+						add_next_index_zval( return_value, item );
+					}
+
+					bMore = ::Process32Next(hProcessSnap, &pe32); 
+					continue;
+				}
+
+				SetLastError(0);
+				memset(exepath,0,1024);
+				if( QueryFullProcessImageName( hProcess , 0, exepath , &outsize ) ){
+					
+					if( Z_TYPE_P(keyword) == IS_NULL || Z_STRLEN_P(keyword) == 0  )
+					{	
+						//add_next_index_string( return_value, exepath , 1 );
+						add_assoc_string(    item,"process_info", exepath, 1     );
+						add_assoc_long(      item,"process_id",   pe32.th32ProcessID  );
+						add_next_index_zval( return_value, item );
+					}
+
+					else if( strstr( exepath , (const char*)Z_STRVAL_P(keyword) ) != NULL )
+					{	
+						//add_next_index_string( return_value, exepath , 1 );
+						add_assoc_string(    item,"process_info", exepath, 1     );
+						add_assoc_long(      item,"process_id",   pe32.th32ProcessID  );
+						add_next_index_zval( return_value, item );
+					}
+
+				}else{
+
+					if( Z_TYPE_P(keyword) == IS_NULL || Z_STRLEN_P(keyword) == 0  )
+					{	//add_next_index_string( return_value, pe32.szExeFile , 1 );
+						add_assoc_string(    item,"process_info",  pe32.szExeFile, 1     );
+						add_assoc_long(      item,"process_id",   pe32.th32ProcessID  );
+						add_next_index_zval( return_value, item );
+					}
+
+					else if( strstr( pe32.szExeFile , (const char*)Z_STRVAL_P(keyword) ) != NULL )
+					{	
+						//add_next_index_string( return_value, pe32.szExeFile , 1 );
+						add_assoc_string(    item,"process_info",  pe32.szExeFile, 1     );
+						add_assoc_long(      item,"process_id",   pe32.th32ProcessID  );
+						add_next_index_zval( return_value, item );
+					}
+				}
+				
+
+			}
+		}
+
+		bMore = ::Process32Next(hProcessSnap, &pe32); 
+    }  
+
+	if( keyword ) 
+	{
+		zval_ptr_dtor( &keyword );
+	}
+	//delete[] exepath;
+}
+*/
+
+
+/**
+ *@此api获取进程的启动参数
+ *@支持通过进程id获取 通过进程id获取返回单个字符串
+ *@通过字符串关键字查询返回数组
+ */
+ZEND_FUNCTION( wing_find_process ) {
+
+	zval *keyword = NULL;
+
+	MAKE_STD_ZVAL( keyword );
+	ZVAL_STRING( keyword ,"",1 );
+
+	if( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|z", &keyword ) != SUCCESS ) {
+		if( keyword ) 
+			zval_ptr_dtor( &keyword );
+		RETURN_NULL();
+		return;
+	}
+
+
+	/*
+	if( Z_TYPE_P( keyword ) == IS_LONG ) {
+
+		convert_to_long( keyword );
+
+		DWORD process_id   = Z_LVAL_P( keyword );
+		char *command_line = NULL;
+
+		wing_get_command_line( process_id, command_line );
+
+		if( NULL == command_line ) 
+		{
+			if( keyword ) 
+			{
+				zval_ptr_dtor( &keyword );
+			}
+			RETURN_EMPTY_STRING();
+			return;
+		}
+		else 
+		{
+			char *cmdline = NULL;
+			spprintf( &cmdline, 0, "%s", command_line );
+			delete[] command_line;
+
+			if( keyword ) 
+			{
+				zval_ptr_dtor( &keyword );
+			}
+
+			RETURN_STRING( cmdline, 0 );
+		}
+		return;
+	}
+
+	convert_to_string( keyword);*/
+
+    PROCESSENTRY32 pe32; 
+    pe32.dwSize         = sizeof(pe32);   
+    HANDLE hProcessSnap = ::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0); 
+
+    if( hProcessSnap == INVALID_HANDLE_VALUE)  
+    {  
+		if( keyword ) 
+			zval_ptr_dtor( &keyword );
+
+		RETURN_EMPTY_STRING();
+		return;
+    }  
+
+    BOOL bMore = ::Process32First( hProcessSnap, &pe32 );  
+	array_init( return_value );
+
+
+
+	MODULEENTRY32 module;
+	HANDLE hProcess;
+	char exepath[1024] = {0};
+	DWORD outsize = 0;
+
+    while( bMore )  
+    {  
+		zval *item;
+		MAKE_STD_ZVAL(item);
+		array_init(item);
+
+
+		char *_command_line = NULL;
+		char *command_line = NULL;
+
+		
+		//这种获取方式不是很给力 得想办法找新的方式
+		wing_get_command_line( pe32.th32ProcessID, _command_line );
+
+		if(_command_line)
+			spprintf( &command_line , 0 , "%s" , _command_line );
+		else 
+			spprintf( &command_line , 0 , "%s" , "" );
+
+		//如果没有传输参数
+		if( Z_TYPE_P(keyword) == IS_NULL || Z_STRLEN_P(keyword) == 0  ) {
+			
+			add_assoc_string(    item,"process_exe_file",  pe32.szExeFile, 1            );
+            add_assoc_long(      item,"process_id",        pe32.th32ProcessID           );
+			add_assoc_long(      item,"parent_process_id", pe32.th32ParentProcessID     );
+			add_assoc_string(    item,"command_line",      command_line, 0              );
+
+		    add_next_index_zval( return_value, item );
+		}
+
+		//如果是数字
+		if( Z_TYPE_P( keyword ) == IS_LONG ) {
+			if( Z_LVAL_P( keyword ) ==  pe32.th32ProcessID ||  Z_LVAL_P( keyword ) == pe32.th32ParentProcessID ){
+				
+				add_assoc_string(    item,"process_exe_file",  pe32.szExeFile, 1            );
+				add_assoc_long(      item,"process_id",        pe32.th32ProcessID           );
+				add_assoc_long(      item,"parent_process_id", pe32.th32ParentProcessID     );
+				add_assoc_string(    item,"command_line",      command_line, 0              );
+
+				add_next_index_zval( return_value, item );
+			}
+		}
+
+
+		//如果是字符串
+		if( Z_TYPE_P(keyword) == IS_STRING && Z_STRLEN_P(keyword) > 0  ) {
+			
+			if( strstr( pe32.szExeFile , (const char*)Z_STRVAL_P(keyword) ) != NULL ||
+				( strlen(command_line) > 0 && strstr( command_line , (const char*)Z_STRVAL_P(keyword) ) != NULL )
+			)
+			{
+				
+				add_assoc_string(    item,"process_exe_file",  pe32.szExeFile, 1            );
+				add_assoc_long(      item,"process_id",        pe32.th32ProcessID           );
+				add_assoc_long(      item,"parent_process_id", pe32.th32ParentProcessID     );
+				add_assoc_string(    item,"command_line",      command_line, 0              );
+
+				add_next_index_zval( return_value, item );
+			}
+		}
+
+
+		if( _command_line ) delete[] _command_line;
+		bMore = ::Process32Next(hProcessSnap, &pe32);
+		continue;
 		
 		if( NULL != command_line ) {
 			if( Z_TYPE_P(keyword) == IS_NULL || Z_STRLEN_P(keyword) == 0  )
