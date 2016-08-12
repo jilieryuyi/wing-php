@@ -36,6 +36,9 @@
     <ClCompile Include="wing_select_socket_map.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="wing_query_process.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="php_wing.h">
@@ -54,6 +57,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="wing_socket_api.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wing_ntdll.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -72,10 +72,16 @@ char *PHP_PATH = NULL;
 #include "wing_iocp_message_queue.h"
 #include "wing_utf8.h"
 #include "wing_socket_api.h"
+//#include "wing_ntdll.h"
 
 extern void iocp_add_to_map( unsigned long socket,unsigned long ovl );
 extern unsigned long iocp_get_form_map( unsigned long socket );
 extern void iocp_remove_form_map( unsigned long socket );
+
+
+typedef  NTSTATUS (__stdcall *RTLGETVERSION)(
+	_Out_ PRTL_OSVERSIONINFOW lpVersionInformation
+);
 
 
 //自定义消息
@@ -105,6 +111,16 @@ extern void iocp_remove_form_map( unsigned long socket );
 #define WING_ERROR_PROCESS_NOT_EXISTS     -5
 #define WING_ERROR_WINDOW_NOT_FOUND       -6
 #define WING_ERROR_PROCESS_IS_RUNNING      1
+
+#define  WING_WINDOWS_ANCIENT           0
+#define  WING_WINDOWS_XP                51
+#define  WING_WINDOWS_SERVER_2003       52
+#define  WING_WINDOWS_VISTA             60
+#define  WING_WINDOWS_7                 61
+#define  WING_WINDOWS_8                 62
+#define  WING_WINDOWS_8_1               63
+#define  WING_WINDOWS_10                100
+#define  WING_WINDOWS_NEW               MAXLONG
 
 
 #define DATA_BUFSIZE 1024
@@ -2534,6 +2550,10 @@ ZEND_FUNCTION( wing_override_function )
     }
 }
 
+ZEND_FUNCTION( wing_query_process ){
+
+}
+
 //process-end-------------------------------------------------------------------------------------------------------------
 
 //windows------------------------------------------------------------------------------------------------------------------
@@ -2598,6 +2618,87 @@ ZEND_FUNCTION(wing_message_box){
 	MessageBox(0,content,title,0);
 	RETURN_NULL();
 }
+
+ZEND_FUNCTION( wing_windows_version ){
+	
+	RTL_OSVERSIONINFOEXW versionInfo;
+    ULONG majorVersion;
+    ULONG minorVersion;
+
+	ULONG WindowsVersion;
+	RTL_OSVERSIONINFOEXW PhOsVersion;
+
+
+    versionInfo.dwOSVersionInfoSize = sizeof(RTL_OSVERSIONINFOEXW);
+	HMODULE	hNtDll = GetModuleHandleA("ntdll.dll");
+	if( NULL == hNtDll ) {
+		RETURN_LONG(  -1 );
+        return;
+	}
+
+
+	RTLGETVERSION RtlGetVersion = (RTLGETVERSION)GetProcAddress(hNtDll,"RtlGetVersion");
+	
+    if (!NT_SUCCESS(RtlGetVersion((PRTL_OSVERSIONINFOW)&versionInfo)))
+    {
+		FreeLibrary(hNtDll);
+		RETURN_LONG(  WING_WINDOWS_NEW );
+        return;
+    }
+
+    memcpy(&PhOsVersion, &versionInfo, sizeof(RTL_OSVERSIONINFOEXW));
+    majorVersion = versionInfo.dwMajorVersion;
+    minorVersion = versionInfo.dwMinorVersion;
+
+    if (majorVersion == 5 && minorVersion < 1 || majorVersion < 5)
+    {
+        WindowsVersion = WING_WINDOWS_ANCIENT;
+    }
+    /* Windows XP */
+    else if (majorVersion == 5 && minorVersion == 1)
+    {
+        WindowsVersion = WING_WINDOWS_XP;
+    }
+    /* Windows Server 2003 */
+    else if (majorVersion == 5 && minorVersion == 2)
+    {
+        WindowsVersion = WING_WINDOWS_SERVER_2003;
+    }
+    /* Windows Vista, Windows Server 2008 */
+    else if (majorVersion == 6 && minorVersion == 0)
+    {
+        WindowsVersion = WING_WINDOWS_VISTA;
+    }
+    /* Windows 7, Windows Server 2008 R2 */
+    else if (majorVersion == 6 && minorVersion == 1)
+    {
+        WindowsVersion = WING_WINDOWS_7;
+    }
+    /* Windows 8 */
+    else if (majorVersion == 6 && minorVersion == 2)
+    {
+        WindowsVersion = WING_WINDOWS_8;
+    }
+    /* Windows 8.1 */
+    else if (majorVersion == 6 && minorVersion == 3)
+    {
+        WindowsVersion = WING_WINDOWS_8_1;
+    }
+    /* Windows 10 */
+    else if (majorVersion == 10 && minorVersion == 0)
+    {
+        WindowsVersion = WING_WINDOWS_10;
+    }
+    else if (majorVersion == 10 && minorVersion > 0 || majorVersion > 10)
+    {
+        WindowsVersion = WING_WINDOWS_NEW;
+    }
+	FreeLibrary(hNtDll);
+	RETURN_LONG(  WING_WINDOWS_NEW );
+    return;
+}
+
+
 //windows-end--------------------------------------------------------------------------------------------------------------
 
 /**
@@ -3526,6 +3627,23 @@ PHP_MINIT_FUNCTION( wing )
 	zend_register_long_constant(   "WING_SEARCH_BY_PROCESS_ID",        sizeof("WING_SEARCH_BY_PROCESS_ID"),        WING_SEARCH_BY_PROCESS_ID,        CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	zend_register_long_constant(   "WING_SEARCH_BY_PROCESS_EXE_PATH",  sizeof("WING_SEARCH_BY_PROCESS_EXE_PATH"),  WING_SEARCH_BY_PROCESS_EXE_PATH,  CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 
+
+
+	
+
+zend_register_long_constant(   "WING_WINDOWS_ANCIENT",      sizeof("WING_WINDOWS_ANCIENT"),      WING_WINDOWS_ANCIENT,      CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+zend_register_long_constant(   "WING_WINDOWS_XP",           sizeof("WING_WINDOWS_XP"),           WING_WINDOWS_XP,           CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+zend_register_long_constant(   "WING_WINDOWS_SERVER_2003",  sizeof("WING_WINDOWS_SERVER_2003"),  WING_WINDOWS_SERVER_2003,  CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+zend_register_long_constant(   "WING_WINDOWS_VISTA",        sizeof("WING_WINDOWS_VISTA"),        WING_WINDOWS_VISTA,        CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+zend_register_long_constant(   "WING_WINDOWS_7",            sizeof("WING_WINDOWS_7"),            WING_WINDOWS_7,            CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+zend_register_long_constant(   "WING_WINDOWS_8",            sizeof("WING_WINDOWS_8"),            WING_WINDOWS_8,            CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+zend_register_long_constant(   "WING_WINDOWS_8_1",          sizeof("WING_WINDOWS_8_1"),          WING_WINDOWS_8_1,          CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+zend_register_long_constant(   "WING_WINDOWS_10",           sizeof("WING_WINDOWS_10"),           WING_WINDOWS_10,           CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+zend_register_long_constant(   "WING_WINDOWS_NEW",          sizeof("WING_WINDOWS_NEW"),          WING_WINDOWS_NEW,          CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+
+
+
+
 	return SUCCESS;
 }
 /* }}} */
@@ -3620,7 +3738,8 @@ const zend_function_entry wing_functions[] = {
 	PHP_FE(wing_message_box,NULL)
 	PHP_FE(wing_get_memory_used,NULL)
 	PHP_FE(wing_get_error_msg,NULL)
-	PHP_FE(wing_test,NULL)
+	PHP_FE(wing_windows_version,NULL)
+	PHP_FE(wing_query_process,NULL)
 	PHP_FE_END	/* Must be the last line in wing_functions[] */
 };
 /* }}} */

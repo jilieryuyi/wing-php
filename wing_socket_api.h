@@ -7,7 +7,7 @@
 
 #include "tlhelp32.h"
 #include "Psapi.h"
-#include "Winternl.h"
+//#include "Winternl.h"
 #include "Processthreadsapi.h"
 #include "Shlwapi.h"
 #include "Strsafe.h"
