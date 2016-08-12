@@ -2143,6 +2143,7 @@ ZEND_FUNCTION( wing_find_process ) {
 */
 
 
+
 #define WING_SEARCH_BY_PROCESS_EXE_FILE  1
 #define WING_SEARCH_BY_PROCESS_ID        2
 #define WING_SEARCH_BY_PARENT_PROCESS_ID 3
@@ -2194,8 +2195,8 @@ ZEND_FUNCTION( wing_find_process ) {
 	me32.dwSize = sizeof( MODULEENTRY32 );
 
 
-	HANDLE hModuleSnap = INVALID_HANDLE_VALUE;
-	char exepath[1024] = {0};
+	HANDLE hModuleSnap = INVALID_HANDLE_VALUE , hProcess = INVALID_HANDLE_VALUE;
+	char *exepath = NULL;
 	DWORD outsize      = 0;
 
     while( bMore )  
@@ -2218,11 +2219,33 @@ ZEND_FUNCTION( wing_find_process ) {
 
 		
 		hModuleSnap = ::CreateToolhelp32Snapshot( TH32CS_SNAPMODULE, pe32.th32ProcessID ); 
+		ZeroMemory(&me32,me32.dwSize);
+
+		me32.dwSize = sizeof( MODULEENTRY32 );
+
 		if( hModuleSnap != INVALID_HANDLE_VALUE )
 		{
 			Module32First( hModuleSnap , &me32 ); //QueryFullProcessImageName
 			CloseHandle( hModuleSnap );
 			hModuleSnap = INVALID_HANDLE_VALUE;
+		}else
+		{
+			//if( strlen(me32.szExePath) <= 0 ) 
+			/*zend_printf("===>%ld error %ld\r\n\r\n",pe32.th32ProcessID,GetLastError());
+			hProcess = ::OpenProcess( PROCESS_CREATE_THREAD | PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ
+				|PROCESS_QUERY_INFORMATION  , FALSE, pe32.th32ProcessID );
+			if( hProcess != INVALID_HANDLE_VALUE ) 
+			{
+				exepath = new char[1024];
+				memset(exepath,0,sizeof(1024));
+
+				GetProcessImageFileName(hProcess,exepath,1024);
+				//if( QueryFullProcessImageNameA( hProcess , PROCESS_NAME_NATIVE, exepath , &outsize ) )
+					zend_printf("--->%s\r\n",exepath);
+				delete[] exepath;
+				exepath = NULL;
+				CloseHandle(hProcess);
+			}*/
 		}
 
 		SetLastError(0);

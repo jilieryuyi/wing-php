@@ -85,8 +85,8 @@
       <file leaf-file-name="wing_find_process.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/wing_find_process.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="220">
-              <caret line="20" column="34" selection-start-line="20" selection-start-column="34" selection-end-line="20" selection-end-column="34" />
+            <state relative-caret-position="320">
+              <caret line="20" column="8" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="8" />
               <folding>
                 <element signature="e#6#505#0#PHP" expanded="true" />
               </folding>
@@ -209,6 +209,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -244,11 +245,10 @@
         </subPane>
       </pane>
       <pane id="Scratches" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="D:/web/yonglibao/statistics" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
   </component>
@@ -322,16 +322,17 @@
       <workItem from="1470795201122" duration="1307000" />
       <workItem from="1470838787615" duration="27000" />
       <workItem from="1470876970710" duration="777000" />
-      <workItem from="1470882221716" duration="7658000" />
+      <workItem from="1470882221716" duration="7826000" />
+      <workItem from="1470921123599" duration="1695000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="111445000" />
+    <option name="totallyTimeSpent" value="113308000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1604" height="876" extended-state="0" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21158691" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -570,8 +571,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/wing_find_process.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="220">
-          <caret line="20" column="34" selection-start-line="20" selection-start-column="34" selection-end-line="20" selection-end-column="34" />
+        <state relative-caret-position="320">
+          <caret line="20" column="8" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="8" />
           <folding>
             <element signature="e#6#505#0#PHP" expanded="true" />
           </folding>

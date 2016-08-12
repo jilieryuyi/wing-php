@@ -18,7 +18,7 @@
 
 //var_dump( wing_find_process("cloudmusic.exe\"",WING_SEARCH_BY_COMMAND_LINE ));
 
-var_dump( wing_find_process( 14272 ));
+var_dump( wing_find_process() );
 
 echo "\r\n\r\n";
 echo "\r\n\r\n";
