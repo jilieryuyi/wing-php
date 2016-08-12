@@ -52,3 +52,22 @@ void iocp_gbk_to_utf8( char *in_str,char *&out_str){
 	}
 
 }
+
+#define gbk_to_utf8 iocp_gbk_to_utf8  ;
+
+char* WcharToUtf8(const wchar_t *pwStr)
+{
+    if (pwStr == NULL)
+    {
+        return NULL;
+    }
+    int len = WideCharToMultiByte(CP_UTF8, 0, pwStr, -1, NULL, 0, NULL, NULL);
+    if (len <= 0)
+    {
+        return NULL;
+    }
+    char *pStr = new char[len+1];
+	memset(pStr,0,len+1);
+    WideCharToMultiByte(CP_UTF8, 0, pwStr, -1, pStr, len, NULL, NULL);
+    return pStr;
+}

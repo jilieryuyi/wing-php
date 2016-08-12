@@ -2550,7 +2550,87 @@ ZEND_FUNCTION( wing_override_function )
     }
 }
 
+struct PROCESSINFO {
+	char *process_name;
+	char *command_line;
+	char *file_name;
+	char *file_path;
+	int process_id;
+	int parent_process_id;
+	unsigned long working_set_size;
+	unsigned long base_priority;//基本的优先级
+	unsigned long thread_count ;
+	unsigned long handle_count ;
+	unsigned long cpu_time;
+};
+extern DWORD WingQueryProcess( PROCESSINFO *&all_process , int max_count);
 ZEND_FUNCTION( wing_query_process ){
+
+	PROCESSINFO *all_process = NULL;
+	//第一次传null返回实际的进程数量
+	int count   = WingQueryProcess( all_process , 0 );
+	all_process = new PROCESSINFO[count];
+	count       = WingQueryProcess( all_process , count );
+
+	array_init( return_value );
+
+	for( int i = 0; i < count ; i++ ) 
+	{
+		zval *item;
+		MAKE_STD_ZVAL( item );
+		array_init( item );
+
+		if( all_process[i].process_name != NULL)
+		{
+			add_assoc_string(    item,"process_name",	   all_process[i].process_name, 1     );
+			delete[] all_process[i].process_name;
+		}
+		else
+		{
+			add_assoc_string(    item,"process_name",      "", 1     );
+		}
+
+		
+		if( NULL != all_process[i].command_line)
+		{	
+			add_assoc_string(    item,"command_line",      all_process[i].command_line, 1 );
+			delete[] all_process[i].command_line;
+		}
+		else
+			add_assoc_string(    item,"command_line",      "", 1     );
+
+
+
+		if( NULL != all_process[i].file_name)
+		{	
+			add_assoc_string(    item,"file_name",      all_process[i].file_name, 1 );
+			delete[] all_process[i].file_name;
+		}
+		else
+			add_assoc_string(    item,"file_name",      "", 1     );
+
+
+		if( NULL != all_process[i].file_path)
+		{	
+			add_assoc_string(    item,"file_path",      all_process[i].file_path, 1 );
+			delete[] all_process[i].file_path;
+		}
+		else
+			add_assoc_string(    item,"file_path",      "", 1     );
+
+
+
+		add_assoc_long(      item,"process_id",        all_process[i].process_id          );
+		add_assoc_long(      item,"parent_process_id", all_process[i].parent_process_id   );
+		add_assoc_long(      item,"working_set_size",  all_process[i].working_set_size    );
+		add_assoc_long(      item,"base_priority",     all_process[i].base_priority       );
+		add_assoc_long(      item,"thread_count",      all_process[i].thread_count        );
+		add_assoc_long(      item,"handle_count",      all_process[i].handle_count        );
+		add_assoc_long(      item,"handle_count",      all_process[i].cpu_time            );
+
+		add_next_index_zval( return_value, item );
+	}
+	delete[] all_process;
 
 }
 
