@@ -17,7 +17,7 @@
 #define  WING_WINDOWS_NEW               MAXLONG
 */
 $version = wing_windows_version();
-switch( $version ){
+switch( $version ) {
     case WING_WINDOWS_ANCIENT:      echo "windows ancient\r\n";break;
     case WING_WINDOWS_XP:           echo "windows xp\r\n";break;
     case WING_WINDOWS_SERVER_2003:  echo "windows server 2003\r\n";break;
@@ -27,5 +27,6 @@ switch( $version ){
     case WING_WINDOWS_8_1:          echo "windows 8.1\r\n";break;
     case WING_WINDOWS_10:           echo "windows 10\r\n";break;
     case WING_WINDOWS_NEW:          echo "windows new\r\n";break;
-    default : echo "unknow version\r\n";
+    case WING_ERROR_NT:             echo "some error happened\r\n"; break;
+    default :                       echo "unknow version\r\n";
 }

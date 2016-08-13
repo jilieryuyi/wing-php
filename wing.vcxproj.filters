@@ -36,7 +36,7 @@
     <ClCompile Include="wing_select_socket_map.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wing_query_process.c">
+    <ClCompile Include="wing_ntdll.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -59,10 +59,10 @@
     <ClInclude Include="wing_socket_api.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="wing_ntdll.h">
+    <ClInclude Include="ntdll.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="wing_query_process.h">
+    <ClInclude Include="wing_ntdll.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

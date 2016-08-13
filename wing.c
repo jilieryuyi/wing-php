@@ -72,19 +72,11 @@ char *PHP_PATH = NULL;
 #include "wing_iocp_message_queue.h"
 #include "wing_utf8.h"
 #include "wing_socket_api.h"
-#include "wing_query_process.h"
+#include "wing_ntdll.h"
 
 extern void iocp_add_to_map( unsigned long socket,unsigned long ovl );
 extern unsigned long iocp_get_form_map( unsigned long socket );
 extern void iocp_remove_form_map( unsigned long socket );
-
-
-typedef  NTSTATUS (__stdcall *RTLGETVERSION)(
-	_Out_ PRTL_OSVERSIONINFOW lpVersionInformation
-);
-
-
-
 
 //iocp消息结构体
 struct iocp_overlapped{
@@ -1515,26 +1507,6 @@ ZEND_FUNCTION( wing_get_current_process_id ){
 }
 
 
-
-
-
-typedef NTSTATUS (NTAPI* WingNtQueryObject)( HANDLE, OBJECT_INFORMATION_CLASS, PVOID, ULONG, PULONG );
-typedef   struct   _SYSTEM_HANDLE_STATE   { 
-DWORD   r1; 
-DWORD   GrantedAccess; 
-DWORD   HandleCount;      // 减1为句柄计数 
-DWORD   ReferenceCount;   // 减1为指针引用计数 
-DWORD   r5; 
-DWORD   r6; 
-DWORD   r7; 
-DWORD   r8; 
-DWORD   r9; 
-DWORD   r10;   
-DWORD   r11;   
-DWORD   r12;   
-DWORD   r13;   
-DWORD   r14;   
-}SYSTEM_HANDLE_STATE,   *PSYSTEM_HANDLE_STATE;
 /**
  *@获取windows内核对象的引用次数
  *@param int  内核对象句柄，在php内部表示即为int类型
@@ -1550,28 +1522,7 @@ ZEND_FUNCTION( wing_query_object ){
 		return;
 	}
 
-	if( handle <= 0 ) 
-	{
-	    RETURN_LONG(0);
-		return;
-	}
-
-	WingNtQueryObject NtQueryObject   = ( WingNtQueryObject )GetProcAddress( GetModuleHandleA("ntdll.dll"), "NtQueryObject" );
-    SYSTEM_HANDLE_STATE *pOutBuffer   = ( SYSTEM_HANDLE_STATE *)malloc(0x38);
-	
-	memset(pOutBuffer,0,0x38);
-
-	if( NtQueryObject( (HANDLE)handle, ObjectBasicInformation, pOutBuffer, 0x38, NULL ) != 0 )
-	{
-		free( pOutBuffer );
-		RETURN_LONG(0);
-		return;
-	}
-
-	int count =  pOutBuffer->HandleCount;
-	free( pOutBuffer );
-
-	RETURN_LONG( count );
+	RETURN_LONG( WingQueryObject( (HANDLE)handle ) );
 	return;
 }
 
@@ -2501,61 +2452,34 @@ ZEND_FUNCTION( wing_override_function )
 }
 
 
-void wing_query_process_item(zval *&return_value, PROCESSINFO process){
+void wing_query_process_item( zval *&return_value, PROCESSINFO process )
+{
 
 		zval *item;
-			MAKE_STD_ZVAL( item );
-			array_init( item );
+		MAKE_STD_ZVAL( item );
+		array_init( item );
 
-			if( process.process_name != NULL)
-			{
-				add_assoc_string(    item,"process_name",	   process.process_name, 1     );
-				delete[] process.process_name;
-			}
-			else
-			{
-				add_assoc_string(    item,"process_name",      "", 1     );
-			}
+		add_assoc_string(    item,"process_name",	   process.process_name, 1     );
+		delete[] process.process_name;
+				
+		add_assoc_string(    item,"command_line",      process.command_line, 1 );
+		delete[] process.command_line;
+			
+		add_assoc_string(    item,"file_name",      process.file_name, 1 );
+		delete[] process.file_name;
+	
+		add_assoc_string(    item,"file_path",      process.file_path, 1 );
+		delete[] process.file_path;
 
-		
-			if( NULL != process.command_line)
-			{	
-				add_assoc_string(    item,"command_line",      process.command_line, 1 );
-				delete[] process.command_line;
-			}
-			else
-				add_assoc_string(    item,"command_line",      "", 1     );
+		add_assoc_long(      item,"process_id",        process.process_id          );
+		add_assoc_long(      item,"parent_process_id", process.parent_process_id   );
+		add_assoc_long(      item,"working_set_size",  process.working_set_size    );
+		add_assoc_long(      item,"base_priority",     process.base_priority       );
+		add_assoc_long(      item,"thread_count",      process.thread_count        );
+		add_assoc_long(      item,"handle_count",      process.handle_count        );
+		add_assoc_long(      item,"cpu_time",          process.cpu_time            );
 
-
-
-			if( NULL != process.file_name)
-			{	
-				add_assoc_string(    item,"file_name",      process.file_name, 1 );
-				delete[] process.file_name;
-			}
-			else
-				add_assoc_string(    item,"file_name",      "", 1     );
-
-
-			if( NULL != process.file_path)
-			{	
-				add_assoc_string(    item,"file_path",      process.file_path, 1 );
-				delete[] process.file_path;
-			}
-			else
-				add_assoc_string(    item,"file_path",      "", 1     );
-
-
-
-			add_assoc_long(      item,"process_id",        process.process_id          );
-			add_assoc_long(      item,"parent_process_id", process.parent_process_id   );
-			add_assoc_long(      item,"working_set_size",  process.working_set_size    );
-			add_assoc_long(      item,"base_priority",     process.base_priority       );
-			add_assoc_long(      item,"thread_count",      process.thread_count        );
-			add_assoc_long(      item,"handle_count",      process.handle_count        );
-			add_assoc_long(      item,"cpu_time",          process.cpu_time            );
-
-			add_next_index_zval( return_value, item );
+		add_next_index_zval( return_value, item );
 
 }
 
@@ -2588,13 +2512,12 @@ ZEND_FUNCTION( wing_query_process ){
 
 	for( int i = 0; i < count ; i++ ) 
 	{
-		if( Z_TYPE_P(keyword) == IS_NULL || Z_STRLEN_P(keyword) == 0  ) {
+		if( Z_TYPE_P(keyword) == IS_NULL || Z_STRLEN_P(keyword) == 0  ) 
+		{
 			wing_query_process_item( return_value, all_process[i] );
 		}
 		else
 		{
-		
-			/////////////////////////////////////
 			//如果是数字
 			if( Z_TYPE_P( keyword ) == IS_LONG || is_numeric_string(Z_STRVAL_P(keyword),Z_STRLEN_P(keyword),NULL,NULL,0) ) 
 			{
@@ -2665,8 +2588,6 @@ ZEND_FUNCTION( wing_query_process ){
 
 				}
 			}
-
-			////////////////////////////////////
 		
 		}
 	}
@@ -2684,12 +2605,12 @@ ZEND_FUNCTION( wing_query_process ){
  */
 ZEND_FUNCTION( wing_windows_send_msg ){
 	
-	char *console_title = NULL;
+	char *console_title   = NULL;
 	int console_title_len = 0;
-	int message_id    = 0;
-	char *message       = NULL;
-	int message_len = 0;
-	HWND  hwnd          = NULL;
+	int message_id        = 0;
+	char *message         = NULL;
+	int message_len       = 0;
+	HWND  hwnd            = NULL;
 
 
 	if( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"sls",&console_title,&console_title_len,&message_id,&message,&message_len ) != SUCCESS) {
@@ -2720,83 +2641,12 @@ ZEND_FUNCTION( wing_windows_send_msg ){
 	return;
 }
 
+/**
+ *@获取windows版本
+ */
 ZEND_FUNCTION( wing_windows_version )
 {
-	
-	RTL_OSVERSIONINFOEXW versionInfo;
-    ULONG majorVersion;
-    ULONG minorVersion;
-
-	ULONG WindowsVersion;
-	RTL_OSVERSIONINFOEXW PhOsVersion;
-
-
-    versionInfo.dwOSVersionInfoSize = sizeof(RTL_OSVERSIONINFOEXW);
-	HMODULE	hNtDll = GetModuleHandleA("ntdll.dll");
-	if( NULL == hNtDll ) {
-		RETURN_LONG(  -1 );
-        return;
-	}
-
-
-	RTLGETVERSION RtlGetVersion = (RTLGETVERSION)GetProcAddress(hNtDll,"RtlGetVersion");
-	
-    if (!NT_SUCCESS(RtlGetVersion((PRTL_OSVERSIONINFOW)&versionInfo)))
-    {
-		FreeLibrary(hNtDll);
-		RETURN_LONG(  WING_WINDOWS_NEW );
-        return;
-    }
-
-    memcpy(&PhOsVersion, &versionInfo, sizeof(RTL_OSVERSIONINFOEXW));
-    majorVersion = versionInfo.dwMajorVersion;
-    minorVersion = versionInfo.dwMinorVersion;
-
-    if (majorVersion == 5 && minorVersion < 1 || majorVersion < 5)
-    {
-        WindowsVersion = WING_WINDOWS_ANCIENT;
-    }
-    /* Windows XP */
-    else if (majorVersion == 5 && minorVersion == 1)
-    {
-        WindowsVersion = WING_WINDOWS_XP;
-    }
-    /* Windows Server 2003 */
-    else if (majorVersion == 5 && minorVersion == 2)
-    {
-        WindowsVersion = WING_WINDOWS_SERVER_2003;
-    }
-    /* Windows Vista, Windows Server 2008 */
-    else if (majorVersion == 6 && minorVersion == 0)
-    {
-        WindowsVersion = WING_WINDOWS_VISTA;
-    }
-    /* Windows 7, Windows Server 2008 R2 */
-    else if (majorVersion == 6 && minorVersion == 1)
-    {
-        WindowsVersion = WING_WINDOWS_7;
-    }
-    /* Windows 8 */
-    else if (majorVersion == 6 && minorVersion == 2)
-    {
-        WindowsVersion = WING_WINDOWS_8;
-    }
-    /* Windows 8.1 */
-    else if (majorVersion == 6 && minorVersion == 3)
-    {
-        WindowsVersion = WING_WINDOWS_8_1;
-    }
-    /* Windows 10 */
-    else if (majorVersion == 10 && minorVersion == 0)
-    {
-        WindowsVersion = WING_WINDOWS_10;
-    }
-    else if (majorVersion == 10 && minorVersion > 0 || majorVersion > 10)
-    {
-        WindowsVersion = WING_WINDOWS_NEW;
-    }
-	FreeLibrary(hNtDll);
-	RETURN_LONG(  WING_WINDOWS_NEW );
+	RETURN_LONG(  WingWindowsVersion() );
     return;
 }
 
@@ -2808,8 +2658,9 @@ ZEND_FUNCTION( wing_windows_version )
  * @进程实际占用的内存大小
  */
 ZEND_FUNCTION( wing_get_memory_used ) {
+
 	int process_id = 0;
-	HANDLE handle = INVALID_HANDLE_VALUE;
+	HANDLE handle  = INVALID_HANDLE_VALUE;
 	
 	if( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"|l",&process_id) != SUCCESS) {
 		RETURN_LONG( 0 );
@@ -2820,11 +2671,11 @@ ZEND_FUNCTION( wing_get_memory_used ) {
 		handle = GetCurrentProcess();
 
 	else
-		handle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, process_id );
+		handle = OpenProcess( PROCESS_ALL_ACCESS, FALSE, process_id );
 
 	PROCESS_MEMORY_COUNTERS pmc;
-	GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
-	CloseHandle(handle);
+	GetProcessMemoryInfo( handle, &pmc, sizeof(pmc) );
+	CloseHandle( handle );
 	RETURN_LONG( pmc.WorkingSetSize );
 	return;
 }
@@ -3713,7 +3564,9 @@ PHP_MINIT_FUNCTION( wing )
 	zend_register_long_constant(   "WING_ERROR_PROCESS_NOT_EXISTS",  sizeof("WING_ERROR_PROCESS_NOT_EXISTS"),WING_ERROR_PROCESS_NOT_EXISTS, CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	zend_register_long_constant(   "WING_ERROR_SUCCESS",             sizeof("WING_ERROR_SUCCESS"),           WING_ERROR_SUCCESS,            CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);	
 	zend_register_long_constant(   "WING_ERROR_PROCESS_IS_RUNNING",  sizeof("WING_ERROR_PROCESS_IS_RUNNING"),WING_ERROR_PROCESS_IS_RUNNING, CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
-
+	zend_register_long_constant(   "WING_ERROR_NT",                  sizeof("WING_ERROR_NT"),                WING_ERROR_NT,                 CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	
+	
 
 	zend_register_long_constant(   "WING_SEARCH_BY_COMMAND_LINE",      sizeof("WING_SEARCH_BY_COMMAND_LINE"),      WING_SEARCH_BY_COMMAND_LINE,      CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	zend_register_long_constant(   "WING_SEARCH_BY_PARENT_PROCESS_ID", sizeof("WING_SEARCH_BY_PARENT_PROCESS_ID"), WING_SEARCH_BY_PARENT_PROCESS_ID, CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);

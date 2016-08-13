@@ -139,7 +139,7 @@
   <ItemGroup>
     <ClCompile Include="wing_iocp_message_queue.c" />
     <ClCompile Include="wing_iocp_socket_map.c" />
-    <ClCompile Include="wing_query_process.c" />
+    <ClCompile Include="wing_ntdll.c" />
     <ClCompile Include="wing_select_socket_map.c" />
     <ClCompile Include="wing_socket_api.c" />
     <ClCompile Include="wing_utf8.c" />
@@ -149,8 +149,8 @@
   <ItemGroup>
     <ClInclude Include="wing_iocp_message_queue.h" />
     <ClInclude Include="wing_iocp_socket_map.h" />
+    <ClInclude Include="ntdll.h" />
     <ClInclude Include="wing_ntdll.h" />
-    <ClInclude Include="wing_query_process.h" />
     <ClInclude Include="wing_socket_api.h" />
     <ClInclude Include="wing_utf8.h" />
     <ClInclude Include="wing_message_queue.h" />

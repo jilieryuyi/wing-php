@@ -98,15 +98,7 @@ ZEND_END_MODULE_GLOBALS(wing)
 #define WING_ERROR_WINDOW_NOT_FOUND       -6
 #define WING_ERROR_PROCESS_IS_RUNNING      1
 
-#define  WING_WINDOWS_ANCIENT           0
-#define  WING_WINDOWS_XP                51
-#define  WING_WINDOWS_SERVER_2003       52
-#define  WING_WINDOWS_VISTA             60
-#define  WING_WINDOWS_7                 61
-#define  WING_WINDOWS_8                 62
-#define  WING_WINDOWS_8_1               63
-#define  WING_WINDOWS_10                100
-#define  WING_WINDOWS_NEW               MAXLONG
+
 
 
 #define DATA_BUFSIZE 1024

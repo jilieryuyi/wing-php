@@ -18,11 +18,13 @@ $server->on( "onreceive" , function( $client , $recv_msg ) {
 
     if (0 === strpos($recv_msg, 'GET')) {
         echo "收到来自",$client->socket,"的消息：",($recv_msg),"\r\n\r\n";
+        //握手消息
         $client->send( WebSocket::handshake($recv_msg) );
         return;
     }
 
     echo "收到来自",$client->socket,"的消息：",WebSocket::decode($recv_msg),"\r\n\r\n";
+    //一般的消息响应
     $client->send(WebSocket::encode("1239999999999"));
 });
 
