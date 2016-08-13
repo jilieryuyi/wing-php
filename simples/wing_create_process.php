@@ -50,7 +50,7 @@ echo "引用计数",wing_query_object( $handle ),"\r\n";
 }*/
 
 //这种方法也很可靠 不过有些进程由于安全权限的原因 可能无法正常获取 造成失败 这个时候com是一个不错的选择
-$process_command = wing_find_process( "wing_create_process_runer.php" ) ;
+$process_command = wing_query_process( "wing_create_process_runer.php" ) ;
 var_dump( $process_command );
 if( is_array( $process_command) && count( $process_command) > 0 ) {
     echo $process_id,"正在运行\r\n";

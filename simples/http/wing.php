@@ -23,7 +23,7 @@ command_support("stop",function(){
     global $worker_file;
     $pid = file_get_contents($pid_file);
     wing_process_kill($pid);
-    $process_info = wing_find_process($worker_file);
+    $process_info = wing_query_process($worker_file);
     if( !$process_info )
     {
         echo "wing http service was stop \r\n";
@@ -39,7 +39,7 @@ command_support("start",function(){
     global $worker_file;
     $pid = wing_create_process_ex( $worker_file );
     file_put_contents( $pid_file, $pid );
-    $process_info = wing_find_process( $worker_file );
+    $process_info = wing_query_process( $worker_file );
     if( $process_info )
         echo "wing http service is running \r\n";
     else
@@ -52,7 +52,7 @@ command_support("restart",function(){
     global $worker_file;
     $pid = file_get_contents($pid_file);
     wing_process_kill($pid);
-    $process_info = wing_find_process($worker_file);
+    $process_info = wing_query_process($worker_file);
     if( !$process_info )
     {
         echo "wing http service was stop \r\n";
@@ -63,7 +63,7 @@ command_support("restart",function(){
 
     $pid = wing_create_process_ex( $worker_file );
     file_put_contents( $pid_file, $pid );
-    $process_info = wing_find_process( $worker_file );
+    $process_info = wing_query_process( $worker_file );
     if( $process_info )
         echo "wing http service is running \r\n";
     else

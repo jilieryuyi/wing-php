@@ -35,7 +35,7 @@ command_support("stop",function(){
     global $pid_file;
     $pid = file_get_contents($pid_file);
     wing_process_kill($pid);
-    $process_info = wing_find_process("wing_crontab.php");
+    $process_info = wing_query_process("wing_crontab.php");
     if( !$process_info )
     {
         echo "crontab was stop \r\n";
@@ -50,7 +50,7 @@ command_support("start",function(){
     global $pid_file;
     $pid = wing_create_process_ex(__DIR__."/wing_crontab.php");
     file_put_contents( $pid_file, $pid );
-    $process_info = wing_find_process("wing_crontab.php");
+    $process_info = wing_query_process("wing_crontab.php");
     if( $process_info )
         echo "crontab is running \r\n";
     else
