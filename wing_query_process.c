@@ -166,7 +166,7 @@ unsigned long WingQueryProcess( PROCESSINFO *&all_process , int max_count )
 					free(filepath);
 				}
 			}
-
+			
 			process_item->process_id        = pSystemProc->ProcessId;
 			process_item->parent_process_id = pSystemProc->InheritedFromProcessId;
 			process_item->working_set_size  = pSystemProc->VmCounters.WorkingSetSize;

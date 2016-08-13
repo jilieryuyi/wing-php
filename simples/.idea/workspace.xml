@@ -62,18 +62,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="wing_find_process.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wing_find_process.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="128">
-              <caret line="15" column="70" selection-start-line="15" selection-start-column="70" selection-end-line="15" selection-end-column="70" />
-              <folding>
-                <element signature="e#6#505#0#PHP" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="wing_windows_version.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wing_windows_version.php">
           <provider selected="true" editor-type-id="text-editor">
@@ -86,13 +74,23 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="wing_query_process.php" pinned="false" current-in-tab="true">
+      <file leaf-file-name="wing_query_process.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wing_query_process.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="448">
-              <caret line="26" column="0" selection-start-line="26" selection-start-column="0" selection-end-line="26" selection-end-column="0" />
+            <state relative-caret-position="100">
+              <caret line="5" column="11" selection-start-line="5" selection-start-column="11" selection-end-line="5" selection-end-column="11" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="wing_get_process_memory_used.php" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/wing_get_process_memory_used.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="140">
+              <caret line="7" column="39" selection-start-line="7" selection-start-column="39" selection-end-line="7" selection-end-column="39" />
               <folding>
-                <element signature="e#6#561#0#PHP" expanded="true" />
+                <element signature="e#6#84#0#PHP" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -172,6 +170,7 @@
         <option value="$PROJECT_DIR$/wing_windows_version.php" />
         <option value="$PROJECT_DIR$/wing_find_process.php" />
         <option value="$PROJECT_DIR$/wing_query_process.php" />
+        <option value="$PROJECT_DIR$/wing_get_process_memory_used.php" />
       </list>
     </option>
   </component>
@@ -320,12 +319,12 @@
       <workItem from="1470989247649" duration="1772000" />
       <workItem from="1470998886064" duration="482000" />
       <workItem from="1471011172631" duration="1737000" />
-      <workItem from="1471035010137" duration="3891000" />
+      <workItem from="1471035010137" duration="4818000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="122433000" />
+    <option name="totallyTimeSpent" value="123360000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1604" height="876" extended-state="0" />
@@ -357,13 +356,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/crontab/wing_crontab_test7.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/crontab/wing_crontab_test8.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -564,18 +556,24 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="128">
           <caret line="15" column="70" selection-start-line="15" selection-start-column="70" selection-end-line="15" selection-end-column="70" />
-          <folding>
-            <element signature="e#6#505#0#PHP" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/wing_query_process.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="448">
-          <caret line="26" column="0" selection-start-line="26" selection-start-column="0" selection-end-line="26" selection-end-column="0" />
+        <state relative-caret-position="100">
+          <caret line="5" column="11" selection-start-line="5" selection-start-column="11" selection-end-line="5" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wing_get_process_memory_used.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="140">
+          <caret line="7" column="39" selection-start-line="7" selection-start-column="39" selection-end-line="7" selection-end-column="39" />
           <folding>
-            <element signature="e#6#561#0#PHP" expanded="true" />
+            <element signature="e#6#84#0#PHP" expanded="true" />
           </folding>
         </state>
       </provider>

@@ -12,7 +12,7 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Author:                                                              |
+  | Author:yuyi[email:297341015@qq.com]                                  |
   +----------------------------------------------------------------------+
 */
 
@@ -74,8 +74,6 @@ char *PHP_PATH = NULL;
 #include "wing_socket_api.h"
 #include "wing_query_process.h"
 
-//#include "wing_ntdll.h"
-
 extern void iocp_add_to_map( unsigned long socket,unsigned long ovl );
 extern unsigned long iocp_get_form_map( unsigned long socket );
 extern void iocp_remove_form_map( unsigned long socket );
@@ -86,51 +84,6 @@ typedef  NTSTATUS (__stdcall *RTLGETVERSION)(
 );
 
 
-//自定义消息
-#define WM_ONCONNECT		WM_USER + 60
-#define WM_ACCEPT_ERROR		WM_USER + 61
-#define WM_ONERROR			WM_USER + 62
-#define WM_ONCLOSE			WM_USER + 63
-#define WM_ONRECV			WM_USER + 64
-#define WM_ONQUIT           WM_USER + 65
-#define WM_ONCLOSE_EX		WM_USER + 66
-#define WM_ONSEND			WM_USER + 67
-#define WM_THREAD_RUN		WM_USER + 71
-#define WM_TIMEOUT          WM_USER + 72
-#define WM_ADD_CLIENT       WM_USER + 73
-#define WM_ONCLOSE2			WM_USER + 75
-#define WM_ONBEAT			WM_USER + 76
-#define WM_POST_RECV_ERR    WM_USER + 77
-
-
-//错误码
-#define WING_ERROR_SUCCESS				   1
-#define WING_ERROR_CALLBACK_SUCCESS		   0
-#define WING_ERROR_PARAMETER_ERROR	      -1
-#define WING_ERROR_FAILED			      -2
-#define WING_NOTICE_IGNORE			      -3
-#define WING_ERROR_CALLBACK_FAILED        -4
-#define WING_ERROR_PROCESS_NOT_EXISTS     -5
-#define WING_ERROR_WINDOW_NOT_FOUND       -6
-#define WING_ERROR_PROCESS_IS_RUNNING      1
-
-#define  WING_WINDOWS_ANCIENT           0
-#define  WING_WINDOWS_XP                51
-#define  WING_WINDOWS_SERVER_2003       52
-#define  WING_WINDOWS_VISTA             60
-#define  WING_WINDOWS_7                 61
-#define  WING_WINDOWS_8                 62
-#define  WING_WINDOWS_8_1               63
-#define  WING_WINDOWS_10                100
-#define  WING_WINDOWS_NEW               MAXLONG
-
-
-#define DATA_BUFSIZE 1024
-
-//完成端口操作码
-#define OP_ACCEPT 1
-#define OP_RECV   2
-#define OP_SEND   3
 
 
 //iocp消息结构体
@@ -171,8 +124,7 @@ struct SELECT_ITEM{
  	int         recv_bytes;         //收到的消息长度
 };
 
-#define CLIENT_IOCP   1
-#define CLIENT_SELECT 2
+
 
 //base function-----------------------------
 
@@ -2162,15 +2114,7 @@ ZEND_FUNCTION( wing_find_process ) {
 
 
 
-#define WING_SEARCH_BY_PROCESS_EXE_FILE  1
-#define WING_SEARCH_BY_PROCESS_NAME      1
 
-#define WING_SEARCH_BY_PROCESS_ID        2
-#define WING_SEARCH_BY_PARENT_PROCESS_ID 3
-#define WING_SEARCH_BY_COMMAND_LINE      4
-
-#define WING_SEARCH_BY_PROCESS_EXE_PATH  5
-#define WING_SEARCH_BY_PROCESS_FILE_PATH  5
 
 /**
  *@此api获取进程的启动参数
@@ -2738,7 +2682,7 @@ ZEND_FUNCTION( wing_query_process ){
  *@通过WM_COPYDATA发送进程间消息 只能发给窗口程序
  *@注：只能给窗口程序发消息
  */
-ZEND_FUNCTION( wing_send_msg ){
+ZEND_FUNCTION( wing_windows_send_msg ){
 	
 	char *console_title = NULL;
 	int console_title_len = 0;
@@ -2776,26 +2720,8 @@ ZEND_FUNCTION( wing_send_msg ){
 	return;
 }
 
-
-/**
- *@简单的消息弹窗
- */
-ZEND_FUNCTION(wing_message_box){
-
-	char *content = NULL;
-	int   c_len   = 0;
-	int   t_len   = 0; 
-	char *title   = NULL;
-
-	if( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"ss", &content, &c_len, &title, &t_len) != SUCCESS ) {
-		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
-		return;
-	}
-	MessageBox(0,content,title,0);
-	RETURN_NULL();
-}
-
-ZEND_FUNCTION( wing_windows_version ){
+ZEND_FUNCTION( wing_windows_version )
+{
 	
 	RTL_OSVERSIONINFOEXW versionInfo;
     ULONG majorVersion;
@@ -2881,9 +2807,21 @@ ZEND_FUNCTION( wing_windows_version ){
  * @获取使用的内存信息 
  * @进程实际占用的内存大小
  */
-ZEND_FUNCTION(wing_get_memory_used){
+ZEND_FUNCTION( wing_get_memory_used ) {
+	int process_id = 0;
+	HANDLE handle = INVALID_HANDLE_VALUE;
+	
+	if( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"|l",&process_id) != SUCCESS) {
+		RETURN_LONG( 0 );
+		return;
+	}
 
-	HANDLE handle = GetCurrentProcess();
+	if( process_id <= 0)
+		handle = GetCurrentProcess();
+
+	else
+		handle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, process_id );
+
 	PROCESS_MEMORY_COUNTERS pmc;
 	GetProcessMemoryInfo(handle, &pmc, sizeof(pmc));
 	CloseHandle(handle);
@@ -3226,7 +3164,7 @@ unsigned int __stdcall  wing_close_socket_thread( PVOID params ) {
 				}
 				close_socket_arr[close_socket_count-1] = 0;          //最后一条清零
 				close_socket_count--;                                //元素计数器减少
-				delete close_item;                                  //删除 清理内存
+				delete close_item;                                   //删除 清理内存
 			}
 		}
 				
@@ -3657,26 +3595,6 @@ ZEND_METHOD( wing_select_server, start )
 	return;
 }
 
-
-ZEND_FUNCTION( wing_test ){
-	zval *callback;
-	zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC, "z",&callback );
-
-	while( 1 ) {
-
-		zval *retval = NULL;
-		MAKE_STD_ZVAL(retval);
-
-		if( SUCCESS != call_user_function( EG(function_table), NULL, callback, retval, 0, NULL TSRMLS_CC ) ) {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "call user func fail");
-		}
-
-		if( retval )
-		zval_ptr_dtor(&retval);
-		Sleep(1000);
-	}
-}
-
 static zend_function_entry wing_select_server_methods[]={
 	ZEND_ME( wing_select_server,__construct,NULL,ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
 	ZEND_ME( wing_select_server,on,NULL,ZEND_ACC_PUBLIC)
@@ -3909,13 +3827,18 @@ const zend_function_entry wing_functions[] = {
 	PHP_FE(wing_get_env,NULL)
 	PHP_FE(wing_get_command_path,NULL)
 	PHP_FE(wing_set_env,NULL)
-	PHP_FE(wing_send_msg,NULL)
+	PHP_FE( wing_windows_send_msg, NULL )
 
 	PHP_FE(wing_get_last_error,NULL)
 	PHP_FE(wing_wsa_get_last_error,NULL)
-	PHP_FE(wing_message_box,NULL)
-	PHP_FE(wing_get_memory_used,NULL)
 	PHP_FE(wing_get_error_msg,NULL)
+
+
+	PHP_FE( wing_get_memory_used , NULL )
+	ZEND_FALIAS( wing_get_process_memory_used , wing_get_memory_used , NULL )
+
+
+	
 	PHP_FE(wing_windows_version,NULL)
 	PHP_FE(wing_query_process,NULL)
 	PHP_FE_END	/* Must be the last line in wing_functions[] */
