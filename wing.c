@@ -1715,8 +1715,6 @@ ZEND_FUNCTION( wing_get_command_path ){
 
 	GetEnvironmentVariableA("PATH",env_var,size);
 
-	//zend_printf("%s",env_var);
-
 	start		= env_var;
 	var_begin	= env_var;
 
@@ -1759,7 +1757,7 @@ ZEND_FUNCTION( wing_get_command_path ){
 }
 
 
-ZEND_FUNCTION( wing_get_command_line)
+ZEND_FUNCTION( wing_get_command_line )
 {
 	RETURN_STRING( GetCommandLineA(),1 );
 }
@@ -1862,16 +1860,16 @@ void wing_query_process_item( zval *&return_value, PROCESSINFO process )
 		MAKE_STD_ZVAL( item );
 		array_init( item );
 
-		add_assoc_string(    item,"process_name",	   process.process_name, 1     );
+		add_assoc_string(    item, "process_name",   process.process_name,  1 );
 		delete[] process.process_name;
 				
-		add_assoc_string(    item,"command_line",      process.command_line, 1 );
+		add_assoc_string(    item, "command_line",   process.command_line,  1 );
 		delete[] process.command_line;
 			
-		add_assoc_string(    item,"file_name",      process.file_name, 1 );
+		add_assoc_string(    item, "file_name",      process.file_name,     1 );
 		delete[] process.file_name;
 	
-		add_assoc_string(    item,"file_path",      process.file_path, 1 );
+		add_assoc_string(    item, "file_path",      process.file_path,     1 );
 		delete[] process.file_path;
 
 		add_assoc_long(      item,"process_id",        process.process_id          );
