@@ -13,7 +13,7 @@
  * @#define WING_SEARCH_BY_COMMAND_LINE      4
  * @#define WING_SEARCH_BY_PROCESS_EXE_PATH  5
  */
-
+//======================不建议在使用此函数，建议使用wing_query_process，更丰富的返回值和更高的性能
 
 
 //var_dump( wing_find_process("cloudmusic.exe\"",WING_SEARCH_BY_COMMAND_LINE ));

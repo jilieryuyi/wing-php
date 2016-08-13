@@ -150,6 +150,7 @@
     <ClInclude Include="wing_iocp_message_queue.h" />
     <ClInclude Include="wing_iocp_socket_map.h" />
     <ClInclude Include="wing_ntdll.h" />
+    <ClInclude Include="wing_query_process.h" />
     <ClInclude Include="wing_socket_api.h" />
     <ClInclude Include="wing_utf8.h" />
     <ClInclude Include="wing_message_queue.h" />

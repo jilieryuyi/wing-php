@@ -72,6 +72,8 @@ char *PHP_PATH = NULL;
 #include "wing_iocp_message_queue.h"
 #include "wing_utf8.h"
 #include "wing_socket_api.h"
+#include "wing_query_process.h"
+
 //#include "wing_ntdll.h"
 
 extern void iocp_add_to_map( unsigned long socket,unsigned long ovl );
@@ -2161,10 +2163,14 @@ ZEND_FUNCTION( wing_find_process ) {
 
 
 #define WING_SEARCH_BY_PROCESS_EXE_FILE  1
+#define WING_SEARCH_BY_PROCESS_NAME      1
+
 #define WING_SEARCH_BY_PROCESS_ID        2
 #define WING_SEARCH_BY_PARENT_PROCESS_ID 3
 #define WING_SEARCH_BY_COMMAND_LINE      4
+
 #define WING_SEARCH_BY_PROCESS_EXE_PATH  5
+#define WING_SEARCH_BY_PROCESS_FILE_PATH  5
 
 /**
  *@此api获取进程的启动参数
@@ -2550,23 +2556,84 @@ ZEND_FUNCTION( wing_override_function )
     }
 }
 
-struct PROCESSINFO {
-	char *process_name;
-	char *command_line;
-	char *file_name;
-	char *file_path;
-	int process_id;
-	int parent_process_id;
-	unsigned long working_set_size;
-	unsigned long base_priority;//基本的优先级
-	unsigned long thread_count ;
-	unsigned long handle_count ;
-	unsigned long cpu_time;
-};
-extern DWORD WingQueryProcess( PROCESSINFO *&all_process , int max_count);
+
+void wing_query_process_item(zval *&return_value, PROCESSINFO process){
+
+		zval *item;
+			MAKE_STD_ZVAL( item );
+			array_init( item );
+
+			if( process.process_name != NULL)
+			{
+				add_assoc_string(    item,"process_name",	   process.process_name, 1     );
+				delete[] process.process_name;
+			}
+			else
+			{
+				add_assoc_string(    item,"process_name",      "", 1     );
+			}
+
+		
+			if( NULL != process.command_line)
+			{	
+				add_assoc_string(    item,"command_line",      process.command_line, 1 );
+				delete[] process.command_line;
+			}
+			else
+				add_assoc_string(    item,"command_line",      "", 1     );
+
+
+
+			if( NULL != process.file_name)
+			{	
+				add_assoc_string(    item,"file_name",      process.file_name, 1 );
+				delete[] process.file_name;
+			}
+			else
+				add_assoc_string(    item,"file_name",      "", 1     );
+
+
+			if( NULL != process.file_path)
+			{	
+				add_assoc_string(    item,"file_path",      process.file_path, 1 );
+				delete[] process.file_path;
+			}
+			else
+				add_assoc_string(    item,"file_path",      "", 1     );
+
+
+
+			add_assoc_long(      item,"process_id",        process.process_id          );
+			add_assoc_long(      item,"parent_process_id", process.parent_process_id   );
+			add_assoc_long(      item,"working_set_size",  process.working_set_size    );
+			add_assoc_long(      item,"base_priority",     process.base_priority       );
+			add_assoc_long(      item,"thread_count",      process.thread_count        );
+			add_assoc_long(      item,"handle_count",      process.handle_count        );
+			add_assoc_long(      item,"cpu_time",          process.cpu_time            );
+
+			add_next_index_zval( return_value, item );
+
+}
+
 ZEND_FUNCTION( wing_query_process ){
 
+	zval *keyword     = NULL;
+	int search_by     = 0;
+
+	MAKE_STD_ZVAL( keyword );
+	ZVAL_STRING( keyword ,"",1 );
+
+	if( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|zl", &keyword, &search_by ) != SUCCESS ) 
+	{
+		if( keyword ) 
+			zval_ptr_dtor( &keyword );
+
+		RETURN_EMPTY_STRING();
+		return;
+	}
+
 	PROCESSINFO *all_process = NULL;
+	
 	//第一次传null返回实际的进程数量
 	int count   = WingQueryProcess( all_process , 0 );
 	all_process = new PROCESSINFO[count];
@@ -2574,61 +2641,90 @@ ZEND_FUNCTION( wing_query_process ){
 
 	array_init( return_value );
 
+
 	for( int i = 0; i < count ; i++ ) 
 	{
-		zval *item;
-		MAKE_STD_ZVAL( item );
-		array_init( item );
-
-		if( all_process[i].process_name != NULL)
-		{
-			add_assoc_string(    item,"process_name",	   all_process[i].process_name, 1     );
-			delete[] all_process[i].process_name;
+		if( Z_TYPE_P(keyword) == IS_NULL || Z_STRLEN_P(keyword) == 0  ) {
+			wing_query_process_item( return_value, all_process[i] );
 		}
 		else
 		{
-			add_assoc_string(    item,"process_name",      "", 1     );
-		}
-
 		
-		if( NULL != all_process[i].command_line)
-		{	
-			add_assoc_string(    item,"command_line",      all_process[i].command_line, 1 );
-			delete[] all_process[i].command_line;
+			/////////////////////////////////////
+			//如果是数字
+			if( Z_TYPE_P( keyword ) == IS_LONG || is_numeric_string(Z_STRVAL_P(keyword),Z_STRLEN_P(keyword),NULL,NULL,0) ) 
+			{
+				int _keyword = 0;
+			
+				if( Z_TYPE_P( keyword ) == IS_LONG )
+					_keyword = Z_LVAL_P( keyword );
+				else if( is_numeric_string(Z_STRVAL_P(keyword),Z_STRLEN_P(keyword),NULL,NULL,0) )
+					_keyword = zend_atoi( Z_STRVAL_P(keyword) , Z_STRLEN_P(keyword) );
+			
+				if( search_by <= 0 ){
+
+					if( _keyword ==  all_process[i].process_id ||  _keyword == all_process[i].parent_process_id ){
+						wing_query_process_item( return_value, all_process[i] );
+					}
+
+				}else if( search_by == WING_SEARCH_BY_PROCESS_ID ) {
+
+					if( _keyword ==  all_process[i].process_id ){
+						wing_query_process_item( return_value, all_process[i] );
+					}
+
+				}
+				else if( search_by == WING_SEARCH_BY_PARENT_PROCESS_ID ) {
+				
+					if( _keyword ==  all_process[i].parent_process_id ){
+						wing_query_process_item( return_value, all_process[i] );
+					}
+				
+				}
+			}
+
+
+			//如果是字符串
+			if( Z_TYPE_P(keyword) == IS_STRING && Z_STRLEN_P(keyword) > 0  ) 
+			{
+				//不指定查询字段
+				if( search_by <= 0 ){
+
+					if( ( all_process[i].process_name != NULL && strlen(all_process[i].process_name) > 0 && strstr( all_process[i].process_name , (const char*)Z_STRVAL_P(keyword) ) != NULL ) ||
+						( all_process[i].command_line != NULL && strlen(all_process[i].command_line) > 0 && strstr( all_process[i].command_line , (const char*)Z_STRVAL_P(keyword) ) != NULL ) ||
+						( all_process[i].file_path    != NULL && strlen(all_process[i].file_path)    > 0 && strstr( all_process[i].file_path ,    (const char*)Z_STRVAL_P(keyword) ) != NULL )
+					)
+					{
+						wing_query_process_item( return_value, all_process[i] );
+					}
+
+				}else if( search_by == WING_SEARCH_BY_PROCESS_NAME ){
+			
+					if( all_process[i].process_name != NULL && strlen(all_process[i].process_name) > 0 && strstr( all_process[i].process_name , (const char*)Z_STRVAL_P(keyword) ) != NULL )
+					{
+						wing_query_process_item( return_value, all_process[i] );
+					}
+			
+				}else if( search_by == WING_SEARCH_BY_COMMAND_LINE ) {
+			
+					if( all_process[i].command_line != NULL && strlen(all_process[i].command_line) > 0 && strstr( all_process[i].command_line , (const char*)Z_STRVAL_P(keyword) ) != NULL )
+					{
+						wing_query_process_item( return_value, all_process[i] );
+					}
+			
+				}else if( search_by == WING_SEARCH_BY_PROCESS_FILE_PATH ) {
+				
+					if( all_process[i].file_path != NULL && strlen(all_process[i].file_path)    > 0 && strstr( all_process[i].file_path , (const char*)Z_STRVAL_P(keyword) )    != NULL )
+					{
+						wing_query_process_item( return_value, all_process[i] );
+					}
+
+				}
+			}
+
+			////////////////////////////////////
+		
 		}
-		else
-			add_assoc_string(    item,"command_line",      "", 1     );
-
-
-
-		if( NULL != all_process[i].file_name)
-		{	
-			add_assoc_string(    item,"file_name",      all_process[i].file_name, 1 );
-			delete[] all_process[i].file_name;
-		}
-		else
-			add_assoc_string(    item,"file_name",      "", 1     );
-
-
-		if( NULL != all_process[i].file_path)
-		{	
-			add_assoc_string(    item,"file_path",      all_process[i].file_path, 1 );
-			delete[] all_process[i].file_path;
-		}
-		else
-			add_assoc_string(    item,"file_path",      "", 1     );
-
-
-
-		add_assoc_long(      item,"process_id",        all_process[i].process_id          );
-		add_assoc_long(      item,"parent_process_id", all_process[i].parent_process_id   );
-		add_assoc_long(      item,"working_set_size",  all_process[i].working_set_size    );
-		add_assoc_long(      item,"base_priority",     all_process[i].base_priority       );
-		add_assoc_long(      item,"thread_count",      all_process[i].thread_count        );
-		add_assoc_long(      item,"handle_count",      all_process[i].handle_count        );
-		add_assoc_long(      item,"handle_count",      all_process[i].cpu_time            );
-
-		add_next_index_zval( return_value, item );
 	}
 	delete[] all_process;
 
@@ -3706,6 +3802,8 @@ PHP_MINIT_FUNCTION( wing )
 	zend_register_long_constant(   "WING_SEARCH_BY_PROCESS_EXE_FILE",  sizeof("WING_SEARCH_BY_PROCESS_EXE_FILE"),  WING_SEARCH_BY_PROCESS_EXE_FILE,  CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	zend_register_long_constant(   "WING_SEARCH_BY_PROCESS_ID",        sizeof("WING_SEARCH_BY_PROCESS_ID"),        WING_SEARCH_BY_PROCESS_ID,        CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	zend_register_long_constant(   "WING_SEARCH_BY_PROCESS_EXE_PATH",  sizeof("WING_SEARCH_BY_PROCESS_EXE_PATH"),  WING_SEARCH_BY_PROCESS_EXE_PATH,  CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant(   "WING_SEARCH_BY_PROCESS_NAME",      sizeof("WING_SEARCH_BY_PROCESS_NAME"),      WING_SEARCH_BY_PROCESS_NAME,      CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant(   "WING_SEARCH_BY_PROCESS_FILE_PATH", sizeof("WING_SEARCH_BY_PROCESS_FILE_PATH"), WING_SEARCH_BY_PROCESS_FILE_PATH, CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 
 
 
