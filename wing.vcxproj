@@ -134,18 +134,24 @@
       <ImportLibrary>.\Release_TS\php_wing.lib</ImportLibrary>
       <AdditionalLibraryDirectories>..\..\Release_TS;..\..\Release_TS_Inline;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>odbc32.lib;odbccp32.lib;php5ts.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/FORCE:MULTIPLE %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="wing_base.c" />
     <ClCompile Include="wing_iocp_message_queue.c" />
+    <ClCompile Include="wing_iocp_server.c" />
     <ClCompile Include="wing_iocp_socket_map.c" />
     <ClCompile Include="wing_ntdll.c" />
+    <ClCompile Include="wing_process.c" />
+    <ClCompile Include="wing_sclient.c" />
+    <ClCompile Include="wing_select_server.c" />
     <ClCompile Include="wing_select_socket_map.c" />
     <ClCompile Include="wing_socket_api.c" />
     <ClCompile Include="wing_utf8.c" />
     <ClCompile Include="wing_message_queue.c" />
     <ClCompile Include="wing.c" />
+    <ClCompile Include="wing_windows.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="wing_base.h" />

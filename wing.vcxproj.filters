@@ -42,6 +42,21 @@
     <ClCompile Include="wing_base.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="wing_select_server.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wing_sclient.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wing_iocp_server.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wing_process.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wing_windows.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="php_wing.h">
