@@ -1504,7 +1504,7 @@ ZEND_FUNCTION( wing_process_kill )
  *@获取当前进程id
  */
 ZEND_FUNCTION( wing_get_current_process_id ){
-	ZVAL_LONG( return_value,GetCurrentProcessId() );
+	ZVAL_LONG( return_value, GetCurrentProcessId() );
 }
 
 
@@ -1591,37 +1591,6 @@ ZEND_FUNCTION( wing_close_mutex )
 	RETURN_LONG( status_code );
 	return;
 }
-
-
-/**
- *@检测进程是否存活--实际意义不大，因为进程id重用的特性 进程退出后 同样的进程id可能立刻被重用
- */
-/*ZEND_FUNCTION( wing_process_isalive )
-{
-	long process_id = 0;
-	HANDLE hProcess = NULL;
-	
-	if( zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC,"l",&process_id) != SUCCESS ) {
-		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
-		return;
-	}
-
-	if( process_id <= 0 ) {
-		RETURN_LONG( WING_ERROR_PARAMETER_ERROR );
-		return;
-	}
-
-    hProcess = OpenProcess( PROCESS_TERMINATE , FALSE , process_id );
-    
-	if( hProcess == NULL ){
-		RETURN_LONG(WING_ERROR_PROCESS_NOT_EXISTS);
-        return;
-	}
-
-	CloseHandle( hProcess );
-	RETURN_LONG(WING_ERROR_PROCESS_IS_RUNNING);
-	return;
-}*/
 
 
 /**
@@ -1884,23 +1853,27 @@ ZEND_FUNCTION( wing_query_process ){
 			
 				if( Z_TYPE_P( keyword ) == IS_LONG )
 					_keyword = Z_LVAL_P( keyword );
+
 				else if( is_numeric_string(Z_STRVAL_P(keyword),Z_STRLEN_P(keyword),NULL,NULL,0) )
 					_keyword = zend_atoi( Z_STRVAL_P(keyword) , Z_STRLEN_P(keyword) );
 			
-				if( search_by <= 0 ){
-
+				if( search_by <= 0 )
+				{
 					if( _keyword ==  all_process[i].process_id ||  _keyword == all_process[i].parent_process_id ){
 						wing_query_process_item( return_value, all_process[i] );
 					}
 
-				}else if( search_by == WING_SEARCH_BY_PROCESS_ID ) {
+				}
+				else if( search_by == WING_SEARCH_BY_PROCESS_ID ) 
+				{
 
 					if( _keyword ==  all_process[i].process_id ){
 						wing_query_process_item( return_value, all_process[i] );
 					}
 
 				}
-				else if( search_by == WING_SEARCH_BY_PARENT_PROCESS_ID ) {
+				else if( search_by == WING_SEARCH_BY_PARENT_PROCESS_ID ) 
+				{
 				
 					if( _keyword ==  all_process[i].parent_process_id ){
 						wing_query_process_item( return_value, all_process[i] );
@@ -1924,21 +1897,27 @@ ZEND_FUNCTION( wing_query_process ){
 						wing_query_process_item( return_value, all_process[i] );
 					}
 
-				}else if( search_by == WING_SEARCH_BY_PROCESS_NAME ){
+				}
+				else if( search_by == WING_SEARCH_BY_PROCESS_NAME )
+				{
 			
 					if( all_process[i].process_name != NULL && strlen(all_process[i].process_name) > 0 && strstr( all_process[i].process_name , (const char*)Z_STRVAL_P(keyword) ) != NULL )
 					{
 						wing_query_process_item( return_value, all_process[i] );
 					}
 			
-				}else if( search_by == WING_SEARCH_BY_COMMAND_LINE ) {
+				}
+				else if( search_by == WING_SEARCH_BY_COMMAND_LINE ) 
+				{
 			
 					if( all_process[i].command_line != NULL && strlen(all_process[i].command_line) > 0 && strstr( all_process[i].command_line , (const char*)Z_STRVAL_P(keyword) ) != NULL )
 					{
 						wing_query_process_item( return_value, all_process[i] );
 					}
 			
-				}else if( search_by == WING_SEARCH_BY_PROCESS_FILE_PATH ) {
+				}
+				else if( search_by == WING_SEARCH_BY_PROCESS_FILE_PATH ) 
+				{
 				
 					if( all_process[i].file_path != NULL && strlen(all_process[i].file_path)    > 0 && strstr( all_process[i].file_path , (const char*)Z_STRVAL_P(keyword) )    != NULL )
 					{
@@ -2939,15 +2918,15 @@ PHP_MINIT_FUNCTION( wing )
 
 	
 
-zend_register_long_constant(   "WING_WINDOWS_ANCIENT",      sizeof("WING_WINDOWS_ANCIENT"),      WING_WINDOWS_ANCIENT,      CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
-zend_register_long_constant(   "WING_WINDOWS_XP",           sizeof("WING_WINDOWS_XP"),           WING_WINDOWS_XP,           CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
-zend_register_long_constant(   "WING_WINDOWS_SERVER_2003",  sizeof("WING_WINDOWS_SERVER_2003"),  WING_WINDOWS_SERVER_2003,  CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
-zend_register_long_constant(   "WING_WINDOWS_VISTA",        sizeof("WING_WINDOWS_VISTA"),        WING_WINDOWS_VISTA,        CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
-zend_register_long_constant(   "WING_WINDOWS_7",            sizeof("WING_WINDOWS_7"),            WING_WINDOWS_7,            CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
-zend_register_long_constant(   "WING_WINDOWS_8",            sizeof("WING_WINDOWS_8"),            WING_WINDOWS_8,            CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
-zend_register_long_constant(   "WING_WINDOWS_8_1",          sizeof("WING_WINDOWS_8_1"),          WING_WINDOWS_8_1,          CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
-zend_register_long_constant(   "WING_WINDOWS_10",           sizeof("WING_WINDOWS_10"),           WING_WINDOWS_10,           CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
-zend_register_long_constant(   "WING_WINDOWS_NEW",          sizeof("WING_WINDOWS_NEW"),          WING_WINDOWS_NEW,          CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant(   "WING_WINDOWS_ANCIENT",      sizeof("WING_WINDOWS_ANCIENT"),      WING_WINDOWS_ANCIENT,      CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant(   "WING_WINDOWS_XP",           sizeof("WING_WINDOWS_XP"),           WING_WINDOWS_XP,           CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant(   "WING_WINDOWS_SERVER_2003",  sizeof("WING_WINDOWS_SERVER_2003"),  WING_WINDOWS_SERVER_2003,  CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant(   "WING_WINDOWS_VISTA",        sizeof("WING_WINDOWS_VISTA"),        WING_WINDOWS_VISTA,        CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant(   "WING_WINDOWS_7",            sizeof("WING_WINDOWS_7"),            WING_WINDOWS_7,            CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant(   "WING_WINDOWS_8",            sizeof("WING_WINDOWS_8"),            WING_WINDOWS_8,            CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant(   "WING_WINDOWS_8_1",          sizeof("WING_WINDOWS_8_1"),          WING_WINDOWS_8_1,          CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant(   "WING_WINDOWS_10",           sizeof("WING_WINDOWS_10"),           WING_WINDOWS_10,           CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
+	zend_register_long_constant(   "WING_WINDOWS_NEW",          sizeof("WING_WINDOWS_NEW"),          WING_WINDOWS_NEW,          CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 
 
 
