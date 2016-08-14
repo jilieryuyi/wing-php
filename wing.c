@@ -22,51 +22,6 @@
 
 #include "php_wing.h"
 
-/* If you declare any globals in php_wing.h uncomment this:
-ZEND_DECLARE_MODULE_GLOBALS(wing)
-*/
-
-/* True global resources - no need for thread safety here */
-static int le_wing;
-char *PHP_PATH = NULL;
-
-
-
-#include <Winsock2.h>
-#include "Windows.h"
-#include "Winbase.h"
-
-#include "tlhelp32.h"
-#include "Psapi.h"
-#include "Winternl.h"
-#include "Processthreadsapi.h"
-#include "Shlwapi.h"
-#include "Strsafe.h"
-#include "Mmsystem.h"
-#include "mstcpip.h"
-#include "process.h"
-#include <mswsock.h>
-
-#include <ws2tcpip.h>//ipv4 ipv6
-//int getaddrinfo( const char *hostname, const char *service, const struct addrinfo *hints, struct addrinfo **result );
-//https://msdn.microsoft.com/en-us/library/windows/desktop/ms742203(v=vs.85).aspx
-
-
-#include "Winternl.h" //NtQueryObject Winternl.h
-
-
-#pragma comment(lib,"Kernel32.lib")
-#pragma comment(lib,"Shlwapi.lib")
-#pragma comment(lib,"Psapi.lib")
-#pragma comment(lib,"Winmm.lib")
-#pragma comment(lib,"Ws2_32.lib")
-
-#include "wing_message_queue.h"
-#include "wing_iocp_message_queue.h"
-#include "wing_utf8.h"
-#include "wing_socket_api.h"
-#include "wing_ntdll.h"
-#include "wing_base.h"
 
 
 

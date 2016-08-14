@@ -1,13 +1,5 @@
 #include "php_wing.h"
-#include "wing_base.h"
-#include "stdio.h"
-#include "wing_utf8.h"
-#include "wing_ntdll.h"
-#include "Psapi.h"
-#include "Shlwapi.h"
-#pragma comment(lib,"Shlwapi.lib")
-#pragma comment(lib,"Psapi.lib")
-extern char* PHP_PATH;
+
 /**
  *@wait process进程等待
  *@param process id 进程id

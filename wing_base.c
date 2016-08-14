@@ -1,9 +1,4 @@
 #include "php_wing.h"
-#include "wing_base.h"
-#include "stdio.h"
-#include "wing_utf8.h"
-#include "Shlwapi.h"
-#pragma comment(lib,"Shlwapi.lib")
 
 
 /**

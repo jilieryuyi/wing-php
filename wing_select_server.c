@@ -1,40 +1,6 @@
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 
 #include "php_wing.h"
 
-#include <Winsock2.h>
-#include "Windows.h"
-#include "Winbase.h"
-
-#include "tlhelp32.h"
-#include "Psapi.h"
-#include "Winternl.h"
-#include "Processthreadsapi.h"
-#include "Shlwapi.h"
-#include "Strsafe.h"
-#include "Mmsystem.h"
-#include "mstcpip.h"
-#include "process.h"
-#include <mswsock.h>
-
-#include <ws2tcpip.h>
-
-
-#pragma comment(lib,"Kernel32.lib")
-#pragma comment(lib,"Shlwapi.lib")
-#pragma comment(lib,"Psapi.lib")
-#pragma comment(lib,"Winmm.lib")
-#pragma comment(lib,"Ws2_32.lib")
-
-#include "wing_message_queue.h"
-#include "wing_iocp_message_queue.h"
-#include "wing_utf8.h"
-#include "wing_socket_api.h"
-#include "wing_ntdll.h"
-#include "wing_base.h"
 //-------wing_select_server-----------------------------------------------------------------------
 
 #define MSGSIZE    10240                       //接收消息缓存长度
