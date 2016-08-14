@@ -137,6 +137,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="wing_base.c" />
     <ClCompile Include="wing_iocp_message_queue.c" />
     <ClCompile Include="wing_iocp_socket_map.c" />
     <ClCompile Include="wing_ntdll.c" />
@@ -147,6 +148,7 @@
     <ClCompile Include="wing.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="wing_base.h" />
     <ClInclude Include="wing_iocp_message_queue.h" />
     <ClInclude Include="wing_iocp_socket_map.h" />
     <ClInclude Include="ntdll.h" />

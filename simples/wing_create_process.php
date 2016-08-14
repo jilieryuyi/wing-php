@@ -44,11 +44,6 @@ echo "进程id:",$process_id,"\r\n";
 echo "引用计数",wing_query_object( $handle ),"\r\n";
 
 
-/*if( WING_ERROR_PROCESS_IS_RUNNING == wing_process_isalive( $process_id ) ) {
-    //wing_process_isalive 不要太依赖此api，因为进程id的复用性，进程退出后，有可能相同的进程id立马被创建
-    echo $process_id,"正在运行\r\n";
-}*/
-
 //这种方法也很可靠 不过有些进程由于安全权限的原因 可能无法正常获取 造成失败 这个时候com是一个不错的选择
 $process_command = wing_query_process( "wing_create_process_runer.php" ) ;
 var_dump( $process_command );

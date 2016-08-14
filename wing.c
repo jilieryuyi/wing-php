@@ -73,6 +73,7 @@ char *PHP_PATH = NULL;
 #include "wing_utf8.h"
 #include "wing_socket_api.h"
 #include "wing_ntdll.h"
+#include "wing_base.h"
 
 extern void iocp_add_to_map( unsigned long socket,unsigned long ovl );
 extern unsigned long iocp_get_form_map( unsigned long socket );
@@ -1595,7 +1596,7 @@ ZEND_FUNCTION( wing_close_mutex )
 /**
  *@检测进程是否存活--实际意义不大，因为进程id重用的特性 进程退出后 同样的进程id可能立刻被重用
  */
-ZEND_FUNCTION( wing_process_isalive )
+/*ZEND_FUNCTION( wing_process_isalive )
 {
 	long process_id = 0;
 	HANDLE hProcess = NULL;
@@ -1620,7 +1621,7 @@ ZEND_FUNCTION( wing_process_isalive )
 	CloseHandle( hProcess );
 	RETURN_LONG(WING_ERROR_PROCESS_IS_RUNNING);
 	return;
-}
+}*/
 
 
 /**
@@ -1694,69 +1695,22 @@ ZEND_FUNCTION( wing_set_env ){
  */
 ZEND_FUNCTION( wing_get_command_path ){ 
 
-	char *name     = 0;
-	int   name_len = 0;
-	char *path     = NULL;
+	char *name      = 0;
+	int   name_len  = 0;
+	char *_path     = NULL;
+	char *path      = NULL;
 
 	if( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &name, &name_len ) != SUCCESS ) {
 		RETURN_EMPTY_STRING();
 		return;
 	}
 	
-	path = (char*)emalloc(MAX_PATH);
-	
-	int   size      = GetEnvironmentVariableA("PATH",NULL,0);
-	char *env_var	= (char*)emalloc(size);
-	char *temp      = NULL;
-	char *start     = NULL;
-	char *var_begin = NULL;
-	
-	ZeroMemory( env_var,size );
+	wing_get_command_path( (const char *)name ,_path );
+   
+	spprintf( &path, 0, "%s", _path );
+	free(_path);
 
-	GetEnvironmentVariableA("PATH",env_var,size);
-
-	start		= env_var;
-	var_begin	= env_var;
-
-	char _temp_path[MAX_PATH] = {0};
-
-	while( temp = strchr(var_begin,';') ) {
-		
-		long len_temp	= temp-start;
-		long _len_temp	= len_temp+sizeof("\\")+sizeof(".exe")+1;
-		
-		ZeroMemory( path, MAX_PATH );
-
-		strncpy_s( _temp_path, _len_temp,var_begin, len_temp );
-		sprintf_s( path, MAX_PATH, "%s\\%s.exe\0", _temp_path, name );
-
-		if( PathFileExists( path ) ) {
-			efree( env_var );
-			env_var = NULL;
-			RETURN_STRING(path,0);
-			return;
-		}
-
-		ZeroMemory( path , MAX_PATH );
-		sprintf_s( path, MAX_PATH , "%s\\%s.bat\0", _temp_path, name );
-
-		if( PathFileExists( path ) ) {
-			efree( env_var );
-			env_var = NULL;
-			RETURN_STRING(path,0);
-			return;
-		}
-		var_begin	= temp+1;
-		start		= temp+1;
-	}
-
-	efree( env_var );
-	env_var = NULL;
-
-	efree(path);
-	path = NULL;
-
-	RETURN_EMPTY_STRING();
+	RETURN_STRING( path,0 );
 	return;
 }
 
@@ -3067,8 +3021,8 @@ const zend_function_entry wing_functions[] = {
 	PHP_FE(wing_process_kill,NULL)
 	ZEND_FALIAS(wing_kill_process,wing_process_kill,NULL)
 
-	PHP_FE(wing_process_isalive,NULL)
-	ZEND_FALIAS(wing_thread_isalive,wing_process_isalive,NULL)
+//	PHP_FE(wing_process_isalive,NULL)
+//	ZEND_FALIAS(wing_thread_isalive,wing_process_isalive,NULL)
 	PHP_FE( wing_get_command_line , NULL )
 	PHP_FE( wing_query_object , NULL )
 	PHP_FE(wing_override_function,NULL)
