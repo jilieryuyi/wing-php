@@ -114,46 +114,6 @@ ZEND_END_MODULE_GLOBALS(wing)
 
 #define DATA_BUFSIZE 1024
 
-struct SELECT_ITEM{
-	SOCKET      socket;             //socket
-	SOCKADDR_IN addr;               //地址端口信息
-	int         active;             //最后的活动时间
-	int         online;             //是否在线
-	char       *recv;               //收到的消息
- 	int         recv_bytes;         //收到的消息长度
-};
-
-
-//iocp消息结构体
-struct iocp_overlapped{
-	OVERLAPPED	m_ol;                          //异步依赖
-	int			m_iOpType;                     //操作类型
-	SOCKET		m_skServer;                    //服务端socket
-	SOCKET		m_skClient;                    //客户端
-	DWORD		m_recvBytes;                   //接收的消息长度
-	char		m_pBuf[DATA_BUFSIZE];          //接收消息的缓冲区
-	WSABUF		m_DataBuf;                     //消息缓冲
-	int			m_timeout;                     //设置超时
-	SOCKADDR_IN m_addrClient;                  //客户端实际的地址
-	SOCKADDR_IN m_addrServer;                  //服务端实际的地址
-	int			m_isUsed;                      //标志是否已被激活使用 1已被激活 0待激活
-	unsigned    m_active;                      //最后的活动时间
-	//LPVOID      m_client;                    //wing_client 对象
-	int         m_isCrashed;                   //是否发生错误需要回收 0非 1是
-	int         m_online;                      //是否在线 1在线 0不在线
-	int         m_usenum;                      //引用计数器
-
-	//void (*handler)(int,struct tag_socket_data*);   data->handler(res, data);  请以一个接口 还可以这么用
-};
-
-//socket异步发送消息载体
-struct iocp_send_node{
-	SOCKET socket;
-	char   *msg;
-	int len;
-};
-
-
 //自定义消息
 #define WM_ONCONNECT		WM_USER + 60
 #define WM_ACCEPT_ERROR		WM_USER + 61
@@ -200,6 +160,47 @@ struct iocp_send_node{
 
 #define WING_SEARCH_BY_PROCESS_EXE_PATH  5
 #define WING_SEARCH_BY_PROCESS_FILE_PATH 5
+
+struct SELECT_ITEM{
+	SOCKET      socket;             //socket
+	SOCKADDR_IN addr;               //地址端口信息
+	int         active;             //最后的活动时间
+	int         online;             //是否在线
+	char       *recv;               //收到的消息
+ 	int         recv_bytes;         //收到的消息长度
+};
+
+
+//iocp消息结构体
+struct iocp_overlapped{
+	OVERLAPPED	m_ol;                          //异步依赖
+	int			m_iOpType;                     //操作类型
+	SOCKET		m_skServer;                    //服务端socket
+	SOCKET		m_skClient;                    //客户端
+	DWORD		m_recvBytes;                   //接收的消息长度
+	char		m_pBuf[DATA_BUFSIZE];          //接收消息的缓冲区
+	WSABUF		m_DataBuf;                     //消息缓冲
+	int			m_timeout;                     //设置超时
+	SOCKADDR_IN m_addrClient;                  //客户端实际的地址
+	SOCKADDR_IN m_addrServer;                  //服务端实际的地址
+	int			m_isUsed;                      //标志是否已被激活使用 1已被激活 0待激活
+	unsigned    m_active;                      //最后的活动时间
+	//LPVOID      m_client;                    //wing_client 对象
+	int         m_isCrashed;                   //是否发生错误需要回收 0非 1是
+	int         m_online;                      //是否在线 1在线 0不在线
+	int         m_usenum;                      //引用计数器
+
+	//void (*handler)(int,struct tag_socket_data*);   data->handler(res, data);  请以一个接口 还可以这么用
+};
+
+//socket异步发送消息载体
+struct iocp_send_node{
+	SOCKET socket;
+	char   *msg;
+	int len;
+};
+
+
 
 
 void iocp_call_func( zval **func TSRMLS_DC ,int params_count  ,zval **params );
