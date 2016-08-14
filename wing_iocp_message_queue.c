@@ -18,7 +18,7 @@ void iocp_message_queue_init(){
 /**
  * @ post 队列消息
  */
-void iocp_post_queue_msg( int message_id,unsigned long wparam,unsigned long lparam,unsigned long eparam )
+void iocp_post_queue_msg( int message_id, unsigned long wparam, unsigned long lparam, unsigned long eparam )
 {
 		
 	iocp_message_queue_element *msg	= new iocp_message_queue_element();  
@@ -34,7 +34,8 @@ void iocp_post_queue_msg( int message_id,unsigned long wparam,unsigned long lpar
 /**
  *@pop消息队列 没有消息时自动挂起线程
  */
-void iocp_message_queue_get(iocp_message_queue_element *&msg){
+void iocp_message_queue_get( iocp_message_queue_element *&msg )
+{
 	while( message_queue_isempty( _iocp_message_queue ) )
 	{
 		Sleep(10);

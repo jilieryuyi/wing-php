@@ -31,44 +31,43 @@ void wing_guid( _Out_ char *&buf TSRMLS_DC)
 
 void wing_get_command_path( const char *name ,char *&path ){
 
-	path = (char*)malloc(MAX_PATH);
-	
-	int   size      = GetEnvironmentVariableA("PATH",NULL,0);
-	char *env_var	= (char*)malloc(size);
+	path            = (char*)emalloc( MAX_PATH );
+	int   size      = GetEnvironmentVariableA( "PATH", NULL, 0 );
+	char *env_var	= (char*)emalloc( size );
 	char *temp      = NULL;
 	char *start     = NULL;
 	char *var_begin = NULL;
 	
-	ZeroMemory( env_var,size );
+	ZeroMemory( env_var, size );
 
-	GetEnvironmentVariableA("PATH",env_var,size);
+	GetEnvironmentVariableA( "PATH", env_var, size );
 
 	start		= env_var;
 	var_begin	= env_var;
 
 	char _temp_path[MAX_PATH] = {0};
 
-	while( temp = strchr(var_begin,';') ) {
+	while( temp = strchr( var_begin, ';' ) ) {
 		
-		long len_temp	= temp-start;
-		long _len_temp	= len_temp+sizeof("\\")+sizeof(".exe")+1;
+		long len_temp	= temp - start;
+		long _len_temp	= len_temp + sizeof("\\.exe") +1;
 		
 		ZeroMemory( path, MAX_PATH );
 
-		strncpy_s( _temp_path, _len_temp,var_begin, len_temp );
+		strncpy_s( _temp_path, _len_temp, var_begin, len_temp );
 		sprintf_s( path, MAX_PATH, "%s\\%s.exe\0", _temp_path, name );
 
 		if( PathFileExists( path ) ) {
-			free( env_var );
+			efree( env_var );
 			env_var = NULL;
 			return;
 		}
 
-		ZeroMemory( path , MAX_PATH );
-		sprintf_s( path, MAX_PATH , "%s\\%s.bat\0", _temp_path, name );
+		ZeroMemory( path, MAX_PATH );
+		sprintf_s(  path, MAX_PATH , "%s\\%s.bat\0", _temp_path, name );
 
 		if( PathFileExists( path ) ) {
-			free( env_var );
+			efree( env_var );
 			env_var = NULL;
 			return;
 		}
@@ -76,7 +75,7 @@ void wing_get_command_path( const char *name ,char *&path ){
 		start		= temp+1;
 	}
 
-	free( env_var );
+	efree( env_var );
 	env_var = NULL;
 
 	sprintf_s( path, MAX_PATH, "" );
@@ -114,7 +113,7 @@ ZEND_FUNCTION( wing_wsa_get_last_error ){
  */
 ZEND_FUNCTION( wing_get_error_msg ){
 			
-	int last_error        = 0;
+	int last_error = 0;
 	
 	zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC, "|l", &last_error );
 	if( last_error <= 0 ) {
@@ -165,7 +164,7 @@ ZEND_FUNCTION( wing_get_error_msg ){
 		LocalFree( hlocal );
         			
 	}else{		
-		spprintf( &error_msg,0,"unknow error" );				
+		spprintf( &error_msg, 0, "unknow error" );				
 	}
 
 	RETURN_STRING( error_msg, 0 );
@@ -190,7 +189,7 @@ ZEND_FUNCTION( wing_get_env ){
 		return;
 	}
 
-	size = GetEnvironmentVariable(name,NULL,0);
+	size = GetEnvironmentVariable( name, NULL, 0 );
 
 	if( size<=0 || GetLastError() == ERROR_ENVVAR_NOT_FOUND ) {
 		RETURN_EMPTY_STRING();
@@ -203,7 +202,8 @@ ZEND_FUNCTION( wing_get_env ){
 
 	size = GetEnvironmentVariable(name,var,size);
 
-	if (size == 0) {
+	if( size == 0 ) 
+	{
 		efree(var);
 		var = NULL;
 		RETURN_EMPTY_STRING();
@@ -229,7 +229,8 @@ ZEND_FUNCTION( wing_set_env ){
 	int   value_len = 0;
 	int   res       = 0;
 	
-	if( zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC, "ss",  &name, &name_len, &value,&value_len ) != SUCCESS ) {
+	if( zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC, "ss",  &name, &name_len, &value,&value_len ) != SUCCESS ) 
+	{
 		RETURN_LONG( WING_ERROR_PARAMETER_ERROR );
 		return;
 	}
@@ -248,28 +249,28 @@ ZEND_FUNCTION( wing_get_command_path ){
 
 	char *name      = 0;
 	int   name_len  = 0;
-	char *_path     = NULL;
 	char *path      = NULL;
 
-	if( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &name, &name_len ) != SUCCESS ) {
+	if( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &name, &name_len ) != SUCCESS ) 
+	{
 		RETURN_EMPTY_STRING();
 		return;
 	}
 	
-	wing_get_command_path( (const char *)name ,_path );
-   
-	spprintf( &path, 0, "%s", _path );
-	free(_path);
+	wing_get_command_path( (const char *)name ,path );
 
-	RETURN_STRING( path,0 );
+	RETURN_STRING( path, 0 );
 	return;
 }
 
-
+/**
+ *@获取启动命令行
+ */
 ZEND_FUNCTION( wing_get_command_line )
 {
 	RETURN_STRING( GetCommandLineA(),1 );
 }
+
 
 static int override_fetch_function(char *fname, long fname_len,zend_function **pfe, int flag TSRMLS_DC)
 {
@@ -277,24 +278,29 @@ static int override_fetch_function(char *fname, long fname_len,zend_function **p
 
 	zend_str_tolower(fname, strlen(fname));
 
-    if (zend_hash_find(EG(function_table), fname, fname_len+1,
-                       (void **)&fe) == FAILURE) {
+    if( zend_hash_find(EG(function_table), fname, fname_len+1,(void **)&fe) == FAILURE ) 
+	{
         zend_error(E_WARNING, "%s not found", fname);
         return FAILURE;
     }
 
-    if (fe->type != ZEND_USER_FUNCTION && fe->type != ZEND_INTERNAL_FUNCTION) {
+    if( fe->type != ZEND_USER_FUNCTION && fe->type != ZEND_INTERNAL_FUNCTION ) 
+	{
         zend_error(E_WARNING, "%s is not a user or internal function", fname);
         return FAILURE;
     }
 
-    if (pfe) {
+    if( pfe ) 
+	{
         *pfe = fe;
     }
 
     return SUCCESS;
 }
 
+/**
+ *@重写函数
+ */
 ZEND_FUNCTION( wing_override_function )
 {
     char *fname, *fargs, *fcode, *forigin = NULL;
@@ -303,41 +309,42 @@ ZEND_FUNCTION( wing_override_function )
     zend_function *fe, func;
     int retval, ftype = 0;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-                              "sss|s", &fname, &fname_len,
-                              &fargs, &fargs_len, &fcode, &fcode_len,
-                              &forigin, &forigin_len) == FAILURE) {
+    if( zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC,"sss|s", &fname, &fname_len,&fargs, &fargs_len, &fcode, &fcode_len,&forigin, &forigin_len) == FAILURE ) 
+	{
         RETURN_FALSE;
     }
 
-    if (forigin && forigin_len > 0) {
+    if( forigin && forigin_len > 0 ) 
+	{
         ftype = 2;
     }
 
-    if (override_fetch_function(fname, fname_len, &fe,
-                                ftype TSRMLS_CC) != SUCCESS) {
+    if( override_fetch_function(fname, fname_len, &fe,ftype TSRMLS_CC) != SUCCESS ) 
+	{
         RETURN_FALSE;
     }
 
     func = *fe;
-    if (fe->type == ZEND_USER_FUNCTION && ftype == 2) {
+    if( fe->type == ZEND_USER_FUNCTION && ftype == 2 ) {
         function_add_ref(&func);
     }
 
-    if (zend_hash_del(EG(function_table), fname, fname_len+1) == FAILURE) {
-        zend_error(E_WARNING, "Error removing reference to function name %s()",
-                   fname);
+    if( zend_hash_del(EG(function_table), fname, fname_len+1) == FAILURE ) 
+	{
+        zend_error(E_WARNING, "Error removing reference to function name %s()",fname);
         zend_function_dtor(&func);
         RETURN_FALSE;
     }
 
-    if (ftype == 2) {
-        if (func.type == ZEND_USER_FUNCTION) {
+    if (ftype == 2) 
+	{
+        if( func.type == ZEND_USER_FUNCTION ) 
+		{
             efree((char *)func.common.function_name);
             func.common.function_name = estrndup(forigin, forigin_len);
         }
-        if (zend_hash_add(EG(function_table), forigin, forigin_len+1,
-                          &func, sizeof(zend_function), NULL) == FAILURE) {
+        if( zend_hash_add(EG(function_table), forigin, forigin_len+1, &func, sizeof(zend_function), NULL) == FAILURE ) 
+		{
             zend_error(E_WARNING, "Unable to rename function %s()", forigin);
             zend_function_dtor(fe);
             RETURN_FALSE;
@@ -345,18 +352,24 @@ ZEND_FUNCTION( wing_override_function )
     }
 
     spprintf(&eval_code, 0, "function %s(%s){%s}", fname, fargs, fcode);
-    if (!eval_code) {
+
+    if( !eval_code ) 
+	{
         RETURN_FALSE;
     }
 
-    eval = zend_make_compiled_string_description("runtime created function" TSRMLS_CC);
+    eval   = zend_make_compiled_string_description("runtime created function" TSRMLS_CC);
     retval = zend_eval_string(eval_code, NULL, eval TSRMLS_CC);
+
     efree(eval_code);
     efree(eval);
 
-    if (retval == SUCCESS) {
+    if( retval == SUCCESS ) 
+	{
         RETURN_TRUE;
-    } else {
+    } 
+	else 
+	{
         RETURN_FALSE;
     }
 }
