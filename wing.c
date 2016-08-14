@@ -1749,10 +1749,14 @@ ZEND_FUNCTION( wing_get_command_path ){
 		var_begin	= temp+1;
 		start		= temp+1;
 	}
+
 	efree( env_var );
 	env_var = NULL;
-	
-	RETURN_STRING(path,0);
+
+	efree(path);
+	path = NULL;
+
+	RETURN_EMPTY_STRING();
 	return;
 }
 
