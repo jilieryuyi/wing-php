@@ -199,11 +199,8 @@ struct iocp_send_node{
 	char   *msg;
 	int len;
 };
+typedef iocp_send_node socket_send_node;
 
-
-
-
-void iocp_call_func( zval **func TSRMLS_DC ,int params_count  ,zval **params );
 BOOL socket_send( SOCKET socket,char *&msg , int len );
 void wing_guid( _Out_ char *&buf TSRMLS_DC) ;
 

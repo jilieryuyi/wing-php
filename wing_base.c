@@ -1,5 +1,31 @@
 #include "php_wing.h"
 
+zend_bool wing_func_is_callable(zval **var TSRMLS_DC){
+
+	char *error = NULL;
+	zend_bool is_call_able = zend_is_callable_ex(*var, NULL, 0, NULL, NULL, NULL, &error TSRMLS_CC);
+	if( error ) 
+		efree( error );
+	return is_call_able ? 1 : 0;
+
+}
+
+void wing_call_func( zval **func TSRMLS_DC ,int params_count  ,zval **params ) {
+	
+	if( !wing_func_is_callable( func TSRMLS_CC) ) {
+		return;
+	}
+
+	zval *retval = NULL;
+	MAKE_STD_ZVAL(retval);
+
+	if( SUCCESS != call_user_function( EG(function_table), NULL, *func, retval, params_count, params TSRMLS_CC ) ) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "call user func fail");
+	}
+
+	if( retval )
+	zval_ptr_dtor(&retval);
+}
 
 void get_error_msg( char *&error_msg, int last_error ){
 			

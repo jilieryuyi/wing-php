@@ -7,7 +7,7 @@
  */
 DWORD WINAPI send_thread(PVOID *_node) {
 
-	iocp_send_node *node  = (iocp_send_node*)_node;
+	socket_send_node *node  = (socket_send_node*)_node;
 	unsigned long _socket = (unsigned long)node->socket;
 
 	int send_status = 1;
@@ -20,7 +20,7 @@ DWORD WINAPI send_thread(PVOID *_node) {
 	if( node->msg ) delete[] node->msg;
 	if( node )      delete node;
 
-	iocp_post_queue_msg( WM_ONSEND,_socket,send_status );
+	iocp_post_queue_msg( WM_ONSEND,_socket, send_status );
 	return 1;
 }
 
@@ -29,12 +29,19 @@ DWORD WINAPI send_thread(PVOID *_node) {
  */
 BOOL socket_send( SOCKET socket,char *&msg , int len ) {
 
-	iocp_send_node *node = new iocp_send_node();
+	socket_send_node *node = new socket_send_node();
 
-	if( NULL == node || INVALID_SOCKET == socket ) {
+	if( NULL == node ) {
 		iocp_post_queue_msg( WM_ONSEND,(unsigned long)socket, 0 );
 		return 0;
 	}
+
+	if( INVALID_SOCKET == socket ) {
+		iocp_post_queue_msg( WM_ONSEND,(unsigned long)socket, 0 );
+		delete node;
+		return 0;
+	}
+
 
 	node->socket         = socket;
 	node->msg            = new char[len];

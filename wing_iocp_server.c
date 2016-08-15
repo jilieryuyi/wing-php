@@ -2,6 +2,7 @@
 #include "php_wing.h"
 
 extern zend_class_entry *wing_sclient_ce;
+
 extern void iocp_add_to_map( unsigned long socket,unsigned long ovl );
 extern unsigned long iocp_get_form_map( unsigned long socket );
 extern void iocp_remove_form_map( unsigned long socket );
@@ -17,10 +18,6 @@ void iocp_onrecv( iocp_overlapped*  &pOL );
  */
 void iocp_onerror( iocp_overlapped*  &pOL ){
 	
-	//char* error_message; 
-    //FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, WSAGetLastError(),MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&error_message, 0, NULL );   
-	//::MessageBoxA(0,error_message,"error",0);
-
 	CancelIoEx((HANDLE)pOL->m_skClient,&pOL->m_ol);
 	shutdown( pOL->m_skClient, SD_BOTH);
 
@@ -407,32 +404,7 @@ void iocp_create_wing_sclient(zval *&client , iocp_overlapped *&lpol TSRMLS_DC){
 
 }
 
-zend_bool iocp_is_call_able(zval **var TSRMLS_DC){
 
-	char *error = NULL;
-	zend_bool is_call_able = zend_is_callable_ex(*var, NULL, 0, NULL, NULL, NULL, &error TSRMLS_CC);
-	if( error ) 
-		efree( error );
-	return is_call_able ? 1 : 0;
-
-}
-
-void iocp_call_func( zval **func TSRMLS_DC ,int params_count  ,zval **params ) {
-	
-	if( !iocp_is_call_able( func TSRMLS_CC) ) {
-		return;
-	}
-
-	zval *retval = NULL;
-	MAKE_STD_ZVAL(retval);
-
-	if( SUCCESS != call_user_function( EG(function_table), NULL, *func, retval, params_count, params TSRMLS_CC ) ) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "call user func fail");
-	}
-
-	if( retval )
-	zval_ptr_dtor(&retval);
-}
 
 zend_class_entry *wing_server_ce;
 
@@ -685,7 +657,7 @@ ZEND_METHOD(wing_server,start){
 				
 				zend_try
 				{
-					iocp_call_func( &onsend TSRMLS_CC , 2 , params );
+					wing_call_func( &onsend TSRMLS_CC , 2 , params );
 				}
 				zend_catch
 				{
@@ -709,7 +681,7 @@ ZEND_METHOD(wing_server,start){
 				
 				zend_try
 				{
-					iocp_call_func( &onconnect TSRMLS_CC, 1, &wing_sclient );
+					wing_call_func( &onconnect TSRMLS_CC, 1, &wing_sclient );
 				}
 				zend_catch
 				{
@@ -733,7 +705,7 @@ ZEND_METHOD(wing_server,start){
 				
 				zend_try
 				{
-					iocp_call_func( &onclose TSRMLS_CC, 1, &wing_sclient );
+					wing_call_func( &onclose TSRMLS_CC, 1, &wing_sclient );
 				}
 				zend_catch
 				{
@@ -793,7 +765,7 @@ ZEND_METHOD(wing_server,start){
 					
 
 					zend_try{
-						iocp_call_func( &onerror TSRMLS_CC , 3 , params );
+						wing_call_func( &onerror TSRMLS_CC , 3 , params );
 					}
 					zend_catch{
 						//php”Ô∑®¥ÌŒÛ
@@ -806,7 +778,7 @@ ZEND_METHOD(wing_server,start){
 					
 					ZVAL_STRING( params[2], "unknow error", 1 );  //WSAGetLasterror ¥ÌŒÛ
 					zend_try{
-						iocp_call_func( &onerror TSRMLS_CC , 3 , params );
+						wing_call_func( &onerror TSRMLS_CC , 3 , params );
 					}
 					zend_catch{
 						//php”Ô∑®¥ÌŒÛ
@@ -838,7 +810,7 @@ ZEND_METHOD(wing_server,start){
 				
 				zend_try
 				{
-					iocp_call_func( &onreceive TSRMLS_CC , 2 , params );
+					wing_call_func( &onreceive TSRMLS_CC , 2 , params );
 				}
 				zend_catch
 				{

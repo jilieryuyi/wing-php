@@ -572,7 +572,7 @@ ZEND_METHOD( wing_select_server, start )
 				
 				zend_try
 				{
-					iocp_call_func( &onsend TSRMLS_CC , 2 , send_params );
+					wing_call_func( &onsend TSRMLS_CC , 2 , send_params );
 				}
 				zend_catch
 				{
@@ -597,7 +597,7 @@ ZEND_METHOD( wing_select_server, start )
 				
 				zend_try
 				{
-					iocp_call_func( &onconnect TSRMLS_CC, 1, &wing_sclient );
+					wing_call_func( &onconnect TSRMLS_CC, 1, &wing_sclient );
 				}
 				zend_catch
 				{
@@ -623,7 +623,7 @@ ZEND_METHOD( wing_select_server, start )
 				
 				zend_try
 				{
-					iocp_call_func( &onclose TSRMLS_CC, 1, &wing_sclient );
+					wing_call_func( &onclose TSRMLS_CC, 1, &wing_sclient );
 				}
 				zend_catch
 				{
@@ -655,7 +655,7 @@ ZEND_METHOD( wing_select_server, start )
 				
 				zend_try
 				{
-					iocp_call_func( &onreceive TSRMLS_CC , 2 , recv_params );
+					wing_call_func( &onreceive TSRMLS_CC , 2 , recv_params );
 				}
 				zend_catch
 				{
@@ -696,7 +696,7 @@ ZEND_METHOD( wing_select_server, start )
 
 				zend_try
 				{
-					iocp_call_func( &onerror TSRMLS_CC , 3 , params );
+					wing_call_func( &onerror TSRMLS_CC , 3 , params );
 				}
 				zend_catch
 				{
