@@ -22,9 +22,9 @@ thread_count 线程数
 handle_count 句柄数
 cpu_time cpu时间 工作时长 单位为妙
  */
-
+wing_create_process_ex(__DIR__."/wing_create_process_runer.php");
 //为空时 枚举系统所有的进程
-var_dump( wing_query_process() );
+var_dump( wing_query_process(__DIR__."/wing_create_process_runer.php") );
 
 //查询某个关键字 不指定搜索指定的字段
 //var_dump( wing_query_process("PhpStorm.exe") );
@@ -34,4 +34,4 @@ var_dump( wing_query_process() );
 
 //var_dump( wing_query_process("PhpStorm.exe",WING_SEARCH_BY_PROCESS_FILE_PATH) );
 
-var_dump( wing_query_process(7680,WING_SEARCH_BY_PARENT_PROCESS_ID) );
+//var_dump( wing_query_process(7680,WING_SEARCH_BY_PARENT_PROCESS_ID) );

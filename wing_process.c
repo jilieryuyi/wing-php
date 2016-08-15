@@ -417,6 +417,7 @@ ZEND_FUNCTION( wing_query_process ){
 	
 	//第一次传null返回实际的进程数量
 	int count   = WingQueryProcess( all_process , 0 );
+	
 	all_process = new PROCESSINFO[count];
 	count       = WingQueryProcess( all_process , count );
 
@@ -544,3 +545,6 @@ ZEND_FUNCTION( wing_get_memory_used ) {
 	RETURN_LONG( pmc.WorkingSetSize );
 	return;
 }
+
+
+

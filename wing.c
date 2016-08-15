@@ -224,6 +224,8 @@ const zend_function_entry wing_functions[] = {
 	ZEND_FALIAS( wing_get_process_memory_used , wing_get_memory_used , NULL )
 	PHP_FE(wing_windows_version,NULL)
 	PHP_FE(wing_query_process,NULL)
+	ZEND_FALIAS( wing_find_process , wing_query_process , NULL )
+	
 	PHP_FE_END	
 };
 
