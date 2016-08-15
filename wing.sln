@@ -19,6 +19,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "socket_iocp", "socket_iocp\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ntdll", "..\ntdll\ntdll.vcxproj", "{131E2EF5-09D2-4BEE-85B1-7CDA6B808ABC}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "copy_data", "copy_data_test\test.vcxproj", "{1C7CE4FF-6810-4930-9C2A-8385235C91EF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug_TS|Win32 = Debug_TS|Win32
@@ -99,6 +101,14 @@ Global
 		{131E2EF5-09D2-4BEE-85B1-7CDA6B808ABC}.Release_TS|Win32.Build.0 = Release|Win32
 		{131E2EF5-09D2-4BEE-85B1-7CDA6B808ABC}.Release|Win32.ActiveCfg = Release|Win32
 		{131E2EF5-09D2-4BEE-85B1-7CDA6B808ABC}.Release|Win32.Build.0 = Release|Win32
+		{1C7CE4FF-6810-4930-9C2A-8385235C91EF}.Debug_TS|Win32.ActiveCfg = Debug|Win32
+		{1C7CE4FF-6810-4930-9C2A-8385235C91EF}.Debug_TS|Win32.Build.0 = Debug|Win32
+		{1C7CE4FF-6810-4930-9C2A-8385235C91EF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1C7CE4FF-6810-4930-9C2A-8385235C91EF}.Debug|Win32.Build.0 = Debug|Win32
+		{1C7CE4FF-6810-4930-9C2A-8385235C91EF}.Release_TS|Win32.ActiveCfg = Release|Win32
+		{1C7CE4FF-6810-4930-9C2A-8385235C91EF}.Release_TS|Win32.Build.0 = Release|Win32
+		{1C7CE4FF-6810-4930-9C2A-8385235C91EF}.Release|Win32.ActiveCfg = Release|Win32
+		{1C7CE4FF-6810-4930-9C2A-8385235C91EF}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

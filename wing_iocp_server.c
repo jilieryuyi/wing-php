@@ -8,7 +8,7 @@ extern void iocp_remove_form_map( unsigned long socket );
 
 void iocp_onclose( iocp_overlapped*  &pOL );
 BOOL iocp_create_client( SOCKET m_sockListen , int timeout );
-void iocp_onrecv( iocp_overlapped*  &pOL);
+void iocp_onrecv( iocp_overlapped*  &pOL );
 
 
 
@@ -318,59 +318,6 @@ unsigned int __stdcall  iocp_free_thread( PVOID params ){
 }
 
 
-/**
- *@发送线程
- */
-DWORD WINAPI iocp_begin_send_thread(PVOID *_node) {
-
-	iocp_send_node *node  = (iocp_send_node*)_node;
-	unsigned long _socket = (unsigned long)node->socket;
-
-	int send_status = 1;
-	int sendBytes   = send( node->socket ,node->msg ,node->len,0);
-
-	if( SOCKET_ERROR == sendBytes ){
-		send_status = 0;
-	}
-
-	if( node->msg ) delete[] node->msg;
-	if( node )      delete node;
-
-	iocp_post_queue_msg( WM_ONSEND,_socket,send_status );
-	return 1;
-}
-
-/**
- *@发送消息
- */
-BOOL iocp_socket_send( SOCKET socket,char *&msg , int len ) {
-
-	iocp_send_node *node = new iocp_send_node();
-
-	if( NULL == node || INVALID_SOCKET == socket ) {
-		iocp_post_queue_msg( WM_ONSEND,(unsigned long)socket, 0 );
-		return 0;
-	}
-
-	node->socket         = socket;
-	node->msg            = new char[len];
-	node->len            = len;
-	
-	memset( node->msg, 0, len );
-	memcpy( node->msg , msg , len );
-
-
-	BOOL ret = QueueUserWorkItem( (LPTHREAD_START_ROUTINE)iocp_begin_send_thread, node, WT_EXECUTEINIOTHREAD);
-	if( !ret ) {
-		delete[] node->msg;
-		delete node;
-
-		iocp_post_queue_msg( WM_ONSEND,(unsigned long)socket, 0 );
-
-		return 0;
-	}
-	return 1;
-}
 
 /**
  *@创建socket客户端（连接池元素）

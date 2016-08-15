@@ -1,6 +1,52 @@
 #include "php_wing.h"
 
 
+void get_error_msg( char *&error_msg, int last_error ){
+			
+	//获取错误码对应的错误描述
+	HLOCAL hlocal     = NULL;
+	DWORD systemlocal = MAKELANGID( LANG_NEUTRAL, SUBLANG_NEUTRAL);
+	BOOL fok          = FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_ALLOCATE_BUFFER , NULL , last_error, systemlocal , (LPSTR)&hlocal , 0 , NULL );
+	if( !fok ) 
+	{
+		if( hlocal ) 
+		{
+			LocalFree( hlocal );
+			hlocal = NULL;
+		}
+
+		HMODULE hDll  = LoadLibraryEx("netmsg.dll",NULL,DONT_RESOLVE_DLL_REFERENCES);
+		if( NULL != hDll ) 
+		{
+				fok  = FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_ALLOCATE_BUFFER , hDll , last_error, systemlocal , (LPSTR)&hlocal , 0 , NULL );
+				FreeLibrary( hDll );
+		}
+	}
+
+	if( fok && hlocal != NULL ) 
+	{
+		char *gbk_error_msg   = (char*)LocalLock( hlocal );
+		char *utf8_error_msg  = NULL;
+
+		//把gbk转换为utf8
+		iocp_gbk_to_utf8( gbk_error_msg, utf8_error_msg );
+					
+		if( NULL == utf8_error_msg )
+		{
+			spprintf( &error_msg,0,"%s",gbk_error_msg );
+		}else
+		{
+			spprintf( &error_msg,0,"%s",utf8_error_msg );
+			delete[] utf8_error_msg;
+		}
+			
+		LocalFree( hlocal );
+        			
+	}else{		
+		spprintf( &error_msg, 0, "unknow error" );				
+	}
+}
+
 /**
  * @生成随机字符串
  * @buf会自动初始化 用完需要释放 
@@ -113,64 +159,21 @@ ZEND_FUNCTION( wing_wsa_get_last_error ){
  */
 ZEND_FUNCTION( wing_get_error_msg ){
 			
-	int last_error = 0;
-	
+	int last_error  = 0;
+	char *error_msg = NULL;
+
 	zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC, "|l", &last_error );
+	
 	if( last_error <= 0 ) {
 		last_error = WSAGetLastError();
 	}
-				
-	//获取错误码对应的错误描述
-	HLOCAL hlocal     = NULL;
-	DWORD systemlocal = MAKELANGID( LANG_NEUTRAL, SUBLANG_NEUTRAL);
-	BOOL fok          = FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_ALLOCATE_BUFFER , NULL , last_error, systemlocal , (LPSTR)&hlocal , 0 , NULL );
-	if( !fok ) 
-	{
-		if( hlocal ) 
-		{
-			LocalFree( hlocal );
-			hlocal = NULL;
-		}
 
-		HMODULE hDll  = LoadLibraryEx("netmsg.dll",NULL,DONT_RESOLVE_DLL_REFERENCES);
-		if( NULL != hDll ) 
-		{
-				fok  = FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_ALLOCATE_BUFFER , hDll , last_error, systemlocal , (LPSTR)&hlocal , 0 , NULL );
-				FreeLibrary( hDll );
-		}
+	if( last_error <= 0 ) {
+		last_error = GetLastError();
 	}
 
-			
-				
-				
-	char *error_msg = NULL;
-	if( fok && hlocal != NULL ) 
-	{
-		char *gbk_error_msg   = (char*)LocalLock( hlocal );
-		char *utf8_error_msg  = NULL;
-
-		//把gbk转换为utf8
-		iocp_gbk_to_utf8( gbk_error_msg, utf8_error_msg );
-					
-		if( NULL == utf8_error_msg )
-		{
-			spprintf( &error_msg,0,"%s",gbk_error_msg );
-		}else
-		{
-			spprintf( &error_msg,0,"%s",utf8_error_msg );
-			delete[] utf8_error_msg;
-		}
-			
-		LocalFree( hlocal );
-        			
-	}else{		
-		spprintf( &error_msg, 0, "unknow error" );				
-	}
-
-	RETURN_STRING( error_msg, 0 );
-	return;
-
-				
+	get_error_msg( error_msg, last_error ) ;
+	RETURN_STRING( error_msg, 0);			
 }
 
 
@@ -184,14 +187,16 @@ ZEND_FUNCTION( wing_get_env ){
 	int   size     = 0;
 	char *var      = NULL;
 	
-	if( zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC,"s", &name, &name_len ) != SUCCESS ) {
+	if( zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC,"s", &name, &name_len ) != SUCCESS ) 
+	{
 		RETURN_EMPTY_STRING();
 		return;
 	}
 
 	size = GetEnvironmentVariable( name, NULL, 0 );
 
-	if( size<=0 || GetLastError() == ERROR_ENVVAR_NOT_FOUND ) {
+	if( size<=0 || GetLastError() == ERROR_ENVVAR_NOT_FOUND ) 
+	{
 		RETURN_EMPTY_STRING();
 		return;
 	}
@@ -245,7 +250,8 @@ ZEND_FUNCTION( wing_set_env ){
  * @ 获取一个命令所在的绝对文件路径
  * @ 比如说获取php的安装目录，不过wing php里面可以直接使用常量 WING_PHP 代表的书php的安装路径
  */
-ZEND_FUNCTION( wing_get_command_path ){ 
+ZEND_FUNCTION( wing_get_command_path )
+{ 
 
 	char *name      = 0;
 	int   name_len  = 0;

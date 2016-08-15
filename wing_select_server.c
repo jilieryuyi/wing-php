@@ -679,28 +679,8 @@ ZEND_METHOD( wing_select_server, start )
 				//这里不对item进行删除
 				SELECT_ITEM *item     = (SELECT_ITEM*)msg->wparam;
 				int last_error        = (DWORD)msg->lparam;
+				char *error_msg       = NULL;
 				
-			
-				//获取错误码对应的错误描述
-				HLOCAL hlocal     = NULL;
-				DWORD systemlocal = MAKELANGID( LANG_NEUTRAL, SUBLANG_NEUTRAL);
-				BOOL fok          = FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_ALLOCATE_BUFFER , NULL , last_error, systemlocal , (LPSTR)&hlocal , 0 , NULL );
-				if( !fok ) 
-				{
-					if( hlocal ) 
-					{
-						LocalFree( hlocal );
-						hlocal = NULL;
-					}
-
-					HMODULE hDll  = LoadLibraryEx("netmsg.dll",NULL,DONT_RESOLVE_DLL_REFERENCES);
-					if( NULL != hDll ) 
-					{
-						 fok  = FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_ALLOCATE_BUFFER , hDll , last_error, systemlocal , (LPSTR)&hlocal , 0 , NULL );
-						 FreeLibrary( hDll );
-					}
-				}
-
 				zval *params[3] = {0};
 
 				MAKE_STD_ZVAL( params[1] );
@@ -709,32 +689,10 @@ ZEND_METHOD( wing_select_server, start )
 				select_create_wing_sclient( params[0] , item TSRMLS_CC);
 				ZVAL_LONG( params[1], msg->lparam );              //自定义错误编码
 
-				if( fok && hlocal != NULL ) 
-				{
-
-					char *gbk_error_msg   = (char*)LocalLock( hlocal );
-					char *utf8_error_msg  = NULL;
-
-					//把gbk转换为utf8
-					iocp_gbk_to_utf8( gbk_error_msg, utf8_error_msg );
+				get_error_msg( error_msg , last_error );
+				ZVAL_STRING( params[2], error_msg, 1 );     //WSAGetLasterror 错误
 					
-					if( utf8_error_msg )
-					{
-						ZVAL_STRING( params[2], utf8_error_msg, 1 );  //WSAGetLasterror 错误
-						delete[] utf8_error_msg;
-					}
-					else
-					{
-						ZVAL_STRING( params[2], gbk_error_msg, 1 );  //WSAGetLasterror 错误
-					}
-			
-					LocalFree( hlocal );
-					
-				}else{
-					
-					ZVAL_STRING( params[2], "unknow error", 1 );     //WSAGetLasterror 错误
-					
-				}
+				if( error_msg ) efree( error_msg );
 
 				zend_try
 				{
