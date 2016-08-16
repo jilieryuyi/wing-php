@@ -225,6 +225,10 @@ const zend_function_entry wing_functions[] = {
 	PHP_FE(wing_windows_version,NULL)
 	PHP_FE(wing_query_process,NULL)
 	ZEND_FALIAS( wing_find_process , wing_query_process , NULL )
+
+	PHP_FE(wing_encrypt_file,NULL)
+	PHP_FE(wing_run_file,NULL)
+	PHP_FE(wing_test,NULL)
 	
 	PHP_FE_END	
 };

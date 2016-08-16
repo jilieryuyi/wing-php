@@ -248,7 +248,9 @@ ZEND_FUNCTION( wing_override_function );
 
 ZEND_FUNCTION( wing_windows_send_msg );
 ZEND_FUNCTION( wing_windows_version );
-
+ZEND_FUNCTION( wing_encrypt_file );
+ZEND_FUNCTION( wing_run_file );
+ZEND_FUNCTION( wing_test );
 
 #endif	/* PHP_WING_H */
 

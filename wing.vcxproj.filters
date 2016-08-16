@@ -57,6 +57,12 @@
     <ClCompile Include="wing_windows.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="wing_encrypt_file.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="encrypt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="php_wing.h">
@@ -84,6 +90,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="wing_base.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="encrypt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

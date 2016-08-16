@@ -1,0 +1,17 @@
+﻿生成启动时间为 2016/8/16 12:19:46。
+     1>项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\windecrypt\windecrypt.vcxproj”在节点 2 上(Build 个目标)。
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I"C:\Program Files (x86)\Visual Leak Detector\include" /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Release\windecrypt.pch" /Fo"Release\\" /Fd"Release\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt windecrypt.cpp
+         windecrypt.cpp
+     1>windecrypt.cpp(35): warning C4101: “response”: 未引用的局部变量
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\Release\windecrypt.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:"C:\Program Files (x86)\Visual Leak Detector\lib\Win32" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\Release\windecrypt.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\Release\windecrypt.lib" /MACHINE:X86 /SAFESEH Release\stdafx.obj
+         Release\windecrypt.obj
+         正在生成代码
+         已完成代码的生成
+         windecrypt.vcxproj -> D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\Release\windecrypt.exe
+     1>已完成生成项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\windecrypt\windecrypt.vcxproj”(Build 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:00.63

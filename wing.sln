@@ -21,6 +21,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ntdll", "..\ntdll\ntdll.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "copy_data", "copy_data_test\test.vcxproj", "{1C7CE4FF-6810-4930-9C2A-8385235C91EF}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wincrypt", "..\wincrypt\wincrypt.vcxproj", "{7C941EAE-3837-4EA8-B7C1-8859ED85FFC3}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "windecrypt", "windecrypt\windecrypt.vcxproj", "{9A30F735-853E-4C31-8796-99C59F588801}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug_TS|Win32 = Debug_TS|Win32
@@ -109,6 +113,22 @@ Global
 		{1C7CE4FF-6810-4930-9C2A-8385235C91EF}.Release_TS|Win32.Build.0 = Release|Win32
 		{1C7CE4FF-6810-4930-9C2A-8385235C91EF}.Release|Win32.ActiveCfg = Release|Win32
 		{1C7CE4FF-6810-4930-9C2A-8385235C91EF}.Release|Win32.Build.0 = Release|Win32
+		{7C941EAE-3837-4EA8-B7C1-8859ED85FFC3}.Debug_TS|Win32.ActiveCfg = Debug|Win32
+		{7C941EAE-3837-4EA8-B7C1-8859ED85FFC3}.Debug_TS|Win32.Build.0 = Debug|Win32
+		{7C941EAE-3837-4EA8-B7C1-8859ED85FFC3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7C941EAE-3837-4EA8-B7C1-8859ED85FFC3}.Debug|Win32.Build.0 = Debug|Win32
+		{7C941EAE-3837-4EA8-B7C1-8859ED85FFC3}.Release_TS|Win32.ActiveCfg = Release|Win32
+		{7C941EAE-3837-4EA8-B7C1-8859ED85FFC3}.Release_TS|Win32.Build.0 = Release|Win32
+		{7C941EAE-3837-4EA8-B7C1-8859ED85FFC3}.Release|Win32.ActiveCfg = Release|Win32
+		{7C941EAE-3837-4EA8-B7C1-8859ED85FFC3}.Release|Win32.Build.0 = Release|Win32
+		{9A30F735-853E-4C31-8796-99C59F588801}.Debug_TS|Win32.ActiveCfg = Debug|Win32
+		{9A30F735-853E-4C31-8796-99C59F588801}.Debug_TS|Win32.Build.0 = Debug|Win32
+		{9A30F735-853E-4C31-8796-99C59F588801}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9A30F735-853E-4C31-8796-99C59F588801}.Debug|Win32.Build.0 = Debug|Win32
+		{9A30F735-853E-4C31-8796-99C59F588801}.Release_TS|Win32.ActiveCfg = Release|Win32
+		{9A30F735-853E-4C31-8796-99C59F588801}.Release_TS|Win32.Build.0 = Release|Win32
+		{9A30F735-853E-4C31-8796-99C59F588801}.Release|Win32.ActiveCfg = Release|Win32
+		{9A30F735-853E-4C31-8796-99C59F588801}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

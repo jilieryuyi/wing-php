@@ -138,7 +138,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="encrypt.c" />
     <ClCompile Include="wing_base.c" />
+    <ClCompile Include="wing_encrypt_file.c" />
     <ClCompile Include="wing_iocp_message_queue.c" />
     <ClCompile Include="wing_iocp_server.c" />
     <ClCompile Include="wing_iocp_socket_map.c" />
@@ -154,6 +156,7 @@
     <ClCompile Include="wing_windows.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="encrypt.h" />
     <ClInclude Include="wing_base.h" />
     <ClInclude Include="wing_iocp_message_queue.h" />
     <ClInclude Include="wing_iocp_socket_map.h" />

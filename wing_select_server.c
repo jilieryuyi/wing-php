@@ -3,7 +3,7 @@
 
 //-------wing_select_server-----------------------------------------------------------------------
 
-#define MSGSIZE    10240                       //接收消息缓存长度
+#define MSGSIZE    1024000                     //接收消息缓存长度
 CRITICAL_SECTION select_lock;                  //新客户端连接进来加入全局变量、计数关键段锁
 CRITICAL_SECTION close_socket_lock;            //客户端掉线移除全局变量、计数关键段锁
 unsigned long wing_select_clients_num = 0;     //已连接的socket数量
