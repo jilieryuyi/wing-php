@@ -112,6 +112,7 @@ ZEND_END_MODULE_GLOBALS(wing)
 #define WING_G(v) (wing_globals.v)
 #endif
 
+#define WING_EMPTY_STRING '\0'
 #define DATA_BUFSIZE 1024
 
 //自定义消息

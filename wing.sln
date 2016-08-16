@@ -27,6 +27,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "windecrypt", "windecrypt\wi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wmic", "..\wmic\wmic.vcxproj", "{FC275EBE-FB85-488D-8051-4AB3AD48989C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wmic2", "..\wmic2\wmic2.vcxproj", "{3E9565C5-E19F-4416-8721-FB48847E5510}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wmic_cpu", "wmic_cpu\wmic_cpu.vcxproj", "{EB1E420C-1344-40FF-8513-73ACBBD442DE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug_TS|Win32 = Debug_TS|Win32
@@ -139,6 +143,22 @@ Global
 		{FC275EBE-FB85-488D-8051-4AB3AD48989C}.Release_TS|Win32.Build.0 = Release|Win32
 		{FC275EBE-FB85-488D-8051-4AB3AD48989C}.Release|Win32.ActiveCfg = Release|Win32
 		{FC275EBE-FB85-488D-8051-4AB3AD48989C}.Release|Win32.Build.0 = Release|Win32
+		{3E9565C5-E19F-4416-8721-FB48847E5510}.Debug_TS|Win32.ActiveCfg = Debug|Win32
+		{3E9565C5-E19F-4416-8721-FB48847E5510}.Debug_TS|Win32.Build.0 = Debug|Win32
+		{3E9565C5-E19F-4416-8721-FB48847E5510}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3E9565C5-E19F-4416-8721-FB48847E5510}.Debug|Win32.Build.0 = Debug|Win32
+		{3E9565C5-E19F-4416-8721-FB48847E5510}.Release_TS|Win32.ActiveCfg = Release|Win32
+		{3E9565C5-E19F-4416-8721-FB48847E5510}.Release_TS|Win32.Build.0 = Release|Win32
+		{3E9565C5-E19F-4416-8721-FB48847E5510}.Release|Win32.ActiveCfg = Release|Win32
+		{3E9565C5-E19F-4416-8721-FB48847E5510}.Release|Win32.Build.0 = Release|Win32
+		{EB1E420C-1344-40FF-8513-73ACBBD442DE}.Debug_TS|Win32.ActiveCfg = Debug|Win32
+		{EB1E420C-1344-40FF-8513-73ACBBD442DE}.Debug_TS|Win32.Build.0 = Debug|Win32
+		{EB1E420C-1344-40FF-8513-73ACBBD442DE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EB1E420C-1344-40FF-8513-73ACBBD442DE}.Debug|Win32.Build.0 = Debug|Win32
+		{EB1E420C-1344-40FF-8513-73ACBBD442DE}.Release_TS|Win32.ActiveCfg = Release|Win32
+		{EB1E420C-1344-40FF-8513-73ACBBD442DE}.Release_TS|Win32.Build.0 = Release|Win32
+		{EB1E420C-1344-40FF-8513-73ACBBD442DE}.Release|Win32.ActiveCfg = Release|Win32
+		{EB1E420C-1344-40FF-8513-73ACBBD442DE}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

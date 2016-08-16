@@ -8,6 +8,117 @@
 #include <Wbemidl.h>
 #pragma comment(lib, "wbemuuid.lib")
   
+
+void get_cpu_id( char *&processor_id ){
+	HRESULT hres =  CoInitializeEx(0, COINIT_MULTITHREADED); 
+    if( FAILED(hres) )
+    {
+		processor_id = NULL; 
+		return;
+    }
+
+    hres =  CoInitializeSecurity( NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL );
+
+	if( FAILED(hres) )
+    {
+        CoUninitialize();
+        processor_id = NULL; 
+		return;
+    }
+    
+    IWbemLocator *pLoc = NULL;
+
+    hres = CoCreateInstance( CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER, IID_IWbemLocator, (LPVOID *) &pLoc);
+ 
+    if( FAILED(hres) )
+    {
+        CoUninitialize();
+        processor_id = NULL; 
+		return;
+    }
+
+    IWbemServices *pSvc = NULL;
+    hres                = pLoc->ConnectServer( _bstr_t(L"ROOT\\CIMV2"), NULL, NULL, 0,  NULL, 0, 0, &pSvc );
+    
+    if (FAILED(hres))
+    {
+        pLoc->Release();     
+        CoUninitialize();
+        processor_id = NULL; 
+		return;
+    }
+
+
+    hres = CoSetProxyBlanket(  pSvc,  RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE  );
+
+    if (FAILED(hres))
+    {
+       
+        pSvc->Release();
+        pLoc->Release();     
+        CoUninitialize();
+		processor_id = NULL; 
+        return;           
+    }
+
+
+    IEnumWbemClassObject* pEnumerator = NULL;
+    hres = pSvc->ExecQuery( bstr_t("WQL"),  bstr_t("SELECT * FROM Win32_Processor "),  WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,NULL, &pEnumerator );
+    
+    if (FAILED(hres))
+    {
+        pSvc->Release();
+        pLoc->Release();
+        CoUninitialize();
+		processor_id = NULL;  
+        return; 
+    }
+ 
+    IWbemClassObject *pclsObj = NULL;
+    ULONG uReturn             = 0;
+	int max_size = 1024;
+	processor_id = new char[max_size];
+	memset(processor_id,0,max_size);
+	char *start = processor_id;
+    while (pEnumerator)
+    {
+        HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
+        if(0 == uReturn)
+        {
+            break;
+        }
+
+        VARIANT vtProp;
+        hr = pclsObj->Get(L"ProcessorId", 0, &vtProp, 0, 0);
+		if( vtProp.bstrVal ){
+			char *temp_processor_id = WcharToUtf8( (const wchar_t *)vtProp.bstrVal ); 
+			if(temp_processor_id){
+				int len = strlen(temp_processor_id);
+				memcpy(start,temp_processor_id,len);
+				start+=len;
+				delete[] temp_processor_id;
+			}
+		}
+		
+        VariantClear(&vtProp);
+		if(pclsObj!=NULL)
+		{
+			pclsObj->Release();
+			pclsObj=NULL;
+		}
+    }
+
+    pSvc->Release();
+    pLoc->Release();
+    pEnumerator->Release();
+	if(pclsObj!=NULL)
+	{
+		pclsObj->Release();
+		pclsObj=NULL;
+	}
+    CoUninitialize();
+}
+
 ZEND_FUNCTION( wing_adapters_info ) 
 {  
 	array_init( return_value );
@@ -54,273 +165,106 @@ ZEND_FUNCTION( wing_adapters_info )
 }  
 
 
-void ToHex(const unsigned char * szOrigin, int nSize, char * szHex)
-{
- char szTemp[10];
- for(int nIndex = 0; nIndex < nSize; nIndex ++)
- {
-  sprintf(szTemp, "%02X", szOrigin[nIndex]);
-  if(nIndex == 0)
-  {
-   strcpy(szHex, szTemp);
-  }
-  else
-  {
-   strcat(szHex, szTemp);
-  }
- }
-}
 
 ZEND_FUNCTION( wing_get_cpu_id ){
 	
-	 HRESULT hres =  CoInitializeEx(0, COINIT_MULTITHREADED); 
-    if( FAILED(hres) )
-    {
-        return; 
-    }
+	char *processor_id;
+	char *senumber;
 
-    hres =  CoInitializeSecurity(
-        NULL, 
-        -1,                          // COM authentication
-        NULL,                        // Authentication services
-        NULL,                        // Reserved
-        RPC_C_AUTHN_LEVEL_DEFAULT,   // Default authentication 
-        RPC_C_IMP_LEVEL_IMPERSONATE, // Default Impersonation  
-        NULL,                        // Authentication info
-        EOAC_NONE,                   // Additional capabilities 
-        NULL                         // Reserved
-        );
+	get_cpu_id( processor_id );
+	if( processor_id != NULL)
+	{	
+		spprintf(&senumber,0,"%s",processor_id);
+		delete[] processor_id;
+	}
+	else{
+		spprintf(&senumber,0,"%s",WING_EMPTY_STRING);
+	}
 
-	if (FAILED(hres))
-    {
-        CoUninitialize();
-        return;                    // Program has failed.
-    }
-    
-    IWbemLocator *pLoc = NULL;
-
-    hres = CoCreateInstance(
-        CLSID_WbemLocator,             
-        0, 
-        CLSCTX_INPROC_SERVER, 
-        IID_IWbemLocator, (LPVOID *) &pLoc);
- 
-    if (FAILED(hres))
-    {
-        CoUninitialize();
-        return;                 // Program has failed.
-    }
-
-
-    IWbemServices *pSvc = NULL;
- 
-    hres = pLoc->ConnectServer(
-         _bstr_t(L"ROOT\\CIMV2"), // Object path of WMI namespace
-         NULL,                    // User name. NULL = current user
-         NULL,                    // User password. NULL = current
-         0,                       // Locale. NULL indicates current
-         NULL,                    // Security flags.
-         0,                       // Authority (e.g. Kerberos)
-         0,                       // Context object 
-         &pSvc                    // pointer to IWbemServices proxy
-         );
-    
-    if (FAILED(hres))
-    {
-        pLoc->Release();     
-        CoUninitialize();
-        return;                // Program has failed.
-    }
-
-
-    hres = CoSetProxyBlanket(
-       pSvc,                        // Indicates the proxy to set
-       RPC_C_AUTHN_WINNT,           // RPC_C_AUTHN_xxx
-       RPC_C_AUTHZ_NONE,            // RPC_C_AUTHZ_xxx
-       NULL,                        // Server principal name 
-       RPC_C_AUTHN_LEVEL_CALL,      // RPC_C_AUTHN_LEVEL_xxx 
-       RPC_C_IMP_LEVEL_IMPERSONATE, // RPC_C_IMP_LEVEL_xxx
-       NULL,                        // client identity
-       EOAC_NONE                    // proxy capabilities 
-    );
-
-    if (FAILED(hres))
-    {
-       
-        pSvc->Release();
-        pLoc->Release();     
-        CoUninitialize();
-        return;               // Program has failed.
-    }
-
-
-    IEnumWbemClassObject* pEnumerator = NULL;
-    hres = pSvc->ExecQuery(
-        bstr_t("WQL"), 
-        bstr_t("SELECT * FROM Win32_Processor "),
-        WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, 
-        NULL,
-        &pEnumerator);
-    
-    if (FAILED(hres))
-    {
-        pSvc->Release();
-        pLoc->Release();
-        CoUninitialize();
-        return;               // Program has failed.
-    }
-
- 
-    IWbemClassObject *pclsObj = NULL;
-    ULONG uReturn = 0;
-	char *senumber = NULL;
-
-    while (pEnumerator)
-    {
-        HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, 
-            &pclsObj, &uReturn);
-
-        if(0 == uReturn)
-        {
-            break;
-        }
-
-        VARIANT vtProp;
-
-        hr = pclsObj->Get(L"ProcessorId", 0, &vtProp, 0, 0);
-
-		//这个就是cpu id
-		//wcout << 
-			char *nu = WcharToUtf8( (const wchar_t *)vtProp.bstrVal ); //<< endl;
-			
-			if(nu){
-			spprintf(&senumber,0,"%s",nu);
-			delete[] nu;
-			}
-			
-
-        VariantClear(&vtProp);
-    }
-
-
-    pSvc->Release();
-    pLoc->Release();
-    pEnumerator->Release();
-	if(pclsObj!=NULL)
-	pclsObj->Release();
-    CoUninitialize();
-	RETURN_STRING(senumber,0);
+	RETURN_STRING( senumber, 0 );
 }
 
-
-ZEND_FUNCTION( wing_get_serial_number ){
-	//硬盘的序列号
+/**
+ * @ 硬盘的序列号
+ */
+void get_serial_number( char *&serial_number )
+{
     HRESULT hres =  CoInitializeEx(0, COINIT_MULTITHREADED); 
     if( FAILED(hres) )
     {
+		serial_number = NULL;
         return; 
     }
 
-    hres =  CoInitializeSecurity(
-        NULL, 
-        -1,                          // COM authentication
-        NULL,                        // Authentication services
-        NULL,                        // Reserved
-        RPC_C_AUTHN_LEVEL_DEFAULT,   // Default authentication 
-        RPC_C_IMP_LEVEL_IMPERSONATE, // Default Impersonation  
-        NULL,                        // Authentication info
-        EOAC_NONE,                   // Additional capabilities 
-        NULL                         // Reserved
-        );
+    hres =  CoInitializeSecurity( NULL,  -1, NULL,   NULL,  RPC_C_AUTHN_LEVEL_DEFAULT, RPC_C_IMP_LEVEL_IMPERSONATE,  NULL,  EOAC_NONE,  NULL );
 
 	if (FAILED(hres))
     {
         CoUninitialize();
-        return;                    // Program has failed.
+		serial_number = NULL;
+        return;                    
     }
     
     IWbemLocator *pLoc = NULL;
 
-    hres = CoCreateInstance(
-        CLSID_WbemLocator,             
-        0, 
-        CLSCTX_INPROC_SERVER, 
-        IID_IWbemLocator, (LPVOID *) &pLoc);
+    hres = CoCreateInstance( CLSID_WbemLocator, 0,  CLSCTX_INPROC_SERVER,  IID_IWbemLocator, (LPVOID *) &pLoc );
  
     if (FAILED(hres))
     {
         CoUninitialize();
-        return;                 // Program has failed.
+		serial_number = NULL;
+        return;                
     }
 
 
     IWbemServices *pSvc = NULL;
  
-    hres = pLoc->ConnectServer(
-         _bstr_t(L"ROOT\\CIMV2"), // Object path of WMI namespace
-         NULL,                    // User name. NULL = current user
-         NULL,                    // User password. NULL = current
-         0,                       // Locale. NULL indicates current
-         NULL,                    // Security flags.
-         0,                       // Authority (e.g. Kerberos)
-         0,                       // Context object 
-         &pSvc                    // pointer to IWbemServices proxy
-         );
+    hres = pLoc->ConnectServer(  _bstr_t(L"ROOT\\CIMV2"),  NULL, NULL,   0,  NULL,  0, 0,  &pSvc  );
     
     if (FAILED(hres))
     {
         pLoc->Release();     
         CoUninitialize();
-        return;                // Program has failed.
+		serial_number = NULL;
+        return;                
     }
 
 
-    hres = CoSetProxyBlanket(
-       pSvc,                        // Indicates the proxy to set
-       RPC_C_AUTHN_WINNT,           // RPC_C_AUTHN_xxx
-       RPC_C_AUTHZ_NONE,            // RPC_C_AUTHZ_xxx
-       NULL,                        // Server principal name 
-       RPC_C_AUTHN_LEVEL_CALL,      // RPC_C_AUTHN_LEVEL_xxx 
-       RPC_C_IMP_LEVEL_IMPERSONATE, // RPC_C_IMP_LEVEL_xxx
-       NULL,                        // client identity
-       EOAC_NONE                    // proxy capabilities 
-    );
+    hres = CoSetProxyBlanket( pSvc, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE );
 
     if (FAILED(hres))
     {
-       
         pSvc->Release();
         pLoc->Release();     
         CoUninitialize();
-        return;               // Program has failed.
+		serial_number = NULL;
+        return;              
     }
 
 
     IEnumWbemClassObject* pEnumerator = NULL;
-    hres = pSvc->ExecQuery(
-        bstr_t("WQL"), 
-        bstr_t("SELECT * FROM Win32_PhysicalMedia"),
-        WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, 
-        NULL,
-        &pEnumerator);
+    hres = pSvc->ExecQuery( bstr_t("WQL"),  bstr_t("SELECT * FROM Win32_PhysicalMedia"),  WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,  NULL, &pEnumerator );
     
     if (FAILED(hres))
     {
         pSvc->Release();
         pLoc->Release();
         CoUninitialize();
-        return;               // Program has failed.
+		serial_number = NULL;
+        return;               
     }
 
- 
+	int max_size = 1024;
+	serial_number = new char[max_size];
+	memset(serial_number,0,max_size);
+
     IWbemClassObject *pclsObj = NULL;
     ULONG uReturn = 0;
-	char *senumber = NULL;
+	char *start = serial_number;
 
     while (pEnumerator)
     {
-        HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, 
-            &pclsObj, &uReturn);
+        HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
 
         if(0 == uReturn)
         {
@@ -331,25 +275,51 @@ ZEND_FUNCTION( wing_get_serial_number ){
 
         hr = pclsObj->Get(L"SerialNumber", 0, &vtProp, 0, 0);
 
-		//这个就是硬盘序列号啦
-		//wcout << 
-			char *nu = WcharToUtf8( (const wchar_t *)vtProp.bstrVal ); //<< endl;
-			
-			if(nu){
-			spprintf(&senumber,0,"%s",nu);
-			delete[] nu;
+		if( vtProp.bstrVal )
+		{	
+			char *temp_serial_number = WcharToUtf8( (const wchar_t *)vtProp.bstrVal );
+			if(temp_serial_number){
+				int len = strlen(temp_serial_number);
+				memcpy(start,temp_serial_number,len);
+				start+=len;
+				delete[] temp_serial_number;
 			}
-			
-
+		}
+	
         VariantClear(&vtProp);
+		if(pclsObj!=NULL)
+		{
+			pclsObj->Release();
+			pclsObj=NULL;
+		}
     }
 
-
+	
     pSvc->Release();
     pLoc->Release();
     pEnumerator->Release();
 	if(pclsObj!=NULL)
-	pclsObj->Release();
-    CoUninitialize();
+	{
+		pclsObj->Release();
+		pclsObj=NULL;
+	}
+   CoUninitialize();
+}
+ZEND_FUNCTION( wing_get_serial_number ){
+
+	char *serial_number = NULL;
+	char *senumber;
+	get_serial_number( serial_number );
+
+	//serial_number
+
+	if( serial_number != NULL )
+	{
+		spprintf( &senumber, 0, "%s", serial_number);
+		delete[] serial_number;
+	}else{
+		spprintf( &senumber, 0, "%s", WING_EMPTY_STRING );
+	}
+
 	RETURN_STRING(senumber,0);
 }
