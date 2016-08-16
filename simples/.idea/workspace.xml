@@ -32,11 +32,21 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="wing_encrypt_file.php" pinned="false" current-in-tab="true">
+      <file leaf-file-name="wing_encrypt_file.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/beta/wing_encrypt_file.php">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="240">
               <caret line="12" column="0" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="wing_encrypt_file_test.encrypt.php" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/beta/wing_encrypt_file_test.encrypt.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="10" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="158" />
               <folding />
             </state>
           </provider>
@@ -339,12 +349,12 @@
       <workItem from="1471226139343" duration="6930000" />
       <workItem from="1471269824550" duration="878000" />
       <workItem from="1471294677717" duration="1220000" />
-      <workItem from="1471313656362" duration="4160000" />
+      <workItem from="1471313656362" duration="4259000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="152758000" />
+    <option name="totallyTimeSpent" value="152857000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="32" y="9" width="1604" height="876" extended-state="1" />
@@ -582,14 +592,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/beta/wing_encrypt_file_test.encrypt.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/beta/wing_encrypt_file_test.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="120">
@@ -618,6 +620,14 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="240">
           <caret line="12" column="0" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/beta/wing_encrypt_file_test.encrypt.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="10" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="158" />
           <folding />
         </state>
       </provider>
