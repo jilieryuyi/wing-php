@@ -159,6 +159,7 @@
   <ItemGroup>
     <ClInclude Include="encrypt.h" />
     <ClInclude Include="wing_base.h" />
+    <ClInclude Include="wing_hardware_info.h" />
     <ClInclude Include="wing_iocp_message_queue.h" />
     <ClInclude Include="wing_iocp_socket_map.h" />
     <ClInclude Include="ntdll.h" />

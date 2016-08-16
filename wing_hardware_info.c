@@ -1,14 +1,16 @@
 #include "php_wing.h"
+#include "wing_hardware_info.h"
 #include "wing_utf8.h"
 #include <Iphlpapi.h>  
+#include <string.h>  
+#include <ctype.h>  
+#include <comdef.h>
+#include <Wbemidl.h>
+
+#pragma comment(lib, "wbemuuid.lib")
 #pragma comment (lib, "Iphlpapi")  
 #pragma comment (lib, "ws2_32")  
 
-#include <comdef.h>
-#include <Wbemidl.h>
-#pragma comment(lib, "wbemuuid.lib")
-  #include <string.h>  
-#include <ctype.h>  
  
 void trim(char *s)   
 {  
@@ -52,6 +54,7 @@ void trim(char *s)
     s[end - start + 1] = '\0';  
 }  
 void get_cpu_id( char *&processor_id ){
+	
 	HRESULT hres =  CoInitializeEx(0, COINIT_MULTITHREADED); 
     if( FAILED(hres) )
     {

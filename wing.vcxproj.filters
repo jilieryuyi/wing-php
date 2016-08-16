@@ -98,5 +98,8 @@
     <ClInclude Include="encrypt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="wing_hardware_info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
