@@ -294,7 +294,6 @@ void get_serial_number( char *&serial_number )
 		}
     }
 
-	
     pSvc->Release();
     pLoc->Release();
     pEnumerator->Release();
@@ -310,8 +309,6 @@ ZEND_FUNCTION( wing_get_serial_number ){
 	char *serial_number = NULL;
 	char *senumber;
 	get_serial_number( serial_number );
-
-	//serial_number
 
 	if( serial_number != NULL )
 	{
