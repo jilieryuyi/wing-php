@@ -229,6 +229,9 @@ const zend_function_entry wing_functions[] = {
 	PHP_FE(wing_encrypt_file,NULL)
 	PHP_FE(wing_run_file,NULL)
 	PHP_FE(wing_test,NULL)
+	PHP_FE( wing_adapters_info ,NULL)
+	PHP_FE( wing_get_cpu_id,NULL)
+	PHP_FE(wing_get_serial_number,NULL)
 	
 	PHP_FE_END	
 };

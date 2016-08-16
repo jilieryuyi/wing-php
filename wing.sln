@@ -25,6 +25,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wincrypt", "..\wincrypt\win
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "windecrypt", "windecrypt\windecrypt.vcxproj", "{9A30F735-853E-4C31-8796-99C59F588801}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wmic", "..\wmic\wmic.vcxproj", "{FC275EBE-FB85-488D-8051-4AB3AD48989C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug_TS|Win32 = Debug_TS|Win32
@@ -129,6 +131,14 @@ Global
 		{9A30F735-853E-4C31-8796-99C59F588801}.Release_TS|Win32.Build.0 = Release|Win32
 		{9A30F735-853E-4C31-8796-99C59F588801}.Release|Win32.ActiveCfg = Release|Win32
 		{9A30F735-853E-4C31-8796-99C59F588801}.Release|Win32.Build.0 = Release|Win32
+		{FC275EBE-FB85-488D-8051-4AB3AD48989C}.Debug_TS|Win32.ActiveCfg = Debug|Win32
+		{FC275EBE-FB85-488D-8051-4AB3AD48989C}.Debug_TS|Win32.Build.0 = Debug|Win32
+		{FC275EBE-FB85-488D-8051-4AB3AD48989C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FC275EBE-FB85-488D-8051-4AB3AD48989C}.Debug|Win32.Build.0 = Debug|Win32
+		{FC275EBE-FB85-488D-8051-4AB3AD48989C}.Release_TS|Win32.ActiveCfg = Release|Win32
+		{FC275EBE-FB85-488D-8051-4AB3AD48989C}.Release_TS|Win32.Build.0 = Release|Win32
+		{FC275EBE-FB85-488D-8051-4AB3AD48989C}.Release|Win32.ActiveCfg = Release|Win32
+		{FC275EBE-FB85-488D-8051-4AB3AD48989C}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

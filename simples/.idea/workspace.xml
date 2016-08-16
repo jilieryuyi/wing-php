@@ -22,41 +22,63 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="wing_query_process.php" pinned="false" current-in-tab="false">
+      <file leaf-file-name="wing_query_process.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/wing_query_process.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="240">
-              <caret line="12" column="0" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
-              <folding />
+            <state relative-caret-position="546">
+              <caret line="38" column="29" selection-start-line="38" selection-start-column="29" selection-end-line="38" selection-end-column="29" />
+              <folding>
+                <element signature="e#6#588#0#PHP" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file leaf-file-name="wing_encrypt_file.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/beta/wing_encrypt_file.php">
+        <entry file="file://$PROJECT_DIR$/wing_encrypt_file.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="240">
-              <caret line="12" column="0" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
+            <state relative-caret-position="300">
+              <caret line="15" column="55" selection-start-line="15" selection-start-column="55" selection-end-line="15" selection-end-column="55" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="wing_encrypt_file_test.encrypt.php" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/beta/wing_encrypt_file_test.encrypt.php">
+      <file leaf-file-name="wing_server.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/beta/wing_server.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="10" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="158" />
+            <state relative-caret-position="100">
+              <caret line="5" column="8" selection-start-line="5" selection-start-column="8" selection-end-line="5" selection-end-column="8" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="wing_encrypt_file.log" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/beta/wing_encrypt_file.log">
+      <file leaf-file-name="wing_adapters_info.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/wing_adapters_info.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <state relative-caret-position="100">
+              <caret line="5" column="10" selection-start-line="5" selection-start-column="10" selection-end-line="5" selection-end-column="10" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="wing_get_serial_number.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/wing_get_serial_number.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="140">
+              <caret line="7" column="17" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="17" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="wing_get_cpu_id.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/wing_get_cpu_id.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="140">
+              <caret line="7" column="25" selection-start-line="7" selection-start-column="25" selection-end-line="7" selection-end-column="25" />
               <folding />
             </state>
           </provider>
@@ -73,10 +95,10 @@
         </entry>
       </file>
       <file leaf-file-name="wing_encrypt_file_test.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/beta/wing_encrypt_file_test.php">
+        <entry file="file://$PROJECT_DIR$/wing_encrypt_file_test.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="120">
-              <caret line="6" column="72" selection-start-line="6" selection-start-column="72" selection-end-line="6" selection-end-column="72" />
+            <state relative-caret-position="140">
+              <caret line="7" column="2" selection-start-line="7" selection-start-column="2" selection-end-line="7" selection-end-column="2" />
               <folding />
             </state>
           </provider>
@@ -97,26 +119,6 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="520">
               <caret line="30" column="8" selection-start-line="30" selection-start-column="8" selection-end-line="30" selection-end-column="8" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="wing_create_process.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wing_create_process.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="400">
-              <caret line="25" column="76" selection-start-line="25" selection-start-column="47" selection-end-line="25" selection-end-column="76" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="wing_select_server.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wing_select_server.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1160">
-              <caret line="58" column="17" selection-start-line="9" selection-start-column="0" selection-end-line="58" selection-end-column="17" />
               <folding />
             </state>
           </provider>
@@ -172,9 +174,12 @@
         <option value="$PROJECT_DIR$/wing_get_error_msg.php" />
         <option value="$PROJECT_DIR$/wing_find_process.php" />
         <option value="$PROJECT_DIR$/wing_create_process_runer.php" />
-        <option value="$PROJECT_DIR$/wing_query_process.php" />
-        <option value="$PROJECT_DIR$/beta/wing_encrypt_file_test.php" />
         <option value="$PROJECT_DIR$/beta/wing_encrypt_file.php" />
+        <option value="$PROJECT_DIR$/beta/wing_encrypt_file_test.php" />
+        <option value="$PROJECT_DIR$/wing_get_cpu_id.php" />
+        <option value="$PROJECT_DIR$/wing_adapters_info.php" />
+        <option value="$PROJECT_DIR$/wing_get_serial_number.php" />
+        <option value="$PROJECT_DIR$/wing_query_process.php" />
       </list>
     </option>
   </component>
@@ -238,37 +243,23 @@
               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
             </PATH_ELEMENT>
           </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="simples" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="simples" />
-              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="beta" />
-              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
-            </PATH_ELEMENT>
-          </PATH>
         </subPane>
       </pane>
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="D:/web/yonglibao/statistics" />
+    <property name="last_opened_file_path" value="D:/web/yonglibao/hopp" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\simples\beta\websocket" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\simples" />
       <recent name="D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\simples\beta\websocket\js" />
       <recent name="D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\simples\beta" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\simples\beta\websocket" />
     </key>
   </component>
   <component name="RunManager">
@@ -349,20 +340,20 @@
       <workItem from="1471226139343" duration="6930000" />
       <workItem from="1471269824550" duration="878000" />
       <workItem from="1471294677717" duration="1220000" />
-      <workItem from="1471313656362" duration="4259000" />
+      <workItem from="1471313656362" duration="8801000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="152857000" />
+    <option name="totallyTimeSpent" value="157399000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="32" y="9" width="1604" height="876" extended-state="1" />
+    <frame x="32" y="9" width="1604" height="876" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22670025" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.054830287" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
@@ -387,9 +378,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/beta/http/service/Cookie.php" />
-    <entry file="file://$PROJECT_DIR$/beta/http/www/index.php" />
-    <entry file="file://$PROJECT_DIR$/beta/http/service.php" />
     <entry file="file://$PROJECT_DIR$/beta/http/config/web.php" />
     <entry file="file://$PROJECT_DIR$/beta/http/wing.php" />
     <entry file="file://$PROJECT_DIR$/beta/http/cookie/00dec7ea02ea15a121dcf20eff4a5e31da55a293c0db65a1011b3e58fa161415_1470573446.cookie" />
@@ -400,13 +388,6 @@
     <entry file="file://$PROJECT_DIR$/beta/http/cookie/93e013d095a88d3e3c682e12f2f49614209c4a78d103555b49ec4b905c6b9824_1470573446.cookie" />
     <entry file="file://$PROJECT_DIR$/beta/http/cookie/46c5cad36805715a9cc1dc128750884ac32789429fb821d1c2e3fa216b2f1621_1470573446.cookie" />
     <entry file="file://$PROJECT_DIR$/beta/http/service/Http.php" />
-    <entry file="file://$PROJECT_DIR$/beta/wing_server.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="5" column="8" selection-start-line="5" selection-start-column="8" selection-end-line="5" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/http/log/wing_error.log" />
     <entry file="file://$PROJECT_DIR$/http/www/table.html">
       <provider selected="true" editor-type-id="text-editor">
@@ -576,26 +557,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wing_query_process.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="12" column="0" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/beta/test.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="20">
           <caret line="1" column="0" selection-start-line="1" selection-start-column="0" selection-end-line="20" selection-end-column="1" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/beta/wing_encrypt_file_test.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="6" column="72" selection-start-line="6" selection-start-column="72" selection-end-line="6" selection-end-column="72" />
           <folding />
         </state>
       </provider>
@@ -616,19 +581,69 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/beta/wing_encrypt_file.php">
+    <entry file="file://$PROJECT_DIR$/beta/wing_encrypt_file_test.encrypt.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="12" column="0" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
+        <state relative-caret-position="0">
+          <caret line="0" column="57" selection-start-line="0" selection-start-column="57" selection-end-line="0" selection-end-column="57" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/beta/wing_encrypt_file_test.encrypt.php">
+    <entry file="file://$PROJECT_DIR$/wing_encrypt_file_test.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="10" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="158" />
+        <state relative-caret-position="140">
+          <caret line="7" column="2" selection-start-line="7" selection-start-column="2" selection-end-line="7" selection-end-column="2" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wing_encrypt_file.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="300">
+          <caret line="15" column="55" selection-start-line="15" selection-start-column="55" selection-end-line="15" selection-end-column="55" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/beta/wing_server.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="100">
+          <caret line="5" column="8" selection-start-line="5" selection-start-column="8" selection-end-line="5" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wing_adapters_info.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="100">
+          <caret line="5" column="10" selection-start-line="5" selection-start-column="10" selection-end-line="5" selection-end-column="10" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wing_get_serial_number.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="140">
+          <caret line="7" column="17" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wing_get_cpu_id.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="140">
+          <caret line="7" column="25" selection-start-line="7" selection-start-column="25" selection-end-line="7" selection-end-column="25" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wing_query_process.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="546">
+          <caret line="38" column="29" selection-start-line="38" selection-start-column="29" selection-end-line="38" selection-end-column="29" />
+          <folding>
+            <element signature="e#6#588#0#PHP" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

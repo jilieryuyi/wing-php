@@ -52,8 +52,21 @@ ZEND_FUNCTION( wing_run_file )
 		return;
 	}
 
+	int code_len   = strlen( php_code );
 	char *run_code = php_code;
-	if(php_code[0] == '<')run_code+=5;
+
+	//跳过<?php头
+	if( php_code[0] == '<')
+		run_code+=5;
+
+	//去掉?>结尾
+	if( php_code[code_len-1] == '>')
+	{	
+		php_code[code_len-1] = '\0';
+		php_code[code_len-2] = '\0';
+	}
+
+
 
 	char *eval   = zend_make_compiled_string_description("wing run encrypt code" TSRMLS_CC);
     int retval   = zend_eval_string( run_code, NULL, eval TSRMLS_CC);

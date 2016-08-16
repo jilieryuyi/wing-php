@@ -63,6 +63,9 @@
     <ClCompile Include="encrypt.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="wing_hardware_info.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="php_wing.h">

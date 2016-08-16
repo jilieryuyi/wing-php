@@ -7,4 +7,5 @@
  *@注：使用完之后 记住需要 delete[] out_str;释放内存
  */
 void iocp_gbk_to_utf8( _In_ char *in_str, _Out_ char *&out_str );//_Inout_
+char* WcharToUtf8( const wchar_t *pwStr );
 #endif
