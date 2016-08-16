@@ -7,8 +7,50 @@
 #include <comdef.h>
 #include <Wbemidl.h>
 #pragma comment(lib, "wbemuuid.lib")
+  #include <string.h>  
+#include <ctype.h>  
+ 
+void trim(char *s)   
+{  
+    char *start;  
+    char *end;  
+    int len = strlen(s);  
+      
+    start = s;  
+    end = s + len - 1;  
   
-
+    while (1)   
+    {     
+        char c = *start;  
+        if (!isspace(c))  
+            break;  
+  
+        start++;  
+        if (start > end)  
+        {     
+            s[0] = '\0';  
+            return;  
+        }     
+    }     
+  
+  
+    while (1)   
+    {     
+        char c = *end;  
+        if (!isspace(c))  
+            break;  
+  
+        end--;  
+        if (start > end)  
+        {     
+            s[0] = '\0';  
+            return;  
+        }  
+    }  
+  
+    memmove(s, start, end - start + 1);  
+    s[end - start + 1] = '\0';  
+}  
 void get_cpu_id( char *&processor_id ){
 	HRESULT hres =  CoInitializeEx(0, COINIT_MULTITHREADED); 
     if( FAILED(hres) )
@@ -293,6 +335,8 @@ void get_serial_number( char *&serial_number )
 			pclsObj=NULL;
 		}
     }
+
+	trim(serial_number);
 
     pSvc->Release();
     pLoc->Release();
