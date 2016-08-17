@@ -251,7 +251,6 @@ ZEND_FUNCTION( wing_windows_send_msg );
 ZEND_FUNCTION( wing_windows_version );
 ZEND_FUNCTION( wing_encrypt_file );
 ZEND_FUNCTION( wing_run_file );
-ZEND_FUNCTION( wing_test );
 ZEND_FUNCTION( wing_adapters_info );
 ZEND_FUNCTION( wing_get_cpu_id );
 ZEND_FUNCTION( wing_get_serial_number );

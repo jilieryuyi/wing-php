@@ -4,10 +4,10 @@
 #include <ctype.h>  
 #include "wing_hardware_info.h"
 
-ZEND_FUNCTION( wing_test ){
-	RETURN_BOOL(1);
-}
 
+/**
+ *@php源码加密
+ */
 ZEND_FUNCTION( wing_encrypt_file )
 {
 	
@@ -24,7 +24,9 @@ ZEND_FUNCTION( wing_encrypt_file )
 		RETURN_BOOL( 0 );
 		return;
 	}
+
 	int needfree = 0;
+	//得到硬件加密密码
 	if( encrypt_password == NULL || strlen(encrypt_password) == 0 )
 	{
 		char *processor_id;
@@ -45,22 +47,24 @@ ZEND_FUNCTION( wing_encrypt_file )
 		}
 	}
 
-	
+	//执行文件加密
 	int res = WingEncryptFile( input_file , output_file , encrypt_password );
-	if( needfree ) efree( encrypt_password );
+	if( needfree ) 
+		efree( encrypt_password );
 	RETURN_BOOL( res );
 	return;
 }
 
-
+/**
+ *@执行加密过的php源码文件
+ */
 ZEND_FUNCTION( wing_run_file )
 {
 
-	char *input_file;
-	int input_file_len = 0;
-
+	char *input_file       = NULL;
+	int input_file_len     = 0;
 	char *encrypt_password = NULL;
-	int password_len = 0;
+	int password_len       = 0;
 
 	if( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s|s",&input_file,&input_file_len,&encrypt_password,&password_len) != SUCCESS) {
 		RETURN_LONG( 0 );
@@ -68,6 +72,7 @@ ZEND_FUNCTION( wing_run_file )
 	}
 
 	int needfree = 0;
+	//获取硬件加密密码
 	if( encrypt_password == NULL || strlen(encrypt_password) == 0 )
 	{
 		char *processor_id;
@@ -92,6 +97,7 @@ ZEND_FUNCTION( wing_run_file )
 
 
 	char *php_code = NULL;
+	//解密得到源码
 	WingDecryptFile( input_file , php_code , encrypt_password );
 
 	if( NULL == php_code )
@@ -108,8 +114,9 @@ ZEND_FUNCTION( wing_run_file )
 
 	//跳过<?php头
 	if( php_code[0] == '<')
-		run_code+=5;
+		run_code += 5;
 
+	//执行源码
 	char *eval   = zend_make_compiled_string_description("wing run encrypt code" TSRMLS_CC);
     int retval   = zend_eval_string( run_code, NULL, eval TSRMLS_CC);
 
