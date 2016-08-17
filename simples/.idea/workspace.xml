@@ -34,11 +34,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="wing_encrypt_file.php" pinned="false" current-in-tab="false">
+      <file leaf-file-name="wing_encrypt_file.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/wing_encrypt_file.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="340">
-              <caret line="17" column="59" selection-start-line="17" selection-start-column="59" selection-end-line="17" selection-end-column="59" />
+            <state relative-caret-position="140">
+              <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="21" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -84,7 +84,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="wing_encrypt_file_test.php" pinned="false" current-in-tab="true">
+      <file leaf-file-name="wing_encrypt_file_test.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wing_encrypt_file_test.php">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="140">
@@ -161,8 +161,8 @@
         <option value="$PROJECT_DIR$/wing_get_serial_number.php" />
         <option value="$PROJECT_DIR$/wing_query_process.php" />
         <option value="$PROJECT_DIR$/wing_encrypt_file.log" />
-        <option value="$PROJECT_DIR$/wing_encrypt_file.php" />
         <option value="$PROJECT_DIR$/wing_encrypt_file_test.php" />
+        <option value="$PROJECT_DIR$/wing_encrypt_file.php" />
       </list>
     </option>
   </component>
@@ -324,15 +324,15 @@
       <workItem from="1471269824550" duration="878000" />
       <workItem from="1471294677717" duration="1220000" />
       <workItem from="1471313656362" duration="9052000" />
-      <workItem from="1471384276354" duration="1323000" />
+      <workItem from="1471384276354" duration="2202000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="158973000" />
+    <option name="totallyTimeSpent" value="159852000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1604" height="876" extended-state="0" />
+    <frame x="-8" y="-8" width="1604" height="876" extended-state="1" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22670025" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -603,18 +603,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wing_encrypt_file.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="340">
-          <caret line="17" column="59" selection-start-line="17" selection-start-column="59" selection-end-line="17" selection-end-column="59" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/wing_encrypt_file_test.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="140">
           <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wing_encrypt_file.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="140">
+          <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="21" selection-end-column="0" />
           <folding />
         </state>
       </provider>
