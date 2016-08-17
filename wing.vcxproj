@@ -139,6 +139,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="encrypt.c" />
+    <ClCompile Include="hardware_info.c" />
     <ClCompile Include="wing_base.c" />
     <ClCompile Include="wing_encrypt_file.c" />
     <ClCompile Include="wing_hardware_info.c" />
@@ -151,6 +152,7 @@
     <ClCompile Include="wing_select_server.c" />
     <ClCompile Include="wing_select_socket_map.c" />
     <ClCompile Include="wing_socket_api.c" />
+    <ClCompile Include="wing_string.c" />
     <ClCompile Include="wing_utf8.c" />
     <ClCompile Include="wing_message_queue.c" />
     <ClCompile Include="wing.c" />
@@ -159,12 +161,13 @@
   <ItemGroup>
     <ClInclude Include="encrypt.h" />
     <ClInclude Include="wing_base.h" />
-    <ClInclude Include="wing_hardware_info.h" />
+    <ClInclude Include="hardware_info.h" />
     <ClInclude Include="wing_iocp_message_queue.h" />
     <ClInclude Include="wing_iocp_socket_map.h" />
     <ClInclude Include="ntdll.h" />
     <ClInclude Include="wing_ntdll.h" />
     <ClInclude Include="wing_socket_api.h" />
+    <ClInclude Include="wing_string.h" />
     <ClInclude Include="wing_utf8.h" />
     <ClInclude Include="wing_message_queue.h" />
     <ClInclude Include="php_wing.h" />

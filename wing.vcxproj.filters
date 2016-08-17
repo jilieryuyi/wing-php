@@ -66,6 +66,12 @@
     <ClCompile Include="wing_hardware_info.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="wing_string.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="hardware_info.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="php_wing.h">
@@ -98,7 +104,10 @@
     <ClInclude Include="encrypt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="wing_hardware_info.h">
+    <ClInclude Include="wing_string.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="hardware_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

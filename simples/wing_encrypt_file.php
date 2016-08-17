@@ -17,5 +17,5 @@ var_dump( wing_run_file( $ouput_file, $encode_pass ) );*/
 
 //不传密码时 自动使用硬件绑定密码 也就是说 在那台电脑上生成的加密文件 此加密文件只能在这台电脑执行
 var_dump( wing_encrypt_file( $input_file , $ouput_file  ) );
-var_dump( wing_run_file( $ouput_file ) );
+//var_dump( wing_run_file( $ouput_file ) );
 

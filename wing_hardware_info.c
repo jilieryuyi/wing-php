@@ -1,169 +1,20 @@
 #include "php_wing.h"
-#include "wing_hardware_info.h"
+#include "hardware_info.h"
 #include "wing_utf8.h"
 #include <Iphlpapi.h>  
 #include <string.h>  
 #include <ctype.h>  
 #include <comdef.h>
 #include <Wbemidl.h>
+#include "wing_string.h"
 
 #pragma comment(lib, "wbemuuid.lib")
-#pragma comment (lib, "Iphlpapi")  
-#pragma comment (lib, "ws2_32")  
+#pragma comment(lib, "Iphlpapi")  
+#pragma comment(lib, "ws2_32")  
 
- 
-void trim(char *s)   
-{  
-    char *start;  
-    char *end;  
-    int len = strlen(s);  
-      
-    start = s;  
-    end = s + len - 1;  
-  
-    while (1)   
-    {     
-        char c = *start;  
-        if (!isspace(c))  
-            break;  
-  
-        start++;  
-        if (start > end)  
-        {     
-            s[0] = '\0';  
-            return;  
-        }     
-    }     
-  
-  
-    while (1)   
-    {     
-        char c = *end;  
-        if (!isspace(c))  
-            break;  
-  
-        end--;  
-        if (start > end)  
-        {     
-            s[0] = '\0';  
-            return;  
-        }  
-    }  
-  
-    memmove(s, start, end - start + 1);  
-    s[end - start + 1] = '\0';  
-}  
-void get_cpu_id( char *&processor_id ){
-	
-	HRESULT hres =  CoInitializeEx(0, COINIT_MULTITHREADED); 
-    if( FAILED(hres) )
-    {
-		processor_id = NULL; 
-		return;
-    }
-
-    hres =  CoInitializeSecurity( NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL );
-
-	if( FAILED(hres) )
-    {
-        CoUninitialize();
-        processor_id = NULL; 
-		return;
-    }
-    
-    IWbemLocator *pLoc = NULL;
-
-    hres = CoCreateInstance( CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER, IID_IWbemLocator, (LPVOID *) &pLoc);
- 
-    if( FAILED(hres) )
-    {
-        CoUninitialize();
-        processor_id = NULL; 
-		return;
-    }
-
-    IWbemServices *pSvc = NULL;
-    hres                = pLoc->ConnectServer( _bstr_t(L"ROOT\\CIMV2"), NULL, NULL, 0,  NULL, 0, 0, &pSvc );
-    
-    if (FAILED(hres))
-    {
-        pLoc->Release();     
-        CoUninitialize();
-        processor_id = NULL; 
-		return;
-    }
-
-
-    hres = CoSetProxyBlanket(  pSvc,  RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE  );
-
-    if (FAILED(hres))
-    {
-       
-        pSvc->Release();
-        pLoc->Release();     
-        CoUninitialize();
-		processor_id = NULL; 
-        return;           
-    }
-
-
-    IEnumWbemClassObject* pEnumerator = NULL;
-    hres = pSvc->ExecQuery( bstr_t("WQL"),  bstr_t("SELECT * FROM Win32_Processor "),  WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,NULL, &pEnumerator );
-    
-    if (FAILED(hres))
-    {
-        pSvc->Release();
-        pLoc->Release();
-        CoUninitialize();
-		processor_id = NULL;  
-        return; 
-    }
- 
-    IWbemClassObject *pclsObj = NULL;
-    ULONG uReturn             = 0;
-	int max_size = 1024;
-	processor_id = new char[max_size];
-	memset(processor_id,0,max_size);
-	char *start = processor_id;
-    while (pEnumerator)
-    {
-        HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
-        if(0 == uReturn)
-        {
-            break;
-        }
-
-        VARIANT vtProp;
-        hr = pclsObj->Get(L"ProcessorId", 0, &vtProp, 0, 0);
-		if( vtProp.bstrVal ){
-			char *temp_processor_id = WcharToUtf8( (const wchar_t *)vtProp.bstrVal ); 
-			if(temp_processor_id){
-				int len = strlen(temp_processor_id);
-				memcpy(start,temp_processor_id,len);
-				start+=len;
-				delete[] temp_processor_id;
-			}
-		}
-		
-        VariantClear(&vtProp);
-		if(pclsObj!=NULL)
-		{
-			pclsObj->Release();
-			pclsObj=NULL;
-		}
-    }
-
-    pSvc->Release();
-    pLoc->Release();
-    pEnumerator->Release();
-	if(pclsObj!=NULL)
-	{
-		pclsObj->Release();
-		pclsObj=NULL;
-	}
-    CoUninitialize();
-}
-
+/**
+ * @获取网卡适配器信息
+ */
 ZEND_FUNCTION( wing_adapters_info ) 
 {  
 	array_init( return_value );
@@ -209,35 +60,127 @@ ZEND_FUNCTION( wing_adapters_info )
     return;  
 }  
 
-
-
 ZEND_FUNCTION( wing_get_cpu_id ){
-	
-	char *processor_id;
-	char *senumber;
 
-	get_cpu_id( processor_id );
-	if( processor_id != NULL)
-	{	
-		spprintf(&senumber,0,"%s",processor_id);
-		delete[] processor_id;
-	}
-	else{
-		spprintf(&senumber,0,"%s",WING_EMPTY_STRING);
-	}
+	array_init( return_value );
 
-	RETURN_STRING( senumber, 0 );
-}
-
-/**
- * @ 硬盘的序列号
- */
-void get_serial_number( char *&serial_number )
-{
-    HRESULT hres =  CoInitializeEx(0, COINIT_MULTITHREADED); 
+	HRESULT hres =  CoInitializeEx(0, COINIT_MULTITHREADED); 
     if( FAILED(hres) )
     {
-		serial_number = NULL;
+		return;
+    }
+
+    hres =  CoInitializeSecurity( NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL );
+
+	if( FAILED(hres) )
+    {
+        CoUninitialize();
+		return;
+    }
+    
+    IWbemLocator *pLoc = NULL;
+
+    hres = CoCreateInstance( CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER, IID_IWbemLocator, (LPVOID *) &pLoc);
+ 
+    if( FAILED(hres) )
+    {
+        CoUninitialize();
+		return;
+    }
+
+    IWbemServices *pSvc = NULL;
+    hres                = pLoc->ConnectServer( _bstr_t(L"ROOT\\CIMV2"), NULL, NULL, 0,  NULL, 0, 0, &pSvc );
+    
+    if (FAILED(hres))
+    {
+        pLoc->Release();     
+        CoUninitialize();
+		return;
+    }
+
+
+    hres = CoSetProxyBlanket(  pSvc,  RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE  );
+
+    if (FAILED(hres))
+    {
+       
+        pSvc->Release();
+        pLoc->Release();     
+        CoUninitialize();
+        return;           
+    }
+
+
+    IEnumWbemClassObject* pEnumerator = NULL;
+    hres = pSvc->ExecQuery( bstr_t("WQL"),  bstr_t("SELECT * FROM Win32_Processor "),  WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,NULL, &pEnumerator );
+    
+    if (FAILED(hres))
+    {
+        pSvc->Release();
+        pLoc->Release();
+        CoUninitialize(); 
+        return; 
+    }
+ 
+    IWbemClassObject *pclsObj = NULL;
+    ULONG uReturn             = 0;
+	
+	
+	
+	
+    while (pEnumerator)
+    {
+        HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
+        if(0 == uReturn)
+        {
+            break;
+        }
+
+		zval *item;
+		MAKE_STD_ZVAL( item );
+		array_init( item );
+
+        VARIANT vtProp;
+        hr = pclsObj->Get(L"ProcessorId", 0, &vtProp, 0, 0);
+		if( vtProp.bstrVal )
+		{
+			char *temp_processor_id = WcharToUtf8( (const wchar_t *)vtProp.bstrVal ); 
+			if( temp_processor_id )
+			{
+				add_assoc_string( item, "processor_id", temp_processor_id, 1 );
+				delete[] temp_processor_id;
+			}
+		}
+		
+        VariantClear(&vtProp);
+		add_next_index_zval( return_value, item );
+
+		if(pclsObj!=NULL)
+		{
+			pclsObj->Release();
+			pclsObj=NULL;
+		}
+    }
+
+    pSvc->Release();
+    pLoc->Release();
+    pEnumerator->Release();
+	if(pclsObj!=NULL)
+	{
+		pclsObj->Release();
+		pclsObj=NULL;
+	}
+    CoUninitialize();
+}
+
+
+ZEND_FUNCTION( wing_get_serial_number ){
+	
+	array_init(return_value);
+
+	HRESULT hres =  CoInitializeEx(0, COINIT_MULTITHREADED); 
+    if( FAILED(hres) )
+    {
         return; 
     }
 
@@ -246,7 +189,6 @@ void get_serial_number( char *&serial_number )
 	if (FAILED(hres))
     {
         CoUninitialize();
-		serial_number = NULL;
         return;                    
     }
     
@@ -257,7 +199,6 @@ void get_serial_number( char *&serial_number )
     if (FAILED(hres))
     {
         CoUninitialize();
-		serial_number = NULL;
         return;                
     }
 
@@ -270,7 +211,6 @@ void get_serial_number( char *&serial_number )
     {
         pLoc->Release();     
         CoUninitialize();
-		serial_number = NULL;
         return;                
     }
 
@@ -282,7 +222,6 @@ void get_serial_number( char *&serial_number )
         pSvc->Release();
         pLoc->Release();     
         CoUninitialize();
-		serial_number = NULL;
         return;              
     }
 
@@ -295,17 +234,12 @@ void get_serial_number( char *&serial_number )
         pSvc->Release();
         pLoc->Release();
         CoUninitialize();
-		serial_number = NULL;
         return;               
     }
 
-	int max_size = 1024;
-	serial_number = new char[max_size];
-	memset(serial_number,0,max_size);
 
     IWbemClassObject *pclsObj = NULL;
     ULONG uReturn = 0;
-	char *start = serial_number;
 
     while (pEnumerator)
     {
@@ -316,30 +250,36 @@ void get_serial_number( char *&serial_number )
             break;
         }
 
-        VARIANT vtProp;
+		zval *item;
+		MAKE_STD_ZVAL( item );
+		array_init( item );
+		//add_assoc_long(      item,"process_id",        process.process_id          );
 
-        hr = pclsObj->Get(L"SerialNumber", 0, &vtProp, 0, 0);
+        VARIANT SerialNumber;
 
-		if( vtProp.bstrVal )
+        hr = pclsObj->Get(L"SerialNumber", 0, &SerialNumber, 0, 0);
+
+		if( SerialNumber.bstrVal )
 		{	
-			char *temp_serial_number = WcharToUtf8( (const wchar_t *)vtProp.bstrVal );
-			if(temp_serial_number){
-				int len = strlen(temp_serial_number);
-				memcpy(start,temp_serial_number,len);
-				start+=len;
+			char *temp_serial_number = WcharToUtf8( (const wchar_t *)SerialNumber.bstrVal );
+			if( temp_serial_number ) 
+			{
+				add_assoc_string( item, "serial_number", temp_serial_number, 1 );
 				delete[] temp_serial_number;
 			}
 		}
-	
-        VariantClear(&vtProp);
+		VariantClear(&SerialNumber);
+
+		
+		add_next_index_zval( return_value, item );
+
+       
 		if(pclsObj!=NULL)
 		{
 			pclsObj->Release();
 			pclsObj=NULL;
 		}
     }
-
-	trim(serial_number);
 
     pSvc->Release();
     pLoc->Release();
@@ -350,20 +290,4 @@ void get_serial_number( char *&serial_number )
 		pclsObj=NULL;
 	}
    CoUninitialize();
-}
-ZEND_FUNCTION( wing_get_serial_number ){
-
-	char *serial_number = NULL;
-	char *senumber;
-	get_serial_number( serial_number );
-
-	if( serial_number != NULL )
-	{
-		spprintf( &senumber, 0, "%s", serial_number);
-		delete[] serial_number;
-	}else{
-		spprintf( &senumber, 0, "%s", WING_EMPTY_STRING );
-	}
-
-	RETURN_STRING(senumber,0);
 }

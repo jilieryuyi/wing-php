@@ -2,7 +2,7 @@
 #include "php_wing.h"
 #include "encrypt.h"
 #include <ctype.h>  
-#include "wing_hardware_info.h"
+#include "hardware_info.h"
 
 
 /**
