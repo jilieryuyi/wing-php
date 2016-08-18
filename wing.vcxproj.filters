@@ -18,9 +18,6 @@
     <ClCompile Include="wing.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wing_utf8.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="wing_iocp_message_queue.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -75,9 +72,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="php_wing.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wing_utf8.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="wing_iocp_message_queue.h">

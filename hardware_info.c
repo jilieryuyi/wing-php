@@ -1,5 +1,5 @@
 #include "hardware_info.h"
-#include "wing_utf8.h"
+#include "wing_string.h"
 #include <Iphlpapi.h>  
 #include <string.h>  
 #include <ctype.h>  
@@ -95,7 +95,7 @@ void get_cpu_id( char *&processor_id ){
         hr = pclsObj->Get(L"ProcessorId", 0, &vtProp, 0, 0);
 		if( vtProp.bstrVal )
 		{
-			char *temp_processor_id = WcharToUtf8( (const wchar_t *)vtProp.bstrVal ); 
+			char *temp_processor_id = WingWcharToUtf8( (const wchar_t *)vtProp.bstrVal ); 
 			if( temp_processor_id )
 			{
 				int len = strlen( temp_processor_id );
@@ -217,7 +217,7 @@ void get_serial_number( char *&serial_number )
 
 		if( vtProp.bstrVal )
 		{	
-			char *temp_serial_number = WcharToUtf8( (const wchar_t *)vtProp.bstrVal );
+			char *temp_serial_number = WingWcharToUtf8( (const wchar_t *)vtProp.bstrVal );
 			if(temp_serial_number){
 				int len = strlen(temp_serial_number);
 				memcpy(start,temp_serial_number,len);
@@ -234,7 +234,7 @@ void get_serial_number( char *&serial_number )
 		}
     }
 
-	wing_trim(serial_number);
+	WingTrim(serial_number);
 
     pSvc->Release();
     pLoc->Release();

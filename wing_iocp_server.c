@@ -751,7 +751,7 @@ ZEND_METHOD(wing_server,start){
 
 
 					char *error_msg = NULL;
-					iocp_gbk_to_utf8( _error_msg, error_msg );
+					WingGBKToUTF8( _error_msg, error_msg );
 					
 					if( error_msg )
 					{

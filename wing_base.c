@@ -55,7 +55,7 @@ void get_error_msg( char *&error_msg, int last_error ){
 		char *utf8_error_msg  = NULL;
 
 		//°Ñgbk×ª»»Îªutf8
-		iocp_gbk_to_utf8( gbk_error_msg, utf8_error_msg );
+		WingGBKToUTF8( gbk_error_msg, utf8_error_msg );
 					
 		if( NULL == utf8_error_msg )
 		{

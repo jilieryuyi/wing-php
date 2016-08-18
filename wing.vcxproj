@@ -153,7 +153,6 @@
     <ClCompile Include="wing_select_socket_map.c" />
     <ClCompile Include="wing_socket_api.c" />
     <ClCompile Include="wing_string.c" />
-    <ClCompile Include="wing_utf8.c" />
     <ClCompile Include="wing_message_queue.c" />
     <ClCompile Include="wing.c" />
     <ClCompile Include="wing_windows.c" />
@@ -168,7 +167,6 @@
     <ClInclude Include="wing_ntdll.h" />
     <ClInclude Include="wing_socket_api.h" />
     <ClInclude Include="wing_string.h" />
-    <ClInclude Include="wing_utf8.h" />
     <ClInclude Include="wing_message_queue.h" />
     <ClInclude Include="php_wing.h" />
   </ItemGroup>

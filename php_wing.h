@@ -63,7 +63,7 @@ char *PHP_PATH = NULL;
 
 #include "wing_message_queue.h"
 #include "wing_iocp_message_queue.h"
-#include "wing_utf8.h"
+#include "wing_string.h"
 #include "wing_socket_api.h"
 #include "wing_ntdll.h"
 #include "wing_base.h"

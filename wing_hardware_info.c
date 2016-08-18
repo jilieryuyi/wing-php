@@ -1,6 +1,6 @@
 #include "php_wing.h"
 #include "hardware_info.h"
-#include "wing_utf8.h"
+#include "wing_string.h"
 #include <Iphlpapi.h>  
 #include <string.h>  
 #include <ctype.h>  
@@ -144,7 +144,7 @@ ZEND_FUNCTION( wing_get_cpu_id ){
         hr = pclsObj->Get(L"ProcessorId", 0, &vtProp, 0, 0);
 		if( vtProp.bstrVal )
 		{
-			char *temp_processor_id = WcharToUtf8( (const wchar_t *)vtProp.bstrVal ); 
+			char *temp_processor_id = WingWcharToUtf8( (const wchar_t *)vtProp.bstrVal ); 
 			if( temp_processor_id )
 			{
 				add_assoc_string( item, "processor_id", temp_processor_id, 1 );
@@ -261,7 +261,7 @@ ZEND_FUNCTION( wing_get_serial_number ){
 
 		if( SerialNumber.bstrVal )
 		{	
-			char *temp_serial_number = WcharToUtf8( (const wchar_t *)SerialNumber.bstrVal );
+			char *temp_serial_number = WingWcharToUtf8( (const wchar_t *)SerialNumber.bstrVal );
 			if( temp_serial_number ) 
 			{
 				add_assoc_string( item, "serial_number", temp_serial_number, 1 );

@@ -7,6 +7,7 @@
 #include "stdio.h"
 #include "tlhelp32.h"
 #include "Psapi.h"
+#include "wing_string.h"
 #pragma comment(lib,"Psapi.lib")
 #pragma comment(lib,"Kernel32.lib")
 
@@ -68,7 +69,6 @@ NTSTATUS WingQueryProcessVariableSize(
     return status;
 }
 	
-extern char* WcharToUtf8(const wchar_t *pwStr);
 
 
 
@@ -293,7 +293,7 @@ DWORD WingGetCurrentProcessInfo( PROCESSINFO *&all_process, int from, int max_co
 				LPVOID commandline = NULL;
 				if( NT_SUCCESS( WingQueryProcessVariableSize( hNtDll, hProcess, ProcessCommandLineInformation, (PVOID *)&commandline ) ) )
 				{	
-					process_item->command_line = WcharToUtf8( (const wchar_t*)((PUNICODE_STRING)commandline)->Buffer );
+					process_item->command_line = WingWcharToUtf8( (const wchar_t*)((PUNICODE_STRING)commandline)->Buffer );
 					free(commandline);
 					commandline = NULL;
 				}else
@@ -408,7 +408,7 @@ unsigned long WingQueryProcess( PROCESSINFO *&all_process , int max_count )
 
 			if( pSystemProc->ProcessId != 0 )
 			{
-				process_item->process_name = WcharToUtf8( pSystemProc->ProcessName.Buffer );
+				process_item->process_name = WingWcharToUtf8( pSystemProc->ProcessName.Buffer );
 			}
 			else
 			{
@@ -435,7 +435,7 @@ unsigned long WingQueryProcess( PROCESSINFO *&all_process , int max_count )
 				LPVOID commandline = NULL;
 				if( NT_SUCCESS( WingQueryProcessVariableSize( hNtDll, hProcess, ProcessCommandLineInformation, (PVOID *)&commandline ) ) )
 				{	
-					process_item->command_line = WcharToUtf8( (const wchar_t*)((PUNICODE_STRING)commandline)->Buffer );
+					process_item->command_line = WingWcharToUtf8( (const wchar_t*)((PUNICODE_STRING)commandline)->Buffer );
 					free(commandline);
 					commandline = NULL;
 				}else
@@ -447,7 +447,7 @@ unsigned long WingQueryProcess( PROCESSINFO *&all_process , int max_count )
 			
 				PUNICODE_STRING fileName;
 				if( NT_SUCCESS( WingQueryProcessVariableSize( hNtDll, hProcess, ProcessImageFileName, (PVOID*)&fileName ))){
-					process_item->file_name = WcharToUtf8( (const wchar_t*)fileName->Buffer );
+					process_item->file_name = WingWcharToUtf8( (const wchar_t*)fileName->Buffer );
 					free(fileName);
 				}
 				else
@@ -460,7 +460,7 @@ unsigned long WingQueryProcess( PROCESSINFO *&all_process , int max_count )
 			
 				PUNICODE_STRING filepath;
 				if( NT_SUCCESS( WingQueryProcessVariableSize( hNtDll, hProcess, ProcessImageFileNameWin32, (PVOID*)&filepath ))){
-					process_item->file_path = WcharToUtf8( (const wchar_t*)filepath->Buffer );
+					process_item->file_path = WingWcharToUtf8( (const wchar_t*)filepath->Buffer );
 					free(filepath);
 				}
 				else
