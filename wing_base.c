@@ -54,8 +54,17 @@ void get_error_msg( char *&error_msg, int last_error ){
 		char *gbk_error_msg   = (char*)LocalLock( hlocal );
 		char *utf8_error_msg  = NULL;
 
+		WingString _gbk( gbk_error_msg, strlen(gbk_error_msg), 1 );
+
 		//°Ñgbk×ª»»Îªutf8
-		WingGBKToUTF8( gbk_error_msg, utf8_error_msg );
+		_gbk.toUTF8();
+
+		int size = _gbk.length();
+
+		utf8_error_msg = new char[size+1];
+
+		memset( utf8_error_msg, 0, size+1 );
+		memcpy( utf8_error_msg, _gbk.c_str(), size );
 					
 		if( NULL == utf8_error_msg )
 		{

@@ -749,10 +749,16 @@ ZEND_METHOD(wing_server,start){
 
 					char *_error_msg = (char*)LocalLock( hlocal );
 
-
-					char *error_msg = NULL;
-					WingGBKToUTF8( _error_msg, error_msg );
 					
+
+					WingString wstring( (const char*)_error_msg, strlen(_error_msg) );
+					wstring.toUTF8();
+
+					int size = wstring.length();
+					char *error_msg = new char[size+1];
+					memset( error_msg, 0, size+1 );
+					memcpy( error_msg, wstring.c_str(), size );
+
 					if( error_msg )
 					{
 						ZVAL_STRING( params[2], error_msg, 1 );  //WSAGetLasterror ´íÎó
@@ -763,7 +769,6 @@ ZEND_METHOD(wing_server,start){
 						ZVAL_STRING( params[2], _error_msg, 1 );  //WSAGetLasterror ´íÎó
 					}
 					
-
 					zend_try{
 						wing_call_func( &onerror TSRMLS_CC , 3 , params );
 					}
@@ -800,8 +805,6 @@ ZEND_METHOD(wing_server,start){
 				zval *params[2]			= {0};
 
 				zend_printf("WM_ONRECV from %ld=>%s\r\nlast error:%ld\r\n\r\n",povl->m_skClient,recv_msg,error_code);
-
-				
 				
 				MAKE_STD_ZVAL( params[0] );
 				MAKE_STD_ZVAL( params[1] );

@@ -31,6 +31,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wmic2", "..\wmic2\wmic2.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wmic_cpu", "wmic_cpu\wmic_cpu.vcxproj", "{EB1E420C-1344-40FF-8513-73ACBBD442DE}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WingString", "WingString\WingString.vcxproj", "{892ED24E-EE1A-4CC4-9347-95211F952E89}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug_TS|Win32 = Debug_TS|Win32
@@ -159,6 +161,14 @@ Global
 		{EB1E420C-1344-40FF-8513-73ACBBD442DE}.Release_TS|Win32.Build.0 = Release|Win32
 		{EB1E420C-1344-40FF-8513-73ACBBD442DE}.Release|Win32.ActiveCfg = Release|Win32
 		{EB1E420C-1344-40FF-8513-73ACBBD442DE}.Release|Win32.Build.0 = Release|Win32
+		{892ED24E-EE1A-4CC4-9347-95211F952E89}.Debug_TS|Win32.ActiveCfg = Debug|Win32
+		{892ED24E-EE1A-4CC4-9347-95211F952E89}.Debug_TS|Win32.Build.0 = Debug|Win32
+		{892ED24E-EE1A-4CC4-9347-95211F952E89}.Debug|Win32.ActiveCfg = Debug|Win32
+		{892ED24E-EE1A-4CC4-9347-95211F952E89}.Debug|Win32.Build.0 = Debug|Win32
+		{892ED24E-EE1A-4CC4-9347-95211F952E89}.Release_TS|Win32.ActiveCfg = Release|Win32
+		{892ED24E-EE1A-4CC4-9347-95211F952E89}.Release_TS|Win32.Build.0 = Release|Win32
+		{892ED24E-EE1A-4CC4-9347-95211F952E89}.Release|Win32.ActiveCfg = Release|Win32
+		{892ED24E-EE1A-4CC4-9347-95211F952E89}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

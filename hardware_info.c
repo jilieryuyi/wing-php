@@ -95,7 +95,12 @@ void get_cpu_id( char *&processor_id ){
         hr = pclsObj->Get(L"ProcessorId", 0, &vtProp, 0, 0);
 		if( vtProp.bstrVal )
 		{
-			char *temp_processor_id = WingWcharToUtf8( (const wchar_t *)vtProp.bstrVal ); 
+			WingString _temp_processor_id(  (const wchar_t *)vtProp.bstrVal );
+			int size = _temp_processor_id.length();
+			char *temp_processor_id = new char[size+1];
+			memset(temp_processor_id,0,size+1);
+			memcpy(temp_processor_id,_temp_processor_id.c_str(),size);
+
 			if( temp_processor_id )
 			{
 				int len = strlen( temp_processor_id );
@@ -217,7 +222,13 @@ void get_serial_number( char *&serial_number )
 
 		if( vtProp.bstrVal )
 		{	
-			char *temp_serial_number = WingWcharToUtf8( (const wchar_t *)vtProp.bstrVal );
+			WingString _temp_serial_number( (const wchar_t *)vtProp.bstrVal );
+			int size = _temp_serial_number.length();
+			char *temp_serial_number = new char[size+1]; 
+			memset( temp_serial_number, 0, size+1 );
+
+			memcpy( temp_serial_number, _temp_serial_number.c_str(), size );
+
 			if(temp_serial_number){
 				int len = strlen(temp_serial_number);
 				memcpy(start,temp_serial_number,len);
@@ -234,7 +245,11 @@ void get_serial_number( char *&serial_number )
 		}
     }
 
-	WingTrim(serial_number);
+	WingString _serial_number( (const char*)serial_number,strlen(serial_number) );
+	_serial_number.trim();
+	memset(serial_number,0,max_size);
+	memcpy(serial_number,_serial_number.c_str(),_serial_number.length());
+	//WingTrim(serial_number);
 
     pSvc->Release();
     pLoc->Release();

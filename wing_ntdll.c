@@ -293,7 +293,13 @@ DWORD WingGetCurrentProcessInfo( PROCESSINFO *&all_process, int from, int max_co
 				LPVOID commandline = NULL;
 				if( NT_SUCCESS( WingQueryProcessVariableSize( hNtDll, hProcess, ProcessCommandLineInformation, (PVOID *)&commandline ) ) )
 				{	
-					process_item->command_line = WingWcharToUtf8( (const wchar_t*)((PUNICODE_STRING)commandline)->Buffer );
+					WingString _command_line( (const wchar_t*)((PUNICODE_STRING)commandline)->Buffer );
+					int size = _command_line.length();
+
+					process_item->command_line = new char[size+1];
+					memset( process_item->command_line, 0, size+1 );
+					memcpy( process_item->command_line, _command_line.c_str(), _command_line.length() );
+
 					free(commandline);
 					commandline = NULL;
 				}else
@@ -365,29 +371,61 @@ unsigned long WingQueryProcess( PROCESSINFO *&all_process , int max_count )
 	int has_current_process = 0;
 	DWORD current_process_id = GetCurrentProcessId();
 	
-	__try
+	//__try
 	{
 		hNtDll = GetModuleHandleA("ntdll.dll");
 		if(hNtDll == NULL)
 		{
-			__leave;
+			if(lpSystemInfo != NULL)
+			{
+				free(lpSystemInfo);
+			}
+			if(hNtDll != NULL)
+			{
+				FreeLibrary(hNtDll);
+			}
+			return 0;
 		}
 		
 		NtQuerySystemInformation = (NTQUERYSYSTEMINFORMATION)GetProcAddress( hNtDll, "NtQuerySystemInformation" );
 		if(NtQuerySystemInformation == NULL)
 		{
-			__leave;
+			if(lpSystemInfo != NULL)
+			{
+				free(lpSystemInfo);
+			}
+			if(hNtDll != NULL)
+			{
+				FreeLibrary(hNtDll);
+			}
+			return 0;
 		}
 
 		lpSystemInfo = (LPVOID)malloc(dwNumberBytes);
 		Status = NtQuerySystemInformation( SystemProcessInformation, lpSystemInfo, dwNumberBytes, &dwReturnLength);
 		if( Status == STATUS_INFO_LENGTH_MISMATCH )
 		{
-			__leave;
+			if(lpSystemInfo != NULL)
+			{
+				free(lpSystemInfo);
+			}
+			if(hNtDll != NULL)
+			{
+				FreeLibrary(hNtDll);
+			}
+			return 0;
 		}
 		else if( Status != STATUS_SUCCESS )
 		{
-			__leave;
+			if(lpSystemInfo != NULL)
+			{
+				free(lpSystemInfo);
+			}
+			if(hNtDll != NULL)
+			{
+				FreeLibrary(hNtDll);
+			}
+			return 0;
 		}
 
 		pSystemProc = (PSYSTEM_PROCESSES)lpSystemInfo;
@@ -408,7 +446,12 @@ unsigned long WingQueryProcess( PROCESSINFO *&all_process , int max_count )
 
 			if( pSystemProc->ProcessId != 0 )
 			{
-				process_item->process_name = WingWcharToUtf8( pSystemProc->ProcessName.Buffer );
+				WingString _process_name( (const wchar_t*)pSystemProc->ProcessName.Buffer );
+				int size = _process_name.length();
+
+				process_item->process_name = new char[size+1];
+				memset( process_item->process_name, 0, size+1 );
+				memcpy( process_item->process_name, _process_name.c_str(), size );
 			}
 			else
 			{
@@ -435,7 +478,11 @@ unsigned long WingQueryProcess( PROCESSINFO *&all_process , int max_count )
 				LPVOID commandline = NULL;
 				if( NT_SUCCESS( WingQueryProcessVariableSize( hNtDll, hProcess, ProcessCommandLineInformation, (PVOID *)&commandline ) ) )
 				{	
-					process_item->command_line = WingWcharToUtf8( (const wchar_t*)((PUNICODE_STRING)commandline)->Buffer );
+					WingString _command_line( (const wchar_t*)((PUNICODE_STRING)commandline)->Buffer );
+					int size = _command_line.length();
+					process_item->command_line = new char[size+1]; 
+					memset( process_item->command_line, 0, size+1 );
+					memcpy( process_item->command_line, _command_line.c_str(), size );
 					free(commandline);
 					commandline = NULL;
 				}else
@@ -447,7 +494,11 @@ unsigned long WingQueryProcess( PROCESSINFO *&all_process , int max_count )
 			
 				PUNICODE_STRING fileName;
 				if( NT_SUCCESS( WingQueryProcessVariableSize( hNtDll, hProcess, ProcessImageFileName, (PVOID*)&fileName ))){
-					process_item->file_name = WingWcharToUtf8( (const wchar_t*)fileName->Buffer );
+					WingString _file_name( (const wchar_t*)fileName->Buffer );
+					int size = _file_name.length();
+					process_item->file_name = new char[size+1];
+					memset( process_item->file_name, 0, size+1 );
+					memcpy( process_item->file_name, _file_name.c_str(), size );
 					free(fileName);
 				}
 				else
@@ -460,7 +511,11 @@ unsigned long WingQueryProcess( PROCESSINFO *&all_process , int max_count )
 			
 				PUNICODE_STRING filepath;
 				if( NT_SUCCESS( WingQueryProcessVariableSize( hNtDll, hProcess, ProcessImageFileNameWin32, (PVOID*)&filepath ))){
-					process_item->file_path = WingWcharToUtf8( (const wchar_t*)filepath->Buffer );
+					WingString _filepath( (const wchar_t*)filepath->Buffer );
+					int size = _filepath.length();
+					process_item->file_path = new char[size+1];
+					memset( process_item->file_path, 0, size+1 );
+					memcpy( process_item->file_path, _filepath.c_str(), size );
 					free(filepath);
 				}
 				else
@@ -508,7 +563,7 @@ unsigned long WingQueryProcess( PROCESSINFO *&all_process , int max_count )
 			
 		}
 	}
-	__finally
+	//__finally
 	{
 		if(lpSystemInfo != NULL)
 		{

@@ -144,7 +144,11 @@ ZEND_FUNCTION( wing_get_cpu_id ){
         hr = pclsObj->Get(L"ProcessorId", 0, &vtProp, 0, 0);
 		if( vtProp.bstrVal )
 		{
-			char *temp_processor_id = WingWcharToUtf8( (const wchar_t *)vtProp.bstrVal ); 
+			WingString _temp_processor_id( (const wchar_t *)vtProp.bstrVal );
+			int size = _temp_processor_id.length();
+			char *temp_processor_id = new char[size+1];
+			memset(temp_processor_id,0,size+1);
+			memcpy(temp_processor_id,_temp_processor_id.c_str(),size);
 			if( temp_processor_id )
 			{
 				add_assoc_string( item, "processor_id", temp_processor_id, 1 );
@@ -261,7 +265,11 @@ ZEND_FUNCTION( wing_get_serial_number ){
 
 		if( SerialNumber.bstrVal )
 		{	
-			char *temp_serial_number = WingWcharToUtf8( (const wchar_t *)SerialNumber.bstrVal );
+			WingString _temp_serial_number(  (const wchar_t *)SerialNumber.bstrVal );
+			int size = _temp_serial_number.length();
+			char *temp_serial_number = new char[size+1];
+			memset( temp_serial_number,0,size+1);
+			memcpy( temp_serial_number,_temp_serial_number.c_str(),size );
 			if( temp_serial_number ) 
 			{
 				add_assoc_string( item, "serial_number", temp_serial_number, 1 );

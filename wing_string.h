@@ -3,8 +3,31 @@
 
 #include "Windows.h"
 
-void  WingTrim( char *str )  ; 
-char* WingWcharToUtf8( const wchar_t *pwStr );
-void  WingGBKToUTF8( char *in_str,char *&out_str );
+class WingString{
+
+private:
+	char *str;
+	unsigned int len;
+
+public:
+
+	//重载三个构造函数
+	WingString( const char *_str, int size );
+	WingString( char *_str , int size , int dup );
+	WingString();
+	WingString( const wchar_t *_str );
+
+	~WingString();
+
+	unsigned length();
+	char* c_str();
+	void append( const char *_str, int size );
+	void append( WingString *_str );
+	void append( const wchar_t *_str );
+	BOOL toUTF8( );
+	void print();
+	void trim();
+};
+
 
 #endif
