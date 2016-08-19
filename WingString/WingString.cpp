@@ -8,6 +8,22 @@
 #define WING_STR_IS_WCHAR  2
 #define WING_STR_IS_UNKNOW 3
 
+#define WING_CHAR_SIZE(str)  (strlen((char*)str)+1)*sizeof(char)
+#define WING_WCHAR_SIZE(str) (wcslen((wchar_t*)str)+1)*sizeof(wchar_t)
+
+/**
+ *@size为字符串长度,或者sizeof 都可以 ，已经兼容并且二进制安全
+ */
+void      wing_str_trim( _Inout_ char* str ,int size = 0 );
+char*     wing_str_wchar_to_char( _In_ const wchar_t* str );
+wchar_t*  wing_str_char_to_wchar( _In_ const char* str );
+char*     wing_str_char_to_utf8( _In_ const char* str );
+
+/**
+ *@---- WingString ----
+ *@字符串处理封装 
+ *@注意 size 均为占用内存字节 并非字符串长度，如 size=sizeof(*data) 或者 size = (strlen(str)+1)*sizeof(char)
+ */
 class WingString{
 
 private:
@@ -18,43 +34,31 @@ private:
 public:
 
 	//构造函数
-	WingString( char *_str, int _size );
-	WingString( wchar_t *_str, int _size );
+	WingString( char *_str, int _size = 0 );
+	WingString( wchar_t *_str, int _size = 0 );
 	WingString( );
 	~WingString( );
 
 	unsigned int size();
 	unsigned int length();
 
+	void* data();
+	int type();
 	char* c_str();
 	wchar_t* w_str();
 
-	void append( const char *_str, int size );
+	void append( const char *_str, int size = 0 );
 	void append( WingString *_str );
-	void append( const wchar_t *_str,int size );
+	void append( const wchar_t *_str,int size = 0 );
 
 	BOOL toUTF8( );
 	void print();
 	void trim();
 };
 
-/**
-to char
-int len = WideCharToMultiByte(CP_UTF8, 0, _str, -1, NULL, 0, NULL, NULL);
-    if (len <= 0)
-    {
-        this->str = NULL;
-		this->len = 0;
-		return;
-    }
-    this->str = new char[len+1];
-	this->len = len;
-	memset( this->str, 0, len+1 );
-    WideCharToMultiByte( CP_UTF8, 0, _str, -1, this->str, len, NULL, NULL );
-*/
-
 WingString::WingString( char *_str, int _size ){
-	
+	if( _size <= 0 ) 
+		_size = WING_CHAR_SIZE( _str );
 	this->str      = malloc( _size );
 	this->str_size = _size;
 	this->str_type = WING_STR_IS_CHAR;
@@ -64,7 +68,8 @@ WingString::WingString( char *_str, int _size ){
 }
 
 WingString::WingString( wchar_t *_str, int _size ){
-	
+	if( _size <= 0 ) 
+		_size = WING_WCHAR_SIZE( _str );
 	this->str      = malloc( _size );
 	this->str_size = _size;
 	this->str_type = WING_STR_IS_WCHAR;
@@ -92,25 +97,22 @@ unsigned int WingString::size(){
 	return this->str_size;
 }
 unsigned int WingString::length(){
-	switch( this->str_type ){
-	case WING_STR_IS_CHAR:
-		return (unsigned int)(  this->str_size/sizeof(char)  -1 );
-		break;
-	case WING_STR_IS_WCHAR:
-		return (unsigned int)(  this->str_size/sizeof(wchar_t) -1 );
-		break;
-	default:
-		return 0;
+	
+	switch( this->str_type )
+	{
+		case WING_STR_IS_CHAR:
+			return (unsigned int)(  this->str_size/sizeof(char)  -1 );
+			break;
+		case WING_STR_IS_WCHAR:
+			return (unsigned int)(  this->str_size/sizeof(wchar_t) -1 );
+			break;
+		default:
+			return 0;
 	}
 	return 0;
 }
 
-char* WingString::c_str(){
-	return (char*)this->str;
-}
-wchar_t* WingString::w_str(){
-	return (wchar_t*)this->str;
-}
+
 
 
 /**
@@ -118,10 +120,14 @@ wchar_t* WingString::w_str(){
  */
 void WingString::append( const wchar_t *_str, int size ){
 		
-	if( _str == NULL || size <= 0 )
+	if( _str == NULL )
     {
 		return;
     }
+
+	if( size <=0 ) 
+		size = WING_WCHAR_SIZE( _str );
+
 	if( this->str_type == WING_STR_IS_UNKNOW )
 	{
 		this->str_type = WING_STR_IS_WCHAR;
@@ -134,19 +140,11 @@ void WingString::append( const wchar_t *_str, int size ){
 
 	if( this->str_type == WING_STR_IS_CHAR ){
 		
-		//这里得到容纳目标字符串的长度空间 包含 \0结束符
-		int len = WideCharToMultiByte( CP_UTF8, 0, _str, -1, NULL, 0, NULL, NULL );
-		if (len <= 0)
-		{
-			return;
-		}
+		char *res = wing_str_wchar_to_char( (const wchar_t*)_str );
 
-		char *res = (char*)malloc( len );
-		memset( res, 0, len );
-
-		WideCharToMultiByte( CP_UTF8, 0, _str, -1, res, len, NULL, NULL );
-
+		int len       = WING_CHAR_SIZE( res );
 		int new_len   = this->str_size + len - 1 ;
+
 		char *new_str = (char*)malloc(new_len);
 
 		memset( new_str , 0 , new_len );
@@ -189,10 +187,14 @@ void WingString::append( const wchar_t *_str, int size ){
  */
 void WingString::append( const char *_str, int size ){
 		
-	if( _str == NULL || size <= 0 )
+	if( _str == NULL )
     {
 		return;
     }
+
+	if( size <=0 ) 
+		size = WING_CHAR_SIZE( _str );
+
 	//如果构造的时候 没有初始化
 	if( this->str_type == WING_STR_IS_UNKNOW )
 	{
@@ -226,16 +228,11 @@ void WingString::append( const char *_str, int size ){
 
 	if( this->str_type == WING_STR_IS_WCHAR ) {
 
-		int len      = MultiByteToWideChar(CP_ACP,0,(const char *)_str,size-1,NULL,0);
-		int new_size = len*sizeof(wchar_t) + this->str_size;
+		wchar_t* buf = wing_str_char_to_wchar( (const char *)_str );
+		int new_size = WING_WCHAR_SIZE( buf ) - sizeof(wchar_t) + this->str_size;
 
 		wchar_t* buffer = (wchar_t*)malloc(new_size);
 		memset( buffer, 0x0, new_size );
-
-		int buf_size = (len+1)*sizeof(wchar_t);
-		wchar_t* buf = (wchar_t*)malloc( buf_size );
-		memset( buf, 0x0, buf_size );
-		MultiByteToWideChar( CP_ACP,0,(const char *)_str,size-1,buf,len);   
 
 		wsprintf( buffer, L"%s%s", this->str, buf );
 		free( this->str );
@@ -253,47 +250,110 @@ void WingString::append( const char *_str, int size ){
  */
 void WingString::append( WingString *_str ){
 		
-	/*int new_len   = _str->length() + this->len+1;
-	char *new_str = new char[new_len];
-	memset( new_str , 0 , new_len );
+	if( this->str_type == WING_STR_IS_UNKNOW ) {
 
-	char *str_begin = new_str;
-	memcpy( str_begin , this->str , this->len );
+		int size       = _str->size();
+		this->str      = malloc( size );
+		this->str_size = size;
+		this->str_type = _str->type();
 
-	str_begin += this->len;
-	memcpy( str_begin , _str->c_str() , _str->length() );
-	delete[] this->str;
+		memset( this->str, 0 , size );
+		memcpy( this->str, _str->data(), size );
 
-	this->str = new_str;
-	this->len = new_len - 1;*/
+	}
 
 }
-
+void * WingString::data(){
+	return this->str;
+}
+int WingString::type(){
+	return this->str_type;
+}
+char* WingString::c_str(){
+	return (char*)this->str;
+}
+wchar_t* WingString::w_str(){
+	return (wchar_t*)this->str;
+}
 /**
  *@打印字符串
  */
 void WingString::print(){
 
 	if( this->str_type == WING_STR_IS_CHAR )
-		printf("---size=%ld,len=%ld,%s---\r\n",this->size(),this->length(),this->str);
+		printf("---char:size=%ld,len=%ld,%s---\r\n",this->size(),this->length(),this->str);
 	else if( this->str_type == WING_STR_IS_WCHAR )
-		wprintf_s(L"---size=%ld,len=%ld,%s---\r\n",this->size(),this->length(),this->str);
+		wprintf_s(L"---wchar_t:size=%ld,len=%ld,%s---\r\n",this->size(),this->length(),this->str);
 }
 
 /**
- * @字符串转换为utf8编码
+ * @字符串转换为utf8编码，会改变自身
  */
 BOOL WingString::toUTF8()
 {
-	/*if( this->str == NULL )
-		return 0;
+	char *utf8_str = wing_str_char_to_utf8( ( const char* )str );
+	if( utf8_str != NULL ){
+		free( str );
+		this->str = utf8_str;
+		return 1;
+	}
+	return 0;
+}
+
+/**
+ *@去除两端空格 ，会改变自身
+ */
+void WingString::trim(){
+	
+	if( this->str == NULL || this->str_size <= 0 ) 
+		return;
+	if( this->str_type == WING_STR_IS_CHAR )
+	{
+		wing_str_trim( (char*)this->str );
+		this->str_size = strlen((char*)this->str )+1;
+	}
+}
+//----WingString end------------------------
+
+
+char* wing_str_wchar_to_char( _In_ const wchar_t* _str ){
+	//这里得到容纳目标字符串的长度空间 包含 \0结束符
+	int len = WideCharToMultiByte( CP_UTF8, 0, _str, -1, NULL, 0, NULL, NULL );
+	if (len <= 0)
+	{
+		return NULL;
+	}
+
+	char *res = (char*)malloc( len );
+	memset( res, 0, len );
+
+	WideCharToMultiByte( CP_UTF8, 0, _str, -1, res, len, NULL, NULL );
+
+	return res;	
+}
+wchar_t* wing_str_char_to_wchar( _In_ const char* _str ){
+	
+	int size     = WING_CHAR_SIZE( _str );
+	int len      = MultiByteToWideChar(CP_ACP,0,(const char *)_str,size-1,NULL,0);
+
+	int buf_size = (len+1)*sizeof(wchar_t);
+	wchar_t* buf = (wchar_t*)malloc( buf_size );
+	memset( buf, 0x0, buf_size );
+	MultiByteToWideChar( CP_ACP,0,(const char *)_str,size-1,buf,len);   
+
+	return buf;
+}
+char* wing_str_char_to_utf8( _In_ const char* str ){
+	
+	if( str == NULL )
+		return NULL;
 
 	wchar_t* unicode_str = NULL;
 	int utf8_str_size    = 0;
 
-	utf8_str_size      = ::MultiByteToWideChar( CP_ACP, 0,this->str, -1, NULL, NULL );                   //获取转换到Unicode编码后所需要的字符空间长度
+	utf8_str_size      = ::MultiByteToWideChar( CP_ACP, 0, str, -1, NULL, NULL );                   //获取转换到Unicode编码后所需要的字符空间长度
 	unicode_str        = new wchar_t[utf8_str_size + 1];                                                   //为Unicode字符串空间
-	utf8_str_size      = ::MultiByteToWideChar( CP_ACP, 0, this->str, -1, unicode_str, utf8_str_size );  //转换到Unicode编码
+	utf8_str_size      = ::MultiByteToWideChar( CP_ACP, 0, str, -1, unicode_str, utf8_str_size );  //转换到Unicode编码
 	
 	if( !utf8_str_size )                                                                                 //转换失败则出错退出
 	{
@@ -315,22 +375,23 @@ BOOL WingString::toUTF8()
 	if( !utf8_str_size )
 		return 0;
 
-	delete[] this->str;
-
-	this->str = utf8_str;
-	this->len = utf8_str_size;*/
-	return 1;
+	return utf8_str;
 }
 
-void WingString::trim(){
-	
-	/*if( this->str == NULL || this->len <= 0 ) 
+/**
+ *@去除字符串两端空格
+ */
+void wing_str_trim( _Inout_ char* str ,int size ){
+	if( str == NULL ) 
 		return;
+	if( size <= 0 )
+		size = strlen( str );
 	
-	int len     = this->len;  
-	char *start = this->str;  
-    char *end   = this->str + len - 1;  
+	int len     = size;
+	char *start = str;  
+    char *end   = str + len - 1;  
   
+	//找到第一个不为空的字符
     while (1)   
     {     
         char c = *start;  
@@ -340,49 +401,67 @@ void WingString::trim(){
         start++;  
         if (start > end)  
         {     
-            this->str[0] = '\0';  
+            str[0] = '\0';  
             return;  
         }    
     }     
   
+	//找到最后一个不为空的字符
     while (1)   
     {     
         char c = *end;  
-        if (!isspace(c))  
+        if ( !isspace(c) && c != '\0' )  //兼容传入的是size或是strlen
             break;  
   
         end--;  
         if (start > end)  
         {     
-            this->str[0] = '\0';  
+            str[0] = '\0';  
             return;  
         }  
     }  
   
-    memmove(this->str, start, end - start + 1);  
-    this->str[end - start + 1] = '\0';  
-	this->len = end - start + 1;*/
+	//复制区间
+    memmove(str, start, end - start + 1);  
+	//最后一个值清零
+    str[end - start + 1] = '\0';  
 }
+
 
 
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	//WingString a("123",sizeof("123"));
-	//a.append(L"456",sizeof(L"456"));
-	//a.print();
+	WingString a("123");
+	a.append(L"456");
+	a.print();
 
-	//WingString a2(L"123",sizeof(L"123"));
-	//a2.append(L"456",sizeof(L"456"));
+	//WingString a2(L"123");
+	//a2.append(L"456");
 	//a2.print();
 
-	WingString a(L"123",sizeof(L"123"));
-	a.print();
-	a.append("456",sizeof("456"));
-	a.print();
+	WingString a3(L"123");
+	a3.append("456");
+	a3.print();
 
-	printf("%ld\r\n",sizeof(L"123456"));
+
+	//char s[] = " 999   ";
+	//wing_str_trim( s, strlen(s)+1 );
+	//printf("==>%s<==\r\n",s);
+
+	//WingString a5("哈哈哈");
+	//a5.print();
+	//a5.toUTF8();
+	//a5.print();
+
+	//WingString a6(" 999   ");
+	//a6.print();
+	//a6.trim();
+	//a6.print();
+
 
 	return 0;
 }
+
+
 
