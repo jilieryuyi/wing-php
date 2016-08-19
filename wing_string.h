@@ -2,7 +2,7 @@
 #define __WING_STRING_H__
 
 #include "Windows.h"
-
+void wing_str_trim( char *str , int size );
 class WingString{
 
 private:
@@ -12,6 +12,7 @@ private:
 public:
 
 	//重载三个构造函数
+	WingString( const char *_str);
 	WingString( const char *_str, int size );
 	WingString( char *_str , int size , int dup );
 	WingString();
@@ -21,6 +22,7 @@ public:
 
 	unsigned length();
 	char* c_str();
+	void append( const char *_str );
 	void append( const char *_str, int size );
 	void append( WingString *_str );
 	void append( const wchar_t *_str );

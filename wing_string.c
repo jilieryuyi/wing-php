@@ -24,10 +24,16 @@ WingString::WingString( const wchar_t *_str ){
     WideCharToMultiByte( CP_UTF8, 0, _str, -1, this->str, len, NULL, NULL );
 }
 WingString::WingString( const char *_str, int size ){
-	this->str = _strdup( _str );
-	this->len = size;
+	this->str = new char[size+1];
+	memset( this->str, size+1 , 0 );
+	memcpy( this->str , _str , size+1 );
 }
-
+WingString::WingString( const char *_str ){
+	int size = strlen( _str );
+	this->str = new char[size+1];
+	memset( this->str, size+1 , 0 );
+	memcpy( this->str , _str , size+1 );
+}
 WingString::WingString( char *_str , int size , int dup ){
 	if( dup )
 	{	
@@ -37,7 +43,7 @@ WingString::WingString( char *_str , int size , int dup ){
 	}
 	else
 	{
-		this->str = (char*)_str;
+		this->str = _str;
 	}
 	this->len = size;
 }
@@ -106,6 +112,24 @@ void WingString::append( const wchar_t *_str ){
  */
 void WingString::append( const char *_str, int size ){
 		
+	int new_len   = size+this->len+1;
+	char *new_str = new char[new_len];
+	memset( new_str , 0 , new_len );
+
+	char *str_begin = new_str;
+	memcpy( str_begin , this->str , this->len );
+
+	str_begin += this->len;
+	memcpy( str_begin , _str , size );
+	delete[] this->str;
+
+	this->str = new_str;
+	this->len = new_len - 1;
+
+}
+
+void WingString::append( const char *_str ){
+	int size = strlen( _str );	
 	int new_len   = size+this->len+1;
 	char *new_str = new char[new_len];
 	memset( new_str , 0 , new_len );
@@ -194,13 +218,16 @@ BOOL WingString::toUTF8()
 }
 
 void WingString::trim(){
-	
-	if( this->str == NULL || this->len <= 0 ) 
+	wing_str_trim( this->str ,this->len );
+}
+
+void wing_str_trim( char* str ,int size ){
+	if( str == NULL || size == 0 ) 
 		return;
 	
-	int len     = this->len;  
-	char *start = this->str;  
-    char *end   = this->str + len - 1;  
+	int len     = size;//strlen( str );  
+	char *start = str;  
+    char *end   = str + len - 1;  
   
 	//找到第一个不为空的字符
     while (1)   
@@ -212,7 +239,7 @@ void WingString::trim(){
         start++;  
         if (start > end)  
         {     
-            this->str[0] = '\0';  
+            str[0] = '\0';  
             return;  
         }    
     }     
@@ -227,16 +254,15 @@ void WingString::trim(){
         end--;  
         if (start > end)  
         {     
-            this->str[0] = '\0';  
+            str[0] = '\0';  
             return;  
         }  
     }  
   
 	//复制区间
-    memmove(this->str, start, end - start + 1);  
+    memmove(str, start, end - start + 1);  
 	//最后一个值清零
-    this->str[end - start + 1] = '\0';  
-	this->len = end - start + 1;
+    str[end - start + 1] = '\0';  
 }
 
 

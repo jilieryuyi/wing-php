@@ -32,16 +32,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="wing_adapters_info.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wing_adapters_info.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="140">
-              <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="33" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="wing_const.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wing_const.php">
           <provider selected="true" editor-type-id="text-editor">
@@ -72,13 +62,26 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="wing_windows_version.php" pinned="false" current-in-tab="true">
+      <file leaf-file-name="wing_windows_version.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wing_windows_version.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="160">
+            <state relative-caret-position="60">
               <caret line="8" column="0" selection-start-line="8" selection-start-column="0" selection-end-line="31" selection-end-column="1" />
               <folding>
                 <element signature="e#6#100#0#PHP" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="com.php" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/com.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="160">
+              <caret line="8" column="11" selection-start-line="8" selection-start-column="11" selection-end-line="8" selection-end-column="11" />
+              <folding>
+                <marker date="1471578130662" expanded="true" signature="175:202" placeholder="Select * fro... Win32_Process" />
+                <marker date="1471578130662" expanded="true" signature="175:204" placeholder="Select * fro... Win32_Process" />
               </folding>
             </state>
           </provider>
@@ -183,6 +186,7 @@
         <option value="$PROJECT_DIR$/wing_encrypt_file.log" />
         <option value="$PROJECT_DIR$/wing_encrypt_file_test.php" />
         <option value="$PROJECT_DIR$/wing_encrypt_file.php" />
+        <option value="$PROJECT_DIR$/com.php" />
       </list>
     </option>
   </component>
@@ -226,7 +230,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -247,11 +250,12 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scratches" />
       <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="D:/web/yonglibao/bigbluewhare" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
   </component>
@@ -348,14 +352,16 @@
       <workItem from="1471404138530" duration="2072000" />
       <workItem from="1471441136628" duration="28000" />
       <workItem from="1471445145334" duration="609000" />
+      <workItem from="1471529907370" duration="690000" />
+      <workItem from="1471575188076" duration="2882000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="163157000" />
+    <option name="totallyTimeSpent" value="166729000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1604" height="876" extended-state="0" />
+    <frame x="-8" y="-8" width="1604" height="876" extended-state="1" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22670025" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -385,7 +391,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/beta/http/cookie/9ee955144434dc9be6e30c5383d82bdbcaee75c74a6ccd65965edfffef4462f4_1470573444.cookie" />
     <entry file="file://$PROJECT_DIR$/beta/http/cookie/31a8a9446e2d84b3cbbc8990f37e3f13005206abe3ad28b8e2d509046962e0f2_1470573446.cookie" />
     <entry file="file://$PROJECT_DIR$/beta/http/cookie/90b9b3cc6ed57443653f7c7a25736c1f96a8d2ea1e616ebf414785ba3fa7d705_1470573446.cookie" />
     <entry file="file://$PROJECT_DIR$/beta/http/cookie/93e013d095a88d3e3c682e12f2f49614209c4a78d103555b49ec4b905c6b9824_1470573446.cookie" />
@@ -532,7 +537,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="100">
           <caret line="5" column="8" selection-start-line="5" selection-start-column="8" selection-end-line="5" selection-end-column="8" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -540,9 +544,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="320">
           <caret line="38" column="29" selection-start-line="38" selection-start-column="29" selection-end-line="38" selection-end-column="29" />
-          <folding>
-            <element signature="e#6#588#0#PHP" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -550,7 +551,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -565,7 +565,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="140">
           <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -580,7 +579,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="140">
           <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="33" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -650,10 +648,21 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/wing_windows_version.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="160">
+        <state relative-caret-position="60">
           <caret line="8" column="0" selection-start-line="8" selection-start-column="0" selection-end-line="31" selection-end-column="1" />
           <folding>
             <element signature="e#6#100#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/com.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="160">
+          <caret line="8" column="11" selection-start-line="8" selection-start-column="11" selection-end-line="8" selection-end-column="11" />
+          <folding>
+            <marker date="1471578130662" expanded="true" signature="175:202" placeholder="Select * fro... Win32_Process" />
+            <marker date="1471578130662" expanded="true" signature="175:204" placeholder="Select * fro... Win32_Process" />
           </folding>
         </state>
       </provider>

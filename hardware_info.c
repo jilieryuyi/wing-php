@@ -245,11 +245,7 @@ void get_serial_number( char *&serial_number )
 		}
     }
 
-	WingString _serial_number( (const char*)serial_number,strlen(serial_number) );
-	_serial_number.trim();
-	memset(serial_number,0,max_size);
-	memcpy(serial_number,_serial_number.c_str(),_serial_number.length());
-	//WingTrim(serial_number);
+	wing_str_trim( serial_number, strlen(serial_number) );
 
     pSvc->Release();
     pLoc->Release();
