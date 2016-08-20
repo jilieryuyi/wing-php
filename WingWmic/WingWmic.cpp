@@ -4,7 +4,7 @@
 #include "stdafx.h"
 #define _WIN32_DCOM
 #include <atlcomcli.h>
-#include <iostream>
+//#include <iostream>
 using namespace std;
 #include <comdef.h>
 #include <Wbemidl.h>
@@ -25,7 +25,6 @@ public:
 	void query( const char *sql );
 	BOOL next();
 	char* get( const char *key);
-	//void print( const char* sql );
 };
 
 WingWmic::WingWmic(){
@@ -121,7 +120,7 @@ void WingWmic::query( const char* _sql ){
 		from++;
 	}
 
-	printf("table=%s\r\n",this->query_table);
+	//printf("table=%s\r\n",this->query_table);
 
 	HRESULT hres = pSvc->ExecQuery( bstr_t("WQL"), bstr_t(sql),WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, NULL,&this->pEnumerator);
     
@@ -143,7 +142,7 @@ char* WingWmic::get( const char *key){
 	
 	if( this->has_error ) 
 	{
-		printf("has error %ld\r\n",GetLastError());
+		//printf("has error %ld\r\n",GetLastError());
 		pEnumerator->Release();
 		pEnumerator = NULL;
 		return NULL;
@@ -156,7 +155,7 @@ char* WingWmic::get( const char *key){
 
 	if( 0 == uReturn )
 	{
-		printf("\r\nfail %ld\r\n",GetLastError());
+		//printf("\r\nfail %ld\r\n",GetLastError());
 		if( pclsObj != NULL ) {
 			pclsObj->Release();
 			pclsObj=NULL;
@@ -167,32 +166,23 @@ char* WingWmic::get( const char *key){
 	}
 
 	VARIANT vtProp;
-	size_t len = 0;
-	size_t nu   = strlen(key);
-	 len  =(size_t)MultiByteToWideChar(CP_ACP,0,key,(int)nu,NULL,0)+1;
+	
+	
 
-	wchar_t *wkey = new wchar_t[len];
-    memset( wkey, 0, len );
-	MultiByteToWideChar(CP_ACP,0,key,(int)nu,wkey, len );
-	wkey[len-1]=L'\0';
+	 wchar_t *wkey = wing_str_char_to_wchar( key );
+   
 
 	hr = pclsObj->Get( wkey , 0, &vtProp, 0, 0);
 
-	wcout<<"key=>"<<wkey<<"<=="<<endl;
+	//wcout<<"key=>"<<wkey<<"<=="<<endl;
 
 	char *res = NULL;
 	if( SUCCEEDED( hr ) && vtProp.bstrVal )
 	{	
-		len = WideCharToMultiByte(CP_UTF8, 0, vtProp.bstrVal, -1, NULL, 0, NULL, NULL);
-		if (len > 0)
-		{
-			res = new char[len+1];
-			memset( res, 0, len+1 );
-			WideCharToMultiByte( CP_UTF8, 0, vtProp.bstrVal, -1, res, len, NULL, NULL );
-		}else
-			wcout<<"convert fail key=>"<<wkey<<endl;
+		res = wing_str_wchar_to_char( (const wchar_t*)vtProp.bstrVal );
+
 	}else{
-		wcout<<"fail key=>"<<wkey<<endl;
+		//wcout<<"fail key=>"<<wkey<<endl;
 	}
 		
 	VariantClear(&vtProp);
@@ -207,8 +197,10 @@ char* WingWmic::get( const char *key){
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	char sql[] = "SELECT * FROM Win32_Process\0";
+	//char sql[] = "SELECT * FROM Win32_Process\0";
  
+	char *sql = "SELECT * FROM Win32_Processor";
+
 	WingWmic mic;
 	
 	mic.query(sql);
@@ -217,14 +209,8 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	while( mic.next() ) {
 		
-		c = mic.get("Caption");
-		printf("\r\nCaption:%ld=>%s\r\n",count,c);
-
-		//c = mic.get(L"CreationClassName");
-		//printf("CreationClassName:%ld=>%s\r\n",count,c);
-
-		//c = mic.get(L"CommandLine");
-		//printf("CommandLine:%ld=>%s\r\n",count,c);
+		c = mic.get("ProcessorId");
+		printf("ProcessorId:%ld=>%s\r\n",count,c);
 
 		count++;
 	}

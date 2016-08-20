@@ -52,19 +52,7 @@ void get_error_msg( char *&error_msg, int last_error ){
 	if( fok && hlocal != NULL ) 
 	{
 		char *gbk_error_msg   = (char*)LocalLock( hlocal );
-		char *utf8_error_msg  = NULL;
-
-		WingString _gbk( gbk_error_msg, strlen(gbk_error_msg), 1 );
-
-		//°Ñgbk×ª»»Îªutf8
-		_gbk.toUTF8();
-
-		int size = _gbk.length();
-
-		utf8_error_msg = new char[size+1];
-
-		memset( utf8_error_msg, 0, size+1 );
-		memcpy( utf8_error_msg, _gbk.c_str(), size );
+		char *utf8_error_msg  =  wing_str_char_to_utf8( (const char*)gbk_error_msg );
 					
 		if( NULL == utf8_error_msg )
 		{
@@ -72,7 +60,7 @@ void get_error_msg( char *&error_msg, int last_error ){
 		}else
 		{
 			spprintf( &error_msg,0,"%s",utf8_error_msg );
-			delete[] utf8_error_msg;
+			free(utf8_error_msg);
 		}
 			
 		LocalFree( hlocal );

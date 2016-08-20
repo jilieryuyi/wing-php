@@ -1,4 +1,6 @@
+
 #include "php_wing.h"
+#include "wing_wmic.h" 
 #include "hardware_info.h"
 #include "wing_string.h"
 #include <Iphlpapi.h>  
@@ -7,6 +9,8 @@
 #include <comdef.h>
 #include <Wbemidl.h>
 #include "wing_string.h"
+
+#include "wing_malloc.h"
 
 #pragma comment(lib, "wbemuuid.lib")
 #pragma comment(lib, "Iphlpapi")  
@@ -64,238 +68,52 @@ ZEND_FUNCTION( wing_get_cpu_id ){
 
 	array_init( return_value );
 
-	HRESULT hres =  CoInitializeEx(0, COINIT_MULTITHREADED); 
-    if( FAILED(hres) )
-    {
-		return;
-    }
+	char *sql = "SELECT * FROM Win32_Processor";
 
-    hres =  CoInitializeSecurity( NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL );
-
-	if( FAILED(hres) )
-    {
-        CoUninitialize();
-		return;
-    }
-    
-    IWbemLocator *pLoc = NULL;
-
-    hres = CoCreateInstance( CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER, IID_IWbemLocator, (LPVOID *) &pLoc);
- 
-    if( FAILED(hres) )
-    {
-        CoUninitialize();
-		return;
-    }
-
-    IWbemServices *pSvc = NULL;
-    hres                = pLoc->ConnectServer( _bstr_t(L"ROOT\\CIMV2"), NULL, NULL, 0,  NULL, 0, 0, &pSvc );
-    
-    if (FAILED(hres))
-    {
-        pLoc->Release();     
-        CoUninitialize();
-		return;
-    }
-
-
-    hres = CoSetProxyBlanket(  pSvc,  RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE  );
-
-    if (FAILED(hres))
-    {
-       
-        pSvc->Release();
-        pLoc->Release();     
-        CoUninitialize();
-        return;           
-    }
-
-
-    IEnumWbemClassObject* pEnumerator = NULL;
-    hres = pSvc->ExecQuery( bstr_t("WQL"),  bstr_t("SELECT * FROM Win32_Processor "),  WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,NULL, &pEnumerator );
-    
-    if (FAILED(hres))
-    {
-        pSvc->Release();
-        pLoc->Release();
-        CoUninitialize(); 
-        return; 
-    }
- 
-    IWbemClassObject *pclsObj = NULL;
-    ULONG uReturn             = 0;
+	WingWmic mic;
 	
-	
-	
-	
-    while (pEnumerator)
-    {
-        HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
-        if(0 == uReturn)
-        {
-            break;
-        }
+	mic.query(sql);
+	char *processor_id_item = NULL;
 
-		zval *item;
-		MAKE_STD_ZVAL( item );
-		array_init( item );
-
-        VARIANT vtProp;
-        hr = pclsObj->Get(L"ProcessorId", 0, &vtProp, 0, 0);
-		if( vtProp.bstrVal )
-		{
-			WingString _temp_processor_id( (const wchar_t *)vtProp.bstrVal );
-			int size = _temp_processor_id.length();
-			char *temp_processor_id = new char[size+1];
-			memset(temp_processor_id,0,size+1);
-			memcpy(temp_processor_id,_temp_processor_id.c_str(),size);
-			if( temp_processor_id )
-			{
-				add_assoc_string( item, "processor_id", temp_processor_id, 1 );
-				delete[] temp_processor_id;
-			}
+	while( mic.next() ) {
+		processor_id_item = mic.get("ProcessorId");
+		if( processor_id_item != NULL )
+		{	
+			zval *item;
+			MAKE_STD_ZVAL( item );
+			array_init( item );
+			add_assoc_string( item, "processor_id", processor_id_item, 1 );
+			wing_free( processor_id_item );
+			add_next_index_zval( return_value, item );
 		}
-		
-        VariantClear(&vtProp);
-		add_next_index_zval( return_value, item );
-
-		if(pclsObj!=NULL)
-		{
-			pclsObj->Release();
-			pclsObj=NULL;
-		}
-    }
-
-    pSvc->Release();
-    pLoc->Release();
-    pEnumerator->Release();
-	if(pclsObj!=NULL)
-	{
-		pclsObj->Release();
-		pclsObj=NULL;
 	}
-    CoUninitialize();
+ 
 }
 
 
 ZEND_FUNCTION( wing_get_serial_number ){
 	
-	array_init(return_value);
+	array_init( return_value );
 
-	HRESULT hres =  CoInitializeEx(0, COINIT_MULTITHREADED); 
-    if( FAILED(hres) )
-    {
-        return; 
-    }
+	char *sql = "SELECT * FROM Win32_PhysicalMedia";
 
-    hres =  CoInitializeSecurity( NULL,  -1, NULL,   NULL,  RPC_C_AUTHN_LEVEL_DEFAULT, RPC_C_IMP_LEVEL_IMPERSONATE,  NULL,  EOAC_NONE,  NULL );
+	WingWmic mic;
+	
+	mic.query(sql);
+	char *serial_number_item = NULL;
 
-	if (FAILED(hres))
-    {
-        CoUninitialize();
-        return;                    
-    }
-    
-    IWbemLocator *pLoc = NULL;
-
-    hres = CoCreateInstance( CLSID_WbemLocator, 0,  CLSCTX_INPROC_SERVER,  IID_IWbemLocator, (LPVOID *) &pLoc );
- 
-    if (FAILED(hres))
-    {
-        CoUninitialize();
-        return;                
-    }
-
-
-    IWbemServices *pSvc = NULL;
- 
-    hres = pLoc->ConnectServer(  _bstr_t(L"ROOT\\CIMV2"),  NULL, NULL,   0,  NULL,  0, 0,  &pSvc  );
-    
-    if (FAILED(hres))
-    {
-        pLoc->Release();     
-        CoUninitialize();
-        return;                
-    }
-
-
-    hres = CoSetProxyBlanket( pSvc, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE );
-
-    if (FAILED(hres))
-    {
-        pSvc->Release();
-        pLoc->Release();     
-        CoUninitialize();
-        return;              
-    }
-
-
-    IEnumWbemClassObject* pEnumerator = NULL;
-    hres = pSvc->ExecQuery( bstr_t("WQL"),  bstr_t("SELECT * FROM Win32_PhysicalMedia"),  WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,  NULL, &pEnumerator );
-    
-    if (FAILED(hres))
-    {
-        pSvc->Release();
-        pLoc->Release();
-        CoUninitialize();
-        return;               
-    }
-
-
-    IWbemClassObject *pclsObj = NULL;
-    ULONG uReturn = 0;
-
-    while (pEnumerator)
-    {
-        HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
-
-        if(0 == uReturn)
-        {
-            break;
-        }
-
-		zval *item;
-		MAKE_STD_ZVAL( item );
-		array_init( item );
-		//add_assoc_long(      item,"process_id",        process.process_id          );
-
-        VARIANT SerialNumber;
-
-        hr = pclsObj->Get(L"SerialNumber", 0, &SerialNumber, 0, 0);
-
-		if( SerialNumber.bstrVal )
+	while( mic.next() ) {
+		serial_number_item = mic.get("SerialNumber");
+		if( serial_number_item != NULL )
 		{	
-			WingString _temp_serial_number(  (const wchar_t *)SerialNumber.bstrVal );
-			int size = _temp_serial_number.length();
-			char *temp_serial_number = new char[size+1];
-			memset( temp_serial_number,0,size+1);
-			memcpy( temp_serial_number,_temp_serial_number.c_str(),size );
-			if( temp_serial_number ) 
-			{
-				add_assoc_string( item, "serial_number", temp_serial_number, 1 );
-				delete[] temp_serial_number;
-			}
+			zval *item;
+			MAKE_STD_ZVAL( item );
+			array_init( item );
+			add_assoc_string( item, "serial_number", serial_number_item, 1 );
+			wing_free( serial_number_item );
+			add_next_index_zval( return_value, item );
 		}
-		VariantClear(&SerialNumber);
-
-		
-		add_next_index_zval( return_value, item );
-
-       
-		if(pclsObj!=NULL)
-		{
-			pclsObj->Release();
-			pclsObj=NULL;
-		}
-    }
-
-    pSvc->Release();
-    pLoc->Release();
-    pEnumerator->Release();
-	if(pclsObj!=NULL)
-	{
-		pclsObj->Release();
-		pclsObj=NULL;
 	}
-   CoUninitialize();
+ 
+	
 }

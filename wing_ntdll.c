@@ -285,21 +285,11 @@ DWORD WingGetCurrentProcessInfo( PROCESSINFO *&all_process, int from, int max_co
 			sprintf(process_item->command_line,"%s",comm);
 		}else
 		{
-			// process_item->command_line = new char[4];
-			// memset( process_item->command_line,0,4);
-			//handle = OpenProcess( PROCESS_ALL_ACCESS, FALSE, pe32.th32ProcessID );
-			//WingGetProcessCommandLine( pe32.th32ProcessID , process_item->command_line );
 			if( NT_SUCCESS(WingOpenProcess( hNtDll, &hProcess, PROCESS_QUERY_INFORMATION|PROCESS_VM_READ,(HANDLE)pe32.th32ProcessID ))){
 				LPVOID commandline = NULL;
 				if( NT_SUCCESS( WingQueryProcessVariableSize( hNtDll, hProcess, ProcessCommandLineInformation, (PVOID *)&commandline ) ) )
 				{	
-					WingString _command_line( (const wchar_t*)((PUNICODE_STRING)commandline)->Buffer );
-					int size = _command_line.length();
-
-					process_item->command_line = new char[size+1];
-					memset( process_item->command_line, 0, size+1 );
-					memcpy( process_item->command_line, _command_line.c_str(), _command_line.length() );
-
+					process_item->command_line = wing_str_wchar_to_char( (const wchar_t*)((PUNICODE_STRING)commandline)->Buffer ) ;
 					free(commandline);
 					commandline = NULL;
 				}else
@@ -446,12 +436,7 @@ unsigned long WingQueryProcess( PROCESSINFO *&all_process , int max_count )
 
 			if( pSystemProc->ProcessId != 0 )
 			{
-				WingString _process_name( (const wchar_t*)pSystemProc->ProcessName.Buffer );
-				int size = _process_name.length();
-
-				process_item->process_name = new char[size+1];
-				memset( process_item->process_name, 0, size+1 );
-				memcpy( process_item->process_name, _process_name.c_str(), size );
+				process_item->process_name = wing_str_wchar_to_char( (const wchar_t*)pSystemProc->ProcessName.Buffer ) ;
 			}
 			else
 			{
@@ -478,11 +463,7 @@ unsigned long WingQueryProcess( PROCESSINFO *&all_process , int max_count )
 				LPVOID commandline = NULL;
 				if( NT_SUCCESS( WingQueryProcessVariableSize( hNtDll, hProcess, ProcessCommandLineInformation, (PVOID *)&commandline ) ) )
 				{	
-					WingString _command_line( (const wchar_t*)((PUNICODE_STRING)commandline)->Buffer );
-					int size = _command_line.length();
-					process_item->command_line = new char[size+1]; 
-					memset( process_item->command_line, 0, size+1 );
-					memcpy( process_item->command_line, _command_line.c_str(), size );
+					process_item->command_line = wing_str_wchar_to_char( (const wchar_t*)((PUNICODE_STRING)commandline)->Buffer );; 
 					free(commandline);
 					commandline = NULL;
 				}else
@@ -494,11 +475,7 @@ unsigned long WingQueryProcess( PROCESSINFO *&all_process , int max_count )
 			
 				PUNICODE_STRING fileName;
 				if( NT_SUCCESS( WingQueryProcessVariableSize( hNtDll, hProcess, ProcessImageFileName, (PVOID*)&fileName ))){
-					WingString _file_name( (const wchar_t*)fileName->Buffer );
-					int size = _file_name.length();
-					process_item->file_name = new char[size+1];
-					memset( process_item->file_name, 0, size+1 );
-					memcpy( process_item->file_name, _file_name.c_str(), size );
+					process_item->file_name = wing_str_wchar_to_char( (const wchar_t*)fileName->Buffer );
 					free(fileName);
 				}
 				else
@@ -511,11 +488,7 @@ unsigned long WingQueryProcess( PROCESSINFO *&all_process , int max_count )
 			
 				PUNICODE_STRING filepath;
 				if( NT_SUCCESS( WingQueryProcessVariableSize( hNtDll, hProcess, ProcessImageFileNameWin32, (PVOID*)&filepath ))){
-					WingString _filepath( (const wchar_t*)filepath->Buffer );
-					int size = _filepath.length();
-					process_item->file_path = new char[size+1];
-					memset( process_item->file_path, 0, size+1 );
-					memcpy( process_item->file_path, _filepath.c_str(), size );
+					process_item->file_path = wing_str_wchar_to_char( (const wchar_t*)filepath->Buffer );
 					free(filepath);
 				}
 				else

@@ -6,6 +6,7 @@
 #include <comdef.h>
 #include <Wbemidl.h>
 #include "wing_string.h"
+#include "wing_wmic.h"
 
 #pragma comment(lib, "wbemuuid.lib")
 #pragma comment(lib, "Iphlpapi")  
@@ -13,120 +14,21 @@
 
 void get_cpu_id( char *&processor_id ){
 	
-	HRESULT hres =  CoInitializeEx(0, COINIT_MULTITHREADED); 
-    if( FAILED(hres) )
-    {
-		processor_id = NULL; 
-		return;
-    }
+	char *sql = "SELECT * FROM Win32_Processor";
 
-    hres =  CoInitializeSecurity( NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL );
+	WingWmic mic;
+	
+	mic.query(sql);
+	char *processor_id_item = NULL;
+	WingString ws_processor_id;
 
-	if( FAILED(hres) )
-    {
-        CoUninitialize();
-        processor_id = NULL; 
-		return;
-    }
-    
-    IWbemLocator *pLoc = NULL;
-
-    hres = CoCreateInstance( CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER, IID_IWbemLocator, (LPVOID *) &pLoc);
- 
-    if( FAILED(hres) )
-    {
-        CoUninitialize();
-        processor_id = NULL; 
-		return;
-    }
-
-    IWbemServices *pSvc = NULL;
-    hres                = pLoc->ConnectServer( _bstr_t(L"ROOT\\CIMV2"), NULL, NULL, 0,  NULL, 0, 0, &pSvc );
-    
-    if (FAILED(hres))
-    {
-        pLoc->Release();     
-        CoUninitialize();
-        processor_id = NULL; 
-		return;
-    }
-
-
-    hres = CoSetProxyBlanket(  pSvc,  RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE  );
-
-    if (FAILED(hres))
-    {
-       
-        pSvc->Release();
-        pLoc->Release();     
-        CoUninitialize();
-		processor_id = NULL; 
-        return;           
-    }
-
-
-    IEnumWbemClassObject* pEnumerator = NULL;
-    hres = pSvc->ExecQuery( bstr_t("WQL"),  bstr_t("SELECT * FROM Win32_Processor "),  WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,NULL, &pEnumerator );
-    
-    if (FAILED(hres))
-    {
-        pSvc->Release();
-        pLoc->Release();
-        CoUninitialize();
-		processor_id = NULL;  
-        return; 
-    }
- 
-    IWbemClassObject *pclsObj = NULL;
-    ULONG uReturn             = 0;
-	int max_size = 1024;
-	processor_id = new char[max_size];
-	memset(processor_id,0,max_size);
-	char *start = processor_id;
-    while (pEnumerator)
-    {
-        HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
-        if(0 == uReturn)
-        {
-            break;
-        }
-
-        VARIANT vtProp;
-        hr = pclsObj->Get(L"ProcessorId", 0, &vtProp, 0, 0);
-		if( vtProp.bstrVal )
-		{
-			WingString _temp_processor_id(  (const wchar_t *)vtProp.bstrVal );
-			int size = _temp_processor_id.length();
-			char *temp_processor_id = new char[size+1];
-			memset(temp_processor_id,0,size+1);
-			memcpy(temp_processor_id,_temp_processor_id.c_str(),size);
-
-			if( temp_processor_id )
-			{
-				int len = strlen( temp_processor_id );
-				memcpy( start, temp_processor_id, len );
-				start += len;
-				delete[] temp_processor_id;
-			}
-		}
-		
-        VariantClear(&vtProp);
-		if(pclsObj!=NULL)
-		{
-			pclsObj->Release();
-			pclsObj=NULL;
-		}
-    }
-
-    pSvc->Release();
-    pLoc->Release();
-    pEnumerator->Release();
-	if(pclsObj!=NULL)
-	{
-		pclsObj->Release();
-		pclsObj=NULL;
+	while( mic.next() ) {
+		processor_id_item = mic.get("ProcessorId");
+		if( processor_id_item != NULL )
+			ws_processor_id.append(processor_id_item);
 	}
-    CoUninitialize();
+ 
+	processor_id = ws_processor_id.c_str();
 }
 
 /**
@@ -134,126 +36,18 @@ void get_cpu_id( char *&processor_id ){
  */
 void get_serial_number( char *&serial_number )
 {
-    HRESULT hres =  CoInitializeEx(0, COINIT_MULTITHREADED); 
-    if( FAILED(hres) )
-    {
-		serial_number = NULL;
-        return; 
-    }
-
-    hres =  CoInitializeSecurity( NULL,  -1, NULL,   NULL,  RPC_C_AUTHN_LEVEL_DEFAULT, RPC_C_IMP_LEVEL_IMPERSONATE,  NULL,  EOAC_NONE,  NULL );
-
-	if (FAILED(hres))
-    {
-        CoUninitialize();
-		serial_number = NULL;
-        return;                    
-    }
-    
-    IWbemLocator *pLoc = NULL;
-
-    hres = CoCreateInstance( CLSID_WbemLocator, 0,  CLSCTX_INPROC_SERVER,  IID_IWbemLocator, (LPVOID *) &pLoc );
- 
-    if (FAILED(hres))
-    {
-        CoUninitialize();
-		serial_number = NULL;
-        return;                
-    }
-
-
-    IWbemServices *pSvc = NULL;
- 
-    hres = pLoc->ConnectServer(  _bstr_t(L"ROOT\\CIMV2"),  NULL, NULL,   0,  NULL,  0, 0,  &pSvc  );
-    
-    if (FAILED(hres))
-    {
-        pLoc->Release();     
-        CoUninitialize();
-		serial_number = NULL;
-        return;                
-    }
-
-
-    hres = CoSetProxyBlanket( pSvc, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE );
-
-    if (FAILED(hres))
-    {
-        pSvc->Release();
-        pLoc->Release();     
-        CoUninitialize();
-		serial_number = NULL;
-        return;              
-    }
-
-
-    IEnumWbemClassObject* pEnumerator = NULL;
-    hres = pSvc->ExecQuery( bstr_t("WQL"),  bstr_t("SELECT * FROM Win32_PhysicalMedia"),  WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,  NULL, &pEnumerator );
-    
-    if (FAILED(hres))
-    {
-        pSvc->Release();
-        pLoc->Release();
-        CoUninitialize();
-		serial_number = NULL;
-        return;               
-    }
-
-	int max_size = 1024;
-	serial_number = new char[max_size];
-	memset(serial_number,0,max_size);
-
-    IWbemClassObject *pclsObj = NULL;
-    ULONG uReturn = 0;
-	char *start = serial_number;
-
-    while (pEnumerator)
-    {
-        HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
-
-        if(0 == uReturn)
-        {
-            break;
-        }
-
-        VARIANT vtProp;
-
-        hr = pclsObj->Get(L"SerialNumber", 0, &vtProp, 0, 0);
-
-		if( vtProp.bstrVal )
-		{	
-			WingString _temp_serial_number( (const wchar_t *)vtProp.bstrVal );
-			int size = _temp_serial_number.length();
-			char *temp_serial_number = new char[size+1]; 
-			memset( temp_serial_number, 0, size+1 );
-
-			memcpy( temp_serial_number, _temp_serial_number.c_str(), size );
-
-			if(temp_serial_number){
-				int len = strlen(temp_serial_number);
-				memcpy(start,temp_serial_number,len);
-				start+=len;
-				delete[] temp_serial_number;
-			}
-		}
+	char *sql = "SELECT * FROM Win32_PhysicalMedia";
+    WingWmic mic;
 	
-        VariantClear(&vtProp);
-		if(pclsObj!=NULL)
-		{
-			pclsObj->Release();
-			pclsObj=NULL;
-		}
-    }
+	mic.query(sql);
+	char *serial_number_item = NULL;
+	WingString ws_serial_number;
 
-	wing_str_trim( serial_number, strlen(serial_number) );
-
-    pSvc->Release();
-    pLoc->Release();
-    pEnumerator->Release();
-	if(pclsObj!=NULL)
-	{
-		pclsObj->Release();
-		pclsObj=NULL;
+	while( mic.next() ) {
+		serial_number_item = mic.get("SerialNumber");
+		if( serial_number_item != NULL )
+			ws_serial_number.append(serial_number_item);
 	}
-   CoUninitialize();
+ 
+	serial_number = ws_serial_number.c_str();
 }

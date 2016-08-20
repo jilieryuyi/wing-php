@@ -69,6 +69,12 @@
     <ClCompile Include="hardware_info.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="wing_malloc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wing_wmic.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="php_wing.h">
@@ -102,6 +108,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="hardware_info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wing_malloc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wing_wmic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

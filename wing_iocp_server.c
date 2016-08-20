@@ -749,20 +749,12 @@ ZEND_METHOD(wing_server,start){
 
 					char *_error_msg = (char*)LocalLock( hlocal );
 
+					char *error_msg  = wing_str_char_to_utf8( (const char*)_error_msg ) ;
 					
-
-					WingString wstring( (const char*)_error_msg, strlen(_error_msg) );
-					wstring.toUTF8();
-
-					int size = wstring.length();
-					char *error_msg = new char[size+1];
-					memset( error_msg, 0, size+1 );
-					memcpy( error_msg, wstring.c_str(), size );
-
 					if( error_msg )
 					{
 						ZVAL_STRING( params[2], error_msg, 1 );  //WSAGetLasterror ´íÎó
-						delete[] error_msg;
+						free( error_msg );
 					}
 					else
 					{

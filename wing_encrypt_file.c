@@ -3,6 +3,7 @@
 #include "encrypt.h"
 #include <ctype.h>  
 #include "hardware_info.h"
+#include "wing_malloc.h"
 
 
 /**
@@ -39,8 +40,8 @@ ZEND_FUNCTION( wing_encrypt_file )
 		{	
 			spprintf( &encrypt_password, 0, "%s%s", processor_id, serial_number );
 			needfree = 1;
-			delete[] processor_id;
-			delete[] serial_number;
+			wing_free( processor_id );
+			wing_free( serial_number );
 		}else{
 			RETURN_BOOL(0);
 			return;

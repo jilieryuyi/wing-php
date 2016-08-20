@@ -39,8 +39,11 @@ char *PHP_PATH = NULL;
 #include <Winsock2.h>
 #include "Windows.h"
 #include "Winbase.h"
-
 #include "tlhelp32.h"
+
+#include <tchar.h>
+#include "strsafe.h"
+
 #include "Psapi.h"
 #include "Winternl.h"
 #include "Processthreadsapi.h"

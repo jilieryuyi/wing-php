@@ -1,4 +1,4 @@
-﻿生成启动时间为 2016/8/19 8:43:52。
+﻿生成启动时间为 2016/8/20 8:36:14。
      1>项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\WingWmic\WingWmic.vcxproj”在节点 2 上(Build 个目标)。
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I"C:\Program Files (x86)\Visual Leak Detector\include" /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Release\WingWmic.pch" /Fo"Release\\" /Fd"Release\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt WingWmic.cpp
@@ -14,4 +14,4 @@
 
 生成成功。
 
-已用时间 00:00:01.04
+已用时间 00:00:00.73

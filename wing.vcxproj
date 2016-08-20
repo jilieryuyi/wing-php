@@ -146,6 +146,7 @@
     <ClCompile Include="wing_iocp_message_queue.c" />
     <ClCompile Include="wing_iocp_server.c" />
     <ClCompile Include="wing_iocp_socket_map.c" />
+    <ClCompile Include="wing_malloc.c" />
     <ClCompile Include="wing_ntdll.c" />
     <ClCompile Include="wing_process.c" />
     <ClCompile Include="wing_sclient.c" />
@@ -156,6 +157,7 @@
     <ClCompile Include="wing_message_queue.c" />
     <ClCompile Include="wing.c" />
     <ClCompile Include="wing_windows.c" />
+    <ClCompile Include="wing_wmic.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="encrypt.h" />
@@ -164,11 +166,13 @@
     <ClInclude Include="wing_iocp_message_queue.h" />
     <ClInclude Include="wing_iocp_socket_map.h" />
     <ClInclude Include="ntdll.h" />
+    <ClInclude Include="wing_malloc.h" />
     <ClInclude Include="wing_ntdll.h" />
     <ClInclude Include="wing_socket_api.h" />
     <ClInclude Include="wing_string.h" />
     <ClInclude Include="wing_message_queue.h" />
     <ClInclude Include="php_wing.h" />
+    <ClInclude Include="wing_wmic.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
