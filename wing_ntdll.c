@@ -112,7 +112,7 @@ void WingGetProcessCommandLine( DWORD process_id, char* &lpszCommandLine ){
 		}
 	
 		DWORD dwExitCode        = 0;
-		DWORD dwReaded          = 0;
+		SIZE_T dwReaded          = 0;
 		int buf_size            = 10240;
 		lpszCommandLine         = new char[buf_size]; 
         
