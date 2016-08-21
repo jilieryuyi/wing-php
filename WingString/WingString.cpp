@@ -45,21 +45,37 @@ public:
 	unsigned int size();
 	unsigned int length();
 
+	//拷贝字符串原型数据 用完需要free
 	void* copy();
+	//返回字符串原型数据 不改变自身 无需free
 	void* data();
+	//返回字符串类型
 	int   type();
+
+	//返回char*字符串 不改变自身 返回值用完需要free
 	char* c_str();
+	//返回wchar_t*字符串 不改变自身 返回值用完需要free
 	wchar_t* w_str();
 
+	//追加字符串 改变字符串本身
 	void append( const char *_str, int size = 0 );
 	void append( WingString &_str );
 	void append( const wchar_t *_str,int size = 0 );
 
+	//转换编码 改变字符串本身
 	BOOL toUTF8( );
+	//去掉两端空格 改变字符串本身
+	void trim();
+
+	//打印函数 一般用于调试
 	void print();
 	void savePrint();
-	void trim();
+	
+	//转换为数字 不改变字符串本身
 	double toNumber();
+
+	//返回子字符串 不改变字符串本身  用完之后 返回值 需要 free ,start 从0开始，也可以是负数，从末尾开始截取
+	void* substr(int start,int length);
 
 
 	WingString& operator=(WingString &_str );
@@ -646,9 +662,6 @@ WingString &WingString::operator+=( const wchar_t* _str ){
     return *this;
 }
 
-
-
-
 unsigned int WingString::size(){
 	return this->str_size;
 }
@@ -667,9 +680,6 @@ unsigned int WingString::length(){
 	}
 	return 0;
 }
-
-
-
 
 /**
  *@追加字符串
@@ -1181,6 +1191,46 @@ double WingString::toNumber(){
 	
 	return result;
 }
+
+/**
+ *@返回子字符串 不改变字符串本身  
+ *@用完之后 返回值 如果返回值不为null 需要 free ,start 从0开始，也可以是负数，从末尾开始截取
+ */
+void* WingString::substr(int start,int length) {
+
+	int len = this->length();
+	if( this->str_type == WING_STR_IS_UNKNOW ) 
+		return NULL;
+	
+	unsigned long sl = 0;
+	if( this->str_type == WING_STR_IS_CHAR )
+		sl = sizeof(char);
+	else if( this->str_type == WING_STR_IS_WCHAR )
+		sl = sizeof(wchar_t);
+
+	unsigned long end_str   = (unsigned long)this->str + this->str_size - 1*sl;
+	unsigned long start_str = NULL;
+
+	if( start >= 0 ){
+		start_str =  (unsigned long)this->str + start*sl ;
+		if( start_str >= end_str ) 
+			return NULL;
+	}else{
+		start_str = (unsigned long)this->str + this->str_size + (start - 1)*sl;
+		if( start_str < (unsigned long)this->str )
+			start_str = (unsigned long)this->str;
+	}
+
+	if( length > (end_str-start_str)/sl ) 
+		length = (end_str-start_str)/sl;
+
+	void* _subatr = malloc( (length+1)*sl );
+	memset( _subatr, 0 , (length+1)*sl );
+	memcpy( _subatr, (const void*)start_str, length*sl );
+
+	return _subatr;
+}
+
 //----WingString end------------------------
 
 
@@ -1311,17 +1361,17 @@ void wing_str_trim( _Inout_ char* str ,int size ){
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	WingString a("123");
-	a.append(L"456");
-	a.print();
+	//WingString a("123");
+	//a.append(L"456");
+	//a.print();
 
 	//WingString a2(L"123");
 	//a2.append(L"456");
 	//a2.print();
 
-	WingString a3(L"123");
-	a3.append("456");
-	a3.print();
+	//WingString a3(L"123");
+	//a3.append("456");
+	//a3.print();
 
 
 	//char s[] = " 999   ";
@@ -1338,13 +1388,13 @@ int _tmain(int argc, _TCHAR* argv[])
 	//a6.trim();
 	//a6.print();
 
-	WingString a7;
-	WingString a8(L"456111111");
-	a7.append(a8);
-	a7.print();
+	//WingString a7;
+	//WingString a8(L"456111111");
+	//a7.append(a8);
+	//a7.print();
 
 
-	WingString a9("哈哈哈");
+	//WingString a9("哈哈哈");
 	//a9.print();
 	//a9.toUTF8();
 	//a9.print();
@@ -1352,7 +1402,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	//wprintf(res);
 	//free(res);
 
-	WingString a91(L"--哈哈哈1");
+	//WingString a91(L"--哈哈哈1");
 	//a91.print();
 	//a91.toUTF8();
 	//a91.print();
@@ -1361,60 +1411,65 @@ int _tmain(int argc, _TCHAR* argv[])
 	//wprintf(res1);
 	//free(res1);
 
-	WingString a92;
+	//WingString a92;
 	
 	//a92 = a91;
-	a92 = a9+a91;
+	//a92 = a9+a91;
 
-	a92.print();
-
-
-
-	WingString a93;
-	a93 = "123";
-	a93.print();
-
-	WingString a95;
-	a95 = L"456";
-	a95.print();
-
-
-	WingString a96;
-	a96 = a95+L"999";
-	a96.print();
-
-
-	WingString a97("888");
-	WingString a98("999");
-
-	a97+=L"9999";
-	a97.print();
-
-
-	WingString a11("123");
-	WingString a22("123");
-
-	int d = a11 >= a22;
-	printf("===>%ld<===\r\n",d );
-
-
-	WingString p(L"123456\0你好哇789",sizeof(L"123456\0你好哇789"));
-	p.savePrint();
+	//a92.print();
 
 
 
-	char num[] = "-019.9";
-	int i =0;
-	int len = strlen(num);
-	while(i<len) {
-		printf("<%d,%c>\r\n",num[i],num[i]);
-		i++;
-	}
+	//WingString a93;
+	//a93 = "123";
+	//a93.print();
+
+	//WingString a95;
+	//a95 = L"456";
+	//a95.print();
 
 
-	WingString number(".123sdfgsdfg");
-	double res = number.toNumber();
-	printf("==>%lf<==",res);
+	//WingString a96;
+	//a96 = a95+L"999";
+	//a96.print();
+
+
+	//WingString a97("888");
+	//WingString a98("999");
+
+	//a97+=L"9999";
+	//a97.print();
+
+
+	//WingString a11("123");
+	//WingString a22("123");
+
+	//int d = a11 >= a22;
+	//printf("===>%ld<===\r\n",d );
+
+
+	//WingString p(L"123456\0你好哇789",sizeof(L"123456\0你好哇789"));
+	//p.savePrint();
+
+
+
+	//char num[] = "-019.9";
+	//int i =0;
+	//int len = strlen(num);
+	//while(i<len) {
+	//	printf("<%d,%c>\r\n",num[i],num[i]);
+	//	i++;
+	//}
+
+
+	//WingString number(".123sdfgsdfg");
+	//double res = number.toNumber();
+	//printf("==>%lf<==",res);
+
+WingString a(L"123456");
+wchar_t* substr =(wchar_t*)a.substr(-4,3);
+wprintf(L"%s",substr);
+
 
 	return 0;
 }
