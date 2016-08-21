@@ -55,8 +55,6 @@ public:
 	void append( WingString &_str );
 	void append( const wchar_t *_str,int size = 0 );
 
-
-
 	BOOL toUTF8( );
 	void print();
 	void savePrint();
@@ -67,43 +65,69 @@ public:
 	WingString& operator=(WingString &_str );
 	WingString& operator=(const char* _str );
 	WingString& operator=(const wchar_t* _str );
-
 	WingString& operator+(WingString &_str );
 	WingString& operator+(const char* _str );
 	WingString& operator+(const wchar_t* _str );
-
 	WingString& operator+=(WingString &_str );
 	WingString& operator+=(const char* _str );
 	WingString& operator+=(const wchar_t* _str );
-	
-
 	BOOL operator==( WingString &_str )const;
 	BOOL operator==( const char* _str )const;
 	BOOL operator==( const wchar_t* _str )const;
-
 	BOOL operator!=( WingString &_str )const;
 	BOOL operator!=( const char* _str )const;
 	BOOL operator!=( const wchar_t* _str )const;
-
 	BOOL operator>( WingString &_str )const;
 	BOOL operator>=( WingString &_str )const;
-
 	BOOL operator>( const char* _str )const;
 	BOOL operator>=( const char* _str )const;
-	
 	BOOL operator>( const wchar_t* _str )const;
 	BOOL operator>=( const wchar_t* _str )const;
-
 	BOOL operator<( WingString &_str )const;
 	BOOL operator<=( WingString &_str )const;
-
 	BOOL operator<( const char* _str )const;
 	BOOL operator<=( const char* _str )const;
-
 	BOOL operator<( const wchar_t* _str )const;
 	BOOL operator<=( const wchar_t* _str )const;
 
 };
+
+WingString::WingString( char *_str, int _size ){
+	if( _size <= 0 ) 
+		_size = WING_CHAR_SIZE( _str );
+	this->str      = malloc( _size );
+	this->str_size = _size;
+	this->str_type = WING_STR_IS_CHAR;
+
+	memset( this->str, 0, _size );
+	memcpy( this->str, _str, _size ); 
+}
+
+WingString::WingString( wchar_t *_str, int _size ){
+	if( _size <= 0 ) 
+		_size = WING_WCHAR_SIZE( _str );
+	this->str      = malloc( _size );
+	this->str_size = _size;
+	this->str_type = WING_STR_IS_WCHAR;
+
+	memset( this->str, 0x0, _size );
+	memcpy( this->str, _str, _size ); 
+}
+
+WingString::WingString(){
+	this->str      = NULL;
+	this->str_size = 0;
+	this->str_type = WING_STR_IS_UNKNOW;
+}
+
+WingString::~WingString(){
+	if( this->str != NULL ) {
+		free( this->str );
+		this->str = NULL;
+	}
+	this->str_size = 0;
+	this->str_type = WING_STR_IS_UNKNOW;
+}
 
 
 BOOL WingString::operator!=( WingString &_str )const{
@@ -623,42 +647,7 @@ WingString &WingString::operator+=( const wchar_t* _str ){
 }
 
 
-WingString::WingString( char *_str, int _size ){
-	if( _size <= 0 ) 
-		_size = WING_CHAR_SIZE( _str );
-	this->str      = malloc( _size );
-	this->str_size = _size;
-	this->str_type = WING_STR_IS_CHAR;
 
-	memset( this->str, 0, _size );
-	memcpy( this->str, _str, _size ); 
-}
-
-WingString::WingString( wchar_t *_str, int _size ){
-	if( _size <= 0 ) 
-		_size = WING_WCHAR_SIZE( _str );
-	this->str      = malloc( _size );
-	this->str_size = _size;
-	this->str_type = WING_STR_IS_WCHAR;
-
-	memset( this->str, 0x0, _size );
-	memcpy( this->str, _str, _size ); 
-}
-
-WingString::WingString(){
-	this->str      = NULL;
-	this->str_size = 0;
-	this->str_type = WING_STR_IS_UNKNOW;
-}
-
-WingString::~WingString(){
-	if( this->str != NULL ) {
-		free( this->str );
-		this->str = NULL;
-	}
-	this->str_size = 0;
-	this->str_type = WING_STR_IS_UNKNOW;
-}
 
 unsigned int WingString::size(){
 	return this->str_size;
@@ -749,7 +738,6 @@ void WingString::append( const wchar_t *_str, int size ){
 	}
 
 }
-
 /**
  *@追加字符串
  */
@@ -811,8 +799,6 @@ void WingString::append( const char *_str, int size ){
 	}
 
 }
-
-
 /**
  *@追加字符串
  */
@@ -927,13 +913,24 @@ void WingString::append( WingString &_str ){
 
 
 }
+/**
+ *@原型数据
+ */
 void * WingString::data(){
 	return this->str;
 }
+/**
+ *@字符串编码类型 char 还是 wachr_t 还是 unkonw 返回值
+ *@ WING_STR_IS_CHAR   1
+ *@ WING_STR_IS_WCHAR  2
+ *@ WING_STR_IS_UNKNOW 3
+ */
 int WingString::type(){
 	return this->str_type;
 }
-
+/**
+ *@拷贝数据
+ */
 void* WingString::copy(){
 	if( str == NULL || str_size <= 0 )
 		return NULL;
@@ -999,7 +996,9 @@ void WingString::print(){
 	else if( this->str_type == WING_STR_IS_WCHAR )
 		wprintf(L"---wchar_t:size=%ld,len=%ld,%s---\r\n",this->size(),this->length(),this->str);
 }
-
+/**
+ *@安全打印字符串，二进制数据安全
+ */
 void WingString::savePrint(){
 	setlocale(LC_ALL, "chs");
 
@@ -1007,7 +1006,7 @@ void WingString::savePrint(){
 	long end = this->length();
 
 	if( this->str_type == WING_STR_IS_CHAR ) {
-		printf("---");
+		printf("---char:size=%ld,len=%ld,",this->size(),this->length());
 		while( i < end ){
 			char c = ((char*)this->str)[i];
 			if( c == '\0') c = ' ';
@@ -1018,7 +1017,7 @@ void WingString::savePrint(){
 	}
 	else if( this->str_type == WING_STR_IS_WCHAR ) {
 		
-		wprintf(L"---");
+		wprintf(L"---wchar_t:size=%ld,len=%ld,",this->size(),this->length());
 		while( i < end ){
 			wprintf(L"%c",((wchar_t*)this->str)[i]);
 			i++;
@@ -1185,7 +1184,9 @@ double WingString::toNumber(){
 //----WingString end------------------------
 
 
-
+/**
+ *@wchar_t转换编码为utf8
+ */
 char* wing_str_wchar_to_utf8( _In_ const wchar_t* _str ){
 	if( _str == NULL )
 		return NULL;
@@ -1198,7 +1199,9 @@ char* wing_str_wchar_to_utf8( _In_ const wchar_t* _str ){
 
 }
 
-
+/**
+ *@wchar_t 转换为 char
+ */
 char* wing_str_wchar_to_char( _In_ const wchar_t* _str ){
 	 if( _str == NULL )
 		 return NULL;
