@@ -147,7 +147,7 @@
     <ClCompile Include="wing_iocp_server.c" />
     <ClCompile Include="wing_iocp_socket_map.c" />
     <ClCompile Include="wing_malloc.c" />
-    <ClCompile Include="wing_ntdll.c" />
+    <ClCompile Include="ntdll.c" />
     <ClCompile Include="wing_process.c" />
     <ClCompile Include="wing_sclient.c" />
     <ClCompile Include="wing_select_server.c" />

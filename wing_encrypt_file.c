@@ -86,11 +86,23 @@ ZEND_FUNCTION( wing_run_file )
 		{	
 			spprintf( &encrypt_password, 0, "%s%s", processor_id, serial_number );
 			needfree = 1;
-			delete[] processor_id;
-			delete[] serial_number;
+			
+			wing_free( processor_id );
+			wing_free( serial_number );
+
+			processor_id  = NULL;
+			serial_number = NULL;
 
 		}else
 		{
+			if( processor_id ) {
+				wing_free( processor_id );
+				processor_id = NULL;
+			}
+			if( serial_number ) {
+				wing_free( serial_number );
+				serial_number = NULL;
+			}
 			RETURN_BOOL(0);
 			return;
 		}
@@ -121,8 +133,13 @@ ZEND_FUNCTION( wing_run_file )
 	char *eval   = zend_make_compiled_string_description("wing run encrypt code" TSRMLS_CC);
     int retval   = zend_eval_string( run_code, NULL, eval TSRMLS_CC);
 
-	if( eval ) efree( eval );
-    delete[] php_code;
+	if( eval ) 
+	{
+		efree( eval );
+		eval = NULL;
+	}
+    wing_free( php_code );
+	php_code = NULL;
 
 	if( needfree ) 
 		efree( encrypt_password );

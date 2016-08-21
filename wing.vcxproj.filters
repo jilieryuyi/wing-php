@@ -33,9 +33,6 @@
     <ClCompile Include="wing_select_socket_map.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wing_ntdll.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="wing_base.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -69,10 +66,13 @@
     <ClCompile Include="hardware_info.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wing_malloc.c">
+    <ClCompile Include="wing_wmic.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wing_wmic.c">
+    <ClCompile Include="ntdll.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wing_malloc.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

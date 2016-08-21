@@ -4,6 +4,6 @@
 
 
 void *wing_malloc( int size );
-void wing_free( void *mem );
+void wing_free( void* mem );
 
 #endif

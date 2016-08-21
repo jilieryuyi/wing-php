@@ -197,9 +197,9 @@ char* WingWmic::get( const char *key){
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	//char sql[] = "SELECT * FROM Win32_Process\0";
+	char sql[] = "SELECT * FROM Win32_Process\0";
  
-	char *sql = "SELECT * FROM Win32_Processor";
+	//char *sql = "SELECT * FROM Win32_Processor";
 
 	WingWmic mic;
 	
@@ -209,8 +209,8 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	while( mic.next() ) {
 		
-		c = mic.get("ProcessorId");
-		printf("ProcessorId:%ld=>%s\r\n",count,c);
+		c = mic.get("CommandLine");
+		printf("CommandLine:%ld=>%s\r\n",count,c);
 
 		count++;
 	}

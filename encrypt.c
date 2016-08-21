@@ -5,6 +5,7 @@
 #include <conio.h>  
 #include <wincrypt.h> 
 #include <io.h>
+#include "wing_malloc.h"
 
 #define MY_ENCODING_TYPE  (PKCS_7_ASN_ENCODING | X509_ASN_ENCODING)  
 #define KEYLENGTH  0x00800000  
@@ -23,7 +24,7 @@ BOOL WingDecryptFile( PCHAR szSource, PCHAR &szDestination, PCHAR szPassword)
     HCRYPTPROV hCryptProv;   
     HCRYPTKEY hKey;   
     PBYTE pbBuffer;   
-    DWORD dwBlockLen;   
+    size_t dwBlockLen;   
     DWORD dwBufferLen;   
     DWORD dwCount;   
     int size = 0;
@@ -33,7 +34,7 @@ BOOL WingDecryptFile( PCHAR szSource, PCHAR &szDestination, PCHAR szPassword)
 	size = _filelength(_fileno(hSource));
 	
 
-	szDestination = new char[size+1];
+	szDestination = (PCHAR)wing_malloc( size+1 );
 	if( !szDestination )
 	{	
 		szDestination = NULL;
@@ -65,9 +66,9 @@ BOOL WingDecryptFile( PCHAR szSource, PCHAR &szDestination, PCHAR szPassword)
 
 	char *start = szDestination;
 	
-
+	size_t esize = 1;
     do {   
-        dwCount = fread( pbBuffer, 1, dwBlockLen, hSource );   
+        dwCount = fread( pbBuffer, esize , dwBlockLen, hSource );   
         if(ferror(hSource))  
         {  
             return 0;
@@ -129,7 +130,7 @@ BOOL WingEncryptFile( PCHAR szSource, PCHAR szDestination,  PCHAR szPassword)
   
   
     PBYTE pbBuffer;   
-    DWORD dwBlockLen;   
+    size_t dwBlockLen;   
     DWORD dwBufferLen;   
     DWORD dwCount;   
    
@@ -253,7 +254,7 @@ HCRYPTKEY GenKeyByPassword(HCRYPTPROV hCryptProv,PCHAR szPassword)
 		return NULL;
     }    
 
-    if( !CryptHashData( hHash, (BYTE *)szPassword, strlen(szPassword), 0))  
+    if( !CryptHashData( hHash, (BYTE *)szPassword, (DWORD)strlen(szPassword), 0))  
     {  
         return NULL;  
     }  

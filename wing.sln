@@ -35,6 +35,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WingString", "WingString\Wi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WingWmic", "WingWmic\WingWmic.vcxproj", "{DB044845-5818-4D87-8564-6CE79CA99FD8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "file_test", "file_test\file_test.vcxproj", "{A1584A6B-4B2A-415C-80E9-64F2D9C9610B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug_TS|Win32 = Debug_TS|Win32
@@ -179,6 +181,14 @@ Global
 		{DB044845-5818-4D87-8564-6CE79CA99FD8}.Release_TS|Win32.Build.0 = Release|Win32
 		{DB044845-5818-4D87-8564-6CE79CA99FD8}.Release|Win32.ActiveCfg = Release|Win32
 		{DB044845-5818-4D87-8564-6CE79CA99FD8}.Release|Win32.Build.0 = Release|Win32
+		{A1584A6B-4B2A-415C-80E9-64F2D9C9610B}.Debug_TS|Win32.ActiveCfg = Debug|Win32
+		{A1584A6B-4B2A-415C-80E9-64F2D9C9610B}.Debug_TS|Win32.Build.0 = Debug|Win32
+		{A1584A6B-4B2A-415C-80E9-64F2D9C9610B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A1584A6B-4B2A-415C-80E9-64F2D9C9610B}.Debug|Win32.Build.0 = Debug|Win32
+		{A1584A6B-4B2A-415C-80E9-64F2D9C9610B}.Release_TS|Win32.ActiveCfg = Release|Win32
+		{A1584A6B-4B2A-415C-80E9-64F2D9C9610B}.Release_TS|Win32.Build.0 = Release|Win32
+		{A1584A6B-4B2A-415C-80E9-64F2D9C9610B}.Release|Win32.ActiveCfg = Release|Win32
+		{A1584A6B-4B2A-415C-80E9-64F2D9C9610B}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
