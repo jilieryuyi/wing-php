@@ -41,6 +41,523 @@ WingString::~WingString(){
 	this->str_type = WING_STR_IS_UNKNOW;
 }
 
+
+BOOL WingString::operator!=( WingString &_str )const{
+	return !(*this == _str);
+}
+BOOL WingString::operator!=( const char* _str )const{
+	return !(*this == _str);
+}
+BOOL WingString::operator!=( const wchar_t* _str )const{
+	return !(*this == _str);
+}
+BOOL WingString::operator<( const wchar_t* _str )const{
+	switch( this->str_type ) {
+	case WING_STR_IS_UNKNOW:
+		return _str!=NULL;
+		break;
+	case WING_STR_IS_WCHAR:
+		{
+				return wcscmp( (wchar_t*)this->str, _str ) < 0;
+		}
+		break;
+	case WING_STR_IS_CHAR:
+		{
+			wchar_t *res = wing_str_char_to_wchar( (char*)this->str );
+			int d = wcscmp( res, _str );
+			if( res ) free( res );
+			return d < 0;
+
+		}break;
+	}
+	return false;
+}
+BOOL WingString::operator<=( const wchar_t* _str )const{
+	switch( this->str_type ) {
+	case WING_STR_IS_UNKNOW:
+		return 1;
+		break;
+	case WING_STR_IS_WCHAR:
+		{
+				return wcscmp( (wchar_t*)this->str, _str ) <= 0;
+		}
+		break;
+	case WING_STR_IS_CHAR:
+		{
+			wchar_t *res = wing_str_char_to_wchar( (char*)this->str );
+			int d = wcscmp( res, _str );
+			if( res ) free( res );
+			return d <= 0;
+
+		}break;
+	}
+	return false;
+}
+BOOL WingString::operator<( const char* _str )const{
+	switch( this->str_type ) {
+	case WING_STR_IS_UNKNOW:
+		return _str != NULL;
+		break;
+	case WING_STR_IS_CHAR:
+		{
+				return strcmp( (char*)this->str, _str ) < 0;
+		}
+		break;
+	case WING_STR_IS_WCHAR:
+		{
+			char *res = wing_str_wchar_to_char( (wchar_t*)this->str );
+			int d = strcmp( res, _str );
+			if( res ) free( res );
+			return d < 0;
+
+		}break;
+	}
+	return false;
+}
+BOOL WingString::operator<=( const char* _str )const{
+	switch( this->str_type ) {
+	case WING_STR_IS_UNKNOW:
+		return 1;
+		break;
+	case WING_STR_IS_CHAR:
+		{
+				return strcmp( (char*)this->str, _str ) <= 0;
+		}
+		break;
+	case WING_STR_IS_WCHAR:
+		{
+			char *res = wing_str_wchar_to_char( (wchar_t*)this->str );
+			int d = strcmp( res, _str );
+			if( res ) free( res );
+			return d <= 0;
+
+		}break;
+	}
+	return false;
+}
+BOOL WingString::operator<( WingString &_str )const{
+	switch( _str.type() ) {
+	case WING_STR_IS_UNKNOW:
+		return 0;
+		break;
+	case WING_STR_IS_CHAR:
+		{
+			if( this->str_type == WING_STR_IS_CHAR ){
+
+				return strcmp( (char*)this->str, (char*)_str.data() ) < 0;
+
+			}else if( this->str_type == WING_STR_IS_UNKNOW ) {
+
+				return _str.type() != WING_STR_IS_UNKNOW;
+
+			}else if( this->str_type == WING_STR_IS_WCHAR ){
+
+				char *res = wing_str_wchar_to_char( (wchar_t*)this->str );
+				int d = strcmp( res, (char*)_str.data() );
+				if( res ) free( res );
+				return d < 0;
+			}
+			return false;
+		}
+		break;
+	case WING_STR_IS_WCHAR:
+		{
+			if( this->str_type == WING_STR_IS_WCHAR ){
+
+				return wcscmp( (wchar_t*)this->str, (wchar_t*)_str.data() ) < 0;
+
+			}else if( this->str_type == WING_STR_IS_UNKNOW ) {
+
+				return _str.type() != WING_STR_IS_UNKNOW;
+
+			}else if( this->str_type == WING_STR_IS_CHAR ){
+
+				wchar_t *res = wing_str_char_to_wchar( (char*)this->str );
+				int d = wcscmp( res, (wchar_t*)_str.data() );
+				if( res ) free( res );
+				return d < 0;
+			}
+			return false;
+
+		}break;
+	}
+	return false;
+}
+BOOL WingString::operator<=( WingString &_str )const{
+	switch( _str.type() ) {
+	case WING_STR_IS_UNKNOW:
+		return this->str_type == WING_STR_IS_UNKNOW;
+		break;
+	case WING_STR_IS_CHAR:
+		{
+			if( this->str_type == WING_STR_IS_CHAR ){
+
+				return strcmp( (char*)this->str, (char*)_str.data() ) <= 0;
+
+			}else if( this->str_type == WING_STR_IS_UNKNOW ) {
+
+				return 1;
+
+			}else if( this->str_type == WING_STR_IS_WCHAR ){
+
+				char *res = wing_str_wchar_to_char( (wchar_t*)this->str );
+				int d = strcmp( res, (char*)_str.data() );
+				if( res ) free( res );
+				return d <= 0;
+			}
+			return false;
+		}
+		break;
+	case WING_STR_IS_WCHAR:
+		{
+			if( this->str_type == WING_STR_IS_WCHAR ){
+
+				return wcscmp( (wchar_t*)this->str, (wchar_t*)_str.data() ) <= 0;
+
+			}else if( this->str_type == WING_STR_IS_UNKNOW ) {
+
+				return 1;
+
+			}else if( this->str_type == WING_STR_IS_CHAR ){
+
+				wchar_t *res = wing_str_char_to_wchar( (char*)this->str );
+				int d = wcscmp( res, (wchar_t*)_str.data() );
+				if( res ) free( res );
+				return d <= 0;
+			}
+			return false;
+
+		}break;
+	}
+	return false;
+}
+BOOL WingString::operator>( const wchar_t* _str )const{
+	switch( this->str_type ) {
+	case WING_STR_IS_UNKNOW:
+		return 0;
+		break;
+	case WING_STR_IS_WCHAR:
+		{
+				return wcscmp( (wchar_t*)this->str, _str ) > 0;
+		}
+		break;
+	case WING_STR_IS_CHAR:
+		{
+			wchar_t *res = wing_str_char_to_wchar( (char*)this->str );
+			int d = wcscmp( res, _str );
+			if( res ) free( res );
+			return d > 0;
+
+		}break;
+	}
+	return false;
+}
+BOOL WingString::operator>=( const wchar_t* _str )const{
+	switch( this->str_type ) {
+	case WING_STR_IS_UNKNOW:
+		return _str == NULL;
+		break;
+	case WING_STR_IS_WCHAR:
+		{
+				return wcscmp( (wchar_t*)this->str, _str ) >= 0;
+		}
+		break;
+	case WING_STR_IS_CHAR:
+		{
+			wchar_t *res = wing_str_char_to_wchar( (char*)this->str );
+			int d = wcscmp( res, _str );
+			if( res ) free( res );
+			return d >= 0;
+
+		}break;
+	}
+	return false;
+}
+BOOL WingString::operator>( const char* _str )const{
+	switch( this->str_type ) {
+	case WING_STR_IS_UNKNOW:
+		return 0;
+		break;
+	case WING_STR_IS_CHAR:
+		{
+				return strcmp( (char*)this->str, _str ) > 0;
+		}
+		break;
+	case WING_STR_IS_WCHAR:
+		{
+			char *res = wing_str_wchar_to_char( (wchar_t*)this->str );
+			int d = strcmp( res, _str );
+			if( res ) free( res );
+			return d > 0;
+
+		}break;
+	}
+	return false;
+}
+BOOL WingString::operator>=( const char* _str )const{
+	switch( this->str_type ) {
+	case WING_STR_IS_UNKNOW:
+		return _str == NULL;
+		break;
+	case WING_STR_IS_CHAR:
+		{
+				return strcmp( (char*)this->str, _str ) >= 0;
+		}
+		break;
+	case WING_STR_IS_WCHAR:
+		{
+			char *res = wing_str_wchar_to_char( (wchar_t*)this->str );
+			int d = strcmp( res, _str );
+			if( res ) free( res );
+			return d >= 0;
+
+		}break;
+	}
+	return false;
+}
+BOOL WingString::operator>=( WingString &_str )const{
+	switch( _str.type() ) {
+	case WING_STR_IS_UNKNOW:
+		return 1;
+		break;
+	case WING_STR_IS_CHAR:
+		{
+			if( this->str_type == WING_STR_IS_CHAR ){
+
+				return strcmp( (char*)this->str, (char*)_str.data() ) >= 0;
+
+			}else if( this->str_type == WING_STR_IS_UNKNOW ) {
+
+				return 0;
+
+			}else if( this->str_type == WING_STR_IS_WCHAR ){
+
+				char *res = wing_str_wchar_to_char( (wchar_t*)this->str );
+				int d = strcmp( res, (char*)_str.data() );
+				if( res ) free( res );
+				return d >= 0;
+			}
+			return false;
+		}
+		break;
+	case WING_STR_IS_WCHAR:
+		{
+			if( this->str_type == WING_STR_IS_WCHAR ){
+
+				return wcscmp( (wchar_t*)this->str, (wchar_t*)_str.data() ) >= 0;
+
+			}else if( this->str_type == WING_STR_IS_UNKNOW ) {
+
+				return 0;
+
+			}else if( this->str_type == WING_STR_IS_CHAR ){
+
+				wchar_t *res = wing_str_char_to_wchar( (char*)this->str );
+				int d = wcscmp( res, (wchar_t*)_str.data() );
+				if( res ) free( res );
+				return d >= 0;
+			}
+			return false;
+
+		}break;
+	}
+	return false;
+}
+BOOL WingString::operator>( WingString &_str )const{
+	switch( _str.type() ) {
+	case WING_STR_IS_UNKNOW:
+		return this->str_type != WING_STR_IS_UNKNOW;
+		break;
+	case WING_STR_IS_CHAR:
+		{
+			if( this->str_type == WING_STR_IS_CHAR ){
+
+				return strcmp( (char*)this->str, (char*)_str.data() ) > 0;
+
+			}else if( this->str_type == WING_STR_IS_UNKNOW ) {
+
+				return 0;
+
+			}else if( this->str_type == WING_STR_IS_WCHAR ){
+
+				char *res = wing_str_wchar_to_char( (wchar_t*)this->str );
+				int d = strcmp( res, (char*)_str.data() );
+				if( res ) free( res );
+				return d > 0;
+			}
+			return false;
+		}
+		break;
+	case WING_STR_IS_WCHAR:
+		{
+			if( this->str_type == WING_STR_IS_WCHAR ){
+
+				return wcscmp( (wchar_t*)this->str, (wchar_t*)_str.data() ) > 0;
+
+			}else if( this->str_type == WING_STR_IS_UNKNOW ) {
+
+				return 0;
+
+			}else if( this->str_type == WING_STR_IS_CHAR ){
+
+				wchar_t *res = wing_str_char_to_wchar( (char*)this->str );
+				int d = wcscmp( res, (wchar_t*)_str.data() );
+				if( res ) free( res );
+				return d > 0;
+			}
+			return false;
+
+		}break;
+	}
+	return false;
+}
+BOOL WingString::operator==( const wchar_t* _str )const{
+	switch( this->str_type ) {
+	case WING_STR_IS_UNKNOW:
+		return _str == NULL;
+		break;
+	case WING_STR_IS_WCHAR:
+		{
+			return wcscmp( (wchar_t*)this->str, _str ) == 0;
+		}
+		break;
+	case WING_STR_IS_CHAR:
+		{
+			char *res = wing_str_wchar_to_char( _str );
+			int d = strcmp( (char*)this->str, res );
+			if( res ) free( res );
+			return d == 0;
+			
+		}break;
+	}
+	return false;
+}
+BOOL WingString::operator==( const char* _str )const{
+	switch( this->str_type ) {
+	case WING_STR_IS_UNKNOW:
+		return _str == NULL;
+		break;
+	case WING_STR_IS_CHAR:
+		{
+			return strcmp( (char*)this->str, _str ) == 0;
+		}
+		break;
+	case WING_STR_IS_WCHAR:
+		{
+			wchar_t *res = wing_str_char_to_wchar( _str );
+			int d = wcscmp( (wchar_t*)this->str, res );
+			if( res ) free( res );
+			return d == 0;
+			
+		}break;
+	}
+	return false;
+}
+BOOL WingString::operator==( WingString &_str )const{
+	switch( _str.type() ) {
+	case WING_STR_IS_UNKNOW:
+		return this->str_type == WING_STR_IS_UNKNOW;
+		break;
+	case WING_STR_IS_CHAR:
+		{
+			if( this->str_type == WING_STR_IS_CHAR ){
+
+				return strcmp( (char*)this->str, (char*)_str.data() ) == 0;
+
+			}else if( this->str_type == WING_STR_IS_UNKNOW ) {
+
+				return false;
+
+			}else if( this->str_type == WING_STR_IS_WCHAR ){
+
+				char *res = wing_str_wchar_to_char( (wchar_t*)this->str );
+				int d = strcmp( (char*)_str.data(), res );
+				if( res ) free( res );
+				return d == 0;
+			}
+			return false;
+		}
+		break;
+	case WING_STR_IS_WCHAR:
+		{
+			if( this->str_type == WING_STR_IS_WCHAR ){
+
+				return wcscmp( (wchar_t*)this->str, (wchar_t*)_str.data() ) == 0;
+
+			}else if( this->str_type == WING_STR_IS_UNKNOW ) {
+
+				return false;
+
+			}else if( this->str_type == WING_STR_IS_CHAR ){
+
+				wchar_t *res = wing_str_char_to_wchar( (char*)this->str );
+				int d = wcscmp( (wchar_t*)_str.data(), res );
+				if( res ) free( res );
+				return d == 0;
+			}
+			return false;
+
+		}break;
+	}
+	return false;
+}
+WingString &WingString::operator=(const char* _str){
+	 this->append( _str , WING_CHAR_SIZE(_str) );
+     return *this;
+ }
+WingString &WingString::operator=(const wchar_t* _str){
+	 this->append( _str , WING_WCHAR_SIZE(_str) );
+     return *this;
+ }
+WingString &WingString::operator=(WingString &_str ){
+	 this->str		= _str.copy();
+	 this->str_size = _str.size();
+	 this->str_type = _str.type();
+     return *this;
+ }
+WingString &WingString::operator+(WingString &_str ){
+	  switch(_str.type()){
+	  case WING_STR_IS_UNKNOW :
+		  break;
+	  case WING_STR_IS_CHAR:
+		  this->append( (const char*)_str.data(), _str.size() );
+		  break;
+	  case WING_STR_IS_WCHAR:
+		  this->append( (const wchar_t*)_str.data(), _str.size() );
+		  break;
+	  }
+     return *this;
+ }
+WingString &WingString::operator+( const char* _str ){ 
+	this->append( _str, WING_CHAR_SIZE( _str ) );	  
+    return *this;
+}
+WingString &WingString::operator+( const wchar_t* _str ){ 
+	this->append( _str, WING_WCHAR_SIZE( _str ) );	  
+    return *this;
+}
+WingString &WingString::operator+=(WingString &_str ){
+	  switch(_str.type()){
+	  case WING_STR_IS_UNKNOW :
+		  break;
+	  case WING_STR_IS_CHAR:
+		  this->append( (const char*)_str.data(), _str.size() );
+		  break;
+	  case WING_STR_IS_WCHAR:
+		  this->append( (const wchar_t*)_str.data(), _str.size() );
+		  break;
+	  }
+     return *this;
+ }
+WingString &WingString::operator+=( const char* _str ){ 
+	this->append( _str, WING_CHAR_SIZE( _str ) );	  
+    return *this;
+}
+WingString &WingString::operator+=( const wchar_t* _str ){ 
+	this->append( _str, WING_WCHAR_SIZE( _str ) );	  
+    return *this;
+}
+
 unsigned int WingString::size(){
 	return this->str_size;
 }
@@ -59,9 +576,6 @@ unsigned int WingString::length(){
 	}
 	return 0;
 }
-
-
-
 
 /**
  *@追加字符串
@@ -130,7 +644,6 @@ void WingString::append( const wchar_t *_str, int size ){
 	}
 
 }
-
 /**
  *@追加字符串
  */
@@ -192,33 +705,31 @@ void WingString::append( const char *_str, int size ){
 	}
 
 }
-
-
 /**
  *@追加字符串
  */
-void WingString::append( WingString *_str ){
+void WingString::append( WingString &_str ){
 		
 	if( this->str_type == WING_STR_IS_UNKNOW ) {
 
-		int size       = _str->size();
+		int size       = _str.size();
 		this->str      = malloc( size );
 		this->str_size = size;
-		this->str_type = _str->type();
+		this->str_type = _str.type();
 
 		memset( this->str, 0 , size );
-		memcpy( this->str, _str->data(), size );
+		memcpy( this->str, _str.data(), size );
 		return;
 	}
 
 	else if( this->str_type == WING_STR_IS_CHAR ){
 
-		if( _str->type() == WING_STR_IS_UNKNOW )
+		if( _str.type() == WING_STR_IS_UNKNOW )
 			return;
 
-		else if( _str->type() == WING_STR_IS_CHAR ){
+		else if( _str.type() == WING_STR_IS_CHAR ){
 			
-			int new_size = this->str_size - 1 + _str->size();
+			int new_size = this->str_size - 1 + _str.size();
 			char *res = (char*)malloc( new_size );
 			memset( res, 0, new_size );
 
@@ -226,7 +737,7 @@ void WingString::append( WingString *_str ){
 			memcpy( str_start, this->str, this->str_size - 1 );
 			str_start +=  this->str_size - 1;
 
-			memcpy( str_start, _str->data(), _str->size() );
+			memcpy( str_start, _str.data(), _str.size() );
 
 			free( this->str );
 
@@ -235,9 +746,9 @@ void WingString::append( WingString *_str ){
 
 			return;
 		}
-		else if( _str->type() == WING_STR_IS_WCHAR ){
+		else if( _str.type() == WING_STR_IS_WCHAR ){
 
-			char *res = wing_str_wchar_to_char( (const wchar_t*)_str->data() );
+			char *res = wing_str_wchar_to_char( (const wchar_t*)_str.data() );
 
 			int len       = WING_CHAR_SIZE( res );
 			int new_len   = this->str_size + len - 1 ;
@@ -265,19 +776,19 @@ void WingString::append( WingString *_str ){
 
 	else if( this->str_type == WING_STR_IS_WCHAR ){
 		
-		if( _str->type() == WING_STR_IS_UNKNOW )
+		if( _str.type() == WING_STR_IS_UNKNOW )
 			return;
 
-		else if( _str->type() == WING_STR_IS_WCHAR ) {
+		else if( _str.type() == WING_STR_IS_WCHAR ) {
 			
 			int wl       = sizeof(wchar_t);
-			int new_size = this->str_size + _str->size() - wl;
+			int new_size = this->str_size + _str.size() - wl;
 		
 			wchar_t* res = (wchar_t*)malloc( new_size );
 
 			memset( res, 0x0, new_size );
 
-			wsprintfW( res, L"%s%s", this->str, _str->data() );
+			wsprintfW( res, L"%s%s", this->str, _str.data() );
 	
 			free( this->str );
 
@@ -286,9 +797,9 @@ void WingString::append( WingString *_str ){
 			return;
 		}
 
-		else if( _str->type() == WING_STR_IS_CHAR ) {
+		else if( _str.type() == WING_STR_IS_CHAR ) {
 			
-			wchar_t* buf = wing_str_char_to_wchar( (const char *)_str->data() );
+			wchar_t* buf = wing_str_char_to_wchar( (const char *)_str.data() );
 			int new_size = WING_WCHAR_SIZE( buf ) - sizeof(wchar_t) + this->str_size;
 
 			wchar_t* buffer = (wchar_t*)malloc(new_size);
@@ -308,13 +819,24 @@ void WingString::append( WingString *_str ){
 
 
 }
+/**
+ *@原型数据
+ */
 void * WingString::data(){
 	return this->str;
 }
+/**
+ *@字符串编码类型 char 还是 wachr_t 还是 unkonw 返回值
+ *@ WING_STR_IS_CHAR   1
+ *@ WING_STR_IS_WCHAR  2
+ *@ WING_STR_IS_UNKNOW 3
+ */
 int WingString::type(){
 	return this->str_type;
 }
-
+/**
+ *@拷贝数据
+ */
 void* WingString::copy(){
 	if( str == NULL || str_size <= 0 )
 		return NULL;
@@ -380,6 +902,37 @@ void WingString::print(){
 	else if( this->str_type == WING_STR_IS_WCHAR )
 		wprintf(L"---wchar_t:size=%ld,len=%ld,%s---\r\n",this->size(),this->length(),this->str);
 }
+/**
+ *@安全打印字符串，二进制数据安全
+ */
+void WingString::savePrint(){
+	setlocale(LC_ALL, "chs");
+
+	long i   = 0;
+	long end = this->length();
+
+	if( this->str_type == WING_STR_IS_CHAR ) {
+		printf("---char:size=%ld,len=%ld,",this->size(),this->length());
+		while( i < end ){
+			char c = ((char*)this->str)[i];
+			if( c == '\0') c = ' ';
+			printf("%c", c );
+			i++;
+		}
+		printf("---\r\n");
+	}
+	else if( this->str_type == WING_STR_IS_WCHAR ) {
+		
+		wprintf(L"---wchar_t:size=%ld,len=%ld,",this->size(),this->length());
+		while( i < end ){
+			wprintf(L"%c",((wchar_t*)this->str)[i]);
+			i++;
+		}
+		
+		wprintf(L"---\r\n");
+	}
+}
+
 
 /**
  * @字符串转换为utf8编码，会改变自身
@@ -426,10 +979,160 @@ void WingString::trim(){
 		this->str_size = strlen((char*)this->str )+1;
 	}
 }
+
+/***
+ * @安全的将字符串转换为double数字
+ */
+double WingString::toNumber(){
+	
+	//0的ascii为48 
+	//9的ascii为57 
+	//.的ascii码为46
+	//-的ascii码为45
+	
+	char *numstr  = NULL;
+	int need_free = 0;
+	switch( this->str_type ){
+		case WING_STR_IS_UNKNOW:
+			return 0;
+			break;
+		case WING_STR_IS_CHAR:
+			numstr = (char*)this->str;
+			break;
+		case WING_STR_IS_WCHAR:
+			{
+				numstr = wing_str_wchar_to_char( (const wchar_t*)this->str );
+				if(numstr){
+					need_free = 1;
+				}else
+					return 0;
+			}
+			break;
+	}
+	
+	int i          = 0;
+	int len        = this->length();
+	int is_minus   = 0;
+	int is_decimal = 0;
+
+	
+	double result = 0;
+	int maxmi     = 0;
+	int haspoint  = 0;
+
+	//这里是为了得到最大的幂和数字长度
+	while( i < len ) {
+		int ascii = (int)numstr[i];
+		if( (ascii < 48 || ascii > 57 ) && ascii != 45 && ascii != 46) break;
+		if( (i+1)<len ){
+			if( ( ascii==45 || ascii == 46 ) && ( (int)numstr[i+1] == 45 || (int)numstr[i+1] == 46) ) break;
+		}
+		if( (ascii >= 48 && ascii <= 57 ) && !haspoint ) {
+			maxmi++;
+			
+		} 
+		if( ascii == 46 )
+			haspoint=1;
+		i++;
+	}
+
+	if( i <= 0 ) return 0;
+
+	int start  = 0;
+	    len    = i;
+	double ten = 10;
+
+	//如果是负数
+	if( (int)numstr[start] == 45 ){
+		start = 1;
+		while( start < i ){
+
+			if( (int)numstr[start] == 46 ) {
+				start++; 
+				continue;
+			}
+
+			int m =maxmi-1;
+			result -= ( (int)numstr[start]-48 )*pow(ten,m);
+
+			start++;
+			maxmi--;
+		}
+
+		if( need_free) 
+			free(numstr);
+		return result;
+	}
+
+	
+
+	
+	start = 0;
+	while( start < i ){
+
+		if( (int)numstr[start] == 46 ) {
+			start++; 
+			continue;
+		}
+
+		int m   = maxmi-1;
+		result += ( (int)numstr[start]-48 )*pow(ten,m);
+
+		start++;
+		maxmi--;
+	}
+
+	if( need_free ) 
+		free(numstr);
+	
+	return result;
+}
+
+/**
+ *@返回子字符串 不改变字符串本身  
+ *@用完之后 返回值 如果返回值不为null 需要 free ,start 从0开始，也可以是负数，从末尾开始截取
+ */
+void* WingString::substr(int start,int length) {
+
+	int len = this->length();
+	if( this->str_type == WING_STR_IS_UNKNOW ) 
+		return NULL;
+	
+	unsigned long sl = 0;
+	if( this->str_type == WING_STR_IS_CHAR )
+		sl = sizeof(char);
+	else if( this->str_type == WING_STR_IS_WCHAR )
+		sl = sizeof(wchar_t);
+
+	unsigned long end_str   = (unsigned long)this->str + this->str_size - 1*sl;
+	unsigned long start_str = NULL;
+
+	if( start >= 0 ){
+		start_str =  (unsigned long)this->str + start*sl ;
+		if( start_str >= end_str ) 
+			return NULL;
+	}else{
+		start_str = (unsigned long)this->str + this->str_size + (start - 1)*sl;
+		if( start_str < (unsigned long)this->str )
+			start_str = (unsigned long)this->str;
+	}
+
+	if( length > (end_str-start_str)/sl ) 
+		length = (end_str-start_str)/sl;
+
+	void* _subatr = malloc( (length+1)*sl );
+	memset( _subatr, 0 , (length+1)*sl );
+	memcpy( _subatr, (const void*)start_str, length*sl );
+
+	return _subatr;
+}
+
 //----WingString end------------------------
 
 
-
+/**
+ *@wchar_t转换编码为utf8
+ */
 char* wing_str_wchar_to_utf8( _In_ const wchar_t* _str ){
 	if( _str == NULL )
 		return NULL;
@@ -442,7 +1145,9 @@ char* wing_str_wchar_to_utf8( _In_ const wchar_t* _str ){
 
 }
 
-
+/**
+ *@wchar_t 转换为 char
+ */
 char* wing_str_wchar_to_char( _In_ const wchar_t* _str ){
 	 if( _str == NULL )
 		 return NULL;

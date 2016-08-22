@@ -2,6 +2,8 @@
 #define __WING_STRING_H__
 #include "Windows.h"
 #include <locale.h>
+#include "math.h"
+
 #define WING_STR_IS_CHAR   1
 #define WING_STR_IS_WCHAR  2
 #define WING_STR_IS_UNKNOW 3
@@ -41,19 +43,68 @@ public:
 	unsigned int size();
 	unsigned int length();
 
+	//拷贝字符串原型数据 用完需要free
 	void* copy();
+	//返回字符串原型数据 不改变自身 无需free
 	void* data();
+	//返回字符串类型
 	int   type();
+
+	//返回char*字符串 不改变自身 返回值用完需要free
 	char* c_str();
+	//返回wchar_t*字符串 不改变自身 返回值用完需要free
 	wchar_t* w_str();
 
+	//追加字符串 改变字符串本身
 	void append( const char *_str, int size = 0 );
-	void append( WingString *_str );
+	void append( WingString &_str );
 	void append( const wchar_t *_str,int size = 0 );
 
+	//转换编码 改变字符串本身
 	BOOL toUTF8( );
-	void print();
+	//去掉两端空格 改变字符串本身
 	void trim();
+
+	//打印函数 一般用于调试
+	void print();
+	void savePrint();
+	
+	//转换为数字 不改变字符串本身
+	double toNumber();
+
+	//返回子字符串 不改变字符串本身  用完之后 返回值 需要 free ,start 从0开始，也可以是负数，从末尾开始截取
+	void* substr(int start,int length);
+
+
+	WingString& operator=(WingString &_str );
+	WingString& operator=(const char* _str );
+	WingString& operator=(const wchar_t* _str );
+	WingString& operator+(WingString &_str );
+	WingString& operator+(const char* _str );
+	WingString& operator+(const wchar_t* _str );
+	WingString& operator+=(WingString &_str );
+	WingString& operator+=(const char* _str );
+	WingString& operator+=(const wchar_t* _str );
+	BOOL operator==( WingString &_str )const;
+	BOOL operator==( const char* _str )const;
+	BOOL operator==( const wchar_t* _str )const;
+	BOOL operator!=( WingString &_str )const;
+	BOOL operator!=( const char* _str )const;
+	BOOL operator!=( const wchar_t* _str )const;
+	BOOL operator>( WingString &_str )const;
+	BOOL operator>=( WingString &_str )const;
+	BOOL operator>( const char* _str )const;
+	BOOL operator>=( const char* _str )const;
+	BOOL operator>( const wchar_t* _str )const;
+	BOOL operator>=( const wchar_t* _str )const;
+	BOOL operator<( WingString &_str )const;
+	BOOL operator<=( WingString &_str )const;
+	BOOL operator<( const char* _str )const;
+	BOOL operator<=( const char* _str )const;
+	BOOL operator<( const wchar_t* _str )const;
+	BOOL operator<=( const wchar_t* _str )const;
+
 };
+
 
 #endif

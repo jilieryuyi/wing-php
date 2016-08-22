@@ -1,5 +1,7 @@
 // WingString.cpp : 定义控制台应用程序的入口点。
-//
+// wing php
+// author yuyi 
+// www.itdfy.com
 
 #include "stdafx.h"
 #include "Windows.h"
