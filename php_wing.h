@@ -26,24 +26,14 @@
 #include "php_ini.h"
 #include "ext/standard/info.h"
 
-/* If you declare any globals in php_wing.h uncomment this:
-ZEND_DECLARE_MODULE_GLOBALS(wing)
-*/
-
-/* True global resources - no need for thread safety here */
-static int le_wing;
-char *PHP_PATH = NULL;
-
-
+#ifdef WIN32
 
 #include <Winsock2.h>
 #include "Windows.h"
 #include "Winbase.h"
 #include "tlhelp32.h"
-
 #include <tchar.h>
 #include "strsafe.h"
-
 #include "Psapi.h"
 #include "Winternl.h"
 #include "Processthreadsapi.h"
@@ -53,7 +43,6 @@ char *PHP_PATH = NULL;
 #include "mstcpip.h"
 #include "process.h"
 #include <mswsock.h>
-
 #include <ws2tcpip.h>//ipv4 ipv6
 //int getaddrinfo( const char *hostname, const char *service, const struct addrinfo *hints, struct addrinfo **result );
 //https://msdn.microsoft.com/en-us/library/windows/desktop/ms742203(v=vs.85).aspx
@@ -63,6 +52,18 @@ char *PHP_PATH = NULL;
 #pragma comment(lib,"Psapi.lib")
 #pragma comment(lib,"Winmm.lib")
 #pragma comment(lib,"Ws2_32.lib")
+
+#else
+#define MAX_PATH 260
+#endif
+
+/* If you declare any globals in php_wing.h uncomment this:
+ZEND_DECLARE_MODULE_GLOBALS(wing)
+*/
+
+/* True global resources - no need for thread safety here */
+static int le_wing;
+char *PHP_PATH = NULL;
 
 #include "wing_message_queue.h"
 #include "wing_iocp_message_queue.h"

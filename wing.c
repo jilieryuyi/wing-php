@@ -22,10 +22,6 @@
 
 #include "php_wing.h"
 
-
-
-
-
 extern zend_class_entry *wing_sclient_ce;
 extern zend_class_entry *wing_select_server_ce;
 extern zend_class_entry *wing_server_ce;
@@ -118,9 +114,15 @@ PHP_MINIT_FUNCTION( wing )
 	*/
 
 	//常量定义
-	PHP_PATH = new char[MAX_PATH];
+	PHP_PATH = (char*)malloc(MAX_PATH);
+	memset( PHP_PATH, 0, MAX_PATH );
 	//(char*)emalloc(MAX_PATH); 测试发现这里不能用php的内存分配 如果使用php的内存分配 在使用WING_PHP常量的时候会拿不到值
+#ifdef WIN32
 	GetModuleFileName( NULL, PHP_PATH, MAX_PATH );
+#else
+	getcwd( PHP_PATH, 260 );
+	strcat(PHP_PATH,"/php");
+#endif
 	
 	zend_register_string_constant( "WING_PHP",                       sizeof("WING_PHP"),                     PHP_PATH,                      CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
 	zend_register_string_constant( "WING_VERSION",                   sizeof("WING_VERSION"),                 PHP_WING_VERSION,              CONST_CS | CONST_PERSISTENT, module_number TSRMLS_CC);
@@ -173,7 +175,8 @@ PHP_MINIT_FUNCTION( wing )
 
 PHP_MSHUTDOWN_FUNCTION(wing)
 {
-	delete[] PHP_PATH;
+	if( PHP_PATH ) 
+		free( PHP_PATH );
 	return SUCCESS;
 }
 
@@ -200,38 +203,38 @@ PHP_MINFO_FUNCTION(wing)
 
 const zend_function_entry wing_functions[] = {
 	
-	PHP_FE(wing_version,NULL)
-	PHP_FE(wing_create_process,NULL)
-	PHP_FE(wing_get_process_params,NULL)
-	PHP_FE(wing_create_process_ex,NULL)
-	PHP_FE(wing_process_wait,NULL)
-	PHP_FE(wing_process_kill,NULL)
-	ZEND_FALIAS(wing_kill_process,wing_process_kill,NULL)
+	PHP_FE( wing_version, NULL )
+	PHP_FE( wing_create_process, NULL )
+	PHP_FE( wing_get_process_params, NULL )
+	PHP_FE( wing_create_process_ex, NULL )
+	PHP_FE( wing_process_wait, NULL )
+	PHP_FE( wing_process_kill, NULL )
+	ZEND_FALIAS( wing_kill_process, wing_process_kill, NULL )
 	PHP_FE( wing_get_command_line , NULL )
-	PHP_FE( wing_query_object , NULL )
-	PHP_FE(wing_override_function,NULL)
-	PHP_FE(wing_get_current_process_id,NULL)
-	PHP_FE(wing_create_mutex,NULL)
-	PHP_FE(wing_close_mutex,NULL)
-	PHP_FE(wing_get_env,NULL)
-	PHP_FE(wing_get_command_path,NULL)
-	PHP_FE(wing_set_env,NULL)
+	PHP_FE( wing_query_object , NULL  )
+	PHP_FE( wing_override_function, NULL )
+	PHP_FE( wing_get_current_process_id, NULL )
+	PHP_FE( wing_create_mutex, NULL )
+	PHP_FE( wing_close_mutex, NULL )
+	PHP_FE( wing_get_env, NULL )
+	PHP_FE( wing_get_command_path, NULL )
+	PHP_FE( wing_set_env, NULL )
 	PHP_FE( wing_windows_send_msg, NULL )
-	PHP_FE(wing_get_last_error,NULL)
-	PHP_FE(wing_wsa_get_last_error,NULL)
-	PHP_FE(wing_get_error_msg,NULL)
+	PHP_FE( wing_get_last_error, NULL )
+	PHP_FE( wing_wsa_get_last_error, NULL )
+	PHP_FE( wing_get_error_msg, NULL )
 	PHP_FE( wing_get_memory_used , NULL )
 	ZEND_FALIAS( wing_get_process_memory_used , wing_get_memory_used , NULL )
-	PHP_FE(wing_windows_version,NULL)
-	PHP_FE(wing_query_process,NULL)
+	PHP_FE( wing_windows_version, NULL )
+	PHP_FE( wing_query_process, NULL )
 	ZEND_FALIAS( wing_find_process , wing_query_process , NULL )
 
-	PHP_FE(wing_encrypt_file,NULL)
-	PHP_FE(wing_run_file,NULL)
+	PHP_FE( wing_encrypt_file, NULL )
+	PHP_FE( wing_run_file, NULL )
 
-	PHP_FE( wing_adapters_info ,NULL)
-	PHP_FE( wing_get_cpu_id,NULL)
-	PHP_FE(wing_get_serial_number,NULL)
+	PHP_FE( wing_adapters_info , NULL )
+	PHP_FE( wing_get_cpu_id, NULL )
+	PHP_FE( wing_get_serial_number, NULL )
 	
 	PHP_FE_END	
 };

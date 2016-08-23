@@ -1468,9 +1468,16 @@ int _tmain(int argc, _TCHAR* argv[])
 	//double res = number.toNumber();
 	//printf("==>%lf<==",res);
 
-WingString a(L"123456");
-wchar_t* substr =(wchar_t*)a.substr(-4,3);
-wprintf(L"%s",substr);
+//WingString a(L"ÄãºÃÍÛ¹ş¹ş¹ş¹ş");
+//wchar_t* substr =(wchar_t*)a.substr(-4,3);
+//wprintf(L"%s",substr);
+
+
+WingString a("1234ÄãºÃ56789");
+char* substr =(char*)a.substr(2,4);
+printf("%s",substr);
+
+printf("\r\n==>%ld,%ld<==\r\n",sizeof("!"),strlen("!"));
 
 
 	return 0;
