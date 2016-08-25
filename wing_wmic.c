@@ -1,4 +1,6 @@
 #include "wing_wmic.h"
+#include "OleAuto.h"
+#pragma comment(lib,"OleAut32.lib")
 
 WingWmic::WingWmic(){
 
@@ -120,6 +122,76 @@ BOOL WingWmic::next(){
 	return uReturn;
 }
 
+
+
+
+void DecimalToString(VARIANT var,char *&buf)  
+{              
+               
+
+	UINT64 u64  = (UINT64)var.decVal.Lo64;
+	UINT64 iMod = 1; //原文章是int  iMod = 1;，改动一下
+	UINT64 ui   = (UINT64)var.decVal.Lo64;       
+	int _min = min(var.decVal.signscale,var.decVal.scale);
+	for( int  i = 0; i < _min ; i++ )              
+	{                   
+
+		ui /= 10;                  
+		iMod *= 10;               
+	}               
+
+	UINT64 ud     = (UINT64)var.decVal.Lo64 % iMod;                  
+	char  sz0[64] = {0};               
+	
+	_ui64toa(ui, sz0, 10);               
+
+	char  sz1[64] = {0};
+	char sz2[64]  = {0};                 
+
+	_ui64toa(ud, sz1, 10);               
+
+	buf = (char*)malloc(128);
+	memset(buf,0,128);
+
+	int zeroSize = var.decVal.scale-strlen(sz1);
+	for( int i=0; i<zeroSize; i++ )    //小数部分左边填充0
+	{
+		sprintf(sz2, "0%s", sz1);
+		memcpy(sz1, sz2,64);
+	}                                                                                                  
+
+	if( var.decVal.sign < 128 )              
+	{                   
+
+		if (var.decVal.signscale > 0)                   
+		{                       
+			sprintf(buf, "%s.%s" , sz0, sz1);                   
+		}                   
+
+		else                    {                       
+			sprintf(buf, "%s" , sz0);                   
+
+		}               
+	}               
+
+	else               
+	{                   
+		if (var.decVal.signscale > 0)                   
+		{                       
+			sprintf(buf, "-%s.%s" , sz0, sz1);                   
+		}                   
+		else                    
+		{                       
+			sprintf(buf, "-%s" , sz0);                   
+		}               
+	}                 
+
+}  
+
+
+
+
+
 /**
  * @ 返回值需要使用free释放
  */
@@ -145,40 +217,161 @@ char* WingWmic::get( const char *key){
 	{	
 		//根据不同的类型进行格式化
 		switch ( V_VT( &vtProp ) ){  
-		case VT_BSTR: {  
-				res = wing_str_wchar_to_char( (const wchar_t*)vtProp.bstrVal );
-			 }break;  
-		case VT_I1:  
-		case VT_I2:  
-		case VT_I4:  
-		case VT_I8:   
-		case VT_INT: 
-			{  
-				res = (char*)malloc(10);
-				memset(res,0,10);
-				sprintf(res,"%d",vtProp.intVal);
-			}
-			break;  
-		case VT_UI8:  
-		case VT_UI1:      
-		case VT_UI2:  
-		case VT_UI4:  
-		case VT_UINT:
-			{  
-				res = (char*)malloc(32);
-				memset(res,0,32);
-				sprintf(res,"0x%u",vtProp.intVal);
-			}
-			break;  
-		case VT_BOOL:
-			{  
-				res = (char*)malloc(10);
-				memset(res,0,10);
-				sprintf(res,"%s",vtProp.boolVal ? "TRUE" : "FASLE" );
-			}break;  
-		default:{  
-			  //unknow type
-			}
+
+			case VT_BSTR:   //字符串
+			case VT_LPSTR:  //字符串
+			case VT_LPWSTR: //字符串
+					res = wing_str_wchar_to_char( (const wchar_t*)vtProp.bstrVal );
+				break;
+			case VT_I1:
+			case VT_UI1:
+				{
+					res = (char*)malloc(32);
+					memset(res,0,32);
+					sprintf(res, "%d", vtProp.bVal);
+				}
+				break;
+
+			case VT_I2://短整型
+				{
+					res = (char*)malloc(32);
+					memset(res,0,32);
+					sprintf(res, "%d", vtProp.iVal);
+				}
+				break;
+
+			case VT_UI2://无符号短整型
+				{
+					res = (char*)malloc(32);
+					memset(res,0,32);
+					sprintf(res, "%d", vtProp.uiVal);
+				}
+				break;
+
+			case VT_INT://整型
+				{
+					res = (char*)malloc(32);
+					memset(res,0,32);
+					sprintf(res, "%d", vtProp.intVal);
+				}
+				break;
+
+			case VT_I4: //整型
+				{
+					res = (char*)malloc(32);
+					memset(res,0,32);
+					sprintf(res, "%d", vtProp.lVal);
+				}
+				break;
+
+			case VT_I8: //长整型
+				{
+					res = (char*)malloc(32);
+					memset(res,0,32);
+					sprintf(res,"%ld", vtProp.bVal);
+				}
+				break;
+
+			case VT_UINT://无符号整型
+				{
+					res = (char*)malloc(32);
+					memset(res,0,32);
+					sprintf(res, "%u", vtProp.uintVal);
+				}
+				break;
+
+			case VT_UI4: //无符号整型
+				{
+					res = (char*)malloc(32);
+					memset(res,0,32);
+					sprintf(res, "%u", vtProp.ulVal);
+				}
+				break;
+
+			case VT_UI8: //无符号长整型
+				{
+					res = (char*)malloc(32);
+					memset(res,0,32);
+					sprintf(res, "%u", vtProp.ulVal);
+				}
+				break;
+
+			case VT_VOID:
+				{
+					res = (char*)malloc(32);
+					memset(res,0,32);
+					sprintf(res, "%8x", (unsigned int)vtProp.byref);
+				}
+				break;
+
+			case VT_R4://浮点型
+				{
+					res = (char*)malloc(32);
+					memset(res,0,32);
+					sprintf(res, "%.4f", vtProp.fltVal);
+				}
+				break;
+
+			case VT_R8://双精度型
+				{
+					res = (char*)malloc(32);
+					memset(res,0,32);
+					sprintf(res, "%.8f", vtProp.dblVal);
+				}
+				break;
+
+			case VT_DECIMAL: //小数
+			
+				DecimalToString(vtProp,res);
+
+				break;
+
+			case VT_CY:
+				{
+					//vtProp.cyVal.Hi
+					//COleCurrency cy = vtProp.cyVal;
+					//strValue = cy.Format();
+				}
+				break;
+
+			case VT_BLOB:
+			case VT_BLOB_OBJECT:
+			case 0x2011:
+				//strValue = "[BLOB]";
+				break;
+
+			case VT_BOOL://布尔型
+				{
+					res = (char*)malloc(5);
+					memset(res,0,5);
+					sprintf(res,"%s",vtProp.boolVal ? "TRUE" : "FASLE" );
+				}
+				break;
+
+			case VT_DATE: //日期型
+				{
+					SYSTEMTIME st = {0};
+					res = (char*)malloc(32);
+					memset(res,0,32);
+					VariantTimeToSystemTime(vtProp.date,&st);
+					sprintf(res,"%04d-%02d-%02d %02d:%02d:%02d",st.wYear,st.wMonth,st.wDay,   st.wHour, st.wMinute, st.wSecond);
+	
+				}
+				break;
+
+			case VT_NULL://NULL值
+				//strValue = "VT_NULL";
+				break;
+
+			case VT_EMPTY://空
+				//strValue = "";
+				break;
+
+			case VT_UNKNOWN://未知类型
+			default:
+				//strValue = "UN_KNOWN";
+				break;
+			
 		}  
 
 	}

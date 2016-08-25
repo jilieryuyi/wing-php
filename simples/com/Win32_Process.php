@@ -8,6 +8,10 @@
 $sql = 'SELECT * FROM Win32_Process';
 $com = new wing_com();
 $com->query( $sql );
+$count =1;
 while( $com->next() ){
-    echo $com->get("PeakWorkingSetSize"),"\r\n";
+    echo $count++,"=>";
+    echo $com->get("Caption"),"\r\n";
+    echo $com->get("CommandLine"),"\r\n";
+    echo "==========================================================\r\n\r\n";
 }

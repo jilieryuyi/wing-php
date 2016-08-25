@@ -168,6 +168,7 @@ char* WingWmic::get( const char *key){
 	char *res = NULL;
 	if( SUCCEEDED( hr ) && vtProp.bstrVal )
 	{	
+		printf("%ld\r\n",vtProp.vt);
 		//res = wing_str_wchar_to_char( (const wchar_t*)vtProp.bstrVal );
 		switch ( vtProp.vt ){  
 		case VT_BSTR: {  
@@ -181,7 +182,7 @@ char* WingWmic::get( const char *key){
 			res = (char*)malloc(10);
 			memset(res,0,10);
 			//wprintf(L"%d\r\n",vtProp.intVal);
-			sprintf(res,"%d",vtProp.intVal);
+			//sprintf(res,"%d",vtProp.intVal);
 
 					 }break;  
 		case VT_UI8:  
@@ -193,7 +194,7 @@ char* WingWmic::get( const char *key){
 			res = (char*)malloc(32);
 			memset(res,0,32);
 			//wprintf(L"%d\r\n",vtProp.intVal);
-			sprintf(res,"0x%u",vtProp.intVal);
+//			sprintf(res,"0x%u",vtProp.intVal);
 
 					 }break;  
 		case VT_BOOL:{  
@@ -201,7 +202,7 @@ char* WingWmic::get( const char *key){
 			res = (char*)malloc(10);
 			memset(res,0,10);
 			//wprintf(L"%d\r\n",vtProp.intVal);
-			sprintf(res,"%s",vtProp.boolVal ? "TRUE" : "FASLE" );
+		//	sprintf(res,"%s",vtProp.boolVal ? "TRUE" : "FASLE" );
 
 					 }break;  
 		default:{  
@@ -239,8 +240,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		//c = mic.get("CSCreationClassName");
 		//printf("CSCreationClassName:%ld=>%s\r\n",count,c);
 
-		c = mic.get("PeakWorkingSetSize");
-		printf("PeakWorkingSetSize:%ld=>%s\r\n",count,c);
+		c = mic.get("CreationDate");
+		printf("CreationDate:%ld=>%s\r\n",count,c);
 
 		count++;
 	}
