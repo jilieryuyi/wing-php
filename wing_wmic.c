@@ -144,7 +144,7 @@ char* WingWmic::get( const char *key){
 	if( SUCCEEDED( hr ) && vtProp.bstrVal )
 	{	
 		//根据不同的类型进行格式化
-		switch ( vtProp.vt ){  
+		switch ( V_VT( &vtProp ) ){  
 		case VT_BSTR: {  
 				res = wing_str_wchar_to_char( (const wchar_t*)vtProp.bstrVal );
 			 }break;  
