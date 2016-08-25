@@ -10,11 +10,12 @@
 
 class WingWmic{
 private:
-	 IWbemServices *pSvc; 
-	 int has_error; 
-	 IEnumWbemClassObject* pEnumerator; 
-	 IWbemLocator *pLoc; 
-	 char *query_table;
+	IWbemServices *pSvc; 
+	int has_error; 
+	IEnumWbemClassObject* pEnumerator; 
+	IWbemLocator *pLoc; 
+	char *query_table;
+	IWbemClassObject *pclsObj;
 public:
 	WingWmic();
 	~WingWmic();

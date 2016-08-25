@@ -75,6 +75,9 @@
     <ClCompile Include="wing_malloc.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="wing_com.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="php_wing.h">

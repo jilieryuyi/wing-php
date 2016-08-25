@@ -1,16 +1,16 @@
 // WingWmic.cpp : 定义控制台应用程序的入口点。
-//
+// author yuyi
+// email 297341015@qq.com
+// 项目地址 http://www.itdfy.com/git/
 
 #include "stdafx.h"
 #define _WIN32_DCOM
 #include <atlcomcli.h>
-//#include <iostream>
-using namespace std;
 #include <comdef.h>
 #include <Wbemidl.h>
 #include "wing_string.h"
 
-# pragma comment(lib, "wbemuuid.lib")
+#pragma comment(lib, "wbemuuid.lib")
 
 class WingWmic{
 private:
@@ -19,6 +19,7 @@ private:
 	 IEnumWbemClassObject* pEnumerator; 
 	 IWbemLocator *pLoc; 
 	 char *query_table;
+	 IWbemClassObject *pclsObj;
 public:
 	WingWmic();
 	~WingWmic();
@@ -34,6 +35,7 @@ WingWmic::WingWmic(){
 	this->has_error		= 0;
 	this->pLoc			= NULL;
 	this->query_table   = NULL;
+	this->pclsObj       = NULL;
 
 	HRESULT hres;
     hres =  CoInitializeEx(0, COINIT_MULTITHREADED); 
@@ -87,6 +89,8 @@ WingWmic::~WingWmic(){
 		pEnumerator->Release();
 	if( this->query_table != NULL ) 
 		delete[] this->query_table;
+	if( this->pclsObj != NULL)
+		this->pclsObj->Release();
     CoUninitialize();
 }
 
@@ -109,6 +113,7 @@ void WingWmic::query( const char* _sql ){
 		from++;
 	}
 
+	//得到查询的是那张表
 	this->query_table = new char[32];
 	memset( this->query_table , 0 , 32);
 	int index = 0;
@@ -119,8 +124,6 @@ void WingWmic::query( const char* _sql ){
 		index++;
 		from++;
 	}
-
-	//printf("table=%s\r\n",this->query_table);
 
 	HRESULT hres = pSvc->ExecQuery( bstr_t("WQL"), bstr_t(sql),WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, NULL,&this->pEnumerator);
     
@@ -133,71 +136,91 @@ void WingWmic::query( const char* _sql ){
 }
 
 BOOL WingWmic::next(){
-	return !!pEnumerator;
-}
-
-char* WingWmic::get( const char *key){
-	
-	SetLastError(0);
-	
-	if( this->has_error ) 
-	{
-		//printf("has error %ld\r\n",GetLastError());
-		pEnumerator->Release();
-		pEnumerator = NULL;
-		return NULL;
-	}
-
-	IWbemClassObject *pclsObj = NULL;
-    ULONG uReturn = 0;
-
-	HRESULT hr = pEnumerator->Next( WBEM_INFINITE, 1,  &pclsObj, &uReturn );
-
-	if( 0 == uReturn )
-	{
-		//printf("\r\nfail %ld\r\n",GetLastError());
-		if( pclsObj != NULL ) {
-			pclsObj->Release();
-			pclsObj=NULL;
-		}
-		pEnumerator->Release();
-		pEnumerator = NULL;
-        return NULL;
-	}
-
-	VARIANT vtProp;
-	
-	
-
-	 wchar_t *wkey = wing_str_char_to_wchar( key );
-   
-
-	hr = pclsObj->Get( wkey , 0, &vtProp, 0, 0);
-
-	//wcout<<"key=>"<<wkey<<"<=="<<endl;
-
-	char *res = NULL;
-	if( SUCCEEDED( hr ) && vtProp.bstrVal )
-	{	
-		res = wing_str_wchar_to_char( (const wchar_t*)vtProp.bstrVal );
-
-	}else{
-		//wcout<<"fail key=>"<<wkey<<endl;
-	}
-		
-	VariantClear(&vtProp);
 
 	if( pclsObj != NULL ) {
 		pclsObj->Release();
 		pclsObj=NULL;
 	}
 
+	ULONG uReturn = 0;
+	HRESULT hr = pEnumerator->Next( WBEM_INFINITE, 1,  &pclsObj, &uReturn );
+
+	return uReturn;
+}
+
+char* WingWmic::get( const char *key){
+
+	if( this->has_error ) 
+	{
+		pEnumerator->Release();
+		pEnumerator = NULL;
+		return NULL;
+	}
+
+
+	VARIANT vtProp;
+
+	wchar_t *wkey = wing_str_char_to_wchar( key );
+
+
+	HRESULT hr = pclsObj->Get( wkey , 0, &vtProp, 0, 0);
+
+	char *res = NULL;
+	if( SUCCEEDED( hr ) && vtProp.bstrVal )
+	{	
+		//res = wing_str_wchar_to_char( (const wchar_t*)vtProp.bstrVal );
+		switch ( vtProp.vt ){  
+		case VT_BSTR: {  
+			res = wing_str_wchar_to_char( (const wchar_t*)vtProp.bstrVal );
+					  }break;  
+		case VT_I1:  
+		case VT_I2:  
+		case VT_I4:  
+		case VT_I8:   
+		case VT_INT: {  
+			res = (char*)malloc(10);
+			memset(res,0,10);
+			//wprintf(L"%d\r\n",vtProp.intVal);
+			sprintf(res,"%d",vtProp.intVal);
+
+					 }break;  
+		case VT_UI8:  
+		case VT_UI1:      
+		case VT_UI2:  
+		case VT_UI4:  
+		case VT_UINT:{  
+			//wprintf(L"0x%u\r\n",vtProp.intVal); 
+			res = (char*)malloc(32);
+			memset(res,0,32);
+			//wprintf(L"%d\r\n",vtProp.intVal);
+			sprintf(res,"0x%u",vtProp.intVal);
+
+					 }break;  
+		case VT_BOOL:{  
+			//wprintf(L"%s\r\n", vtProp.boolVal ? L"TRUE" : L"FASLE" );  
+			res = (char*)malloc(10);
+			memset(res,0,10);
+			//wprintf(L"%d\r\n",vtProp.intVal);
+			sprintf(res,"%s",vtProp.boolVal ? "TRUE" : "FASLE" );
+
+					 }break;  
+		default:{  
+			//ATLASSERT(FALSE);  
+				};  
+		}  
+
+	}
+
+	VariantClear(&vtProp);
+	if(wkey) free(wkey);
+
 	return res;
 }
 
+
 int _tmain(int argc, _TCHAR* argv[])
 {
-	char sql[] = "SELECT * FROM Win32_Process\0";
+	char sql[] = "SELECT * FROM Win32_Process";
  
 	//char *sql = "SELECT * FROM Win32_Processor";
 
@@ -209,8 +232,15 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	while( mic.next() ) {
 		
-		c = mic.get("CommandLine");
-		printf("CommandLine:%ld=>%s\r\n",count,c);
+		//c = mic.get("CommandLine");
+		//printf("CommandLine:%ld=>%s\r\n",count,c);
+		//c = mic.get("Caption");
+		//printf("Caption:%ld=>%s\r\n",count,c);
+		//c = mic.get("CSCreationClassName");
+		//printf("CSCreationClassName:%ld=>%s\r\n",count,c);
+
+		c = mic.get("PeakWorkingSetSize");
+		printf("PeakWorkingSetSize:%ld=>%s\r\n",count,c);
 
 		count++;
 	}

@@ -1,73 +1,76 @@
 #include "wing_wmic.h"
 
 WingWmic::WingWmic(){
-	 
+
 	this->pSvc			= NULL;
 	this->pEnumerator	= NULL;
 	this->has_error		= 0;
 	this->pLoc			= NULL;
 	this->query_table   = NULL;
+	this->pclsObj       = NULL;
 
 	HRESULT hres;
-    hres =  CoInitializeEx(0, COINIT_MULTITHREADED); 
-    if (FAILED(hres))
-    {
+	hres =  CoInitializeEx(0, COINIT_MULTITHREADED); 
+	if (FAILED(hres))
+	{
 		this->has_error = 1;
-        return;             
-    }
+		return;             
+	}
 
-    hres =  CoInitializeSecurity( NULL, -1,  NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL );
+	hres =  CoInitializeSecurity( NULL, -1,  NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL );
 
 	if (FAILED(hres))
-    {
+	{
 		this->has_error = 1;
-        return ;
-    }
+		return ;
+	}
 
-   
-    hres = CoCreateInstance( CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER,  IID_IWbemLocator, (LPVOID *) &pLoc );
- 
-    if (FAILED(hres))
-    {
+
+	hres = CoCreateInstance( CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER,  IID_IWbemLocator, (LPVOID *) &pLoc );
+
+	if (FAILED(hres))
+	{
 		this->has_error = 1;
-        return ;            
-    }
+		return ;            
+	}
 
-    hres = pLoc->ConnectServer( _bstr_t(L"ROOT\\CIMV2"), NULL, NULL,  0,  NULL,  0,  0,   &this->pSvc  );
-    
-    if (FAILED(hres))
-    {   
+	hres = pLoc->ConnectServer( _bstr_t(L"ROOT\\CIMV2"), NULL, NULL,  0,  NULL,  0,  0,   &this->pSvc  );
+
+	if (FAILED(hres))
+	{   
 		this->has_error = 1;
-        return ;             
-    }
+		return ;             
+	}
 
-    hres = CoSetProxyBlanket( pSvc,  RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE,  NULL, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE,  NULL,  EOAC_NONE );
+	hres = CoSetProxyBlanket( pSvc,  RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE,  NULL, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE,  NULL,  EOAC_NONE );
 
-    if (FAILED(hres))
-    {    
+	if (FAILED(hres))
+	{    
 		this->has_error = 1;
-        return;        
-    }
+		return;        
+	}
 
 }
 
 WingWmic::~WingWmic(){
 	if( pSvc != NULL ) 
 		pSvc->Release();
-    if( pLoc != NULL ) 
+	if( pLoc != NULL ) 
 		pLoc->Release();
-    if( pEnumerator != NULL )
+	if( pEnumerator != NULL )
 		pEnumerator->Release();
 	if( this->query_table != NULL ) 
 		delete[] this->query_table;
-    CoUninitialize();
+	if( this->pclsObj != NULL)
+		this->pclsObj->Release();
+	CoUninitialize();
 }
 
 
 void WingWmic::query( const char* _sql ){
-   
+
 	if( this->has_error ) return;
-	char *sql = _strdup( _sql );
+	/*char *sql = _strdup( _sql );
 
 	int i = 0;
 	while( sql[i] != '\0' ){
@@ -82,6 +85,7 @@ void WingWmic::query( const char* _sql ){
 		from++;
 	}
 
+	//得到查询的是那张表
 	this->query_table = new char[32];
 	memset( this->query_table , 0 , 32);
 	int index = 0;
@@ -91,79 +95,96 @@ void WingWmic::query( const char* _sql ){
 		this->query_table[index] = c;
 		index++;
 		from++;
-	}
+	}*/
 
-	//printf("table=%s\r\n",this->query_table);
+	HRESULT hres = pSvc->ExecQuery( bstr_t("WQL"), bstr_t(_sql),WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, NULL,&this->pEnumerator);
 
-	HRESULT hres = pSvc->ExecQuery( bstr_t("WQL"), bstr_t(sql),WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, NULL,&this->pEnumerator);
-    
 	if (FAILED(hres))
 	{
 		this->has_error = 1;
 	}
 
-	delete[] sql;
+	//delete[] sql;
 }
 
 BOOL WingWmic::next(){
-	return !!pEnumerator;
-}
-
-char* WingWmic::get( const char *key){
-	
-	SetLastError(0);
-	
-	if( this->has_error ) 
-	{
-		//printf("has error %ld\r\n",GetLastError());
-		pEnumerator->Release();
-		pEnumerator = NULL;
-		return NULL;
-	}
-
-	IWbemClassObject *pclsObj = NULL;
-    ULONG uReturn = 0;
-
-	HRESULT hr = pEnumerator->Next( WBEM_INFINITE, 1,  &pclsObj, &uReturn );
-
-	if( 0 == uReturn )
-	{
-		//printf("\r\nfail %ld\r\n",GetLastError());
-		if( pclsObj != NULL ) {
-			pclsObj->Release();
-			pclsObj=NULL;
-		}
-		pEnumerator->Release();
-		pEnumerator = NULL;
-        return NULL;
-	}
-
-	VARIANT vtProp;
-	
-	
-
-	 wchar_t *wkey = wing_str_char_to_wchar( key );
-   
-
-	hr = pclsObj->Get( wkey , 0, &vtProp, 0, 0);
-
-	//wcout<<"key=>"<<wkey<<"<=="<<endl;
-
-	char *res = NULL;
-	if( SUCCEEDED( hr ) && vtProp.bstrVal )
-	{	
-		res = wing_str_wchar_to_char( (const wchar_t*)vtProp.bstrVal );
-
-	}else{
-		//wcout<<"fail key=>"<<wkey<<endl;
-	}
-		
-	VariantClear(&vtProp);
 
 	if( pclsObj != NULL ) {
 		pclsObj->Release();
 		pclsObj=NULL;
 	}
+
+	ULONG uReturn = 0;
+	HRESULT hr = pEnumerator->Next( WBEM_INFINITE, 1,  &pclsObj, &uReturn );
+
+	return uReturn;
+}
+
+/**
+ * @ 返回值需要使用free释放
+ */
+char* WingWmic::get( const char *key){
+
+	if( this->has_error ) 
+	{
+		pEnumerator->Release();
+		pEnumerator = NULL;
+		return NULL;
+	}
+
+
+	VARIANT vtProp;
+
+	wchar_t *wkey = wing_str_char_to_wchar( key );
+
+
+	HRESULT hr = pclsObj->Get( wkey , 0, &vtProp, 0, 0);
+
+	char *res = NULL;
+	if( SUCCEEDED( hr ) && vtProp.bstrVal )
+	{	
+		//根据不同的类型进行格式化
+		switch ( vtProp.vt ){  
+		case VT_BSTR: {  
+				res = wing_str_wchar_to_char( (const wchar_t*)vtProp.bstrVal );
+			 }break;  
+		case VT_I1:  
+		case VT_I2:  
+		case VT_I4:  
+		case VT_I8:   
+		case VT_INT: 
+			{  
+				res = (char*)malloc(10);
+				memset(res,0,10);
+				sprintf(res,"%d",vtProp.intVal);
+			}
+			break;  
+		case VT_UI8:  
+		case VT_UI1:      
+		case VT_UI2:  
+		case VT_UI4:  
+		case VT_UINT:
+			{  
+				res = (char*)malloc(32);
+				memset(res,0,32);
+				sprintf(res,"0x%u",vtProp.intVal);
+			}
+			break;  
+		case VT_BOOL:
+			{  
+				res = (char*)malloc(10);
+				memset(res,0,10);
+				sprintf(res,"%s",vtProp.boolVal ? "TRUE" : "FASLE" );
+			}break;  
+		default:{  
+			  //unknow type
+			}
+		}  
+
+	}
+
+	VariantClear(&vtProp);
+	if(wkey) free(wkey);
 
 	return res;
 }

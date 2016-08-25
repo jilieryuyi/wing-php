@@ -25,6 +25,7 @@
 extern zend_class_entry *wing_sclient_ce;
 extern zend_class_entry *wing_select_server_ce;
 extern zend_class_entry *wing_server_ce;
+extern zend_class_entry *wing_com_ce;
 
 
 static zend_function_entry wing_select_server_methods[]={
@@ -35,6 +36,14 @@ static zend_function_entry wing_select_server_methods[]={
 };
 static zend_function_entry wing_sclient_method[]={
 	ZEND_ME( wing_sclient,send,  NULL,ZEND_ACC_PUBLIC )
+	{NULL,NULL,NULL}
+};
+static zend_function_entry wing_com_method[]={
+	ZEND_ME( wing_com, __construct,NULL,ZEND_ACC_PUBLIC|ZEND_ACC_CTOR )
+	ZEND_ME( wing_com, __destruct, NULL,ZEND_ACC_PUBLIC|ZEND_ACC_DTOR )
+	ZEND_ME( wing_com, next,  NULL,ZEND_ACC_PUBLIC )
+	ZEND_ME( wing_com, query,  NULL,ZEND_ACC_PUBLIC )
+	ZEND_ME( wing_com, get,  NULL,ZEND_ACC_PUBLIC )
 	{NULL,NULL,NULL}
 };
 static zend_function_entry wing_server_methods[]={
@@ -112,6 +121,12 @@ PHP_MINIT_FUNCTION( wing )
 	/* If you have INI entries, uncomment these lines 
 	REGISTER_INI_ENTRIES();
 	*/
+
+	zend_class_entry _wing_com_ce;
+	INIT_CLASS_ENTRY( _wing_com_ce , "wing_com" , wing_com_method );
+	wing_com_ce = zend_register_internal_class( &_wing_com_ce TSRMLS_CC );
+	zend_declare_property_long(   wing_com_ce, "com",           strlen("com"),           0,      ZEND_ACC_PRIVATE TSRMLS_CC);
+
 
 	//常量定义
 	PHP_PATH = (char*)malloc(MAX_PATH);

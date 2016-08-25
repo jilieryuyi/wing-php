@@ -21,6 +21,12 @@
     <ClInclude Include="php_wing.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="wing_hardware_info.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="wing_base.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cpuid.c">
@@ -30,6 +36,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="path.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="wing_hardware_info.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="wing_base.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

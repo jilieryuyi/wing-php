@@ -209,6 +209,12 @@ typedef iocp_send_node socket_send_node;
 BOOL socket_send( SOCKET socket,char *&msg , int len );
 void wing_guid( _Out_ char *&buf TSRMLS_DC) ;
 
+ZEND_METHOD( wing_com, __construct );
+ZEND_METHOD( wing_com, __destruct );
+ZEND_METHOD( wing_com, next );
+ZEND_METHOD( wing_com, query );
+ZEND_METHOD( wing_com, get );
+
 //---------------------------------------------------------
 //                  wing select server
 //---------------------------------------------------------

@@ -81,11 +81,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="php_wing.h" />
+    <ClInclude Include="wing_base.h" />
+    <ClInclude Include="wing_hardware_info.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cpuid.c" />
     <ClCompile Include="path.c" />
     <ClCompile Include="wing.c" />
+    <ClCompile Include="wing_base.c" />
+    <ClCompile Include="wing_hardware_info.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

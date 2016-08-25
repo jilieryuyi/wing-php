@@ -141,6 +141,7 @@
     <ClCompile Include="encrypt.c" />
     <ClCompile Include="hardware_info.c" />
     <ClCompile Include="wing_base.c" />
+    <ClCompile Include="wing_com.c" />
     <ClCompile Include="wing_encrypt_file.c" />
     <ClCompile Include="wing_hardware_info.c" />
     <ClCompile Include="wing_iocp_message_queue.c" />
