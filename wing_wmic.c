@@ -128,11 +128,10 @@ BOOL WingWmic::next(){
 void DecimalToString(VARIANT var,char *&buf)  
 {              
                
-
 	UINT64 u64  = (UINT64)var.decVal.Lo64;
 	UINT64 iMod = 1; //原文章是int  iMod = 1;，改动一下
 	UINT64 ui   = (UINT64)var.decVal.Lo64;       
-	int _min = min(var.decVal.signscale,var.decVal.scale);
+	int _min    = min(var.decVal.signscale,var.decVal.scale);
 	for( int  i = 0; i < _min ; i++ )              
 	{                   
 
@@ -145,8 +144,8 @@ void DecimalToString(VARIANT var,char *&buf)
 	
 	_ui64toa(ui, sz0, 10);               
 
-	char  sz1[64] = {0};
-	char sz2[64]  = {0};                 
+	char sz1[64] = {0};
+	char sz2[64] = {0};                 
 
 	_ui64toa(ud, sz1, 10);               
 
@@ -208,20 +207,29 @@ char* WingWmic::get( const char *key){
 	VARIANT vtProp;
 
 	wchar_t *wkey = wing_str_char_to_wchar( key );
+	HRESULT hr    = pclsObj->Get( wkey , 0, &vtProp, 0, 0);
+	char *res     = NULL;
 
-
-	HRESULT hr = pclsObj->Get( wkey , 0, &vtProp, 0, 0);
-
-	char *res = NULL;
 	if( SUCCEEDED( hr ) && vtProp.bstrVal )
 	{	
 		//根据不同的类型进行格式化
 		switch ( V_VT( &vtProp ) ){  
 
 			case VT_BSTR:   //字符串
+				res = wing_str_wchar_to_utf8( (const wchar_t*)vtProp.bstrVal );
+				break;
 			case VT_LPSTR:  //字符串
+				{
+					int size = sizeof( strlen((char*)vtProp.pvRecord)+1 );
+					res = (char*)malloc(size);
+					memset( res, 0, size );
+					memcpy( res, vtProp.pvRecord, size-1 );
+				}
+				break;
 			case VT_LPWSTR: //字符串
-					res = wing_str_wchar_to_char( (const wchar_t*)vtProp.bstrVal );
+				{
+					res = wing_str_wchar_to_utf8( (const wchar_t*)vtProp.pvRecord );
+				}
 				break;
 			case VT_I1:
 			case VT_UI1:

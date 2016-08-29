@@ -79,11 +79,11 @@ extern zend_module_entry wing_module_entry;
 #define PHP_WING_VERSION "1.0.8" /* Replace with version number for your extension */
 
 #ifdef PHP_WIN32
-#	define PHP_WING_API __declspec(dllexport)
+#define PHP_WING_API __declspec(dllexport)
 #elif defined(__GNUC__) && __GNUC__ >= 4
-#	define PHP_WING_API __attribute__ ((visibility("default")))
+#define PHP_WING_API __attribute__ ((visibility("default")))
 #else
-#	define PHP_WING_API
+#define PHP_WING_API
 #endif
 
 #ifdef ZTS
