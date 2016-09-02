@@ -7,7 +7,7 @@
 
  
 #define SERVER_ADDRESS "127.0.0.1"
-#define PORT           9998
+#define PORT           6998
 #define MSGSIZE        1024
 #pragma comment(lib, "ws2_32.lib")
 
@@ -49,6 +49,7 @@ int main()
 		
 		memset(recvmsg,0,MSGSIZE);
 		ret = recv(sClient, recvmsg, MSGSIZE, 0);
+		if(ret>0)
 		printf("Received [%d bytes]: ¡®%s¡¯\n", ret, recvmsg);
 		
 

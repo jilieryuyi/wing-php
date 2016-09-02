@@ -3,91 +3,77 @@
 /************************************************************************/
 
 #include "stdafx.h"
-#include <Winsock2.h>
+#include "Winsock2.h"
 #include "Windows.h"
 #include "Winbase.h"
 #include "tlhelp32.h"
-#include <tchar.h>
-#include "strsafe.h"
+#include "tchar.h"
 #include "Psapi.h"
 #include "Winternl.h"
-#include "Processthreadsapi.h"
 #include "Shlwapi.h"
-#include "Strsafe.h"
-#include "Mmsystem.h"
 #include "mstcpip.h"
-#include "process.h"
 #include <mswsock.h>
-#include <ws2tcpip.h>
+#include "ws2tcpip.h"
+#include "time.h"
 
-#pragma comment(lib,"Kernel32.lib")
-#pragma comment(lib,"Shlwapi.lib")
-#pragma comment(lib,"Psapi.lib")
-#pragma comment(lib,"Winmm.lib")
-#pragma comment(lib,"Ws2_32.lib")
+#pragma comment( lib, "Kernel32.lib" )
+#pragma comment( lib, "Shlwapi.lib" )
+#pragma comment( lib, "Psapi.lib" )
+#pragma comment( lib, "Winmm.lib" )
+#pragma comment( lib, "Ws2_32.lib" )
 
-#define DATA_BUFSIZE   10485760
+#define DATA_BUFSIZE   10240
+#define OP_ACCEPT   1
+#define OP_RECV     2
+#define OP_SEND     3
+#define OP_DIS      4
+#define OP_ONACCEPT 5
 
-struct SELECT_ITEM{
-	SOCKET      socket;             //socket
-	SOCKADDR_IN addr;               //地址端口信息
-	int         active;             //最后的活动时间
-	int         online;             //是否在线
-	char       *recv;               //收到的消息
-	int         recv_bytes;         //收到的消息长度
-};
-
-
-//iocp消息结构体
+//iocp struct
 struct iocp_overlapped{
-	OVERLAPPED	m_ol;                          //异步依赖
-	int			m_iOpType;                     //操作类型
-	SOCKET		m_skServer;                    //服务端socket
-	SOCKET		m_skClient;                    //客户端
-	DWORD		m_recvBytes;                   //接收的消息长度
-	char		m_pBuf[DATA_BUFSIZE];          //接收消息的缓冲区
-	WSABUF		m_DataBuf;                     //消息缓冲
-	int			m_recv_timeout;                //接收超时
+	OVERLAPPED	m_ol;                          // 
+	int			m_iOpType;                     //do type
+	SOCKET		m_skServer;                    //server socket
+	SOCKET		m_skClient;                    //client
+	DWORD		m_recvBytes;                   //recv msg bytes
+	char		m_pBuf[DATA_BUFSIZE];          //recv buf
+	WSABUF		m_DataBuf;                     //recv data buf
+	int			m_recv_timeout;                //recv timeout
 	int         m_send_timeout;
-	SOCKADDR_IN m_addrClient;                  //客户端实际的地址
-	SOCKADDR_IN m_addrServer;                  //服务端实际的地址
-	int			m_isUsed;                      //标志是否已被激活使用 1已被激活 0待激活
-	unsigned    m_active;                      //最后的活动时间
-	//LPVOID      m_client;                    //wing_client 对象
-	int         m_isCrashed;                   //是否发生错误需要回收 0非 1是
-	int         m_online;                      //是否在线 1在线 0不在线
-	int         m_usenum;                      //引用计数器
+	SOCKADDR_IN m_addrClient;                  //client address
+	SOCKADDR_IN m_addrServer;                  //server address
+	int			m_isUsed;                      //client is active 1 yes 0 not
+	time_t      m_active;                      //the last active time
+	int         m_isCrashed;                   //is crashed? 0 not 1 yes
+	int         m_online;                      //is online 1 yes 0 not
+	int         m_usenum;                      //
 
-	//void (*handler)(int,struct tag_socket_data*);   data->handler(res, data);  请以一个接口 还可以这么用
+	//void (*handler)(int,struct tag_socket_data*);   data->handler(res, data);  
 };
 
-//socket异步发送消息载体
-struct iocp_send_node{
-	SOCKET socket;
-	char   *msg;
-	int len;
-};
-typedef iocp_send_node socket_send_node;
 
 
+
+static SOCKET  m_sock_listen = INVALID_SOCKET;    //the server listen socket
 
 class WingIOCP{
 private:
-	char* m_listen_ip;
-	int   m_port;
-	int   m_max_connect;
-	int   m_recv_timeout;
-	int   m_send_timeout;
+	char* m_listen_ip;        //listen ip
+	int   m_port;             //listen port
+	int   m_max_connect;      //max connection
+	int   m_recv_timeout;     //recv timeout
+	int   m_send_timeout;     //send timeout
+	
+	unsigned long* m_povs;  //clients 
 
-	SOCKET  m_sock_listen;
-	iocp_overlapped* m_povs;
-
-	const static int OP_ACCEPT = 1;
-	const static int OP_RECV   = 2;
-	const static int OP_SEND   = 3;
-
-	static VOID CALLBACK WingIOCP::worker( DWORD dwErrorCode,DWORD dwBytesTrans,LPOVERLAPPED lpOverlapped );
-	BOOL accept(
+	//iocp worker
+	static VOID CALLBACK worker( 
+		DWORD dwErrorCode,
+		DWORD dwBytesTrans,
+		LPOVERLAPPED lpOverlapped 
+		);
+	//accept ex
+	static BOOL accept(
 			SOCKET sAcceptSocket,
 			PVOID lpOutputBuffer,
 			DWORD dwReceiveDataLength,
@@ -96,7 +82,8 @@ private:
 			LPDWORD lpdwBytesReceived,
 			LPOVERLAPPED lpOverlapped
 		);
-	BOOL disconnect( SOCKET client_socket , LPOVERLAPPED lpOverlapped , DWORD dwFlags = TF_REUSE_SOCKET , DWORD reserved = 0);
+	//disconnect a client socket and reuse it
+	static BOOL disconnect( SOCKET client_socket , LPOVERLAPPED lpOverlapped , DWORD dwFlags = TF_REUSE_SOCKET , DWORD reserved = 0);
 	
 	//event callbacks
 	static void onconnect( iocp_overlapped *&povl );
@@ -106,11 +93,14 @@ private:
 	static void onsend( iocp_overlapped *&povl );
 	static void onrun( iocp_overlapped *&povl, DWORD errorcode, int last_error );
 
+	static void onaccept(iocp_overlapped *&pOL);
+
 public:
+	
 	WingIOCP(
 		const char* listen       = "0.0.0.0",
 		const int   port         = 6998,  
-		const int   max_connect  = 1000,
+		const int   max_connect  = 10,
 		const int   recv_timeout = 0,
 		const int   send_timeout = 0
 		);
@@ -131,34 +121,206 @@ WingIOCP::WingIOCP(
 )
 { 
 
-	this->m_listen_ip      = _strdup(listen);            //listen ip
-	this->m_port           = port;                      //listen port
-	this->m_max_connect    = max_connect;               //max connect
-	this->m_recv_timeout   = recv_timeout;              //recv timeout
-	this->m_send_timeout   = send_timeout;              //send timeout
-	this->m_povs           = new iocp_overlapped[max_connect];   //clients 
+	this->m_listen_ip      = _strdup(listen);               //listen ip
+	this->m_port           = port;                          //listen port
+	this->m_max_connect    = max_connect;                   //max connect
+	this->m_recv_timeout   = recv_timeout;                  //recv timeout
+	this->m_send_timeout   = send_timeout;                  //send timeout                               
+	this->m_povs           = new unsigned long[max_connect];//clients 
 
 }
+
 /**
  * @ destruct
  */
 WingIOCP::~WingIOCP(){
+	
 	if( this->m_listen_ip ) 
+	{	
 		free(this->m_listen_ip );
-	delete[] this->m_povs;
-	closesocket( this->m_sock_listen );
+		this->m_listen_ip = NULL;
+	}
+
+	if( this->m_povs )
+	{
+		delete[] this->m_povs;
+		this->m_povs = NULL;
+	}
+
+	if( m_sock_listen != INVALID_SOCKET )
+	{
+		closesocket( m_sock_listen );
+		m_sock_listen = INVALID_SOCKET;
+	}
+
 	WSACleanup();
 }
+
+/**
+ *@wait
+ */
 void WingIOCP::wait(){
 	while( true ){
 		Sleep(10);
 	}
 }
- void WingIOCP::onconnect( iocp_overlapped *&povl ){}
- void WingIOCP::ondisconnect( iocp_overlapped *&povl ){}
- void WingIOCP::onclose( iocp_overlapped *&povl ){}
- void WingIOCP::onrecv( iocp_overlapped *&povl ){}
- void WingIOCP::onsend( iocp_overlapped *&povl ){}
+
+//event callbacks
+ void WingIOCP::onconnect( iocp_overlapped *&pOL ){
+	 printf("%ld onconnect\r\n",pOL->m_skClient);
+	 pOL->m_online = 1;
+	 pOL->m_active = time(NULL);
+
+	 if( setsockopt( pOL->m_skClient, SOL_SOCKET,SO_UPDATE_ACCEPT_CONTEXT,(const char *)&pOL->m_skServer,sizeof(pOL->m_skServer) ) != 0 )
+	 {
+		 //setsockopt fail
+		 //printf("1=>onconnect some error happened , error code %d \r\n", WSAGetLastError());
+		 WSASetLastError(0);
+		 return;
+	 }
+
+	 // set send timeout
+	 if( pOL->m_send_timeout > 0 )
+	 {
+		 if( setsockopt( pOL->m_skClient, SOL_SOCKET,SO_SNDTIMEO, (const char*)&pOL->m_send_timeout,sizeof(pOL->m_send_timeout)) !=0 )
+		 {
+			 //setsockopt fail
+			// printf("2=>onconnect some error happened , error code %d \r\n", WSAGetLastError());
+		 }
+	 }
+	 if( pOL->m_recv_timeout > 0 )
+	 {
+		 if( setsockopt( pOL->m_skClient, SOL_SOCKET,SO_RCVTIMEO, (const char*)&pOL->m_recv_timeout,sizeof(pOL->m_recv_timeout)) != 0 )
+		 {
+			 //setsockopt fail
+			// printf("3=>onconnect some error happened , error code %d \r\n", WSAGetLastError());
+		 }
+	 }
+
+	 linger so_linger;
+	 so_linger.l_onoff	= TRUE;
+	 so_linger.l_linger	= 0; // without close wait status
+	 if( setsockopt( pOL->m_skClient,SOL_SOCKET,SO_LINGER,(const char*)&so_linger,sizeof(so_linger) ) != 0 ){
+		// printf("31=>onconnect some error happened , error code %d \r\n", WSAGetLastError());
+	 } 
+
+	 //get client ip and port
+	 int client_size = sizeof(pOL->m_addrClient);  
+	 ZeroMemory( &pOL->m_addrClient , sizeof(pOL->m_addrClient) );
+
+	 if( getpeername( pOL->m_skClient , (SOCKADDR *)&pOL->m_addrClient , &client_size ) != 0 ) 
+	 {
+		 //getpeername fail
+		// printf("4=>onconnect some error happened , error code %d \r\n", WSAGetLastError());
+	 }
+
+	// printf("%s %d connect\r\n",inet_ntoa(pOL->m_addrClient.sin_addr), pOL->m_addrClient.sin_port);
+
+	 //keepalive open
+	 int dt		= 1;
+	 DWORD dw	= 0;
+	 tcp_keepalive live ;     
+	 live.keepaliveinterval	= 5000;     //连接之后 多长时间发现无活动 开始发送心跳吧 单位为毫秒 
+	 live.keepalivetime		= 1000;     //多长时间发送一次心跳包 1分钟是 60000 以此类推     
+	 live.onoff				= TRUE;     //是否开启 keepalive
+
+	 if( setsockopt( pOL->m_skClient, SOL_SOCKET, SO_KEEPALIVE, (char *)&dt, sizeof(dt) ) != 0 )
+	 {
+		 //setsockopt fail
+		// printf("5=>onconnect some error happened , error code %d \r\n", WSAGetLastError());
+	 }           
+
+	 if( WSAIoctl(   pOL->m_skClient, SIO_KEEPALIVE_VALS, &live, sizeof(live), NULL, 0, &dw, &pOL->m_ol , NULL ) != 0 )
+	 {
+		 //WSAIoctl error
+		// printf("6=>onconnect some error happened , error code %d \r\n", WSAGetLastError());
+	 }
+
+	 memset(pOL->m_pBuf,0,DATA_BUFSIZE);
+	 //post recv
+	 pOL->m_DataBuf.buf	= pOL->m_pBuf;  
+	 pOL->m_DataBuf.len	= DATA_BUFSIZE;  
+	 pOL->m_iOpType		= OP_RECV;
+
+	 DWORD RecvBytes		= 0;
+	 DWORD Flags			= 0;
+
+	 int code		    = WSARecv(pOL->m_skClient,&(pOL->m_DataBuf),1,&RecvBytes,&Flags,&(pOL->m_ol),NULL);
+	 int error_code	    = WSAGetLastError();
+
+	 if( 0 != code )
+	 {
+		 if( WSA_IO_PENDING != error_code ) 
+		 {
+			// printf("7=>onconnect some error happened , error code %d \r\n", WSAGetLastError());
+			 return;
+		 }
+	 }
+	 else
+	 {
+		 //recv complete
+		 onrecv( pOL );
+	 }
+ }
+ void WingIOCP::ondisconnect( iocp_overlapped *&pOL ){
+	// printf("ondisconnect error %d\r\n",WSAGetLastError());
+	 WSASetLastError(0);
+	 pOL->m_online   = 0;                                //set offline
+	 pOL->m_active   = time(NULL);                       //the last active time
+	 pOL->m_iOpType	 = OP_ONACCEPT;                      //reset status
+	 pOL->m_isUsed   = 0;                                //
+	 ZeroMemory(pOL->m_pBuf,sizeof(char)*DATA_BUFSIZE);  //clear buf
+
+	
+	
+	 if( !BindIoCompletionCallback( (HANDLE)pOL->m_skClient ,worker,0) ){
+		// printf("BindIoCompletionCallback error %ld\r\n",WSAGetLastError());
+	 }
+	 //post acceptex
+	 int error_code     = accept( pOL->m_skClient,pOL->m_pBuf,0,sizeof(SOCKADDR_IN)+16,sizeof(SOCKADDR_IN)+16,NULL, (LPOVERLAPPED)pOL );
+	 //printf("accept error %d\r\n",WSAGetLastError());
+	 int last_error     = WSAGetLastError() ;
+
+	 if( !error_code && ERROR_IO_PENDING != last_error ){
+
+	 }
+	 //printf("2=>ondisconnect some error happened , error code %d \r\n================================================\r\n\r\n", WSAGetLastError());
+	  
+	  //printf("21=>ondisconnect some error happened , error code %d \r\n================================================\r\n\r\n", WSAGetLastError());
+
+	 WSASetLastError(0);
+ }
+
+ void WingIOCP::onaccept(iocp_overlapped *&pOL){
+	 pOL->m_active   = time(NULL);                       //the last active time
+	 pOL->m_iOpType	 = OP_ACCEPT;                        //reset status
+	 printf("%ld reuse socket real complete , error code %d \r\n", pOL->m_skClient,WSAGetLastError());
+
+	 WSASetLastError(0);
+ }
+ void WingIOCP::onclose( iocp_overlapped *&pOL ){
+	// printf("%ld close\r\n", pOL->m_skClient);
+
+	 SOCKET m_sockListen = pOL->m_skServer;
+	 SOCKET m_client     = pOL->m_skClient;
+	 int send_timeout    = pOL->m_send_timeout;
+	 int recv_timeout    = pOL->m_recv_timeout;
+	 pOL->m_iOpType = OP_DIS;
+
+	 //socket reuse
+	 if( !disconnect( pOL->m_skClient , &pOL->m_ol ) && WSA_IO_PENDING != WSAGetLastError()) {
+		// printf("1=>onclose some error happened , error code %d \r\n", WSAGetLastError());
+	 }
+	 //printf("onclose complete %d \r\n", WSAGetLastError());
+ }
+ void WingIOCP::onrecv( iocp_overlapped *&pOL ){
+	 pOL->m_active = time(NULL);
+	// printf("recv:\r\n%s\r\n\r\n",pOL->m_pBuf);
+	 ZeroMemory(pOL->m_pBuf,DATA_BUFSIZE);      
+ }
+ void WingIOCP::onsend( iocp_overlapped *&povl ){
+
+ }
  void WingIOCP::onrun( iocp_overlapped *&povl, DWORD errorcode, int last_error ){}
 /**
  * @ acceptex
@@ -173,7 +335,8 @@ BOOL WingIOCP::accept(
 	LPOVERLAPPED lpOverlapped
 )
 {
-	if( this->m_sock_listen == INVALID_SOCKET || !lpOverlapped ) 
+	WSASetLastError(0);
+	if( m_sock_listen == INVALID_SOCKET || !lpOverlapped ) 
 	{	
 		return 0;
 	}
@@ -181,32 +344,16 @@ BOOL WingIOCP::accept(
 	DWORD dwBytes		= 0;
 	LPFN_ACCEPTEX lpfnAcceptEx;
 
-	if( 0 != WSAIoctl( 
-		this->m_sock_listen ,
-		SIO_GET_EXTENSION_FUNCTION_POINTER,
-		&guidAcceptEx,
-		sizeof(guidAcceptEx),
-		&lpfnAcceptEx,
-		sizeof(lpfnAcceptEx),
-		&dwBytes,
-		NULL,
-		NULL
-		)
-	)
+	int res= WSAIoctl( m_sock_listen, SIO_GET_EXTENSION_FUNCTION_POINTER, &guidAcceptEx, 
+		sizeof(guidAcceptEx), &lpfnAcceptEx, sizeof(lpfnAcceptEx), &dwBytes, NULL, NULL );
+
+	if( 0 != res )
 	{
 		return 0;
 	}
 
-	return lpfnAcceptEx( 
-		this->m_sock_listen, 
-		sAcceptSocket,
-		lpOutputBuffer,
-		dwReceiveDataLength,
-		dwLocalAddressLength,
-		dwRemoteAddressLength,
-		lpdwBytesReceived,
-		lpOverlapped
-		);        
+	return lpfnAcceptEx( m_sock_listen, sAcceptSocket, lpOutputBuffer, dwReceiveDataLength,
+		dwLocalAddressLength, dwRemoteAddressLength, lpdwBytesReceived, lpOverlapped );        
 }
 
 /**
@@ -214,6 +361,7 @@ BOOL WingIOCP::accept(
  */
 BOOL WingIOCP::disconnect( SOCKET client_socket , LPOVERLAPPED lpOverlapped , DWORD dwFlags  , DWORD reserved  )
 {
+	WSASetLastError(0);
 	if( client_socket == INVALID_SOCKET || !lpOverlapped ) 
 	{	
 		return 0;
@@ -227,7 +375,6 @@ BOOL WingIOCP::disconnect( SOCKET client_socket , LPOVERLAPPED lpOverlapped , DW
 	{
 		return 0;
 	}
-
 	return lpfnDisconnectEx(client_socket,lpOverlapped,/*TF_REUSE_SOCKET*/dwFlags,reserved);
 }
 
@@ -238,11 +385,13 @@ BOOL WingIOCP::disconnect( SOCKET client_socket , LPOVERLAPPED lpOverlapped , DW
  */
 VOID CALLBACK WingIOCP::worker( DWORD dwErrorCode,DWORD dwBytesTrans,LPOVERLAPPED lpOverlapped )
 {
-
+	//why here get the error code 87 ?
+	//printf("worker error %d\r\n",WSAGetLastError());
 	if( NULL == lpOverlapped  )
 	{
 		//not real complete
 		SleepEx(20,TRUE);//set warn status
+		WSASetLastError(0);
 		return;
 	}
 
@@ -254,6 +403,12 @@ VOID CALLBACK WingIOCP::worker( DWORD dwErrorCode,DWORD dwBytesTrans,LPOVERLAPPE
 	
 	switch( pOL->m_iOpType )
 	{
+	case OP_DIS:
+		ondisconnect(pOL);
+		break;
+	case OP_ONACCEPT:
+		onaccept(pOL);
+		break;
 		case OP_ACCEPT: 
 		{
 			//new client connect
@@ -275,130 +430,143 @@ VOID CALLBACK WingIOCP::worker( DWORD dwErrorCode,DWORD dwBytesTrans,LPOVERLAPPE
 		}
 		break;
 		case OP_SEND:
-			{
+		{
 
-			}
-			break;
+		}
+		break;
 		
 
 	}
+
+	WSASetLastError(0);
 
 }
 BOOL WingIOCP::start(){	
 
-	WSADATA wsaData; 
-	if( WSAStartup(MAKEWORD(2,2), &wsaData) != 0 )
-	{
-		return 0; 
-	}
+	do{ 
+
+		WSADATA wsaData; 
+		if( WSAStartup(MAKEWORD(2,2), &wsaData) != 0 )
+		{
+			return FALSE;
+		}
  
-	if(LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2)
-	{
-        WSACleanup();  
-        return 0;  
-    }  
+		if(LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2)
+		{
+			break;
+		}  
 
-	this->m_sock_listen = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED); 
-	if( INVALID_SOCKET == this->m_sock_listen )
-	{
-		WSACleanup();
-		return 0;
-	}
+		m_sock_listen = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED); 
+		if( INVALID_SOCKET == m_sock_listen )
+		{
+			break;
+		}
 
-	//bind the worker thread
-	BOOL bReuse      = TRUE;
-	BOOL bind_status = ::BindIoCompletionCallback((HANDLE)(this->m_sock_listen), worker, 0 );
-	if( !bind_status )
-	{
-		closesocket(this->m_sock_listen);
-		WSACleanup();
-		return 0;
-	}
+		//bind the worker thread
+		BOOL bReuse      = TRUE;
+		BOOL bind_status = ::BindIoCompletionCallback((HANDLE)( m_sock_listen ), worker, 0 );
+		if( !bind_status )
+		{
+			break;
+		}
 
-	//set option SO_REUSEADDR 
-	if( 0 != ::setsockopt(this->m_sock_listen,SOL_SOCKET,SO_REUSEADDR,(LPCSTR)&bReuse,sizeof(BOOL)) )
-	{
-		//some error happened
-	}
+		//set option SO_REUSEADDR 
+		if( 0 != ::setsockopt( m_sock_listen, SOL_SOCKET, SO_REUSEADDR,(LPCSTR)&bReuse, sizeof(BOOL) ) )
+		{
+			//some error happened
+			break;
+		}
 
 
-	struct sockaddr_in ServerAddress; 
-	ZeroMemory(&ServerAddress, sizeof(ServerAddress)); 
+		struct sockaddr_in ServerAddress; 
+		ZeroMemory(&ServerAddress, sizeof(ServerAddress)); 
 
-	ServerAddress.sin_family		= AF_INET;                    
-	ServerAddress.sin_addr.s_addr	= inet_addr( this->m_listen_ip );          
-	ServerAddress.sin_port			= htons( this->m_port );   
+		ServerAddress.sin_family		= AF_INET;                    
+		ServerAddress.sin_addr.s_addr	= inet_addr( this->m_listen_ip );          
+		ServerAddress.sin_port			= htons( this->m_port );   
 
-	if ( SOCKET_ERROR == bind( this->m_sock_listen, (struct sockaddr *) &ServerAddress, sizeof( ServerAddress ) ) )
-	{
-		closesocket( this->m_sock_listen );
-		WSACleanup();
-		return 0;
-	}  
+		if ( SOCKET_ERROR == bind( m_sock_listen, (struct sockaddr *) &ServerAddress, sizeof( ServerAddress ) ) )
+		{
+			break;
+		}  
 
-	if( 0 != listen( this->m_sock_listen , SOMAXCONN ) )
-	{
-		closesocket( this->m_sock_listen );
-		WSACleanup();
-		return 0;
-	}
-
-	//socket pool
-	for( int i = 0 ; i < this->m_max_connect ; i++ ) 
-	{
+		if( 0 != listen( m_sock_listen , SOMAXCONN ) )
+		{
+			break;
+		}
+		//printf("1=>start get error %d\r\n",WSAGetLastError());
+		WSASetLastError(0);
+		//socket pool
+		for( int i = 0 ; i < this->m_max_connect ; i++ ) 
+		{
 	
-		SOCKET client = WSASocket(AF_INET,SOCK_STREAM,IPPROTO_TCP,0,0,WSA_FLAG_OVERLAPPED);
-		if( INVALID_SOCKET == client ) 
-		{	
-			continue;
-		}
+			SOCKET client = WSASocket(AF_INET,SOCK_STREAM,IPPROTO_TCP,0,0,WSA_FLAG_OVERLAPPED);
+			if( INVALID_SOCKET == client ) 
+			{	
+				continue;
+			}
 
-		if( !BindIoCompletionCallback( (HANDLE)client ,worker,0) )
-		{
-			closesocket(client);
-			continue;
-		}
+			if( !BindIoCompletionCallback( (HANDLE)client ,worker,0) )
+			{
+				closesocket(client);
+				continue;
+			}
 
-		iocp_overlapped *povl = new iocp_overlapped();
-		if( NULL == povl )
-		{
-			closesocket(client);
-			continue;
-		}
+			iocp_overlapped *povl = new iocp_overlapped();
+			if( NULL == povl )
+			{
+				closesocket(client);
+				continue;
+			}
 
-		DWORD dwBytes = 0;
-		ZeroMemory(povl,sizeof(iocp_overlapped));
+			DWORD dwBytes = 0;
+			ZeroMemory(povl,sizeof(iocp_overlapped));
 		
-		povl->m_iOpType			= OP_ACCEPT;
-		povl->m_skServer		= this->m_sock_listen;
-		povl->m_skClient		= client;
-		povl->m_recv_timeout	= this->m_recv_timeout;
-		povl->m_isUsed			= 0;
-		povl->m_active			= 0; 
-		povl->m_isCrashed		= 0;
-		povl->m_online			= 0;
-		povl->m_usenum			= 1;
+			povl->m_iOpType			= OP_ACCEPT;
+			povl->m_skServer			= m_sock_listen;
+			povl->m_skClient			= client;
+			povl->m_recv_timeout		= m_recv_timeout;
+			povl->m_isUsed			= 0;
+			povl->m_active			= 0; 
+			povl->m_isCrashed		= 0;
+			povl->m_online			= 0;
+			povl->m_usenum			= 1;
 
-		int server_size = sizeof(povl->m_addrServer);  
-		ZeroMemory(&povl->m_addrServer,server_size);
-		getpeername(povl->m_skServer,(SOCKADDR *)&povl->m_addrServer,&server_size);  
+			int server_size = sizeof(povl->m_addrServer);  
+			ZeroMemory(&povl->m_addrServer,server_size);
+			getpeername(povl->m_skServer,(SOCKADDR *)&povl->m_addrServer,&server_size);  
 
-		int error_code = this->accept( povl->m_skClient,povl->m_pBuf,0,sizeof(SOCKADDR_IN)+16,sizeof(SOCKADDR_IN)+16,NULL, (LPOVERLAPPED)povl );
-		int last_error = WSAGetLastError() ;
-		if( !error_code && ERROR_IO_PENDING != last_error ) 
-		{
+			int error_code = accept( povl->m_skClient, povl->m_pBuf, 0, sizeof(SOCKADDR_IN)+16, sizeof(SOCKADDR_IN)+16, NULL, (LPOVERLAPPED)povl );
+			int last_error = WSAGetLastError() ;
+			if( !error_code && ERROR_IO_PENDING != last_error ) 
+			{
 			
-			closesocket( client );
-			client = povl->m_skClient = INVALID_SOCKET;
-			delete povl;
-			povl = NULL; 
-
-			continue;
-		}else{
-			this->m_povs[i] = *povl;
+				closesocket( client );
+				client = povl->m_skClient = INVALID_SOCKET;
+				delete povl;
+				povl = NULL; 
+				//printf("client=>crate error %d\r\n",WSAGetLastError());
+			}else{
+				this->m_povs[i] = (unsigned long)povl;
+			}
+			//here all the last error is 997 , means nothing error happened
+			//printf("client=>start get error %d\r\n",WSAGetLastError());
+			WSASetLastError(0);
 		}
+		//printf("last start get error %d\r\n",WSAGetLastError());
+		WSASetLastError(0);
+		return TRUE;
+
+	} while( 0 );
+
+	if( m_sock_listen != INVALID_SOCKET )
+	{
+		closesocket( m_sock_listen );
+		m_sock_listen = INVALID_SOCKET;
 	}
-	return 1;
+	WSACleanup();
+
+	return FALSE;
 }
 
 
@@ -406,9 +574,10 @@ BOOL WingIOCP::start(){
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	WingIOCP *iocp=new WingIOCP();
+	WingIOCP *iocp  = new WingIOCP();
 	iocp->start();
 	iocp->wait();
+	delete iocp;
 	return 0;
 }
 
