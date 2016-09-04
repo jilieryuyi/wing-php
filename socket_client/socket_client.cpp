@@ -34,29 +34,29 @@ int main()
 	server.sin_addr.S_un.S_addr = inet_addr(SERVER_ADDRESS);
 	server.sin_port = htons(PORT);
 
-	connect(sClient, (struct sockaddr *)&server, sizeof(SOCKADDR_IN));
+	
 	char *recvmsg = new char[MSGSIZE];
 	while (TRUE)
 	{
 
 		//printf("Send:");
 		//gets_s(szMessage);
-
+		connect(sClient, (struct sockaddr *)&server, sizeof(SOCKADDR_IN));
 		// Send message
-		send(sClient, szMessage, strlen(szMessage), 0);
+		//send(sClient, szMessage, strlen(szMessage), 0);
 
 		// Receive message
 		
-		memset(recvmsg,0,MSGSIZE);
-		ret = recv(sClient, recvmsg, MSGSIZE, 0);
-		if(ret>0)
-		printf("Received [%d bytes]: ¡®%s¡¯\n", ret, recvmsg);
-		
+		//memset(recvmsg,0,MSGSIZE);
+		//ret = recv(sClient, recvmsg, MSGSIZE, 0);
+		//if(ret>0)
+		//printf("Received [%d bytes]: ¡®%s¡¯\n", ret, recvmsg);
+		closesocket(sClient);
 
 	}
 	delete[] recvmsg;
 	// Clean up
-	closesocket(sClient);
+	
 	WSACleanup();
 	return 0;
 

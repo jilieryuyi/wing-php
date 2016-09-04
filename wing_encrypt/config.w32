@@ -1,0 +1,13 @@
+// $Id$
+// vim:ft=javascript
+
+// If your extension references something external, use ARG_WITH
+// ARG_WITH("wing_encrypt", "for wing_encrypt support", "no");
+
+// Otherwise, use ARG_ENABLE
+// ARG_ENABLE("wing_encrypt", "enable wing_encrypt support", "no");
+
+if (PHP_WING_ENCRYPT != "no") {
+	EXTENSION("wing_encrypt", "wing_encrypt.c");
+}
+
