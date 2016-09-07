@@ -1,31 +1,1307 @@
-﻿生成启动时间为 2016/8/13 9:01:04。
+﻿生成启动时间为 2016/9/7 23:25:38。
      1>项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\wing.vcxproj”在节点 2 上(Build 个目标)。
-     1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I..\.. /I..\..\main /I..\..\Zend /I..\..\..\bindlib_w32 /I..\..\TSRM /I"C:\Program Files (x86)\Visual Leak Detector\include" /Zi /nologo /W3 /WX- /O2 /Oy- /D ZEND_DEBUG=1 /D WIN32 /D NDEBUG /D _WINDOWS /D _USRDLL /D WING_EXPORTS /D COMPILE_DL_WING /D ZTS=1 /D ZEND_WIN32 /D PHP_WIN32 /D HAVE_WING=1 /D _VC80_UPGRADE=0x0600 /D _WINDLL /D _MBCS /GF /Gm- /EHsc /MDd /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo".\Debug_TS\\" /Fd".\Debug_TS\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt wing.c
-         wing.c
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdio.h(615): warning C4273: “getwchar”: dll 链接不一致
-                 C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdio.h(426) : 参见“getwchar”的前一个定义
-     1>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdio.h(617): warning C4273: “putwchar”: dll 链接不一致
-                 C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdio.h(428) : 参见“putwchar”的前一个定义
-     1>wing.c(202): warning C4996: '_snprintf': This function or variable may be unsafe. Consider using _snprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdio.h(349) : 参见“_snprintf”的声明
-     1>wing.c(399): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\string.h(110) : 参见“strcpy”的声明
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V110\Microsoft.CppBuild.targets(1137,5): warning MSB8012: TargetPath(D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\.\Debug_TS\wing.dll) does not match the Linker's OutputFile property value (D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\Debug_TS\php_wing.dll). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V110\Microsoft.CppBuild.targets(1139,5): warning MSB8012: TargetName(wing) does not match the Linker's OutputFile property value (php_wing). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
-       Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"..\..\Debug_TS/php_wing.dll" /INCREMENTAL:NO /NOLOGO /LIBPATH:..\..\Debug_TS /LIBPATH:"C:\Program Files (x86)\Visual Leak Detector\lib\Win32" odbc32.lib odbccp32.lib php5ts_debug.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:".\Debug_TS\wing.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\Debug_TS\php_wing.lib" /MACHINE:X86 /SAFESEH /DLL .\Debug_TS\wing_iocp_message_queue.obj
+     1>Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"..\..\Debug_TS/php_wing.dll" /INCREMENTAL:NO /NOLOGO /LIBPATH:..\..\Debug_TS /LIBPATH:"C:\Program Files (x86)\Visual Leak Detector\lib\Win32" odbc32.lib odbccp32.lib php5ts_debug.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:".\Debug_TS\wing.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\Debug_TS\php_wing.lib" /MACHINE:X86 /SAFESEH /FORCE:MULTIPLE /DLL .\Debug_TS\encrypt.obj
+         .\Debug_TS\hardware_info.obj
+         .\Debug_TS\wing_base.obj
+         .\Debug_TS\wing_com.obj
+         .\Debug_TS\wing_encrypt_file.obj
+         .\Debug_TS\wing_hardware_info.obj
+         .\Debug_TS\wing_iocp_message_queue.obj
+         .\Debug_TS\wing_iocp_server.obj
          .\Debug_TS\wing_iocp_socket_map.obj
-         .\Debug_TS\wing_query_process.obj
+         .\Debug_TS\wing_malloc.obj
+         .\Debug_TS\ntdll.obj
+         .\Debug_TS\wing_process.obj
+         .\Debug_TS\wing_sclient.obj
+         .\Debug_TS\wing_select_server.obj
          .\Debug_TS\wing_select_socket_map.obj
          .\Debug_TS\wing_socket_api.obj
-         .\Debug_TS\wing_utf8.obj
+         .\Debug_TS\wing_string.obj
          .\Debug_TS\wing_message_queue.obj
          .\Debug_TS\wing.obj
+         .\Debug_TS\wing_windows.obj
+         .\Debug_TS\wing_wmic.obj
+     1>wing_com.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator&(enum FILETYPEATTRIBUTEFLAGS,enum FILETYPEATTRIBUTEFLAGS)" (??I@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@0@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator~(enum FILETYPEATTRIBUTEFLAGS)" (??S@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator^(enum FILETYPEATTRIBUTEFLAGS,enum FILETYPEATTRIBUTEFLAGS)" (??T@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@0@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator|(enum FILETYPEATTRIBUTEFLAGS,enum FILETYPEATTRIBUTEFLAGS)" (??U@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@0@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS & __cdecl operator&=(enum FILETYPEATTRIBUTEFLAGS &,enum FILETYPEATTRIBUTEFLAGS)" (??_4@YAAAW4FILETYPEATTRIBUTEFLAGS@@AAW40@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS & __cdecl operator|=(enum FILETYPEATTRIBUTEFLAGS &,enum FILETYPEATTRIBUTEFLAGS)" (??_5@YAAAW4FILETYPEATTRIBUTEFLAGS@@AAW40@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS & __cdecl operator^=(enum FILETYPEATTRIBUTEFLAGS &,enum FILETYPEATTRIBUTEFLAGS)" (??_6@YAAAW4FILETYPEATTRIBUTEFLAGS@@AAW40@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "unsigned char * __cdecl _mbschr(unsigned char *,unsigned int)" (?_mbschr@@YAPAEPAEI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "unsigned char * __cdecl _mbschr_l(unsigned char *,unsigned int,struct localeinfo_struct *)" (?_mbschr_l@@YAPAEPAEIPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "unsigned char * __cdecl _mbspbrk(unsigned char *,unsigned char const *)" (?_mbspbrk@@YAPAEPAEPBE@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "unsigned char * __cdecl _mbspbrk_l(unsigned char *,unsigned char const *,struct localeinfo_struct *)" (?_mbspbrk_l@@YAPAEPAEPBEPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "unsigned char * __cdecl _mbsrchr(unsigned char *,unsigned int)" (?_mbsrchr@@YAPAEPAEI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "unsigned char * __cdecl _mbsrchr_l(unsigned char *,unsigned int,struct localeinfo_struct *)" (?_mbsrchr_l@@YAPAEPAEIPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "unsigned char * __cdecl _mbsstr(unsigned char *,unsigned char const *)" (?_mbsstr@@YAPAEPAEPBE@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "unsigned char * __cdecl _mbsstr_l(unsigned char *,unsigned char const *,struct localeinfo_struct *)" (?_mbsstr_l@@YAPAEPAEPBEPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "char * __cdecl _tcschr(char *,unsigned int)" (?_tcschr@@YAPADPADI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "char * __cdecl _tcspbrk(char *,char const *)" (?_tcspbrk@@YAPADPADPBD@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "char * __cdecl _tcsrchr(char *,unsigned int)" (?_tcsrchr@@YAPADPADI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "char * __cdecl _tcsstr(char *,char const *)" (?_tcsstr@@YAPADPADPBD@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "float __cdecl abs(float)" (?abs@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "double __cdecl abs(double)" (?abs@@YANN@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "long double __cdecl abs(long double)" (?abs@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "float __cdecl acos(float)" (?acos@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "long double __cdecl acos(long double)" (?acos@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "float __cdecl asin(float)" (?asin@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "long double __cdecl asin(long double)" (?asin@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "float __cdecl atan2(float,float)" (?atan2@@YAMMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "long double __cdecl atan2(long double,long double)" (?atan2@@YAOOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "float __cdecl atan(float)" (?atan@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "long double __cdecl atan(long double)" (?atan@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "float __cdecl ceil(float)" (?ceil@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "long double __cdecl ceil(long double)" (?ceil@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "float __cdecl cos(float)" (?cos@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "long double __cdecl cos(long double)" (?cos@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "float __cdecl cosh(float)" (?cosh@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "long double __cdecl cosh(long double)" (?cosh@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "float __cdecl exp(float)" (?exp@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "long double __cdecl exp(long double)" (?exp@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "float __cdecl fabs(float)" (?fabs@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "long double __cdecl fabs(long double)" (?fabs@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "float __cdecl floor(float)" (?floor@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "long double __cdecl floor(long double)" (?floor@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "float __cdecl fmod(float,float)" (?fmod@@YAMMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "long double __cdecl fmod(long double,long double)" (?fmod@@YAOOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "float __cdecl frexp(float,int *)" (?frexp@@YAMMPAH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "long double __cdecl frexp(long double,int *)" (?frexp@@YAOOPAH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "float __cdecl ldexp(float,int)" (?ldexp@@YAMMH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "long double __cdecl ldexp(long double,int)" (?ldexp@@YAOOH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "float __cdecl log10(float)" (?log10@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "long double __cdecl log10(long double)" (?log10@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "float __cdecl log(float)" (?log@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "long double __cdecl log(long double)" (?log@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "float __cdecl modf(float,float *)" (?modf@@YAMMPAM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "long double __cdecl modf(long double,long double *)" (?modf@@YAOOPAO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "float __cdecl pow(float,int)" (?pow@@YAMMH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "float __cdecl pow(float,float)" (?pow@@YAMMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "double __cdecl pow(double,int)" (?pow@@YANNH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "long double __cdecl pow(long double,int)" (?pow@@YAOOH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "long double __cdecl pow(long double,long double)" (?pow@@YAOOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "float __cdecl sin(float)" (?sin@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "long double __cdecl sin(long double)" (?sin@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "float __cdecl sinh(float)" (?sinh@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "long double __cdecl sinh(long double)" (?sinh@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "float __cdecl sqrt(float)" (?sqrt@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "long double __cdecl sqrt(long double)" (?sqrt@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "float __cdecl tan(float)" (?tan@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "long double __cdecl tan(long double)" (?tan@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "float __cdecl tanh(float)" (?tanh@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "long double __cdecl tanh(long double)" (?tanh@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "wchar_t * __cdecl wmemchr(wchar_t *,wchar_t,unsigned int)" (?wmemchr@@YAPA_WPA_W_WI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _PropVariantInit 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _SHLocalStrDupA 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _SHLocalStrDupW 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: __chgsignl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: __copysignl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _acosf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _acosl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _asinf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _asinl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _atan2f 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _atan2l 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _atanf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _atanl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _ceilf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _ceill 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _cosf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _coshf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _coshl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _cosl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _expf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _expl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _fabsf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _fabsl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _floorf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _floorl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _fmodf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _fmodl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _frexpf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _frexpl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _getwchar 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _ldexpf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _ldexpl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _log10f 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _log10l 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _logf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _logl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _modff 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _modfl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _powf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _powl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _putwchar 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _sinf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _sinhf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _sinhl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _sinl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _sqrtf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _sqrtl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _tanf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _tanhf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _tanhl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: _tanl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_com.obj : warning LNK4006: "char * PHP_PATH" (?PHP_PATH@@3PADA) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator&(enum FILETYPEATTRIBUTEFLAGS,enum FILETYPEATTRIBUTEFLAGS)" (??I@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@0@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator~(enum FILETYPEATTRIBUTEFLAGS)" (??S@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator^(enum FILETYPEATTRIBUTEFLAGS,enum FILETYPEATTRIBUTEFLAGS)" (??T@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@0@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator|(enum FILETYPEATTRIBUTEFLAGS,enum FILETYPEATTRIBUTEFLAGS)" (??U@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@0@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS & __cdecl operator&=(enum FILETYPEATTRIBUTEFLAGS &,enum FILETYPEATTRIBUTEFLAGS)" (??_4@YAAAW4FILETYPEATTRIBUTEFLAGS@@AAW40@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS & __cdecl operator|=(enum FILETYPEATTRIBUTEFLAGS &,enum FILETYPEATTRIBUTEFLAGS)" (??_5@YAAAW4FILETYPEATTRIBUTEFLAGS@@AAW40@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS & __cdecl operator^=(enum FILETYPEATTRIBUTEFLAGS &,enum FILETYPEATTRIBUTEFLAGS)" (??_6@YAAAW4FILETYPEATTRIBUTEFLAGS@@AAW40@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "unsigned char * __cdecl _mbschr(unsigned char *,unsigned int)" (?_mbschr@@YAPAEPAEI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "unsigned char * __cdecl _mbschr_l(unsigned char *,unsigned int,struct localeinfo_struct *)" (?_mbschr_l@@YAPAEPAEIPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "unsigned char * __cdecl _mbspbrk(unsigned char *,unsigned char const *)" (?_mbspbrk@@YAPAEPAEPBE@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "unsigned char * __cdecl _mbspbrk_l(unsigned char *,unsigned char const *,struct localeinfo_struct *)" (?_mbspbrk_l@@YAPAEPAEPBEPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "unsigned char * __cdecl _mbsrchr(unsigned char *,unsigned int)" (?_mbsrchr@@YAPAEPAEI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "unsigned char * __cdecl _mbsrchr_l(unsigned char *,unsigned int,struct localeinfo_struct *)" (?_mbsrchr_l@@YAPAEPAEIPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "unsigned char * __cdecl _mbsstr(unsigned char *,unsigned char const *)" (?_mbsstr@@YAPAEPAEPBE@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "unsigned char * __cdecl _mbsstr_l(unsigned char *,unsigned char const *,struct localeinfo_struct *)" (?_mbsstr_l@@YAPAEPAEPBEPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "char * __cdecl _tcschr(char *,unsigned int)" (?_tcschr@@YAPADPADI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "char * __cdecl _tcspbrk(char *,char const *)" (?_tcspbrk@@YAPADPADPBD@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "char * __cdecl _tcsrchr(char *,unsigned int)" (?_tcsrchr@@YAPADPADI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "char * __cdecl _tcsstr(char *,char const *)" (?_tcsstr@@YAPADPADPBD@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "float __cdecl abs(float)" (?abs@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "double __cdecl abs(double)" (?abs@@YANN@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "long double __cdecl abs(long double)" (?abs@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "float __cdecl acos(float)" (?acos@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "long double __cdecl acos(long double)" (?acos@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "float __cdecl asin(float)" (?asin@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "long double __cdecl asin(long double)" (?asin@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "float __cdecl atan2(float,float)" (?atan2@@YAMMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "long double __cdecl atan2(long double,long double)" (?atan2@@YAOOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "float __cdecl atan(float)" (?atan@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "long double __cdecl atan(long double)" (?atan@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "float __cdecl ceil(float)" (?ceil@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "long double __cdecl ceil(long double)" (?ceil@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "float __cdecl cos(float)" (?cos@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "long double __cdecl cos(long double)" (?cos@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "float __cdecl cosh(float)" (?cosh@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "long double __cdecl cosh(long double)" (?cosh@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "float __cdecl exp(float)" (?exp@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "long double __cdecl exp(long double)" (?exp@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "float __cdecl fabs(float)" (?fabs@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "long double __cdecl fabs(long double)" (?fabs@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "float __cdecl floor(float)" (?floor@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "long double __cdecl floor(long double)" (?floor@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "float __cdecl fmod(float,float)" (?fmod@@YAMMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "long double __cdecl fmod(long double,long double)" (?fmod@@YAOOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "float __cdecl frexp(float,int *)" (?frexp@@YAMMPAH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "long double __cdecl frexp(long double,int *)" (?frexp@@YAOOPAH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "float __cdecl ldexp(float,int)" (?ldexp@@YAMMH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "long double __cdecl ldexp(long double,int)" (?ldexp@@YAOOH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "float __cdecl log10(float)" (?log10@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "long double __cdecl log10(long double)" (?log10@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "float __cdecl log(float)" (?log@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "long double __cdecl log(long double)" (?log@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "float __cdecl modf(float,float *)" (?modf@@YAMMPAM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "long double __cdecl modf(long double,long double *)" (?modf@@YAOOPAO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "float __cdecl pow(float,int)" (?pow@@YAMMH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "float __cdecl pow(float,float)" (?pow@@YAMMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "double __cdecl pow(double,int)" (?pow@@YANNH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "long double __cdecl pow(long double,int)" (?pow@@YAOOH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "long double __cdecl pow(long double,long double)" (?pow@@YAOOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "float __cdecl sin(float)" (?sin@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "long double __cdecl sin(long double)" (?sin@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "float __cdecl sinh(float)" (?sinh@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "long double __cdecl sinh(long double)" (?sinh@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "float __cdecl sqrt(float)" (?sqrt@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "long double __cdecl sqrt(long double)" (?sqrt@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "float __cdecl tan(float)" (?tan@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "long double __cdecl tan(long double)" (?tan@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "float __cdecl tanh(float)" (?tanh@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "long double __cdecl tanh(long double)" (?tanh@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "wchar_t * __cdecl wmemchr(wchar_t *,wchar_t,unsigned int)" (?wmemchr@@YAPA_WPA_W_WI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _PropVariantInit 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _SHLocalStrDupA 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _SHLocalStrDupW 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: __chgsignl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: __copysignl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _acosf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _acosl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _asinf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _asinl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _atan2f 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _atan2l 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _atanf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _atanl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _ceilf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _ceill 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _cosf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _coshf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _coshl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _cosl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _expf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _expl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _fabsf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _fabsl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _floorf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _floorl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _fmodf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _fmodl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _frexpf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _frexpl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _getwchar 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _ldexpf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _ldexpl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _log10f 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _log10l 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _logf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _logl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _modff 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _modfl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _powf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _powl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _putwchar 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _sinf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _sinhf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _sinhl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _sinl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _sqrtf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _sqrtl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _tanf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _tanhf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _tanhl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: _tanl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_encrypt_file.obj : warning LNK4006: "char * PHP_PATH" (?PHP_PATH@@3PADA) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _bstr_t::Data_t::Data_t(class _bstr_t const &,class _bstr_t const &)" (??0Data_t@_bstr_t@@QAE@ABV1@0@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _bstr_t::Data_t::Data_t(wchar_t *,bool)" (??0Data_t@_bstr_t@@QAE@PA_W_N@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _bstr_t::Data_t::Data_t(char const *)" (??0Data_t@_bstr_t@@QAE@PBD@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _bstr_t::Data_t::Data_t(wchar_t const *)" (??0Data_t@_bstr_t@@QAE@PB_W@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _bstr_t::_bstr_t(class _bstr_t const &)" (??0_bstr_t@@QAE@ABV0@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _bstr_t::_bstr_t(class _variant_t const &)" (??0_bstr_t@@QAE@ABV_variant_t@@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _bstr_t::_bstr_t(wchar_t *,bool)" (??0_bstr_t@@QAE@PA_W_N@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _bstr_t::_bstr_t(char const *)" (??0_bstr_t@@QAE@PBD@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _bstr_t::_bstr_t(wchar_t const *)" (??0_bstr_t@@QAE@PB_W@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _bstr_t::_bstr_t(void)" (??0_bstr_t@@QAE@XZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _com_error::_com_error(class _com_error const &)" (??0_com_error@@QAE@ABV0@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _com_error::_com_error(long,struct IErrorInfo *,bool)" (??0_com_error@@QAE@JPAUIErrorInfo@@_N@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::_variant_t(struct tagVARIANT &,bool)" (??0_variant_t@@QAE@AAUtagVARIANT@@_N@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::_variant_t(union tagCY const &)" (??0_variant_t@@QAE@ABTtagCY@@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::_variant_t(struct tagDEC const &)" (??0_variant_t@@QAE@ABUtagDEC@@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::_variant_t(struct tagVARIANT const &)" (??0_variant_t@@QAE@ABUtagVARIANT@@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::_variant_t(class _variant_t const &)" (??0_variant_t@@QAE@ABV0@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::_variant_t(class _bstr_t const &)" (??0_variant_t@@QAE@ABV_bstr_t@@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::_variant_t(char)" (??0_variant_t@@QAE@D@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::_variant_t(unsigned char)" (??0_variant_t@@QAE@E@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::_variant_t(short,unsigned short)" (??0_variant_t@@QAE@FG@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::_variant_t(unsigned short)" (??0_variant_t@@QAE@G@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::_variant_t(int)" (??0_variant_t@@QAE@H@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::_variant_t(unsigned int)" (??0_variant_t@@QAE@I@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::_variant_t(long,unsigned short)" (??0_variant_t@@QAE@JG@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::_variant_t(unsigned long)" (??0_variant_t@@QAE@K@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::_variant_t(float)" (??0_variant_t@@QAE@M@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::_variant_t(double,unsigned short)" (??0_variant_t@@QAE@NG@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::_variant_t(struct IDispatch *,bool)" (??0_variant_t@@QAE@PAUIDispatch@@_N@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::_variant_t(struct IUnknown *,bool)" (??0_variant_t@@QAE@PAUIUnknown@@_N@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::_variant_t(char const *)" (??0_variant_t@@QAE@PBD@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::_variant_t(struct tagVARIANT const *)" (??0_variant_t@@QAE@PBUtagVARIANT@@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::_variant_t(wchar_t const *)" (??0_variant_t@@QAE@PB_W@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::_variant_t(void)" (??0_variant_t@@QAE@XZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::_variant_t(__int64)" (??0_variant_t@@QAE@_J@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::_variant_t(unsigned __int64)" (??0_variant_t@@QAE@_K@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::_variant_t(bool)" (??0_variant_t@@QAE@_N@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "private: __thiscall _bstr_t::Data_t::~Data_t(void)" (??1Data_t@_bstr_t@@AAE@XZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _bstr_t::~_bstr_t(void)" (??1_bstr_t@@QAE@XZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: virtual __thiscall _com_error::~_com_error(void)" (??1_com_error@@UAE@XZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::~_variant_t(void)" (??1_variant_t@@QAE@XZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "void * __cdecl operator new(unsigned int,void *)" (??2@YAPAXIPAX@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: static void * __cdecl _bstr_t::Data_t::operator new(unsigned int)" (??2Data_t@_bstr_t@@SAPAXI@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "void __cdecl operator delete(void *,void *)" (??3@YAXPAX0@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _bstr_t & __thiscall _bstr_t::operator=(class _bstr_t const &)" (??4_bstr_t@@QAEAAV0@ABV0@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _bstr_t & __thiscall _bstr_t::operator=(class _variant_t const &)" (??4_bstr_t@@QAEAAV0@ABV_variant_t@@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _bstr_t & __thiscall _bstr_t::operator=(char const *)" (??4_bstr_t@@QAEAAV0@PBD@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _bstr_t & __thiscall _bstr_t::operator=(wchar_t const *)" (??4_bstr_t@@QAEAAV0@PB_W@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _com_error & __thiscall _com_error::operator=(class _com_error const &)" (??4_com_error@@QAEAAV0@ABV0@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _variant_t & __thiscall _variant_t::operator=(union tagCY const &)" (??4_variant_t@@QAEAAV0@ABTtagCY@@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _variant_t & __thiscall _variant_t::operator=(struct tagDEC const &)" (??4_variant_t@@QAEAAV0@ABUtagDEC@@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _variant_t & __thiscall _variant_t::operator=(struct tagVARIANT const &)" (??4_variant_t@@QAEAAV0@ABUtagVARIANT@@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _variant_t & __thiscall _variant_t::operator=(class _variant_t const &)" (??4_variant_t@@QAEAAV0@ABV0@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _variant_t & __thiscall _variant_t::operator=(class _bstr_t const &)" (??4_variant_t@@QAEAAV0@ABV_bstr_t@@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _variant_t & __thiscall _variant_t::operator=(char)" (??4_variant_t@@QAEAAV0@D@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _variant_t & __thiscall _variant_t::operator=(unsigned char)" (??4_variant_t@@QAEAAV0@E@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _variant_t & __thiscall _variant_t::operator=(short)" (??4_variant_t@@QAEAAV0@F@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _variant_t & __thiscall _variant_t::operator=(unsigned short)" (??4_variant_t@@QAEAAV0@G@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _variant_t & __thiscall _variant_t::operator=(int)" (??4_variant_t@@QAEAAV0@H@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _variant_t & __thiscall _variant_t::operator=(unsigned int)" (??4_variant_t@@QAEAAV0@I@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _variant_t & __thiscall _variant_t::operator=(long)" (??4_variant_t@@QAEAAV0@J@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _variant_t & __thiscall _variant_t::operator=(unsigned long)" (??4_variant_t@@QAEAAV0@K@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _variant_t & __thiscall _variant_t::operator=(float)" (??4_variant_t@@QAEAAV0@M@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _variant_t & __thiscall _variant_t::operator=(double)" (??4_variant_t@@QAEAAV0@N@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _variant_t & __thiscall _variant_t::operator=(struct IDispatch *)" (??4_variant_t@@QAEAAV0@PAUIDispatch@@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _variant_t & __thiscall _variant_t::operator=(struct IUnknown *)" (??4_variant_t@@QAEAAV0@PAUIUnknown@@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _variant_t & __thiscall _variant_t::operator=(char const *)" (??4_variant_t@@QAEAAV0@PBD@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _variant_t & __thiscall _variant_t::operator=(struct tagVARIANT const *)" (??4_variant_t@@QAEAAV0@PBUtagVARIANT@@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _variant_t & __thiscall _variant_t::operator=(wchar_t const *)" (??4_variant_t@@QAEAAV0@PB_W@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _variant_t & __thiscall _variant_t::operator=(__int64)" (??4_variant_t@@QAEAAV0@_J@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _variant_t & __thiscall _variant_t::operator=(unsigned __int64)" (??4_variant_t@@QAEAAV0@_K@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _variant_t & __thiscall _variant_t::operator=(bool)" (??4_variant_t@@QAEAAV0@_N@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: bool __thiscall _bstr_t::operator!(void)const " (??7_bstr_t@@QBE_NXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: bool __thiscall _bstr_t::operator==(class _bstr_t const &)const " (??8_bstr_t@@QBE_NABV0@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: bool __thiscall _variant_t::operator==(struct tagVARIANT const &)const " (??8_variant_t@@QBE_NABUtagVARIANT@@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: bool __thiscall _variant_t::operator==(struct tagVARIANT const *)const " (??8_variant_t@@QBE_NPBUtagVARIANT@@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: bool __thiscall _bstr_t::operator!=(class _bstr_t const &)const " (??9_bstr_t@@QBE_NABV0@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: bool __thiscall _variant_t::operator!=(struct tagVARIANT const &)const " (??9_variant_t@@QBE_NABUtagVARIANT@@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: bool __thiscall _variant_t::operator!=(struct tagVARIANT const *)const " (??9_variant_t@@QBE_NPBUtagVARIANT@@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _bstr_t::Data_t::operator char const *(void)const " (??BData_t@_bstr_t@@QBEPBDXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _bstr_t::Data_t::operator wchar_t const *(void)const " (??BData_t@_bstr_t@@QBEPB_WXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _bstr_t::operator char *(void)const " (??B_bstr_t@@QBEPADXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _bstr_t::operator wchar_t *(void)const " (??B_bstr_t@@QBEPA_WXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _bstr_t::operator char const *(void)const " (??B_bstr_t@@QBEPBDXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _bstr_t::operator wchar_t const *(void)const " (??B_bstr_t@@QBEPB_WXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::operator union tagCY(void)const " (??B_variant_t@@QBE?ATtagCY@@XZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::operator struct tagDEC(void)const " (??B_variant_t@@QBE?AUtagDEC@@XZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::operator struct tagVARIANT(void)const " (??B_variant_t@@QBE?AUtagVARIANT@@XZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::operator class _bstr_t(void)const " (??B_variant_t@@QBE?AV_bstr_t@@XZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::operator char(void)const " (??B_variant_t@@QBEDXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::operator unsigned char(void)const " (??B_variant_t@@QBEEXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::operator short(void)const " (??B_variant_t@@QBEFXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::operator unsigned short(void)const " (??B_variant_t@@QBEGXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::operator int(void)const " (??B_variant_t@@QBEHXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::operator unsigned int(void)const " (??B_variant_t@@QBEIXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::operator long(void)const " (??B_variant_t@@QBEJXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::operator unsigned long(void)const " (??B_variant_t@@QBEKXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::operator float(void)const " (??B_variant_t@@QBEMXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::operator double(void)const " (??B_variant_t@@QBENXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::operator struct IDispatch *(void)const " (??B_variant_t@@QBEPAUIDispatch@@XZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::operator struct IUnknown *(void)const " (??B_variant_t@@QBEPAUIUnknown@@XZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::operator __int64(void)const " (??B_variant_t@@QBE_JXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::operator unsigned __int64(void)const " (??B_variant_t@@QBE_KXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: __thiscall _variant_t::operator bool(void)const " (??B_variant_t@@QBE_NXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "class _bstr_t __cdecl operator+(char const *,class _bstr_t const &)" (??H@YA?AV_bstr_t@@PBDABV0@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "class _bstr_t __cdecl operator+(wchar_t const *,class _bstr_t const &)" (??H@YA?AV_bstr_t@@PB_WABV0@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _bstr_t __thiscall _bstr_t::operator+(class _bstr_t const &)const " (??H_bstr_t@@QBE?AV0@ABV0@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator&(enum FILETYPEATTRIBUTEFLAGS,enum FILETYPEATTRIBUTEFLAGS)" (??I@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@0@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: bool __thiscall _bstr_t::operator<(class _bstr_t const &)const " (??M_bstr_t@@QBE_NABV0@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: bool __thiscall _bstr_t::operator<=(class _bstr_t const &)const " (??N_bstr_t@@QBE_NABV0@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: bool __thiscall _bstr_t::operator>(class _bstr_t const &)const " (??O_bstr_t@@QBE_NABV0@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: bool __thiscall _bstr_t::operator>=(class _bstr_t const &)const " (??P_bstr_t@@QBE_NABV0@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator~(enum FILETYPEATTRIBUTEFLAGS)" (??S@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator^(enum FILETYPEATTRIBUTEFLAGS,enum FILETYPEATTRIBUTEFLAGS)" (??T@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@0@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator|(enum FILETYPEATTRIBUTEFLAGS,enum FILETYPEATTRIBUTEFLAGS)" (??U@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@0@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _bstr_t & __thiscall _bstr_t::operator+=(class _bstr_t const &)" (??Y_bstr_t@@QAEAAV0@ABV0@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS & __cdecl operator&=(enum FILETYPEATTRIBUTEFLAGS &,enum FILETYPEATTRIBUTEFLAGS)" (??_4@YAAAW4FILETYPEATTRIBUTEFLAGS@@AAW40@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS & __cdecl operator|=(enum FILETYPEATTRIBUTEFLAGS &,enum FILETYPEATTRIBUTEFLAGS)" (??_5@YAAAW4FILETYPEATTRIBUTEFLAGS@@AAW40@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS & __cdecl operator^=(enum FILETYPEATTRIBUTEFLAGS &,enum FILETYPEATTRIBUTEFLAGS)" (??_6@YAAAW4FILETYPEATTRIBUTEFLAGS@@AAW40@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: unsigned long __thiscall _bstr_t::Data_t::AddRef(void)" (?AddRef@Data_t@_bstr_t@@QAEKXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: void __thiscall _bstr_t::Data_t::Assign(wchar_t *)" (?Assign@Data_t@_bstr_t@@QAEXPA_W@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: void __thiscall _bstr_t::Assign(wchar_t *)" (?Assign@_bstr_t@@QAEXPA_W@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: void __thiscall _bstr_t::Data_t::Attach(wchar_t *)" (?Attach@Data_t@_bstr_t@@QAEXPA_W@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: void __thiscall _bstr_t::Attach(wchar_t *)" (?Attach@_bstr_t@@QAEXPA_W@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: void __thiscall _variant_t::Attach(struct tagVARIANT &)" (?Attach@_variant_t@@QAEXAAUtagVARIANT@@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: void __thiscall _variant_t::ChangeType(unsigned short,class _variant_t const *)" (?ChangeType@_variant_t@@QAEXGPBV1@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "void __cdecl _com_util::CheckError(long)" (?CheckError@_com_util@@YAXJ@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: void __thiscall _variant_t::Clear(void)" (?Clear@_variant_t@@QAEXXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: int __thiscall _bstr_t::Data_t::Compare(class _bstr_t::Data_t const &)const " (?Compare@Data_t@_bstr_t@@QBEHABV12@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: wchar_t * __thiscall _bstr_t::Data_t::Copy(void)const " (?Copy@Data_t@_bstr_t@@QBEPA_WXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _bstr_t __thiscall _com_error::Description(void)const " (?Description@_com_error@@QBE?AV_bstr_t@@XZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: wchar_t * __thiscall _bstr_t::Detach(void)" (?Detach@_bstr_t@@QAEPA_WXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: struct tagVARIANT __thiscall _variant_t::Detach(void)" (?Detach@_variant_t@@QAE?AUtagVARIANT@@XZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: long __thiscall _com_error::Error(void)const " (?Error@_com_error@@QBEJXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: struct IErrorInfo * __thiscall _com_error::ErrorInfo(void)const " (?ErrorInfo@_com_error@@QBEPAUIErrorInfo@@XZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: char const * __thiscall _com_error::ErrorMessage(void)const " (?ErrorMessage@_com_error@@QBEPBDXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: struct _GUID __thiscall _com_error::GUID(void)const " (?GUID@_com_error@@QBE?AU_GUID@@XZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: wchar_t * * __thiscall _bstr_t::GetAddress(void)" (?GetAddress@_bstr_t@@QAEPAPA_WXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: struct tagVARIANT * __thiscall _variant_t::GetAddress(void)" (?GetAddress@_variant_t@@QAEPAUtagVARIANT@@XZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: wchar_t * & __thiscall _bstr_t::GetBSTR(void)" (?GetBSTR@_bstr_t@@QAEAAPA_WXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: char const * __thiscall _bstr_t::Data_t::GetString(void)const " (?GetString@Data_t@_bstr_t@@QBEPBDXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: struct tagVARIANT & __thiscall _variant_t::GetVARIANT(void)" (?GetVARIANT@_variant_t@@QAEAAUtagVARIANT@@XZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: wchar_t * & __thiscall _bstr_t::Data_t::GetWString(void)" (?GetWString@Data_t@_bstr_t@@QAEAAPA_WXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: wchar_t const * __thiscall _bstr_t::Data_t::GetWString(void)const " (?GetWString@Data_t@_bstr_t@@QBEPB_WXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: static unsigned short __cdecl _com_error::HRESULTToWCode(long)" (?HRESULTToWCode@_com_error@@SAGJ@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: unsigned long __thiscall _com_error::HelpContext(void)const " (?HelpContext@_com_error@@QBEKXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _bstr_t __thiscall _com_error::HelpFile(void)const " (?HelpFile@_com_error@@QBE?AV_bstr_t@@XZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: unsigned int __thiscall _bstr_t::Data_t::Length(void)const " (?Length@Data_t@_bstr_t@@QBEIXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: unsigned long __thiscall _bstr_t::Data_t::RefCount(void)const " (?RefCount@Data_t@_bstr_t@@QBEKXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: unsigned long __thiscall _bstr_t::Data_t::Release(void)" (?Release@Data_t@_bstr_t@@QAEKXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: void __thiscall _variant_t::SetString(char const *)" (?SetString@_variant_t@@QAEXPBD@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: class _bstr_t __thiscall _com_error::Source(void)const " (?Source@_com_error@@QBE?AV_bstr_t@@XZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: unsigned short __thiscall _com_error::WCode(void)const " (?WCode@_com_error@@QBEGXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: static long __cdecl _com_error::WCodeToHRESULT(unsigned short)" (?WCodeToHRESULT@_com_error@@SAJG@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "private: void __thiscall _bstr_t::_AddRef(void)" (?_AddRef@_bstr_t@@AAEXXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "private: int __thiscall _bstr_t::_Compare(class _bstr_t const &)const " (?_Compare@_bstr_t@@ABEHABV1@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "private: void __thiscall _bstr_t::Data_t::_Free(void)" (?_Free@Data_t@_bstr_t@@AAEXXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "private: void __thiscall _bstr_t::_Free(void)" (?_Free@_bstr_t@@AAEXXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "unsigned char * __cdecl _mbschr(unsigned char *,unsigned int)" (?_mbschr@@YAPAEPAEI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "unsigned char * __cdecl _mbschr_l(unsigned char *,unsigned int,struct localeinfo_struct *)" (?_mbschr_l@@YAPAEPAEIPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "unsigned char * __cdecl _mbspbrk(unsigned char *,unsigned char const *)" (?_mbspbrk@@YAPAEPAEPBE@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "unsigned char * __cdecl _mbspbrk_l(unsigned char *,unsigned char const *,struct localeinfo_struct *)" (?_mbspbrk_l@@YAPAEPAEPBEPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "unsigned char * __cdecl _mbsrchr(unsigned char *,unsigned int)" (?_mbsrchr@@YAPAEPAEI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "unsigned char * __cdecl _mbsrchr_l(unsigned char *,unsigned int,struct localeinfo_struct *)" (?_mbsrchr_l@@YAPAEPAEIPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "unsigned char * __cdecl _mbsstr(unsigned char *,unsigned char const *)" (?_mbsstr@@YAPAEPAEPBE@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "unsigned char * __cdecl _mbsstr_l(unsigned char *,unsigned char const *,struct localeinfo_struct *)" (?_mbsstr_l@@YAPAEPAEPBEPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "char * __cdecl _tcschr(char *,unsigned int)" (?_tcschr@@YAPADPADI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "char * __cdecl _tcspbrk(char *,char const *)" (?_tcspbrk@@YAPADPADPBD@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "char * __cdecl _tcsrchr(char *,unsigned int)" (?_tcsrchr@@YAPADPADI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "char * __cdecl _tcsstr(char *,char const *)" (?_tcsstr@@YAPADPADPBD@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "float __cdecl abs(float)" (?abs@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "double __cdecl abs(double)" (?abs@@YANN@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "long double __cdecl abs(long double)" (?abs@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "float __cdecl acos(float)" (?acos@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "long double __cdecl acos(long double)" (?acos@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "float __cdecl asin(float)" (?asin@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "long double __cdecl asin(long double)" (?asin@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "float __cdecl atan2(float,float)" (?atan2@@YAMMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "long double __cdecl atan2(long double,long double)" (?atan2@@YAOOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "float __cdecl atan(float)" (?atan@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "long double __cdecl atan(long double)" (?atan@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "float __cdecl ceil(float)" (?ceil@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "long double __cdecl ceil(long double)" (?ceil@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: wchar_t * __thiscall _bstr_t::copy(bool)const " (?copy@_bstr_t@@QBEPA_W_N@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "float __cdecl cos(float)" (?cos@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "long double __cdecl cos(long double)" (?cos@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "float __cdecl cosh(float)" (?cosh@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "long double __cdecl cosh(long double)" (?cosh@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "float __cdecl exp(float)" (?exp@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "long double __cdecl exp(long double)" (?exp@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "float __cdecl fabs(float)" (?fabs@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "long double __cdecl fabs(long double)" (?fabs@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "float __cdecl floor(float)" (?floor@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "long double __cdecl floor(long double)" (?floor@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "float __cdecl fmod(float,float)" (?fmod@@YAMMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "long double __cdecl fmod(long double,long double)" (?fmod@@YAOOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "float __cdecl frexp(float,int *)" (?frexp@@YAMMPAH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "long double __cdecl frexp(long double,int *)" (?frexp@@YAOOPAH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "float __cdecl ldexp(float,int)" (?ldexp@@YAMMH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "long double __cdecl ldexp(long double,int)" (?ldexp@@YAOOH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "public: unsigned int __thiscall _bstr_t::length(void)const " (?length@_bstr_t@@QBEIXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "float __cdecl log10(float)" (?log10@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "long double __cdecl log10(long double)" (?log10@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "float __cdecl log(float)" (?log@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "long double __cdecl log(long double)" (?log@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "float __cdecl modf(float,float *)" (?modf@@YAMMPAM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "long double __cdecl modf(long double,long double *)" (?modf@@YAOOPAO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "float __cdecl pow(float,int)" (?pow@@YAMMH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "float __cdecl pow(float,float)" (?pow@@YAMMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "double __cdecl pow(double,int)" (?pow@@YANNH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "long double __cdecl pow(long double,int)" (?pow@@YAOOH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "long double __cdecl pow(long double,long double)" (?pow@@YAOOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "float __cdecl sin(float)" (?sin@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "long double __cdecl sin(long double)" (?sin@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "float __cdecl sinh(float)" (?sinh@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "long double __cdecl sinh(long double)" (?sinh@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "float __cdecl sqrt(float)" (?sqrt@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "long double __cdecl sqrt(long double)" (?sqrt@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "float __cdecl tan(float)" (?tan@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "long double __cdecl tan(long double)" (?tan@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "float __cdecl tanh(float)" (?tanh@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "long double __cdecl tanh(long double)" (?tanh@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "wchar_t * __cdecl wmemchr(wchar_t *,wchar_t,unsigned int)" (?wmemchr@@YAPA_WPA_W_WI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _PropVariantInit 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _SHLocalStrDupA 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _SHLocalStrDupW 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: __chgsignl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: __copysignl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _acosf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _acosl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _asinf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _asinl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _atan2f 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _atan2l 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _atanf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _atanl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _ceilf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _ceill 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _cosf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _coshf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _coshl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _cosl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _expf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _expl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _fabsf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _fabsl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _floorf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _floorl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _fmodf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _fmodl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _frexpf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _frexpl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _getwchar 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _ldexpf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _ldexpl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _log10f 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _log10l 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _logf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _logl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _modff 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _modfl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _powf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _powl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _putwchar 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _sinf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _sinhf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _sinhl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _sinl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _sqrtf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _sqrtl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _tanf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _tanhf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _tanhl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: _tanl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_hardware_info.obj : warning LNK4006: "char * PHP_PATH" (?PHP_PATH@@3PADA) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator&(enum FILETYPEATTRIBUTEFLAGS,enum FILETYPEATTRIBUTEFLAGS)" (??I@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@0@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator~(enum FILETYPEATTRIBUTEFLAGS)" (??S@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator^(enum FILETYPEATTRIBUTEFLAGS,enum FILETYPEATTRIBUTEFLAGS)" (??T@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@0@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator|(enum FILETYPEATTRIBUTEFLAGS,enum FILETYPEATTRIBUTEFLAGS)" (??U@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@0@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS & __cdecl operator&=(enum FILETYPEATTRIBUTEFLAGS &,enum FILETYPEATTRIBUTEFLAGS)" (??_4@YAAAW4FILETYPEATTRIBUTEFLAGS@@AAW40@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS & __cdecl operator|=(enum FILETYPEATTRIBUTEFLAGS &,enum FILETYPEATTRIBUTEFLAGS)" (??_5@YAAAW4FILETYPEATTRIBUTEFLAGS@@AAW40@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS & __cdecl operator^=(enum FILETYPEATTRIBUTEFLAGS &,enum FILETYPEATTRIBUTEFLAGS)" (??_6@YAAAW4FILETYPEATTRIBUTEFLAGS@@AAW40@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "unsigned char * __cdecl _mbschr(unsigned char *,unsigned int)" (?_mbschr@@YAPAEPAEI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "unsigned char * __cdecl _mbschr_l(unsigned char *,unsigned int,struct localeinfo_struct *)" (?_mbschr_l@@YAPAEPAEIPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "unsigned char * __cdecl _mbspbrk(unsigned char *,unsigned char const *)" (?_mbspbrk@@YAPAEPAEPBE@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "unsigned char * __cdecl _mbspbrk_l(unsigned char *,unsigned char const *,struct localeinfo_struct *)" (?_mbspbrk_l@@YAPAEPAEPBEPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "unsigned char * __cdecl _mbsrchr(unsigned char *,unsigned int)" (?_mbsrchr@@YAPAEPAEI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "unsigned char * __cdecl _mbsrchr_l(unsigned char *,unsigned int,struct localeinfo_struct *)" (?_mbsrchr_l@@YAPAEPAEIPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "unsigned char * __cdecl _mbsstr(unsigned char *,unsigned char const *)" (?_mbsstr@@YAPAEPAEPBE@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "unsigned char * __cdecl _mbsstr_l(unsigned char *,unsigned char const *,struct localeinfo_struct *)" (?_mbsstr_l@@YAPAEPAEPBEPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "char * __cdecl _tcschr(char *,unsigned int)" (?_tcschr@@YAPADPADI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "char * __cdecl _tcspbrk(char *,char const *)" (?_tcspbrk@@YAPADPADPBD@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "char * __cdecl _tcsrchr(char *,unsigned int)" (?_tcsrchr@@YAPADPADI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "char * __cdecl _tcsstr(char *,char const *)" (?_tcsstr@@YAPADPADPBD@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "float __cdecl abs(float)" (?abs@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "double __cdecl abs(double)" (?abs@@YANN@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "long double __cdecl abs(long double)" (?abs@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "float __cdecl acos(float)" (?acos@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "long double __cdecl acos(long double)" (?acos@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "float __cdecl asin(float)" (?asin@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "long double __cdecl asin(long double)" (?asin@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "float __cdecl atan2(float,float)" (?atan2@@YAMMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "long double __cdecl atan2(long double,long double)" (?atan2@@YAOOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "float __cdecl atan(float)" (?atan@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "long double __cdecl atan(long double)" (?atan@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "float __cdecl ceil(float)" (?ceil@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "long double __cdecl ceil(long double)" (?ceil@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "float __cdecl cos(float)" (?cos@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "long double __cdecl cos(long double)" (?cos@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "float __cdecl cosh(float)" (?cosh@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "long double __cdecl cosh(long double)" (?cosh@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "float __cdecl exp(float)" (?exp@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "long double __cdecl exp(long double)" (?exp@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "float __cdecl fabs(float)" (?fabs@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "long double __cdecl fabs(long double)" (?fabs@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "float __cdecl floor(float)" (?floor@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "long double __cdecl floor(long double)" (?floor@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "float __cdecl fmod(float,float)" (?fmod@@YAMMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "long double __cdecl fmod(long double,long double)" (?fmod@@YAOOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "float __cdecl frexp(float,int *)" (?frexp@@YAMMPAH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "long double __cdecl frexp(long double,int *)" (?frexp@@YAOOPAH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "float __cdecl ldexp(float,int)" (?ldexp@@YAMMH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "long double __cdecl ldexp(long double,int)" (?ldexp@@YAOOH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "float __cdecl log10(float)" (?log10@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "long double __cdecl log10(long double)" (?log10@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "float __cdecl log(float)" (?log@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "long double __cdecl log(long double)" (?log@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "float __cdecl modf(float,float *)" (?modf@@YAMMPAM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "long double __cdecl modf(long double,long double *)" (?modf@@YAOOPAO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "float __cdecl pow(float,int)" (?pow@@YAMMH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "float __cdecl pow(float,float)" (?pow@@YAMMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "double __cdecl pow(double,int)" (?pow@@YANNH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "long double __cdecl pow(long double,int)" (?pow@@YAOOH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "long double __cdecl pow(long double,long double)" (?pow@@YAOOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "float __cdecl sin(float)" (?sin@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "long double __cdecl sin(long double)" (?sin@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "float __cdecl sinh(float)" (?sinh@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "long double __cdecl sinh(long double)" (?sinh@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "float __cdecl sqrt(float)" (?sqrt@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "long double __cdecl sqrt(long double)" (?sqrt@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "float __cdecl tan(float)" (?tan@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "long double __cdecl tan(long double)" (?tan@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "float __cdecl tanh(float)" (?tanh@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "long double __cdecl tanh(long double)" (?tanh@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "wchar_t * __cdecl wmemchr(wchar_t *,wchar_t,unsigned int)" (?wmemchr@@YAPA_WPA_W_WI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _PropVariantInit 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _SHLocalStrDupA 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _SHLocalStrDupW 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: __chgsignl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: __copysignl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _acosf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _acosl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _asinf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _asinl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _atan2f 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _atan2l 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _atanf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _atanl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _ceilf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _ceill 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _cosf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _coshf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _coshl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _cosl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _expf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _expl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _fabsf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _fabsl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _floorf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _floorl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _fmodf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _fmodl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _frexpf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _frexpl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _getwchar 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _ldexpf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _ldexpl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _log10f 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _log10l 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _logf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _logl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _modff 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _modfl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _powf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _powl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _putwchar 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _sinf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _sinhf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _sinhl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _sinl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _sqrtf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _sqrtl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _tanf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _tanhf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _tanhl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: _tanl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_server.obj : warning LNK4006: "char * PHP_PATH" (?PHP_PATH@@3PADA) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_iocp_socket_map.obj : warning LNK4006: "void * __cdecl operator new(unsigned int,void *)" (??2@YAPAXIPAX@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_iocp_socket_map.obj : warning LNK4006: "void __cdecl operator delete(void *,void *)" (??3@YAXPAX0@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator&(enum FILETYPEATTRIBUTEFLAGS,enum FILETYPEATTRIBUTEFLAGS)" (??I@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@0@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator~(enum FILETYPEATTRIBUTEFLAGS)" (??S@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator^(enum FILETYPEATTRIBUTEFLAGS,enum FILETYPEATTRIBUTEFLAGS)" (??T@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@0@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator|(enum FILETYPEATTRIBUTEFLAGS,enum FILETYPEATTRIBUTEFLAGS)" (??U@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@0@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS & __cdecl operator&=(enum FILETYPEATTRIBUTEFLAGS &,enum FILETYPEATTRIBUTEFLAGS)" (??_4@YAAAW4FILETYPEATTRIBUTEFLAGS@@AAW40@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS & __cdecl operator|=(enum FILETYPEATTRIBUTEFLAGS &,enum FILETYPEATTRIBUTEFLAGS)" (??_5@YAAAW4FILETYPEATTRIBUTEFLAGS@@AAW40@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS & __cdecl operator^=(enum FILETYPEATTRIBUTEFLAGS &,enum FILETYPEATTRIBUTEFLAGS)" (??_6@YAAAW4FILETYPEATTRIBUTEFLAGS@@AAW40@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "unsigned char * __cdecl _mbschr(unsigned char *,unsigned int)" (?_mbschr@@YAPAEPAEI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "unsigned char * __cdecl _mbschr_l(unsigned char *,unsigned int,struct localeinfo_struct *)" (?_mbschr_l@@YAPAEPAEIPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "unsigned char * __cdecl _mbspbrk(unsigned char *,unsigned char const *)" (?_mbspbrk@@YAPAEPAEPBE@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "unsigned char * __cdecl _mbspbrk_l(unsigned char *,unsigned char const *,struct localeinfo_struct *)" (?_mbspbrk_l@@YAPAEPAEPBEPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "unsigned char * __cdecl _mbsrchr(unsigned char *,unsigned int)" (?_mbsrchr@@YAPAEPAEI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "unsigned char * __cdecl _mbsrchr_l(unsigned char *,unsigned int,struct localeinfo_struct *)" (?_mbsrchr_l@@YAPAEPAEIPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "unsigned char * __cdecl _mbsstr(unsigned char *,unsigned char const *)" (?_mbsstr@@YAPAEPAEPBE@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "unsigned char * __cdecl _mbsstr_l(unsigned char *,unsigned char const *,struct localeinfo_struct *)" (?_mbsstr_l@@YAPAEPAEPBEPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "char * __cdecl _tcschr(char *,unsigned int)" (?_tcschr@@YAPADPADI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "char * __cdecl _tcspbrk(char *,char const *)" (?_tcspbrk@@YAPADPADPBD@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "char * __cdecl _tcsrchr(char *,unsigned int)" (?_tcsrchr@@YAPADPADI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "char * __cdecl _tcsstr(char *,char const *)" (?_tcsstr@@YAPADPADPBD@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "float __cdecl abs(float)" (?abs@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "double __cdecl abs(double)" (?abs@@YANN@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "long double __cdecl abs(long double)" (?abs@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "float __cdecl acos(float)" (?acos@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "long double __cdecl acos(long double)" (?acos@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "float __cdecl asin(float)" (?asin@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "long double __cdecl asin(long double)" (?asin@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "float __cdecl atan2(float,float)" (?atan2@@YAMMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "long double __cdecl atan2(long double,long double)" (?atan2@@YAOOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "float __cdecl atan(float)" (?atan@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "long double __cdecl atan(long double)" (?atan@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "float __cdecl ceil(float)" (?ceil@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "long double __cdecl ceil(long double)" (?ceil@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "float __cdecl cos(float)" (?cos@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "long double __cdecl cos(long double)" (?cos@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "float __cdecl cosh(float)" (?cosh@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "long double __cdecl cosh(long double)" (?cosh@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "float __cdecl exp(float)" (?exp@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "long double __cdecl exp(long double)" (?exp@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "float __cdecl fabs(float)" (?fabs@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "long double __cdecl fabs(long double)" (?fabs@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "float __cdecl floor(float)" (?floor@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "long double __cdecl floor(long double)" (?floor@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "float __cdecl fmod(float,float)" (?fmod@@YAMMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "long double __cdecl fmod(long double,long double)" (?fmod@@YAOOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "float __cdecl frexp(float,int *)" (?frexp@@YAMMPAH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "long double __cdecl frexp(long double,int *)" (?frexp@@YAOOPAH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "float __cdecl ldexp(float,int)" (?ldexp@@YAMMH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "long double __cdecl ldexp(long double,int)" (?ldexp@@YAOOH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "float __cdecl log10(float)" (?log10@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "long double __cdecl log10(long double)" (?log10@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "float __cdecl log(float)" (?log@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "long double __cdecl log(long double)" (?log@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "float __cdecl modf(float,float *)" (?modf@@YAMMPAM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "long double __cdecl modf(long double,long double *)" (?modf@@YAOOPAO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "float __cdecl pow(float,int)" (?pow@@YAMMH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "float __cdecl pow(float,float)" (?pow@@YAMMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "double __cdecl pow(double,int)" (?pow@@YANNH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "long double __cdecl pow(long double,int)" (?pow@@YAOOH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "long double __cdecl pow(long double,long double)" (?pow@@YAOOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "float __cdecl sin(float)" (?sin@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "long double __cdecl sin(long double)" (?sin@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "float __cdecl sinh(float)" (?sinh@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "long double __cdecl sinh(long double)" (?sinh@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "float __cdecl sqrt(float)" (?sqrt@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "long double __cdecl sqrt(long double)" (?sqrt@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "float __cdecl tan(float)" (?tan@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "long double __cdecl tan(long double)" (?tan@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "float __cdecl tanh(float)" (?tanh@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "long double __cdecl tanh(long double)" (?tanh@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "wchar_t * __cdecl wmemchr(wchar_t *,wchar_t,unsigned int)" (?wmemchr@@YAPA_WPA_W_WI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _PropVariantInit 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _SHLocalStrDupA 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _SHLocalStrDupW 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: __chgsignl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: __copysignl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _acosf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _acosl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _asinf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _asinl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _atan2f 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _atan2l 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _atanf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _atanl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _ceilf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _ceill 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _cosf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _coshf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _coshl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _cosl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _expf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _expl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _fabsf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _fabsl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _floorf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _floorl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _fmodf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _fmodl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _frexpf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _frexpl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _getwchar 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _ldexpf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _ldexpl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _log10f 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _log10l 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _logf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _logl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _modff 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _modfl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _powf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _powl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _putwchar 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _sinf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _sinhf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _sinhl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _sinl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _sqrtf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _sqrtl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _tanf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _tanhf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _tanhl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: _tanl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_process.obj : warning LNK4006: "char * PHP_PATH" (?PHP_PATH@@3PADA) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator&(enum FILETYPEATTRIBUTEFLAGS,enum FILETYPEATTRIBUTEFLAGS)" (??I@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@0@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator~(enum FILETYPEATTRIBUTEFLAGS)" (??S@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator^(enum FILETYPEATTRIBUTEFLAGS,enum FILETYPEATTRIBUTEFLAGS)" (??T@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@0@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator|(enum FILETYPEATTRIBUTEFLAGS,enum FILETYPEATTRIBUTEFLAGS)" (??U@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@0@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS & __cdecl operator&=(enum FILETYPEATTRIBUTEFLAGS &,enum FILETYPEATTRIBUTEFLAGS)" (??_4@YAAAW4FILETYPEATTRIBUTEFLAGS@@AAW40@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS & __cdecl operator|=(enum FILETYPEATTRIBUTEFLAGS &,enum FILETYPEATTRIBUTEFLAGS)" (??_5@YAAAW4FILETYPEATTRIBUTEFLAGS@@AAW40@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS & __cdecl operator^=(enum FILETYPEATTRIBUTEFLAGS &,enum FILETYPEATTRIBUTEFLAGS)" (??_6@YAAAW4FILETYPEATTRIBUTEFLAGS@@AAW40@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "unsigned char * __cdecl _mbschr(unsigned char *,unsigned int)" (?_mbschr@@YAPAEPAEI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "unsigned char * __cdecl _mbschr_l(unsigned char *,unsigned int,struct localeinfo_struct *)" (?_mbschr_l@@YAPAEPAEIPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "unsigned char * __cdecl _mbspbrk(unsigned char *,unsigned char const *)" (?_mbspbrk@@YAPAEPAEPBE@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "unsigned char * __cdecl _mbspbrk_l(unsigned char *,unsigned char const *,struct localeinfo_struct *)" (?_mbspbrk_l@@YAPAEPAEPBEPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "unsigned char * __cdecl _mbsrchr(unsigned char *,unsigned int)" (?_mbsrchr@@YAPAEPAEI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "unsigned char * __cdecl _mbsrchr_l(unsigned char *,unsigned int,struct localeinfo_struct *)" (?_mbsrchr_l@@YAPAEPAEIPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "unsigned char * __cdecl _mbsstr(unsigned char *,unsigned char const *)" (?_mbsstr@@YAPAEPAEPBE@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "unsigned char * __cdecl _mbsstr_l(unsigned char *,unsigned char const *,struct localeinfo_struct *)" (?_mbsstr_l@@YAPAEPAEPBEPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "char * __cdecl _tcschr(char *,unsigned int)" (?_tcschr@@YAPADPADI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "char * __cdecl _tcspbrk(char *,char const *)" (?_tcspbrk@@YAPADPADPBD@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "char * __cdecl _tcsrchr(char *,unsigned int)" (?_tcsrchr@@YAPADPADI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "char * __cdecl _tcsstr(char *,char const *)" (?_tcsstr@@YAPADPADPBD@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "float __cdecl abs(float)" (?abs@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "double __cdecl abs(double)" (?abs@@YANN@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "long double __cdecl abs(long double)" (?abs@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "float __cdecl acos(float)" (?acos@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "long double __cdecl acos(long double)" (?acos@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "float __cdecl asin(float)" (?asin@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "long double __cdecl asin(long double)" (?asin@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "float __cdecl atan2(float,float)" (?atan2@@YAMMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "long double __cdecl atan2(long double,long double)" (?atan2@@YAOOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "float __cdecl atan(float)" (?atan@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "long double __cdecl atan(long double)" (?atan@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "float __cdecl ceil(float)" (?ceil@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "long double __cdecl ceil(long double)" (?ceil@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "float __cdecl cos(float)" (?cos@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "long double __cdecl cos(long double)" (?cos@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "float __cdecl cosh(float)" (?cosh@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "long double __cdecl cosh(long double)" (?cosh@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "float __cdecl exp(float)" (?exp@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "long double __cdecl exp(long double)" (?exp@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "float __cdecl fabs(float)" (?fabs@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "long double __cdecl fabs(long double)" (?fabs@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "float __cdecl floor(float)" (?floor@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "long double __cdecl floor(long double)" (?floor@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "float __cdecl fmod(float,float)" (?fmod@@YAMMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "long double __cdecl fmod(long double,long double)" (?fmod@@YAOOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "float __cdecl frexp(float,int *)" (?frexp@@YAMMPAH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "long double __cdecl frexp(long double,int *)" (?frexp@@YAOOPAH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "float __cdecl ldexp(float,int)" (?ldexp@@YAMMH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "long double __cdecl ldexp(long double,int)" (?ldexp@@YAOOH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "float __cdecl log10(float)" (?log10@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "long double __cdecl log10(long double)" (?log10@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "float __cdecl log(float)" (?log@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "long double __cdecl log(long double)" (?log@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "float __cdecl modf(float,float *)" (?modf@@YAMMPAM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "long double __cdecl modf(long double,long double *)" (?modf@@YAOOPAO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "float __cdecl pow(float,int)" (?pow@@YAMMH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "float __cdecl pow(float,float)" (?pow@@YAMMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "double __cdecl pow(double,int)" (?pow@@YANNH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "long double __cdecl pow(long double,int)" (?pow@@YAOOH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "long double __cdecl pow(long double,long double)" (?pow@@YAOOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "float __cdecl sin(float)" (?sin@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "long double __cdecl sin(long double)" (?sin@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "float __cdecl sinh(float)" (?sinh@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "long double __cdecl sinh(long double)" (?sinh@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "float __cdecl sqrt(float)" (?sqrt@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "long double __cdecl sqrt(long double)" (?sqrt@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "float __cdecl tan(float)" (?tan@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "long double __cdecl tan(long double)" (?tan@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "float __cdecl tanh(float)" (?tanh@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "long double __cdecl tanh(long double)" (?tanh@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "wchar_t * __cdecl wmemchr(wchar_t *,wchar_t,unsigned int)" (?wmemchr@@YAPA_WPA_W_WI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _PropVariantInit 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _SHLocalStrDupA 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _SHLocalStrDupW 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: __chgsignl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: __copysignl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _acosf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _acosl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _asinf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _asinl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _atan2f 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _atan2l 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _atanf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _atanl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _ceilf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _ceill 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _cosf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _coshf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _coshl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _cosl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _expf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _expl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _fabsf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _fabsl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _floorf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _floorl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _fmodf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _fmodl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _frexpf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _frexpl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _getwchar 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _ldexpf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _ldexpl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _log10f 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _log10l 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _logf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _logl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _modff 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _modfl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _powf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _powl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _putwchar 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _sinf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _sinhf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _sinhl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _sinl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _sqrtf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _sqrtl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _tanf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _tanhf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _tanhl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: _tanl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_sclient.obj : warning LNK4006: "char * PHP_PATH" (?PHP_PATH@@3PADA) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator&(enum FILETYPEATTRIBUTEFLAGS,enum FILETYPEATTRIBUTEFLAGS)" (??I@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@0@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator~(enum FILETYPEATTRIBUTEFLAGS)" (??S@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator^(enum FILETYPEATTRIBUTEFLAGS,enum FILETYPEATTRIBUTEFLAGS)" (??T@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@0@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator|(enum FILETYPEATTRIBUTEFLAGS,enum FILETYPEATTRIBUTEFLAGS)" (??U@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@0@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS & __cdecl operator&=(enum FILETYPEATTRIBUTEFLAGS &,enum FILETYPEATTRIBUTEFLAGS)" (??_4@YAAAW4FILETYPEATTRIBUTEFLAGS@@AAW40@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS & __cdecl operator|=(enum FILETYPEATTRIBUTEFLAGS &,enum FILETYPEATTRIBUTEFLAGS)" (??_5@YAAAW4FILETYPEATTRIBUTEFLAGS@@AAW40@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS & __cdecl operator^=(enum FILETYPEATTRIBUTEFLAGS &,enum FILETYPEATTRIBUTEFLAGS)" (??_6@YAAAW4FILETYPEATTRIBUTEFLAGS@@AAW40@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "unsigned char * __cdecl _mbschr(unsigned char *,unsigned int)" (?_mbschr@@YAPAEPAEI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "unsigned char * __cdecl _mbschr_l(unsigned char *,unsigned int,struct localeinfo_struct *)" (?_mbschr_l@@YAPAEPAEIPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "unsigned char * __cdecl _mbspbrk(unsigned char *,unsigned char const *)" (?_mbspbrk@@YAPAEPAEPBE@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "unsigned char * __cdecl _mbspbrk_l(unsigned char *,unsigned char const *,struct localeinfo_struct *)" (?_mbspbrk_l@@YAPAEPAEPBEPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "unsigned char * __cdecl _mbsrchr(unsigned char *,unsigned int)" (?_mbsrchr@@YAPAEPAEI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "unsigned char * __cdecl _mbsrchr_l(unsigned char *,unsigned int,struct localeinfo_struct *)" (?_mbsrchr_l@@YAPAEPAEIPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "unsigned char * __cdecl _mbsstr(unsigned char *,unsigned char const *)" (?_mbsstr@@YAPAEPAEPBE@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "unsigned char * __cdecl _mbsstr_l(unsigned char *,unsigned char const *,struct localeinfo_struct *)" (?_mbsstr_l@@YAPAEPAEPBEPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "char * __cdecl _tcschr(char *,unsigned int)" (?_tcschr@@YAPADPADI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "char * __cdecl _tcspbrk(char *,char const *)" (?_tcspbrk@@YAPADPADPBD@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "char * __cdecl _tcsrchr(char *,unsigned int)" (?_tcsrchr@@YAPADPADI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "char * __cdecl _tcsstr(char *,char const *)" (?_tcsstr@@YAPADPADPBD@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "float __cdecl abs(float)" (?abs@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "double __cdecl abs(double)" (?abs@@YANN@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "long double __cdecl abs(long double)" (?abs@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "float __cdecl acos(float)" (?acos@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "long double __cdecl acos(long double)" (?acos@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "float __cdecl asin(float)" (?asin@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "long double __cdecl asin(long double)" (?asin@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "float __cdecl atan2(float,float)" (?atan2@@YAMMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "long double __cdecl atan2(long double,long double)" (?atan2@@YAOOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "float __cdecl atan(float)" (?atan@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "long double __cdecl atan(long double)" (?atan@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "float __cdecl ceil(float)" (?ceil@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "long double __cdecl ceil(long double)" (?ceil@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "float __cdecl cos(float)" (?cos@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "long double __cdecl cos(long double)" (?cos@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "float __cdecl cosh(float)" (?cosh@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "long double __cdecl cosh(long double)" (?cosh@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "float __cdecl exp(float)" (?exp@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "long double __cdecl exp(long double)" (?exp@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "float __cdecl fabs(float)" (?fabs@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "long double __cdecl fabs(long double)" (?fabs@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "float __cdecl floor(float)" (?floor@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "long double __cdecl floor(long double)" (?floor@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "float __cdecl fmod(float,float)" (?fmod@@YAMMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "long double __cdecl fmod(long double,long double)" (?fmod@@YAOOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "float __cdecl frexp(float,int *)" (?frexp@@YAMMPAH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "long double __cdecl frexp(long double,int *)" (?frexp@@YAOOPAH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "float __cdecl ldexp(float,int)" (?ldexp@@YAMMH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "long double __cdecl ldexp(long double,int)" (?ldexp@@YAOOH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "float __cdecl log10(float)" (?log10@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "long double __cdecl log10(long double)" (?log10@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "float __cdecl log(float)" (?log@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "long double __cdecl log(long double)" (?log@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "float __cdecl modf(float,float *)" (?modf@@YAMMPAM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "long double __cdecl modf(long double,long double *)" (?modf@@YAOOPAO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "float __cdecl pow(float,int)" (?pow@@YAMMH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "float __cdecl pow(float,float)" (?pow@@YAMMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "double __cdecl pow(double,int)" (?pow@@YANNH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "long double __cdecl pow(long double,int)" (?pow@@YAOOH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "long double __cdecl pow(long double,long double)" (?pow@@YAOOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "float __cdecl sin(float)" (?sin@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "long double __cdecl sin(long double)" (?sin@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "float __cdecl sinh(float)" (?sinh@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "long double __cdecl sinh(long double)" (?sinh@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "float __cdecl sqrt(float)" (?sqrt@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "long double __cdecl sqrt(long double)" (?sqrt@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "float __cdecl tan(float)" (?tan@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "long double __cdecl tan(long double)" (?tan@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "float __cdecl tanh(float)" (?tanh@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "long double __cdecl tanh(long double)" (?tanh@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "wchar_t * __cdecl wmemchr(wchar_t *,wchar_t,unsigned int)" (?wmemchr@@YAPA_WPA_W_WI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _PropVariantInit 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _SHLocalStrDupA 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _SHLocalStrDupW 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: __chgsignl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: __copysignl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _acosf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _acosl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _asinf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _asinl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _atan2f 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _atan2l 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _atanf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _atanl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _ceilf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _ceill 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _cosf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _coshf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _coshl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _cosl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _expf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _expl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _fabsf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _fabsl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _floorf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _floorl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _fmodf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _fmodl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _frexpf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _frexpl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _getwchar 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _ldexpf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _ldexpl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _log10f 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _log10l 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _logf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _logl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _modff 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _modfl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _powf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _powl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _putwchar 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _sinf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _sinhf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _sinhl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _sinl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _sqrtf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _sqrtl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _tanf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _tanhf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _tanhl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: _tanl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_server.obj : warning LNK4006: "char * PHP_PATH" (?PHP_PATH@@3PADA) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_select_socket_map.obj : warning LNK4006: "void * __cdecl operator new(unsigned int,void *)" (??2@YAPAXIPAX@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_select_socket_map.obj : warning LNK4006: "void __cdecl operator delete(void *,void *)" (??3@YAXPAX0@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_string.obj : warning LNK4006: "double __cdecl pow(double,int)" (?pow@@YANNH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator&(enum FILETYPEATTRIBUTEFLAGS,enum FILETYPEATTRIBUTEFLAGS)" (??I@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@0@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator~(enum FILETYPEATTRIBUTEFLAGS)" (??S@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator^(enum FILETYPEATTRIBUTEFLAGS,enum FILETYPEATTRIBUTEFLAGS)" (??T@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@0@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator|(enum FILETYPEATTRIBUTEFLAGS,enum FILETYPEATTRIBUTEFLAGS)" (??U@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@0@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS & __cdecl operator&=(enum FILETYPEATTRIBUTEFLAGS &,enum FILETYPEATTRIBUTEFLAGS)" (??_4@YAAAW4FILETYPEATTRIBUTEFLAGS@@AAW40@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS & __cdecl operator|=(enum FILETYPEATTRIBUTEFLAGS &,enum FILETYPEATTRIBUTEFLAGS)" (??_5@YAAAW4FILETYPEATTRIBUTEFLAGS@@AAW40@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS & __cdecl operator^=(enum FILETYPEATTRIBUTEFLAGS &,enum FILETYPEATTRIBUTEFLAGS)" (??_6@YAAAW4FILETYPEATTRIBUTEFLAGS@@AAW40@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "unsigned char * __cdecl _mbschr(unsigned char *,unsigned int)" (?_mbschr@@YAPAEPAEI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "unsigned char * __cdecl _mbschr_l(unsigned char *,unsigned int,struct localeinfo_struct *)" (?_mbschr_l@@YAPAEPAEIPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "unsigned char * __cdecl _mbspbrk(unsigned char *,unsigned char const *)" (?_mbspbrk@@YAPAEPAEPBE@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "unsigned char * __cdecl _mbspbrk_l(unsigned char *,unsigned char const *,struct localeinfo_struct *)" (?_mbspbrk_l@@YAPAEPAEPBEPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "unsigned char * __cdecl _mbsrchr(unsigned char *,unsigned int)" (?_mbsrchr@@YAPAEPAEI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "unsigned char * __cdecl _mbsrchr_l(unsigned char *,unsigned int,struct localeinfo_struct *)" (?_mbsrchr_l@@YAPAEPAEIPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "unsigned char * __cdecl _mbsstr(unsigned char *,unsigned char const *)" (?_mbsstr@@YAPAEPAEPBE@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "unsigned char * __cdecl _mbsstr_l(unsigned char *,unsigned char const *,struct localeinfo_struct *)" (?_mbsstr_l@@YAPAEPAEPBEPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "char * __cdecl _tcschr(char *,unsigned int)" (?_tcschr@@YAPADPADI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "char * __cdecl _tcspbrk(char *,char const *)" (?_tcspbrk@@YAPADPADPBD@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "char * __cdecl _tcsrchr(char *,unsigned int)" (?_tcsrchr@@YAPADPADI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "char * __cdecl _tcsstr(char *,char const *)" (?_tcsstr@@YAPADPADPBD@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "float __cdecl abs(float)" (?abs@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "double __cdecl abs(double)" (?abs@@YANN@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "long double __cdecl abs(long double)" (?abs@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "float __cdecl acos(float)" (?acos@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "long double __cdecl acos(long double)" (?acos@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "float __cdecl asin(float)" (?asin@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "long double __cdecl asin(long double)" (?asin@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "float __cdecl atan2(float,float)" (?atan2@@YAMMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "long double __cdecl atan2(long double,long double)" (?atan2@@YAOOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "float __cdecl atan(float)" (?atan@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "long double __cdecl atan(long double)" (?atan@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "float __cdecl ceil(float)" (?ceil@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "long double __cdecl ceil(long double)" (?ceil@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "float __cdecl cos(float)" (?cos@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "long double __cdecl cos(long double)" (?cos@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "float __cdecl cosh(float)" (?cosh@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "long double __cdecl cosh(long double)" (?cosh@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "float __cdecl exp(float)" (?exp@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "long double __cdecl exp(long double)" (?exp@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "float __cdecl fabs(float)" (?fabs@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "long double __cdecl fabs(long double)" (?fabs@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "float __cdecl floor(float)" (?floor@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "long double __cdecl floor(long double)" (?floor@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "float __cdecl fmod(float,float)" (?fmod@@YAMMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "long double __cdecl fmod(long double,long double)" (?fmod@@YAOOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "float __cdecl frexp(float,int *)" (?frexp@@YAMMPAH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "long double __cdecl frexp(long double,int *)" (?frexp@@YAOOPAH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "float __cdecl ldexp(float,int)" (?ldexp@@YAMMH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "long double __cdecl ldexp(long double,int)" (?ldexp@@YAOOH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "float __cdecl log10(float)" (?log10@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "long double __cdecl log10(long double)" (?log10@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "float __cdecl log(float)" (?log@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "long double __cdecl log(long double)" (?log@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "float __cdecl modf(float,float *)" (?modf@@YAMMPAM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "long double __cdecl modf(long double,long double *)" (?modf@@YAOOPAO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "float __cdecl pow(float,int)" (?pow@@YAMMH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "float __cdecl pow(float,float)" (?pow@@YAMMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "double __cdecl pow(double,int)" (?pow@@YANNH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "long double __cdecl pow(long double,int)" (?pow@@YAOOH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "long double __cdecl pow(long double,long double)" (?pow@@YAOOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "float __cdecl sin(float)" (?sin@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "long double __cdecl sin(long double)" (?sin@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "float __cdecl sinh(float)" (?sinh@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "long double __cdecl sinh(long double)" (?sinh@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "float __cdecl sqrt(float)" (?sqrt@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "long double __cdecl sqrt(long double)" (?sqrt@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "float __cdecl tan(float)" (?tan@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "long double __cdecl tan(long double)" (?tan@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "float __cdecl tanh(float)" (?tanh@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "long double __cdecl tanh(long double)" (?tanh@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "wchar_t * __cdecl wmemchr(wchar_t *,wchar_t,unsigned int)" (?wmemchr@@YAPA_WPA_W_WI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _PropVariantInit 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _SHLocalStrDupA 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _SHLocalStrDupW 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: __chgsignl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: __copysignl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _acosf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _acosl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _asinf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _asinl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _atan2f 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _atan2l 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _atanf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _atanl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _ceilf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _ceill 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _cosf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _coshf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _coshl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _cosl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _expf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _expl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _fabsf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _fabsl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _floorf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _floorl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _fmodf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _fmodl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _frexpf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _frexpl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _getwchar 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _ldexpf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _ldexpl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _log10f 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _log10l 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _logf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _logl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _modff 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _modfl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _powf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _powl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _putwchar 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _sinf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _sinhf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _sinhl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _sinl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _sqrtf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _sqrtl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _tanf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _tanhf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _tanhl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: _tanl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing.obj : warning LNK4006: "char * PHP_PATH" (?PHP_PATH@@3PADA) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator&(enum FILETYPEATTRIBUTEFLAGS,enum FILETYPEATTRIBUTEFLAGS)" (??I@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@0@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator~(enum FILETYPEATTRIBUTEFLAGS)" (??S@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator^(enum FILETYPEATTRIBUTEFLAGS,enum FILETYPEATTRIBUTEFLAGS)" (??T@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@0@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS __cdecl operator|(enum FILETYPEATTRIBUTEFLAGS,enum FILETYPEATTRIBUTEFLAGS)" (??U@YA?AW4FILETYPEATTRIBUTEFLAGS@@W40@0@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS & __cdecl operator&=(enum FILETYPEATTRIBUTEFLAGS &,enum FILETYPEATTRIBUTEFLAGS)" (??_4@YAAAW4FILETYPEATTRIBUTEFLAGS@@AAW40@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS & __cdecl operator|=(enum FILETYPEATTRIBUTEFLAGS &,enum FILETYPEATTRIBUTEFLAGS)" (??_5@YAAAW4FILETYPEATTRIBUTEFLAGS@@AAW40@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "enum FILETYPEATTRIBUTEFLAGS & __cdecl operator^=(enum FILETYPEATTRIBUTEFLAGS &,enum FILETYPEATTRIBUTEFLAGS)" (??_6@YAAAW4FILETYPEATTRIBUTEFLAGS@@AAW40@W40@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "unsigned char * __cdecl _mbschr(unsigned char *,unsigned int)" (?_mbschr@@YAPAEPAEI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "unsigned char * __cdecl _mbschr_l(unsigned char *,unsigned int,struct localeinfo_struct *)" (?_mbschr_l@@YAPAEPAEIPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "unsigned char * __cdecl _mbspbrk(unsigned char *,unsigned char const *)" (?_mbspbrk@@YAPAEPAEPBE@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "unsigned char * __cdecl _mbspbrk_l(unsigned char *,unsigned char const *,struct localeinfo_struct *)" (?_mbspbrk_l@@YAPAEPAEPBEPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "unsigned char * __cdecl _mbsrchr(unsigned char *,unsigned int)" (?_mbsrchr@@YAPAEPAEI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "unsigned char * __cdecl _mbsrchr_l(unsigned char *,unsigned int,struct localeinfo_struct *)" (?_mbsrchr_l@@YAPAEPAEIPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "unsigned char * __cdecl _mbsstr(unsigned char *,unsigned char const *)" (?_mbsstr@@YAPAEPAEPBE@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "unsigned char * __cdecl _mbsstr_l(unsigned char *,unsigned char const *,struct localeinfo_struct *)" (?_mbsstr_l@@YAPAEPAEPBEPAUlocaleinfo_struct@@@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "char * __cdecl _tcschr(char *,unsigned int)" (?_tcschr@@YAPADPADI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "char * __cdecl _tcspbrk(char *,char const *)" (?_tcspbrk@@YAPADPADPBD@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "char * __cdecl _tcsrchr(char *,unsigned int)" (?_tcsrchr@@YAPADPADI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "char * __cdecl _tcsstr(char *,char const *)" (?_tcsstr@@YAPADPADPBD@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "float __cdecl abs(float)" (?abs@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "double __cdecl abs(double)" (?abs@@YANN@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "long double __cdecl abs(long double)" (?abs@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "float __cdecl acos(float)" (?acos@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "long double __cdecl acos(long double)" (?acos@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "float __cdecl asin(float)" (?asin@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "long double __cdecl asin(long double)" (?asin@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "float __cdecl atan2(float,float)" (?atan2@@YAMMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "long double __cdecl atan2(long double,long double)" (?atan2@@YAOOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "float __cdecl atan(float)" (?atan@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "long double __cdecl atan(long double)" (?atan@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "float __cdecl ceil(float)" (?ceil@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "long double __cdecl ceil(long double)" (?ceil@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "float __cdecl cos(float)" (?cos@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "long double __cdecl cos(long double)" (?cos@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "float __cdecl cosh(float)" (?cosh@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "long double __cdecl cosh(long double)" (?cosh@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "float __cdecl exp(float)" (?exp@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "long double __cdecl exp(long double)" (?exp@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "float __cdecl fabs(float)" (?fabs@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "long double __cdecl fabs(long double)" (?fabs@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "float __cdecl floor(float)" (?floor@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "long double __cdecl floor(long double)" (?floor@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "float __cdecl fmod(float,float)" (?fmod@@YAMMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "long double __cdecl fmod(long double,long double)" (?fmod@@YAOOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "float __cdecl frexp(float,int *)" (?frexp@@YAMMPAH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "long double __cdecl frexp(long double,int *)" (?frexp@@YAOOPAH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "float __cdecl ldexp(float,int)" (?ldexp@@YAMMH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "long double __cdecl ldexp(long double,int)" (?ldexp@@YAOOH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "float __cdecl log10(float)" (?log10@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "long double __cdecl log10(long double)" (?log10@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "float __cdecl log(float)" (?log@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "long double __cdecl log(long double)" (?log@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "float __cdecl modf(float,float *)" (?modf@@YAMMPAM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "long double __cdecl modf(long double,long double *)" (?modf@@YAOOPAO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "float __cdecl pow(float,int)" (?pow@@YAMMH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "float __cdecl pow(float,float)" (?pow@@YAMMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "double __cdecl pow(double,int)" (?pow@@YANNH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "long double __cdecl pow(long double,int)" (?pow@@YAOOH@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "long double __cdecl pow(long double,long double)" (?pow@@YAOOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "float __cdecl sin(float)" (?sin@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "long double __cdecl sin(long double)" (?sin@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "float __cdecl sinh(float)" (?sinh@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "long double __cdecl sinh(long double)" (?sinh@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "float __cdecl sqrt(float)" (?sqrt@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "long double __cdecl sqrt(long double)" (?sqrt@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "float __cdecl tan(float)" (?tan@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "long double __cdecl tan(long double)" (?tan@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "float __cdecl tanh(float)" (?tanh@@YAMM@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "long double __cdecl tanh(long double)" (?tanh@@YAOO@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "wchar_t * __cdecl wmemchr(wchar_t *,wchar_t,unsigned int)" (?wmemchr@@YAPA_WPA_W_WI@Z) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _PropVariantInit 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _SHLocalStrDupA 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _SHLocalStrDupW 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: __chgsignl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: __copysignl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _acosf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _acosl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _asinf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _asinl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _atan2f 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _atan2l 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _atanf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _atanl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _ceilf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _ceill 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _cosf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _coshf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _coshl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _cosl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _expf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _expl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _fabsf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _fabsl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _floorf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _floorl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _fmodf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _fmodl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _frexpf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _frexpl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _getwchar 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _ldexpf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _ldexpl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _log10f 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _log10l 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _logf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _logl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _modff 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _modfl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _powf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _powl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _putwchar 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _sinf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _sinhf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _sinhl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _sinl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _sqrtf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _sqrtl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _tanf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _tanhf 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _tanhl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: _tanl 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_windows.obj : warning LNK4006: "char * PHP_PATH" (?PHP_PATH@@3PADA) 已在 wing_base.obj 中定义；已忽略第二个定义
+     1>wing_wmic.obj : warning LNK4006: "public: __thiscall _bstr_t::Data_t::Data_t(char const *)" (??0Data_t@_bstr_t@@QAE@PBD@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_wmic.obj : warning LNK4006: "public: __thiscall _bstr_t::Data_t::Data_t(wchar_t const *)" (??0Data_t@_bstr_t@@QAE@PB_W@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_wmic.obj : warning LNK4006: "public: __thiscall _bstr_t::_bstr_t(char const *)" (??0_bstr_t@@QAE@PBD@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_wmic.obj : warning LNK4006: "public: __thiscall _bstr_t::_bstr_t(wchar_t const *)" (??0_bstr_t@@QAE@PB_W@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_wmic.obj : warning LNK4006: "private: __thiscall _bstr_t::Data_t::~Data_t(void)" (??1Data_t@_bstr_t@@AAE@XZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_wmic.obj : warning LNK4006: "public: __thiscall _bstr_t::~_bstr_t(void)" (??1_bstr_t@@QAE@XZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_wmic.obj : warning LNK4006: "public: static void * __cdecl _bstr_t::Data_t::operator new(unsigned int)" (??2Data_t@_bstr_t@@SAPAXI@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_wmic.obj : warning LNK4006: "public: __thiscall _bstr_t::operator wchar_t *(void)const " (??B_bstr_t@@QBEPA_WXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_wmic.obj : warning LNK4006: "public: wchar_t * & __thiscall _bstr_t::Data_t::GetWString(void)" (?GetWString@Data_t@_bstr_t@@QAEAAPA_WXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_wmic.obj : warning LNK4006: "public: unsigned long __thiscall _bstr_t::Data_t::Release(void)" (?Release@Data_t@_bstr_t@@QAEKXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_wmic.obj : warning LNK4006: "private: void __thiscall _bstr_t::Data_t::_Free(void)" (?_Free@Data_t@_bstr_t@@AAEXXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>wing_wmic.obj : warning LNK4006: "private: void __thiscall _bstr_t::_Free(void)" (?_Free@_bstr_t@@AAEXXZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>comsuppwd.lib(comutil.obj) : warning LNK4006: "public: __thiscall _variant_t::_variant_t(long,unsigned short)" (??0_variant_t@@QAE@JG@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>comsuppwd.lib(comutil.obj) : warning LNK4006: "public: __thiscall _variant_t::~_variant_t(void)" (??1_variant_t@@QAE@XZ) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>comsuppwd.lib(comraise.obj) : warning LNK4006: "public: __thiscall _com_error::_com_error(class _com_error const &)" (??0_com_error@@QAE@ABV0@@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>comsuppwd.lib(comraise.obj) : warning LNK4006: "public: __thiscall _com_error::_com_error(long,struct IErrorInfo *,bool)" (??0_com_error@@QAE@JPAUIErrorInfo@@_N@Z) 已在 wing_com.obj 中定义；已忽略第二个定义
+     1>comsuppwd.lib(comraise.obj) : warning LNK4006: "public: virtual __thiscall _com_error::~_com_error(void)" (??1_com_error@@UAE@XZ) 已在 wing_com.obj 中定义；已忽略第二个定义
             正在创建库 .\Debug_TS\php_wing.lib 和对象 .\Debug_TS\php_wing.exp
+     1>..\..\Debug_TS/php_wing.dll : warning LNK4088: 因 /FORCE 选项生成了映像；映像可能不能运行
          wing.vcxproj -> D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\.\Debug_TS\wing.dll
      1>已完成生成项目“D:\php\php-sdk\phpdev\vc11\x86\php-5.6.20\ext\wing\wing.vcxproj”(Build 个目标)的操作。
 
 生成成功。
 
-已用时间 00:00:00.99
+已用时间 00:00:00.70

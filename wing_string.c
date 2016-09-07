@@ -1,5 +1,7 @@
 /**
  *@×Ö·û´®´¦Àí
+ *@auth yuyi
+ *@email 297341015@qq.com
  */
 #include "wing_string.h"
 #include "stdio.h"

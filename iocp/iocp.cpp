@@ -64,7 +64,7 @@ private:
 	int   m_recv_timeout;     //recv timeout
 	int   m_send_timeout;     //send timeout
 	
-	unsigned long* m_povs;  //clients 
+	unsigned long* m_povs;    //clients 
 
 	//iocp worker
 	static VOID CALLBACK worker( 
@@ -91,8 +91,6 @@ private:
 	static void onclose( iocp_overlapped *&povl );
 	static void onrecv( iocp_overlapped *&povl );
 	static void onsend( iocp_overlapped *&povl );
-	static void onrun( iocp_overlapped *&povl, DWORD errorcode, int last_error );
-
 	static void onaccept(iocp_overlapped *&pOL);
 
 public:
@@ -100,7 +98,7 @@ public:
 	WingIOCP(
 		const char* listen       = "0.0.0.0",
 		const int   port         = 6998,  
-		const int   max_connect  = 10,
+		const int   max_connect  = 2,
 		const int   recv_timeout = 3000,
 		const int   send_timeout = 3000
 		);
@@ -171,6 +169,7 @@ void WingIOCP::wait(){
 	 pOL->m_online = 1;
 	 pOL->m_active = time(NULL);
 
+
 	 if( setsockopt( pOL->m_skClient, SOL_SOCKET,SO_UPDATE_ACCEPT_CONTEXT,(const char *)&pOL->m_skServer,sizeof(pOL->m_skServer) ) != 0 )
 	 {
 		 //setsockopt fail
@@ -178,12 +177,6 @@ void WingIOCP::wait(){
 		 WSASetLastError(0);
 		 return;
 	 }
-	// BOOL bReuse = 1;
-	// if( 0 != ::setsockopt( pOL->m_skClient, SOL_SOCKET, SO_REUSEADDR,(LPCSTR)&bReuse, sizeof(BOOL) ) )
-	 //{
-		 //some error happened
-		 
-	 //}
 
 	 // set send timeout
 	 if( pOL->m_send_timeout > 0 )
@@ -206,7 +199,7 @@ void WingIOCP::wait(){
 	 linger so_linger;
 	 so_linger.l_onoff	= TRUE;
 	 so_linger.l_linger	= 5; // without close wait status
-	 if( setsockopt( pOL->m_skClient,SOL_SOCKET,SO_LINGER,(const char*)&so_linger,sizeof(so_linger) ) != 0 ){
+	 if( setsockopt( pOL->m_skClient, SOL_SOCKET, SO_LINGER, (const char*)&so_linger, sizeof(so_linger) ) != 0 ){
 		 printf("31=>onconnect some error happened , error code %d \r\n", WSAGetLastError());
 	 } 
 
@@ -227,20 +220,20 @@ void WingIOCP::wait(){
 	 DWORD dw	= 0;
 	 tcp_keepalive live,liveout ;     
 	 live.keepaliveinterval	= 1000;     //连接之后 多长时间发现无活动 开始发送心跳吧 单位为毫秒 
-	 live.keepalivetime		= 200;     //多长时间发送一次心跳包 1分钟是 60000 以此类推     
+	 live.keepalivetime		= 500;     //多长时间发送一次心跳包 1分钟是 60000 以此类推     
 	 live.onoff				= TRUE;     //是否开启 keepalive
 
 	 if( setsockopt( pOL->m_skClient, SOL_SOCKET, SO_KEEPALIVE, (char *)&dt, sizeof(dt) ) == 0 )
 	 {
 		 //setsockopt fail
-		 if( WSAIoctl(   pOL->m_skClient, SIO_KEEPALIVE_VALS, &live, sizeof(live), &liveout, sizeof(liveout), &dw, &pOL->m_ol , NULL ) == SOCKET_ERROR )
+		 if( WSAIoctl( pOL->m_skClient, SIO_KEEPALIVE_VALS, &live, sizeof(live), &liveout, sizeof(liveout), &dw, &pOL->m_ol , NULL ) == SOCKET_ERROR )
 		 {
 			 //WSAIoctl error
 			 printf("6=>onconnect some error happened , error code %d \r\n", WSAGetLastError());
 		 }
 	 } else  printf("5=>onconnect some error happened , error code %d \r\n", WSAGetLastError());
 
-	 memset(pOL->m_pBuf,0,DATA_BUFSIZE);
+	 ZeroMemory( pOL->m_pBuf, DATA_BUFSIZE );
 	 //post recv
 	 pOL->m_DataBuf.buf	= pOL->m_pBuf;  
 	 pOL->m_DataBuf.len	= DATA_BUFSIZE;  
@@ -249,7 +242,7 @@ void WingIOCP::wait(){
 	 DWORD RecvBytes		= 0;
 	 DWORD Flags			= 0;
 
-	 int code		    = WSARecv(pOL->m_skClient,&(pOL->m_DataBuf),1,&RecvBytes,&Flags,&(pOL->m_ol),NULL);
+	 int code		    = WSARecv( pOL->m_skClient, &(pOL->m_DataBuf), 1, &RecvBytes, &Flags, &(pOL->m_ol), NULL );
 	 int error_code	    = WSAGetLastError();
 
 	 if( 0 != code )
@@ -295,7 +288,7 @@ void WingIOCP::wait(){
 	  
 	  //printf("21=>ondisconnect some error happened , error code %d \r\n================================================\r\n\r\n", WSAGetLastError());
 	 if( !BindIoCompletionCallback( (HANDLE)pOL->m_skClient ,worker,0) ){
-		  printf("BindIoCompletionCallback error %ld\r\n",WSAGetLastError());
+		//  printf("BindIoCompletionCallback error %ld\r\n",WSAGetLastError());
 	 }
 	 WSASetLastError(0);
 
@@ -306,8 +299,14 @@ void WingIOCP::wait(){
 	 pOL->m_iOpType	 = OP_ONCONNECT;                        //reset status
 	 ZeroMemory( &pOL->m_ol,sizeof(OVERLAPPED));
 	 printf("%ld reuse socket real complete , error code %d \r\n", pOL->m_skClient,WSAGetLastError());
-
-	 WSASetLastError(0);
+	// WSASetLastError(0);
+	// if( setsockopt( pOL->m_skClient, SOL_SOCKET,SO_UPDATE_ACCEPT_CONTEXT,(const char *)&pOL->m_skServer,sizeof(pOL->m_skServer) ) != 0 )
+	 {
+		 //setsockopt fail
+		 //printf("1=>onconnect some error happened , error code %d \r\n", WSAGetLastError());
+		 WSASetLastError(0);
+		 //return;
+	 }
  }
  void WingIOCP::onclose( iocp_overlapped *&pOL ){
 	// printf("%ld close\r\n", pOL->m_skClient);
@@ -327,7 +326,7 @@ void WingIOCP::wait(){
  void WingIOCP::onsend( iocp_overlapped *&povl ){
 
  }
- void WingIOCP::onrun( iocp_overlapped *&povl, DWORD errorcode, int last_error ){}
+
 /**
  * @ acceptex
  */
@@ -514,14 +513,24 @@ BOOL WingIOCP::start(){
 				continue;
 			}
 
-			
-
 			iocp_overlapped *povl = new iocp_overlapped();
 			if( NULL == povl )
 			{
 				closesocket(client);
 				continue;
 			}
+
+			//if( 0 != ::setsockopt( client, SOL_SOCKET, SO_REUSEADDR,(LPCSTR)&bReuse, sizeof(BOOL) ) )
+			//{
+				//some error happened
+				
+			//}
+			//if( 0 != ::setsockopt( client, SOL_SOCKET, 15,(LPCSTR)&bReuse, sizeof(BOOL) ) )
+			//{
+				//some error happened
+
+		//	}
+
 
 			DWORD dwBytes = 0;
 			ZeroMemory(povl,sizeof(iocp_overlapped));
@@ -555,7 +564,7 @@ BOOL WingIOCP::start(){
 			}
 
 
-			if( !BindIoCompletionCallback( (HANDLE)client ,worker,0) )
+			if( !BindIoCompletionCallback( (HANDLE)client, worker, 0 ) )
 			{
 				closesocket(client);
 				//continue;

@@ -25,7 +25,11 @@ void get_cpu_id( char *&processor_id ){
 	while( mic.next() ) {
 		processor_id_item = mic.get("ProcessorId");
 		if( processor_id_item != NULL )
+		{
 			ws_processor_id.append(processor_id_item);
+			free( processor_id_item );
+			processor_id_item = NULL;
+		}
 	}
  
 	processor_id = ws_processor_id.c_str();
@@ -46,7 +50,11 @@ void get_serial_number( char *&serial_number )
 	while( mic.next() ) {
 		serial_number_item = mic.get("SerialNumber");
 		if( serial_number_item != NULL )
+		{	
 			ws_serial_number.append(serial_number_item);
+			free( serial_number_item );
+			serial_number_item = NULL;
+		}
 	}
  
 	serial_number = ws_serial_number.c_str();
