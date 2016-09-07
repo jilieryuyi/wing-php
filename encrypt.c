@@ -67,6 +67,7 @@ BOOL WingDecryptFile( PCHAR szSource, PCHAR &szDestination, PCHAR szPassword)
 	char *start = szDestination;
 	
 	size_t esize = 1;
+	size_t read_size = 0;
     do {   
         dwCount = fread( pbBuffer, esize , dwBlockLen, hSource );   
         if(ferror(hSource))  
@@ -83,7 +84,11 @@ BOOL WingDecryptFile( PCHAR szSource, PCHAR &szDestination, PCHAR szPassword)
         }  
 
 		memcpy(start,pbBuffer,dwCount);
-		start+=dwCount;
+		start += dwCount;
+		
+		read_size+=dwCount;
+		if( read_size >= size ) 
+			break;
 		
 
     } while( !feof( hSource ) );   
@@ -137,7 +142,7 @@ BOOL WingEncryptFile( PCHAR szSource, PCHAR szDestination,  PCHAR szPassword)
 	fopen_s( &hSource,szSource,"rb" );
 	fopen_s( &hDestination,szDestination,"wb" );
 
-	
+	size_t size = _filelength(_fileno(hSource));
   
     //获取加密服务者句柄  
     hCryptProv = GetCryptProv();  
@@ -167,6 +172,8 @@ BOOL WingEncryptFile( PCHAR szSource, PCHAR szDestination,  PCHAR szPassword)
         return 0;    
 	}  
   
+	size_t read_size = 0;
+
     do   
     {      
         dwCount = fread(pbBuffer, 1, dwBlockLen, hSource);   
@@ -195,6 +202,10 @@ BOOL WingEncryptFile( PCHAR szSource, PCHAR szDestination,  PCHAR szPassword)
         {   
             return 0;
         }  
+
+		read_size += dwCount;
+		if( read_size >= size ) 
+			break;
   
     }   while(!feof(hSource));   
   
