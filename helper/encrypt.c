@@ -20,16 +20,20 @@ HCRYPTPROV GetCryptProv();
  */
 BOOL WingDecryptFile( PCHAR szSource, PCHAR &szDestination, PCHAR szPassword)   
 {   
-    FILE *hSource;     
-    HCRYPTPROV hCryptProv;   
-    HCRYPTKEY hKey;   
-    PBYTE pbBuffer;   
-    size_t dwBlockLen;   
-    DWORD dwBufferLen;   
-    DWORD dwCount;   
-    int size = 0;
+    FILE *hSource         = NULL;     
+    HCRYPTPROV hCryptProv = 0;   
+    HCRYPTKEY hKey        = 0;   
+    PBYTE pbBuffer        = NULL;   
+    size_t dwBlockLen     = 0;   
+    DWORD dwBufferLen     = 0;   
+
+    DWORD dwCount = 0;   
+    int size      = 0;
    
-    fopen_s( &hSource,szSource, "rb" );   
+    fopen_s( &hSource, szSource, "rb" );
+
+	if( !hSource )
+		return FALSE;
   
 	size = _filelength(_fileno(hSource));
 	
@@ -37,7 +41,8 @@ BOOL WingDecryptFile( PCHAR szSource, PCHAR &szDestination, PCHAR szPassword)
 	szDestination = (PCHAR)wing_malloc( size+1 );
 	if( !szDestination )
 	{	
-		szDestination = NULL;
+		fclose( hSource );  
+		hSource = NULL;
 		return 0;
 	}
 
@@ -45,15 +50,32 @@ BOOL WingDecryptFile( PCHAR szSource, PCHAR &szDestination, PCHAR szPassword)
 
     hCryptProv = GetCryptProv(); 
 	if( NULL == hCryptProv)
+	{
+		wing_free( szDestination );
+		szDestination = NULL;
+ 
+		fclose( hSource );  
+		hSource = NULL;
+
 		return  0;
-
-
-	
+	}
 
     hKey       = GenKeyByPassword( hCryptProv, szPassword);  
 
 	if( NULL == hKey )
+	{	
+
+		CryptReleaseContext( hCryptProv, 0 );
+		hCryptProv = NULL;
+
+		wing_free(szDestination);
+		szDestination = NULL;
+
+		fclose(hSource); 
+		hSource = NULL;
+		
 		return 0;
+	}
       
     dwBlockLen  = 1000 - 1000 % ENCRYPT_BLOCK_SIZE;   
     dwBufferLen = dwBlockLen;   
@@ -61,60 +83,63 @@ BOOL WingDecryptFile( PCHAR szSource, PCHAR &szDestination, PCHAR szPassword)
   
     if(!(pbBuffer = (BYTE *)malloc(dwBufferLen)))  
     {  
+
+		CryptDestroyKey( hKey );
+		hKey = NULL;
+
+		CryptReleaseContext( hCryptProv,0 ); 
+		hCryptProv = NULL;
+		 
+		wing_free(szDestination);
+		szDestination = NULL;
+
+		fclose( hSource );   
+		hSource = NULL;
+		  
 		return 0;  
     }  
 
 	char *start = szDestination;
 	
-	size_t esize = 1;
+	size_t esize     = 1;
 	size_t read_size = 0;
+
     do {   
         dwCount = fread( pbBuffer, esize , dwBlockLen, hSource );   
         if(ferror(hSource))  
         {  
-            return 0;
+			break;
         }  
-
-		
 
         // 解密 数据  
         if( !CryptDecrypt( hKey, 0, feof(hSource), 0, pbBuffer, &dwCount ))  
         {  
-			return 0; 
+			break; 
         }  
 
 		memcpy(start,pbBuffer,dwCount);
-		start += dwCount;
 		
-		read_size+=dwCount;
+		start     += dwCount;
+		read_size += dwCount;
+		
 		if( read_size >= (size_t)size ) 
 			break;
 		
-
     } while( !feof( hSource ) );   
   
+    fclose( hSource );   
+    hSource = NULL;
     
-    if( hSource )  
-    {  
-        fclose(hSource);   
-    }   
-
-    if( pbBuffer )   
-    {    
-		free(pbBuffer);
-	}
-   
-    if( hKey )  
-    {  
-        CryptDestroyKey(hKey); 
-    }   
+	wing_free( pbBuffer );
+	pbBuffer = NULL;
+	
+    CryptDestroyKey( hKey ); 
+    hKey = NULL;  
+ 
+    CryptReleaseContext(hCryptProv, 0); 
+    hCryptProv = NULL; 
   
-    if( hCryptProv )  
-    {  
-        CryptReleaseContext(hCryptProv, 0); 
-    }   
-  
-    return 1;  
+    return TRUE;  
 } 
   
    
@@ -127,31 +152,56 @@ BOOL WingDecryptFile( PCHAR szSource, PCHAR &szDestination, PCHAR szPassword)
 BOOL WingEncryptFile( PCHAR szSource, PCHAR szDestination,  PCHAR szPassword)  
 {  
 
-    FILE *hSource;   
-    FILE *hDestination;   
+    FILE *hSource      = NULL;   
+    FILE *hDestination = NULL;   
   
-    HCRYPTPROV hCryptProv;   
-    HCRYPTKEY hKey;   
+    HCRYPTPROV hCryptProv = NULL;   
+    HCRYPTKEY hKey        = NULL;   
   
-  
-    PBYTE pbBuffer;   
-    size_t dwBlockLen;   
-    DWORD dwBufferLen;   
-    DWORD dwCount;   
+    PBYTE pbBuffer    = NULL;   
+    size_t dwBlockLen = NULL;   
+    DWORD dwBufferLen = NULL;   
+    DWORD dwCount     = NULL;   
    
 	fopen_s( &hSource,szSource,"rb" );
-	fopen_s( &hDestination,szDestination,"wb" );
+
+	if( !hSource )
+		return FALSE;
+
+	fopen_s( &hDestination, szDestination, "wb" );
+
+	if( !hDestination )
+		return FALSE;
 
 	size_t size = _filelength(_fileno(hSource));
   
     //获取加密服务者句柄  
     hCryptProv = GetCryptProv();  
 	if( NULL == hCryptProv )
+	{
+		fclose( hSource );
+		hSource = NULL;
+
+		fclose( hDestination );
+		hDestination = NULL;
+
 		return 0;
+	}
   
     hKey = GenKeyByPassword( hCryptProv, szPassword);  
 	if( NULL == hKey )
+	{
+		fclose( hSource );
+		hSource = NULL;
+
+		fclose( hDestination );
+		hDestination = NULL;
+
+		CryptReleaseContext( hCryptProv, 0 );  
+		hCryptProv = NULL;
+
 		return  0;
+	}
          
     // 因为加密算法按ENCRYPT_BLOCK_SIZE 大小块加密，所以被加密的  
     // 数据长度必须是ENCRYPT_BLOCK_SIZE 的整数倍。下面计算一次加密的  
@@ -167,8 +217,17 @@ BOOL WingEncryptFile( PCHAR szSource, PCHAR szDestination,  PCHAR szPassword)
         dwBufferLen = dwBlockLen;   
       
     // 分配内存空间.   
-    if( !(pbBuffer = (BYTE *)malloc(dwBufferLen)) )  
+    if( !(pbBuffer = (BYTE *)wing_malloc(dwBufferLen)) )  
     {  
+		fclose( hSource );
+		hSource = NULL;
+
+		fclose( hDestination );
+		hDestination = NULL;
+
+		CryptReleaseContext( hCryptProv, 0 );  
+		hCryptProv = NULL;
+
         return 0;    
 	}  
   
@@ -179,7 +238,7 @@ BOOL WingEncryptFile( PCHAR szSource, PCHAR szDestination,  PCHAR szPassword)
         dwCount = fread(pbBuffer, 1, dwBlockLen, hSource);   
         if( ferror(hSource) )  
         {   
-            return 0;
+            break;
         }  
 
         if(!CryptEncrypt(  
@@ -192,7 +251,7 @@ BOOL WingEncryptFile( PCHAR szSource, PCHAR szDestination,  PCHAR szPassword)
             &dwCount,       //输入被加密数据实际长度，输出加密后数据长度  
             dwBufferLen))   //pbBuffer的大小。  
         {   
-           return 0;
+           break;
         }   
   
         // 把加密后数据写到密文文件中   
@@ -200,7 +259,7 @@ BOOL WingEncryptFile( PCHAR szSource, PCHAR szDestination,  PCHAR szPassword)
         fwrite(pbBuffer, 1, dwCount, hDestination);   
         if(ferror(hDestination))  
         {   
-            return 0;
+            break;
         }  
 
 		read_size += dwCount;
@@ -210,29 +269,22 @@ BOOL WingEncryptFile( PCHAR szSource, PCHAR szDestination,  PCHAR szPassword)
     }   while(!feof(hSource));   
   
 
-    if(hSource)  
-    {  
-        fclose(hSource);
-    }  
-    if( hDestination )  
-    {  
-        fclose(hDestination);  
-    }  
-  
-    if( pbBuffer )   
-    {    
-		free(pbBuffer);  
-	}
+
+    fclose(hSource);
+    hSource = NULL;
  
-    if(hKey)  
-    {  
-        CryptDestroyKey(hKey);  
-    }   
+    fclose(hDestination); 
+	hDestination = NULL;
   
-    if( hCryptProv )  
-    {  
-        CryptReleaseContext(hCryptProv, 0);  
-    }  
+	wing_free(pbBuffer); 
+	pbBuffer = NULL;
+	
+    CryptDestroyKey(hKey);  
+    hKey = NULL;
+  
+    CryptReleaseContext( hCryptProv, 0 );  
+	hCryptProv = NULL;
+
     return 1;   
 }
   
@@ -257,23 +309,27 @@ HCRYPTPROV GetCryptProv()
   
 HCRYPTKEY GenKeyByPassword(HCRYPTPROV hCryptProv,PCHAR szPassword)  
 {  
-    HCRYPTKEY hKey;   
-    HCRYPTHASH hHash;  
+    HCRYPTKEY hKey   = NULL;   
+    HCRYPTHASH hHash = NULL;
 
-    if( !CryptCreateHash( hCryptProv, CALG_MD5, 0, 0, &hHash ) )  
-    {  
-		return NULL;
-    }    
+	do{
 
-    if( !CryptHashData( hHash, (BYTE *)szPassword, (DWORD)strlen(szPassword), 0))  
-    {  
-        return NULL;  
-    }  
+		if( !CryptCreateHash( hCryptProv, CALG_MD5, 0, 0, &hHash ) )  
+		{  
+			break;
+		}    
 
-    if( !CryptDeriveKey( hCryptProv, ENCRYPT_ALGORITHM, hHash, KEYLENGTH, &hKey ) )  
-    {  
-       return NULL;  
-    }  
+		if( !CryptHashData( hHash, (BYTE *)szPassword, (DWORD)strlen(szPassword), 0))  
+		{  
+			break;
+		}  
+
+		if( !CryptDeriveKey( hCryptProv, ENCRYPT_ALGORITHM, hHash, KEYLENGTH, &hKey ) )  
+		{  
+		   break;
+		}  
+
+	}while(0);
 
     if( hHash )   
     {  
