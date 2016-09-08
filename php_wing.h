@@ -17,11 +17,8 @@
 */
 
 /* $Id$ */
-
-
 #ifndef PHP_WING_H
 #define PHP_WING_H
-
 #include "php.h"
 #include "php_ini.h"
 #include "ext/standard/info.h"
@@ -63,13 +60,13 @@ ZEND_DECLARE_MODULE_GLOBALS(wing)
 
 /* True global resources - no need for thread safety here */
 static int le_wing;
-char *PHP_PATH = NULL;
+
 
 #include "wing_message_queue.h"
 #include "wing_iocp_message_queue.h"
-#include "wing_string.h"
-#include "wing_socket_api.h"
-#include "wing_ntdll.h"
+#include "wing.h"
+#include "helper/wing_socket_api.h"
+#include "helper/wing_ntdll.h"
 #include "wing_base.h"
 
 

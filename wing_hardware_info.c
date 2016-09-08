@@ -1,16 +1,14 @@
 
 #include "php_wing.h"
-#include "wing_wmic.h" 
-#include "hardware_info.h"
-#include "wing_string.h"
+#include "wing.h" 
+#include "helper/hardware_info.h"
 #include <Iphlpapi.h>  
 #include <string.h>  
 #include <ctype.h>  
 #include <comdef.h>
 #include <Wbemidl.h>
-#include "wing_string.h"
 
-#include "wing_malloc.h"
+#include "helper/wing_malloc.h"
 
 #pragma comment(lib, "wbemuuid.lib")
 #pragma comment(lib, "Iphlpapi")  

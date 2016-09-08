@@ -1,5 +1,5 @@
 #include "php_wing.h"
-#include "wing_wmic.h"
+#include "wing.h"
 
 zend_class_entry *wing_com_ce;
 

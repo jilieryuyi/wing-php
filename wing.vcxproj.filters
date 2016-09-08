@@ -27,9 +27,6 @@
     <ClCompile Include="wing_iocp_socket_map.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wing_socket_api.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="wing_select_socket_map.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -48,34 +45,37 @@
     <ClCompile Include="wing_process.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wing_windows.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="wing_encrypt_file.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="encrypt.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="wing_hardware_info.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wing_string.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="hardware_info.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="wing_wmic.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ntdll.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="wing_malloc.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="wing_com.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wing_windows.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="helper/encrypt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="helper/hardware_info.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="helper/wing_malloc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="helper/ntdll.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="helper/wing_socket_api.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="helper/WingString.class.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="helper/WingWmic.class.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -92,31 +92,34 @@
     <ClInclude Include="wing_iocp_socket_map.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="wing_socket_api.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ntdll.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wing_ntdll.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="wing_base.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="encrypt.h">
+    <ClInclude Include="wing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="wing_string.h">
+    <ClInclude Include="helper/encrypt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="hardware_info.h">
+    <ClInclude Include="helper/hardware_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="wing_malloc.h">
+    <ClInclude Include="helper/ntdll.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="wing_wmic.h">
+    <ClInclude Include="helper/wing_malloc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="helper/wing_ntdll.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="helper/wing_socket_api.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="helper/WingString.class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="helper/WingWmic.class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

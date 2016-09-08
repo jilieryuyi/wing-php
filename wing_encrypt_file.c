@@ -1,9 +1,9 @@
 
 #include "php_wing.h"
-#include "encrypt.h"
+#include "helper/encrypt.h"
 #include <ctype.h>  
-#include "hardware_info.h"
-#include "wing_malloc.h"
+#include "helper/hardware_info.h"
+#include "helper/wing_malloc.h"
 
 
 /**

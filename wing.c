@@ -26,7 +26,7 @@ extern zend_class_entry *wing_sclient_ce;
 extern zend_class_entry *wing_select_server_ce;
 extern zend_class_entry *wing_server_ce;
 extern zend_class_entry *wing_com_ce;
-
+char *PHP_PATH = NULL;
 
 static zend_function_entry wing_select_server_methods[]={
 	ZEND_ME( wing_select_server, __construct, NULL,ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)

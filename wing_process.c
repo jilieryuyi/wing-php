@@ -1,5 +1,6 @@
 #include "php_wing.h"
 
+extern char* PHP_PATH;
 /**
  *@wait process进程等待
  *@param process id 进程id

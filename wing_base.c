@@ -76,12 +76,13 @@ void get_error_msg( char *&error_msg, int last_error ){
  */
 void wing_guid( _Out_ char *&buf TSRMLS_DC)  
 {  
-	buf = (char*)emalloc(64);
+	buf = (char*)emalloc(65);
+	ZeroMemory(buf,65);
 	CoInitialize(NULL);   
 	GUID guid;  
 	if (S_OK == ::CoCreateGuid(&guid))  
 	{  
-		  _snprintf( buf, 64*sizeof(char), "{%08X-%04X-%04x-%02X%02X-%02X%02X%02X%02X%02X%02X}"  , 
+		  _snprintf_s( buf, 65,64, "{%08X-%04X-%04x-%02X%02X-%02X%02X%02X%02X%02X%02X}"  , 
 			guid.Data1  , 
 			guid.Data2  , 
 			guid.Data3   , 
