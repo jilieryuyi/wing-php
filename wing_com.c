@@ -39,14 +39,15 @@ ZEND_METHOD( wing_com, get ){
 	}
 	zval *_com  = zend_read_property( wing_com_ce, getThis(),"com",		     strlen("com"),	        0 TSRMLS_CC);
 	long com    = Z_LVAL_P(_com);
-	char *res = NULL;
-	char *temp = NULL;
+	char *res   = NULL;
+	char *temp  = NULL;
+
 	if( com > 0 )
 	{
 		WingWmic *wcom = (WingWmic *)com;
 		temp = wcom->get((const char*)key);
 		if( temp ) { 
-			spprintf(&res,0,"%s",temp);
+			spprintf( &res, 0, "%s", temp );
 			free(temp);
 			RETURN_STRING(res,0);
 		}
@@ -62,8 +63,10 @@ ZEND_METHOD( wing_com, get ){
  * @ ²éÑ¯Ä³¸ösql
  */
 ZEND_METHOD( wing_com, query ){
-	char *sql = NULL;
+
+	char *sql   = NULL;
 	int sql_len = 0;
+
 	if ( zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC, "s",&sql, &sql_len ) != SUCCESS ) 
 	{
 		RETURN_EMPTY_STRING();

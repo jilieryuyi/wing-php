@@ -12,14 +12,14 @@
 ZEND_FUNCTION( wing_encrypt_file )
 {
 	
-	char *input_file = NULL;
+	char *input_file   = NULL;
 	int input_file_len = 0;
 
-	char *output_file = NULL;
+	char *output_file   = NULL;
 	int output_file_len = 0;
 
 	char *encrypt_password = NULL;
-	int password_len = 0;
+	int password_len       = 0;
 
 	if( zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"ss|s",&input_file,&input_file_len,&output_file,&output_file_len,&encrypt_password,&password_len) != SUCCESS) {
 		RETURN_BOOL( 0 );
@@ -76,8 +76,8 @@ ZEND_FUNCTION( wing_run_file )
 	//获取硬件加密密码
 	if( encrypt_password == NULL || strlen(encrypt_password) == 0 )
 	{
-		char *processor_id;
-		char *serial_number;
+		char *processor_id  = NULL;
+		char *serial_number = NULL;
 
 		get_cpu_id( processor_id );
 		get_serial_number( serial_number );

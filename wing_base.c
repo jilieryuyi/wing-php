@@ -82,17 +82,9 @@ void wing_guid( _Out_ char *&buf TSRMLS_DC)
 	GUID guid;  
 	if (S_OK == ::CoCreateGuid(&guid))  
 	{  
-		  _snprintf_s( buf, 65,64, "{%08X-%04X-%04x-%02X%02X-%02X%02X%02X%02X%02X%02X}"  , 
-			guid.Data1  , 
-			guid.Data2  , 
-			guid.Data3   , 
-			guid.Data4[0], 
-			guid.Data4[1]  , 
-			guid.Data4[2], 
-			guid.Data4[3],
-			guid.Data4[4], 
-			guid.Data4[5]  , 
-			guid.Data4[6], 
+		  _snprintf_s( buf, 65,64, "{%08X-%04X-%04x-%02X%02X-%02X%02X%02X%02X%02X%02X}", 
+			guid.Data1, guid.Data2, guid.Data3, guid.Data4[0], guid.Data4[1], 
+			guid.Data4[2], guid.Data4[3], guid.Data4[4], guid.Data4[5], guid.Data4[6], 
 			guid.Data4[7]  
 		   );  
 	 }  
@@ -152,12 +144,11 @@ void wing_get_command_path( const char *name ,char *&path ){
 	return;
 }
 
-
-
 /**
  * @ 获取 wing php的版本号 或者使用常量 WING_VERSION                
  */
-PHP_FUNCTION( wing_version ){
+PHP_FUNCTION( wing_version )
+{
 
 	char *string = NULL;
     int len      = spprintf(&string, 0, "%s", PHP_WING_VERSION);

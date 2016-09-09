@@ -173,7 +173,10 @@ void iocp_onrecv( iocp_overlapped*  &pOL){
 	char *recvmsg = new char[size];	    //构建消息
 	ZeroMemory(recvmsg,size);           //清零
 
-	strcpy(recvmsg,pOL->m_pBuf);                //消息拷贝
+	//strcpy(recvmsg,pOL->m_pBuf);                //消息拷贝
+
+	strcpy_s(recvmsg,size,pOL->m_pBuf);
+
 	//printf("recv:%s\r\n",pOL->m_pBuf);
 	ZeroMemory(pOL->m_pBuf,DATA_BUFSIZE);       //缓冲区清零
 

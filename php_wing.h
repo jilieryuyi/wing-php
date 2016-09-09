@@ -62,8 +62,8 @@ ZEND_DECLARE_MODULE_GLOBALS(wing)
 static int le_wing;
 
 
-#include "wing_message_queue.h"
-#include "wing_iocp_message_queue.h"
+#include "helper/wing_message_queue.h"
+#include "helper/wing_iocp_message_queue.h"
 #include "wing.h"
 #include "helper/wing_socket_api.h"
 #include "helper/wing_ntdll.h"
