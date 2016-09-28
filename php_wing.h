@@ -231,16 +231,16 @@ ZEND_METHOD(wing_server,__construct);
 ZEND_METHOD(wing_server,on);
 ZEND_METHOD(wing_server,start);
 
-PHP_FUNCTION( wing_version );
+ZEND_FUNCTION( wing_version );
 ZEND_FUNCTION( wing_get_last_error );
 ZEND_FUNCTION( wing_wsa_get_last_error );
 ZEND_FUNCTION( wing_get_error_msg );
 ZEND_FUNCTION( wing_get_memory_used );
 
-PHP_FUNCTION( wing_process_wait );
-ZEND_FUNCTION( wing_get_process_params );
-PHP_FUNCTION( wing_create_process );
-PHP_FUNCTION( wing_create_process_ex );
+ZEND_FUNCTION( wing_process_wait );
+//ZEND_FUNCTION( wing_get_process_params );
+ZEND_FUNCTION( wing_create_process );
+ZEND_FUNCTION( wing_create_process_ex );
 ZEND_FUNCTION( wing_process_kill );
 ZEND_FUNCTION( wing_get_current_process_id );
 ZEND_FUNCTION( wing_query_object );
