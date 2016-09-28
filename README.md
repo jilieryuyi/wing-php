@@ -9,7 +9,7 @@
 
 gitËµÃ÷
 ----------------------------------                               
-	http://www.itdfy.com/git/
+	[wing php](http://www.itdfy.com/git/)
 
 QQÈº
 ----------------------------------
