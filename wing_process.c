@@ -112,17 +112,17 @@ PHP_FUNCTION( wing_create_process ){
 
 	char *exe           = NULL;   //创建进程必须的可执行文件 一般为 exe bat等可以直接运行的文件
 	int	  exe_len       = 0;
-	char *params        = NULL;   //需要传递到子进程能的参数 通过api wing_get_process_params 获取
-	int	  params_len    = 0;
+	char *output_file     = NULL;   //命令行输出到文件
+	int	  output_file_len = 0;
 
-	if ( zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC, "s|s", &exe, &exe_len, &params, &params_len ) != SUCCESS ) {
+	if ( zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC, "s|s", &exe, &exe_len, &output_file, &output_file_len ) != SUCCESS ) {
 		RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		return;
 	}
 	
 
-	HANDLE m_hRead         = NULL;
-	HANDLE m_hWrite        = NULL;
+	//HANDLE m_hRead         = NULL;
+	//HANDLE m_hWrite        = NULL;
 	STARTUPINFO sui;    
 	PROCESS_INFORMATION pi;                        // 保存了所创建子进程的信息
 	SECURITY_ATTRIBUTES sa;                        // 父进程传递给子进程的一些信息
@@ -133,36 +133,61 @@ PHP_FUNCTION( wing_create_process ){
 	sa.lpSecurityDescriptor = NULL;
 	sa.nLength              = sizeof(SECURITY_ATTRIBUTES);
 	
-	if (!CreatePipe(&m_hRead, &m_hWrite, &sa, 0))
+	/*if (!CreatePipe(&m_hRead, &m_hWrite, &sa, 0))
 	{
 		RETURN_LONG( WING_ERROR_FAILED );
 		return;
-	}
+	}*/
+
+	
+    SECURITY_ATTRIBUTES *psa=NULL;  
+    DWORD dwShareMode=FILE_SHARE_READ|FILE_SHARE_WRITE;  
+    OSVERSIONINFO osVersion={0};  
+    osVersion.dwOSVersionInfoSize =sizeof ( osVersion );  
+    if ( GetVersionEx ( &osVersion ) )  
+    {  
+        if ( osVersion.dwPlatformId ==VER_PLATFORM_WIN32_NT )  
+        {  
+            psa=&sa;  
+            dwShareMode|=FILE_SHARE_DELETE;  
+        }  
+    }  
+
+
+	HANDLE hConsoleRedirect=CreateFile (  
+                                output_file,  
+                                GENERIC_WRITE,  
+                                dwShareMode,  
+                                psa,  
+                                OPEN_ALWAYS,  
+                                FILE_ATTRIBUTE_NORMAL,  
+                                NULL );  
 
 	ZeroMemory(&sui, sizeof(STARTUPINFO));         // 对一个内存区清零，最好用ZeroMemory, 它的速度要快于memset
 	
 	sui.cb         = sizeof(STARTUPINFO);
 	sui.dwFlags	   = STARTF_USESTDHANDLES;  
-	sui.hStdInput  = m_hRead;
-	sui.hStdOutput = m_hWrite;
-	sui.hStdError  = GetStdHandle(STD_ERROR_HANDLE);
-		
-	if( params_len >0 ) {	
+	sui.hStdInput  = NULL;//m_hRead;
+	sui.hStdOutput = hConsoleRedirect;//m_hWrite;
+	sui.hStdError  = hConsoleRedirect;//GetStdHandle(STD_ERROR_HANDLE);
+	sui.wShowWindow= SW_HIDE;
+
+	/*if( params_len >0 ) {	
 		DWORD byteWrite  = 0;
 		if( ::WriteFile( m_hWrite, params, params_len, &byteWrite, NULL ) == FALSE ) {
 			php_error_docref(NULL TSRMLS_CC, E_WARNING, "write data to process error");
 		}
-	}
+	}*/
 
 	if ( !CreateProcess( NULL,exe, NULL, NULL, TRUE, 0, NULL, NULL, &sui, &pi ) ) {
-		  CloseHandle(m_hRead);
-		  CloseHandle(m_hWrite);
+		  CloseHandle(hConsoleRedirect);
+		 // CloseHandle(m_hWrite);
 		  RETURN_LONG( WING_ERROR_FAILED );
 		  return;
 	}
 		
-	CloseHandle( m_hRead );
-	CloseHandle( m_hWrite );
+	//CloseHandle( m_hRead );
+	CloseHandle( hConsoleRedirect );
 	CloseHandle( pi.hProcess );  // 子进程的进程句柄
 	CloseHandle( pi.hThread );   // 子进程的线程句柄，windows中进程就是一个线程的容器，每个进程至少有一个线程在执行
 
@@ -181,11 +206,11 @@ PHP_FUNCTION( wing_create_process_ex ){
 	
 	char *php_file       = NULL;
 	int	  php_file_len   = 0;
-	char *params	     = NULL;
-	int   params_len     = 0;
+	char *output_file	     = NULL;
+	int   output_file_len     = 0;
 	char *command        = NULL;
 
-	if ( zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC, "s|s", &php_file, &php_file_len, &params, &params_len ) != SUCCESS ) {
+	if ( zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC, "s|s", &php_file, &php_file_len, &output_file, &output_file_len ) != SUCCESS ) {
 		 RETURN_LONG(WING_ERROR_PARAMETER_ERROR);
 		 return;
 	}
@@ -193,8 +218,8 @@ PHP_FUNCTION( wing_create_process_ex ){
 	
 	spprintf( &command, 0, "%s %s\0", PHP_PATH, php_file );
 
-	HANDLE m_hRead         = NULL;
-	HANDLE m_hWrite        = NULL;
+	//HANDLE m_hRead         = NULL;
+	//HANDLE m_hWrite        = NULL;
 	STARTUPINFO sui;    
 	PROCESS_INFORMATION pi;                        // 保存了所创建子进程的信息
 	SECURITY_ATTRIBUTES sa;                        // 父进程传递给子进程的一些信息
@@ -205,38 +230,61 @@ PHP_FUNCTION( wing_create_process_ex ){
 	sa.lpSecurityDescriptor = NULL;
 	sa.nLength              = sizeof(SECURITY_ATTRIBUTES);
 	
-	if (!CreatePipe(&m_hRead, &m_hWrite, &sa, 0))
+	/*if (!CreatePipe(&m_hRead, &m_hWrite, &sa, 0))
 	{
 		efree(command);
 		RETURN_LONG( WING_ERROR_FAILED );
 		return;
-	}
+	}*/
+
+	SECURITY_ATTRIBUTES *psa=NULL;  
+    DWORD dwShareMode=FILE_SHARE_READ|FILE_SHARE_WRITE;  
+    OSVERSIONINFO osVersion={0};  
+    osVersion.dwOSVersionInfoSize =sizeof ( osVersion );  
+    if ( GetVersionEx ( &osVersion ) )  
+    {  
+        if ( osVersion.dwPlatformId ==VER_PLATFORM_WIN32_NT )  
+        {  
+            psa=&sa;  
+            dwShareMode|=FILE_SHARE_DELETE;  
+        }  
+    }  
+
+
+	HANDLE hConsoleRedirect=CreateFile (  
+                                output_file,  
+                                GENERIC_WRITE,  
+                                dwShareMode,  
+                                psa,  
+                                OPEN_ALWAYS,  
+                                FILE_ATTRIBUTE_NORMAL,  
+                                NULL );  
 
 	ZeroMemory(&sui, sizeof(STARTUPINFO));         // 对一个内存区清零，最好用ZeroMemory, 它的速度要快于memset
 	
 	sui.cb         = sizeof(STARTUPINFO);
 	sui.dwFlags	   = STARTF_USESTDHANDLES;  
-	sui.hStdInput  = m_hRead;
-	sui.hStdOutput = m_hWrite;
-	sui.hStdError  = GetStdHandle(STD_ERROR_HANDLE);
+	sui.hStdInput  = NULL;//m_hRead;
+	sui.hStdOutput = hConsoleRedirect;//m_hWrite;
+	sui.hStdError  = hConsoleRedirect;//GetStdHandle(STD_ERROR_HANDLE);
 		
-	if( params_len >0 ) {	
+	/*if( params_len >0 ) {	
 		DWORD byteWrite  = 0;
 		if( ::WriteFile( m_hWrite, params, params_len, &byteWrite, NULL ) == FALSE ) {
 			php_error_docref(NULL TSRMLS_CC, E_WARNING, "write data to process error");
 		}
-	}
+	}*/
 
 	if ( !CreateProcess( NULL, command , NULL, NULL, TRUE, 0, NULL, NULL, &sui, &pi ) ) {
-		  CloseHandle(m_hRead);
-		  CloseHandle(m_hWrite);
+		  CloseHandle(hConsoleRedirect);
+		 // CloseHandle(m_hWrite);
 		  efree(command);
 		  RETURN_LONG( WING_ERROR_FAILED );
 		  return;
 	}
 		
-	CloseHandle( m_hRead );
-	CloseHandle( m_hWrite );
+	CloseHandle( hConsoleRedirect );
+	//CloseHandle( m_hWrite );
 	CloseHandle( pi.hProcess );  // 子进程的进程句柄
 	CloseHandle( pi.hThread );   // 子进程的线程句柄，windows中进程就是一个线程的容器，每个进程至少有一个线程在执行
 

@@ -22,16 +22,6 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="wing_encrypt_file.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wing_encrypt_file.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="380">
-              <caret line="19" column="41" selection-start-line="19" selection-start-column="41" selection-end-line="19" selection-end-column="41" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="wing_get_command_path.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wing_get_command_path.php">
           <provider selected="true" editor-type-id="text-editor">
@@ -59,8 +49,8 @@
               <caret line="55" column="0" selection-start-line="55" selection-start-column="0" selection-end-line="66" selection-end-column="1" />
               <folding>
                 <element signature="e#6#95#0#PHP" expanded="true" />
-                <marker date="1472130641046" expanded="true" signature="1514:1541" placeholder="SELECT * FRO... Win32_Process" />
-                <marker date="1472130641046" expanded="true" signature="1514:1565" placeholder="SELECT * FRO... Win32_Process" />
+                <marker date="1472461677243" expanded="true" signature="1514:1541" placeholder="SELECT * FRO... Win32_Process" />
+                <marker date="1472461677243" expanded="true" signature="1514:1565" placeholder="SELECT * FRO... Win32_Process" />
               </folding>
             </state>
           </provider>
@@ -72,7 +62,7 @@
             <state relative-caret-position="700">
               <caret line="35" column="0" selection-start-line="35" selection-start-column="0" selection-end-line="46" selection-end-column="1" />
               <folding>
-                <marker date="1472131339328" expanded="true" signature="603:630" placeholder="SELECT * FRO... Win32_Product" />
+                <marker date="1472461677244" expanded="true" signature="603:630" placeholder="SELECT * FRO... Win32_Product" />
               </folding>
             </state>
           </provider>
@@ -85,7 +75,7 @@
               <caret line="41" column="11" selection-start-line="41" selection-start-column="11" selection-end-line="41" selection-end-column="11" />
               <folding>
                 <element signature="e#6#110#0#PHP" expanded="true" />
-                <marker date="1472132296423" expanded="true" signature="1662:1697" placeholder="SELECT * FRO... Win32_OperatingSystem" />
+                <marker date="1472461677242" expanded="true" signature="1662:1697" placeholder="SELECT * FRO... Win32_OperatingSystem" />
               </folding>
             </state>
           </provider>
@@ -98,45 +88,40 @@
               <caret line="35" column="16" selection-start-line="35" selection-start-column="16" selection-end-line="35" selection-end-column="16" />
               <folding>
                 <element signature="e#6#84#0#PHP" expanded="true" />
-                <marker date="1472132915208" expanded="true" signature="720:754" placeholder="SELECT * FRO... Win32_DesktopMonitor" />
+                <marker date="1472461677240" expanded="true" signature="720:754" placeholder="SELECT * FRO... Win32_DesktopMonitor" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Win32_ComputerSystem.php" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Win32_ComputerSystem.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/com/Win32_ComputerSystem.php">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="20">
               <caret line="31" column="18" selection-start-line="31" selection-start-column="18" selection-end-line="31" selection-end-column="18" />
               <folding>
-                <marker date="1472133268827" expanded="true" signature="1585:1619" placeholder="SELECT * FRO... Win32_ComputerSystem" />
+                <marker date="1472461677239" expanded="true" signature="1585:1619" placeholder="SELECT * FRO... Win32_ComputerSystem" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="wing_windows_version.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wing_windows_version.php">
+      <file leaf-file-name="wing_create_process.php" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/wing_create_process.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="60">
-              <caret line="8" column="0" selection-start-line="8" selection-start-column="0" selection-end-line="31" selection-end-column="1" />
-              <folding>
-                <element signature="e#6#100#0#PHP" expanded="true" />
-              </folding>
+            <state relative-caret-position="228">
+              <caret line="23" column="0" selection-start-line="23" selection-start-column="0" selection-end-line="25" selection-end-column="110" />
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="com.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/com.php">
+      <file leaf-file-name="wing_create_process_runer.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/wing_create_process_runer.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="160">
-              <caret line="8" column="11" selection-start-line="8" selection-start-column="11" selection-end-line="8" selection-end-column="11" />
-              <folding>
-                <marker date="1471655142246" expanded="true" signature="175:202" placeholder="Select * fro... Win32_Process" />
-                <marker date="1471655142246" expanded="true" signature="175:204" placeholder="Select * fro... Win32_Process" />
-              </folding>
+            <state relative-caret-position="540">
+              <caret line="31" column="10" selection-start-line="31" selection-start-column="10" selection-end-line="31" selection-end-column="10" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -153,7 +138,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/wing_get_env.php" />
         <option value="$PROJECT_DIR$/test/wing_find_process.php" />
         <option value="$PROJECT_DIR$/wing_server.php" />
         <option value="$PROJECT_DIR$/beta/http/service/Response.php" />
@@ -182,12 +166,10 @@
         <option value="$PROJECT_DIR$/wing_windows_version.php" />
         <option value="$PROJECT_DIR$/crontab/crontab.php" />
         <option value="$PROJECT_DIR$/http/wing.php" />
-        <option value="$PROJECT_DIR$/wing_create_process.php" />
         <option value="$PROJECT_DIR$/wing_get_process_memory_used.php" />
         <option value="$PROJECT_DIR$/wing_get_command_path.php" />
         <option value="$PROJECT_DIR$/wing_get_error_msg.php" />
         <option value="$PROJECT_DIR$/wing_find_process.php" />
-        <option value="$PROJECT_DIR$/wing_create_process_runer.php" />
         <option value="$PROJECT_DIR$/beta/wing_encrypt_file.php" />
         <option value="$PROJECT_DIR$/beta/wing_encrypt_file_test.php" />
         <option value="$PROJECT_DIR$/wing_get_cpu_id.php" />
@@ -204,6 +186,9 @@
         <option value="$PROJECT_DIR$/com/Win32_OperatingSystem.php" />
         <option value="$PROJECT_DIR$/com/Win32_DesktopMonitor.php" />
         <option value="$PROJECT_DIR$/com/Win32_ComputerSystem.php" />
+        <option value="$PROJECT_DIR$/wing_create_process_runer.php" />
+        <option value="$PROJECT_DIR$/wing_create_process.php" />
+        <option value="$PROJECT_DIR$/process_output.log" />
       </list>
     </option>
   </component>
@@ -265,20 +250,6 @@
               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
             </PATH_ELEMENT>
           </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="simples" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="simples" />
-              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="com" />
-              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
-            </PATH_ELEMENT>
-          </PATH>
         </subPane>
       </pane>
       <pane id="Scratches" />
@@ -286,7 +257,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="D:/web/yonglibao/statistics" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
   </component>
@@ -395,17 +366,18 @@
       <workItem from="1472167384666" duration="623000" />
       <workItem from="1472176860200" duration="630000" />
       <workItem from="1472225070646" duration="7000" />
+      <workItem from="1475031025169" duration="1144000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="181170000" />
+    <option name="totallyTimeSpent" value="182314000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1604" height="876" extended-state="0" />
-    <editor active="false" />
+    <frame x="-8" y="-8" width="1604" height="876" extended-state="1" />
+    <editor active="true" />
     <layout>
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16624685" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16624685" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.05613577" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -432,7 +404,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/http/log/wing_error.log" />
     <entry file="file://$PROJECT_DIR$/http/www/table.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -538,20 +509,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/wing_find_process.php" />
-    <entry file="file://$PROJECT_DIR$/wing_create_process.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="400">
-          <caret line="25" column="76" selection-start-line="25" selection-start-column="47" selection-end-line="25" selection-end-column="76" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wing_create_process_runer.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="520">
-          <caret line="30" column="8" selection-start-line="30" selection-start-column="8" selection-end-line="30" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/beta/test.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="20">
@@ -704,7 +661,7 @@
           <caret line="41" column="11" selection-start-line="41" selection-start-column="11" selection-end-line="41" selection-end-column="11" />
           <folding>
             <element signature="e#6#110#0#PHP" expanded="true" />
-            <marker date="1472132296423" expanded="true" signature="1662:1697" placeholder="SELECT * FRO... Win32_OperatingSystem" />
+            <marker date="1472461677242" expanded="true" signature="1662:1697" placeholder="SELECT * FRO... Win32_OperatingSystem" />
           </folding>
         </state>
       </provider>
@@ -715,8 +672,8 @@
           <caret line="55" column="0" selection-start-line="55" selection-start-column="0" selection-end-line="66" selection-end-column="1" />
           <folding>
             <element signature="e#6#95#0#PHP" expanded="true" />
-            <marker date="1472130641046" expanded="true" signature="1514:1541" placeholder="SELECT * FRO... Win32_Process" />
-            <marker date="1472130641046" expanded="true" signature="1514:1565" placeholder="SELECT * FRO... Win32_Process" />
+            <marker date="1472461677243" expanded="true" signature="1514:1541" placeholder="SELECT * FRO... Win32_Process" />
+            <marker date="1472461677243" expanded="true" signature="1514:1565" placeholder="SELECT * FRO... Win32_Process" />
           </folding>
         </state>
       </provider>
@@ -727,7 +684,7 @@
           <caret line="35" column="16" selection-start-line="35" selection-start-column="16" selection-end-line="35" selection-end-column="16" />
           <folding>
             <element signature="e#6#84#0#PHP" expanded="true" />
-            <marker date="1472132915208" expanded="true" signature="720:754" placeholder="SELECT * FRO... Win32_DesktopMonitor" />
+            <marker date="1472461677240" expanded="true" signature="720:754" placeholder="SELECT * FRO... Win32_DesktopMonitor" />
           </folding>
         </state>
       </provider>
@@ -737,7 +694,7 @@
         <state relative-caret-position="700">
           <caret line="35" column="0" selection-start-line="35" selection-start-column="0" selection-end-line="46" selection-end-column="1" />
           <folding>
-            <marker date="1472131339328" expanded="true" signature="603:630" placeholder="SELECT * FRO... Win32_Product" />
+            <marker date="1472461677244" expanded="true" signature="603:630" placeholder="SELECT * FRO... Win32_Product" />
           </folding>
         </state>
       </provider>
@@ -747,8 +704,32 @@
         <state relative-caret-position="20">
           <caret line="31" column="18" selection-start-line="31" selection-start-column="18" selection-end-line="31" selection-end-column="18" />
           <folding>
-            <marker date="1472133268827" expanded="true" signature="1585:1619" placeholder="SELECT * FRO... Win32_ComputerSystem" />
+            <marker date="1472461677239" expanded="true" signature="1585:1619" placeholder="SELECT * FRO... Win32_ComputerSystem" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wing_create_process_runer.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="540">
+          <caret line="31" column="10" selection-start-line="31" selection-start-column="10" selection-end-line="31" selection-end-column="10" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/process_output.log">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wing_create_process.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="228">
+          <caret line="23" column="0" selection-start-line="23" selection-start-column="0" selection-end-line="25" selection-end-column="110" />
+          <folding />
         </state>
       </provider>
     </entry>

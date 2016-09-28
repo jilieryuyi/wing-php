@@ -43,6 +43,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "linux_test", "wing\linux_te
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "iocp", "iocp\iocp.vcxproj", "{8EA3D702-87CC-464F-AFA3-7FED11D7CC96}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wmic_getnames", "wmic_getnames\wmic_getnames.vcxproj", "{BE9ED174-5227-43F7-B878-E2AF811E787C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug_TS|Win32 = Debug_TS|Win32
@@ -219,6 +221,14 @@ Global
 		{8EA3D702-87CC-464F-AFA3-7FED11D7CC96}.Release_TS|Win32.Build.0 = Release|Win32
 		{8EA3D702-87CC-464F-AFA3-7FED11D7CC96}.Release|Win32.ActiveCfg = Release|Win32
 		{8EA3D702-87CC-464F-AFA3-7FED11D7CC96}.Release|Win32.Build.0 = Release|Win32
+		{BE9ED174-5227-43F7-B878-E2AF811E787C}.Debug_TS|Win32.ActiveCfg = Debug|Win32
+		{BE9ED174-5227-43F7-B878-E2AF811E787C}.Debug_TS|Win32.Build.0 = Debug|Win32
+		{BE9ED174-5227-43F7-B878-E2AF811E787C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BE9ED174-5227-43F7-B878-E2AF811E787C}.Debug|Win32.Build.0 = Debug|Win32
+		{BE9ED174-5227-43F7-B878-E2AF811E787C}.Release_TS|Win32.ActiveCfg = Release|Win32
+		{BE9ED174-5227-43F7-B878-E2AF811E787C}.Release_TS|Win32.Build.0 = Release|Win32
+		{BE9ED174-5227-43F7-B878-E2AF811E787C}.Release|Win32.ActiveCfg = Release|Win32
+		{BE9ED174-5227-43F7-B878-E2AF811E787C}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

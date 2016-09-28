@@ -1,7 +1,6 @@
 /************************************************************************/
 /* @ iocp project                                                       */
 /************************************************************************/
-
 #include "stdafx.h"
 #include "Winsock2.h"
 #include "Windows.h"
@@ -198,7 +197,7 @@ void WingIOCP::wait(){
 
 	 linger so_linger;
 	 so_linger.l_onoff	= TRUE;
-	 so_linger.l_linger	= 5; // without close wait status
+	 so_linger.l_linger	= 0; // without close wait status
 	 if( setsockopt( pOL->m_skClient, SOL_SOCKET, SO_LINGER, (const char*)&so_linger, sizeof(so_linger) ) != 0 ){
 		 printf("31=>onconnect some error happened , error code %d \r\n", WSAGetLastError());
 	 } 
@@ -298,7 +297,7 @@ void WingIOCP::wait(){
 	 pOL->m_active   = time(NULL);                       //the last active time
 	 pOL->m_iOpType	 = OP_ONCONNECT;                        //reset status
 	 ZeroMemory( &pOL->m_ol,sizeof(OVERLAPPED));
-	 printf("%ld reuse socket real complete , error code %d \r\n", pOL->m_skClient,WSAGetLastError());
+	// printf("%ld reuse socket real complete , error code %d \r\n", pOL->m_skClient,WSAGetLastError());
 	// WSASetLastError(0);
 	// if( setsockopt( pOL->m_skClient, SOL_SOCKET,SO_UPDATE_ACCEPT_CONTEXT,(const char *)&pOL->m_skServer,sizeof(pOL->m_skServer) ) != 0 )
 	 {
@@ -309,13 +308,25 @@ void WingIOCP::wait(){
 	 }
  }
  void WingIOCP::onclose( iocp_overlapped *&pOL ){
-	// printf("%ld close\r\n", pOL->m_skClient);
+	 printf("%ld close\r\n", pOL->m_skClient);
 
 	 pOL->m_iOpType      = OP_DISCONNECT;
 	 //socket reuse
-	 if( !disconnect( pOL->m_skClient , &pOL->m_ol ) && WSA_IO_PENDING != WSAGetLastError()) {
+
+	 //重用socket
+	 //if( !disconnect( pOL->m_skClient , &pOL->m_ol ) && WSA_IO_PENDING != WSAGetLastError()) {
 		// printf("1=>onclose some error happened , error code %d \r\n", WSAGetLastError());
-	 }
+	 //}
+
+
+	 //下面代码为不重用socket
+	 shutdown(pOL->m_skClient,SD_BOTH);
+	 closesocket(pOL->m_skClient);
+
+	 pOL->m_skClient = WSASocket(AF_INET,SOCK_STREAM,IPPROTO_TCP,0,0,WSA_FLAG_OVERLAPPED);
+	 ondisconnect(pOL);
+
+
 	 //printf("onclose complete %d \r\n", WSAGetLastError());
  }
  void WingIOCP::onrecv( iocp_overlapped *&pOL ){

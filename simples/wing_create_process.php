@@ -22,8 +22,8 @@ $handle = wing_create_mutex("a test mutex"); //这里的内核对象 $handle 会
 
 wing_set_env("data","这句话将被传到子进程");
 $command = WING_PHP." ".__DIR__."/wing_create_process_runer.php";
-//$process_id = wing_create_process( $command, "这句话也会被传到子进程");
-$process_id = wing_create_process_ex(__DIR__."/wing_create_process_runer.php handle=".$handle,"这句话将被传到子进程");
+//$process_id = wing_create_process( $command, __DIR__."\\process_output.log");
+$process_id = wing_create_process_ex(__DIR__."/wing_create_process_runer.php",__DIR__."\\process_output.log");
 //wing_create_process_ex专属php文件的创建进程方式 即把php文件作为一个单独的进程中执行
 echo "进程id:",$process_id,"\r\n";
 

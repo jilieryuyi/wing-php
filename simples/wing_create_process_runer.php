@@ -6,12 +6,12 @@
  */
 //获取当前进程id
 $current_process_id  = wing_get_current_process_id();
-$data                = wing_get_process_params(); //从父进程接收数据
 $env                 = wing_get_env("data"); //通过环境变量从父进程接收数据
 
+echo 123123;
+
 file_put_contents("wing_create_process.log",
-    "进程id：".$current_process_id."\r\n从父进程获取到的参数：".
-    $data."\r\n从父进程获取到的环境变量：".$env."\r\n");
+    "进程id：".$current_process_id."\r\n从父进程获取到的参数："."\r\n从父进程获取到的环境变量：".$env."\r\n");
 file_put_contents("wing_create_process_cmd.log",
     wing_get_command_line());
 
