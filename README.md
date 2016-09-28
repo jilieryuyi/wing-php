@@ -32,12 +32,12 @@ api文档
 	两个api均为返回最后发生的错误编码
 	
 ### wing_get_error_msg   
-   $error_msg = wing_get_error_msg($error_code)
-   将wing_get_last_error、wing_wsa_get_last_error转换为错误字符串
+    $error_msg = wing_get_error_msg($error_code)
+    将wing_get_last_error、wing_wsa_get_last_error转换为错误字符串
 
 ### wing_get_memory_used   
-   $memory_usage = wing_get_memory_used();
-   获取进程实际占用的内存大小，单位为字节
+    $memory_usage = wing_get_memory_used();
+    获取进程实际占用的内存大小，单位为字节
 
 ### 一个例子：
     $handle = wing_create_mutex("a test mutex"); //这里的内核对象 $handle 会被子进程继承
