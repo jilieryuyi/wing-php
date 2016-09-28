@@ -5,13 +5,13 @@
 ###发布的版本
 	php_wing.dll 编译发布dll文件位于版本库master分支根目录
 
-###文档                               
+###git说明                               
 	http://www.itdfy.com/git/
 
 ##QQ群
     535218312
 	
-##创建守护进程
+##api文档
     $process_id = wing_create_process_ex(__DIR__ . "/service.php start ", __DIR__ . "\\log\\output_base.log");
     第一个参数为需要在守护进程中执行的程序指令，第二个参数为进程输出重定向到指定文件，就是如此简单^ˇ^	
 	与wing_create_process的唯一区别是，wing_create_process需要指定可执行文件，wing_create_process_ex不需要
@@ -30,7 +30,7 @@
    $memory_usage = wing_get_memory_used();
    获取进程实际占用的内存大小，单位为字节
 
-##一个例子：
+   一个例子：
    $handle = wing_create_mutex("a test mutex"); //这里的内核对象 $handle 会被子进程继承
 
     wing_set_env("data","这句话将被传到子进程");
