@@ -220,7 +220,7 @@ const zend_function_entry wing_functions[] = {
 	
 	PHP_FE( wing_version, NULL )
 	PHP_FE( wing_create_process, NULL )
-	PHP_FE( wing_get_process_params, NULL )
+	//PHP_FE( wing_get_process_params, NULL )
 	PHP_FE( wing_create_process_ex, NULL )
 	PHP_FE( wing_process_wait, NULL )
 	PHP_FE( wing_process_kill, NULL )

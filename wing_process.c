@@ -45,7 +45,7 @@ PHP_FUNCTION( wing_process_wait ){
  *@从父进程获取数据 这里使用了一个小伎俩，性能，待考量
  *return string or null
  */
-ZEND_FUNCTION( wing_get_process_params ){
+/*ZEND_FUNCTION( wing_get_process_params ){
 	
 	HANDLE m_hRead	 = GetStdHandle(STD_INPUT_HANDLE);
 	DWORD data_len	 = 1024;
@@ -99,7 +99,7 @@ ZEND_FUNCTION( wing_get_process_params ){
 	}
 	RETURN_NULL();
 	return;
-}
+}*/
 
 
 
