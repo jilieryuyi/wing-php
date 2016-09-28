@@ -10,3 +10,7 @@
 
 ##QQ群
     535218312
+	
+##创建守护进程
+    wing_create_process_ex(__DIR__ . "/service.php start ", __DIR__ . "\\log\\output_base.log");
+    第一个参数为需要在守护进程中执行的程序指令，第二个参数为进程输出重定向到指定文件，就是如此简单^ˇ^	
