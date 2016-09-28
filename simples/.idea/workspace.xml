@@ -257,7 +257,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="D:/web/yuyi/www.itdfy.com" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
   </component>
@@ -366,16 +366,16 @@
       <workItem from="1472167384666" duration="623000" />
       <workItem from="1472176860200" duration="630000" />
       <workItem from="1472225070646" duration="7000" />
-      <workItem from="1475031025169" duration="1144000" />
+      <workItem from="1475031025169" duration="1568000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="182314000" />
+    <option name="totallyTimeSpent" value="182738000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1604" height="876" extended-state="1" />
-    <editor active="true" />
+    <frame x="-8" y="-8" width="1604" height="876" extended-state="0" />
+    <editor active="false" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16624685" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -601,7 +601,7 @@
         <state relative-caret-position="60">
           <caret line="8" column="0" selection-start-line="8" selection-start-column="0" selection-end-line="31" selection-end-column="1" />
           <folding>
-            <element signature="e#6#100#0#PHP" expanded="true" />
+            <element signature="e#6#100#0#PHP" expanded="false" />
           </folding>
         </state>
       </provider>
