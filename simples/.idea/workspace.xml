@@ -187,8 +187,8 @@
         <option value="$PROJECT_DIR$/com/Win32_DesktopMonitor.php" />
         <option value="$PROJECT_DIR$/com/Win32_ComputerSystem.php" />
         <option value="$PROJECT_DIR$/wing_create_process_runer.php" />
-        <option value="$PROJECT_DIR$/wing_create_process.php" />
         <option value="$PROJECT_DIR$/process_output.log" />
+        <option value="$PROJECT_DIR$/wing_create_process.php" />
       </list>
     </option>
   </component>
@@ -366,12 +366,12 @@
       <workItem from="1472167384666" duration="623000" />
       <workItem from="1472176860200" duration="630000" />
       <workItem from="1472225070646" duration="7000" />
-      <workItem from="1475031025169" duration="1568000" />
+      <workItem from="1475031025169" duration="2151000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="182738000" />
+    <option name="totallyTimeSpent" value="183321000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1604" height="876" extended-state="0" />
