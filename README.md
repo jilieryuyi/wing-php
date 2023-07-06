@@ -1,156 +1,148 @@
-¹ØÓÚwing php
+å…³äºwing php
 ----------------------------------
-	wing php windowsÆ½Ì¨ÏÂÊµÏÖphp¶à½ø³Ì¡¢Ô´Âë¼ÓÃÜ¡¢tcp¡¢http¡¢websocket¡¢com...
-	php±àÒë°æ±¾5.6.20 ±àÒë»·¾³ÎªVisual Studio 2012 X86 (VC11-x86)
+	wing php windowså¹³å°ä¸‹å®ç°phpå¤šè¿›ç¨‹ã€æºç åŠ å¯†ã€tcpã€httpã€websocketã€com...
+	phpç¼–è¯‘ç‰ˆæœ¬5.6.20 ç¼–è¯‘ç¯å¢ƒä¸ºVisual Studio 2012 X86 (VC11-x86)
 
-·¢²¼µÄ°æ±¾
+å‘å¸ƒçš„ç‰ˆæœ¬
 ----------------------------------
-	php_wing.dll ±àÒë·¢²¼dllÎÄ¼şÎ»ÓÚ°æ±¾¿âmaster·ÖÖ§¸ùÄ¿Â¼
+	php_wing.dll ç¼–è¯‘å‘å¸ƒdllæ–‡ä»¶ä½äºç‰ˆæœ¬åº“masteråˆ†æ”¯æ ¹ç›®å½•
 
-gitËµÃ÷
-----------------------------------                               
-    http://www.itdfy.com/git/
-
-QQÈº
-----------------------------------
-    535218312
-	
-apiÎÄµµ
+apiæ–‡æ¡£
 ----------------------------------
 ### wing_create_process_ex
     $process_id = wing_create_process_ex(__DIR__ . "/service.php start ", __DIR__ . "\\log\\output_base.log");
-    µÚÒ»¸ö²ÎÊıÎªĞèÒªÔÚÊØ»¤½ø³ÌÖĞÖ´ĞĞµÄ³ÌĞòÖ¸Áî£¬µÚ¶ş¸ö²ÎÊıÎª½ø³ÌÊä³öÖØ¶¨Ïòµ½Ö¸¶¨ÎÄ¼ş£¬¾ÍÊÇÈç´Ë¼òµ¥^¡¦^	
-	Óëwing_create_processµÄÎ¨Ò»Çø±ğÊÇ£¬wing_create_processĞèÒªÖ¸¶¨¿ÉÖ´ĞĞÎÄ¼ş£¬wing_create_process_ex²»ĞèÒª
-	Èç£º$process_id = wing_create_process_ex("C:/php/bin/php.exe ".__DIR__ . "/service.php start ", __DIR__ . "\\log\\output_base.log");
+    ç¬¬ä¸€ä¸ªå‚æ•°ä¸ºéœ€è¦åœ¨å®ˆæŠ¤è¿›ç¨‹ä¸­æ‰§è¡Œçš„ç¨‹åºæŒ‡ä»¤ï¼Œç¬¬äºŒä¸ªå‚æ•°ä¸ºè¿›ç¨‹è¾“å‡ºé‡å®šå‘åˆ°æŒ‡å®šæ–‡ä»¶ï¼Œå°±æ˜¯å¦‚æ­¤ç®€å•^Ë‡^	
+	ä¸wing_create_processçš„å”¯ä¸€åŒºåˆ«æ˜¯ï¼Œwing_create_processéœ€è¦æŒ‡å®šå¯æ‰§è¡Œæ–‡ä»¶ï¼Œwing_create_process_exä¸éœ€è¦
+	å¦‚ï¼š$process_id = wing_create_process_ex("C:/php/bin/php.exe ".__DIR__ . "/service.php start ", __DIR__ . "\\log\\output_base.log");
 
 ### wing_version	
     $wing_version = wing_version()
-	»ñÈ¡°æ±¾ºÅapi£¬echo wing_version();Ò²¿ÉÒÔÊ¹ÓÃ³£Á¿WING_VERSION
+	è·å–ç‰ˆæœ¬å·apiï¼Œecho wing_version();ä¹Ÿå¯ä»¥ä½¿ç”¨å¸¸é‡WING_VERSION
 	
 ### wing_get_last_error	
     $error_code = wing_get_last_error();//$error_code = wing_wsa_get_last_error();
-	Á½¸öapi¾ùÎª·µ»Ø×îºó·¢ÉúµÄ´íÎó±àÂë
+	ä¸¤ä¸ªapiå‡ä¸ºè¿”å›æœ€åå‘ç”Ÿçš„é”™è¯¯ç¼–ç 
 	
 ### wing_get_error_msg   
     $error_msg = wing_get_error_msg($error_code)
-    ½«wing_get_last_error¡¢wing_wsa_get_last_error×ª»»Îª´íÎó×Ö·û´®
+    å°†wing_get_last_errorã€wing_wsa_get_last_errorè½¬æ¢ä¸ºé”™è¯¯å­—ç¬¦ä¸²
 
 ### wing_get_memory_used   
     $memory_usage = wing_get_memory_used();
-    »ñÈ¡½ø³ÌÊµ¼ÊÕ¼ÓÃµÄÄÚ´æ´óĞ¡£¬µ¥Î»Îª×Ö½Ú
+    è·å–è¿›ç¨‹å®é™…å ç”¨çš„å†…å­˜å¤§å°ï¼Œå•ä½ä¸ºå­—èŠ‚
 
-### Ò»¸öÀı×Ó£º
-    $handle = wing_create_mutex("a test mutex"); //ÕâÀïµÄÄÚºË¶ÔÏó $handle »á±»×Ó½ø³Ì¼Ì³Ğ
-    wing_set_env("data","Õâ¾ä»°½«±»´«µ½×Ó½ø³Ì");
+### ä¸€ä¸ªä¾‹å­ï¼š
+    $handle = wing_create_mutex("a test mutex"); //è¿™é‡Œçš„å†…æ ¸å¯¹è±¡ $handle ä¼šè¢«å­è¿›ç¨‹ç»§æ‰¿
+    wing_set_env("data","è¿™å¥è¯å°†è¢«ä¼ åˆ°å­è¿›ç¨‹");
     $command = WING_PHP." ".__DIR__."/wing_create_process_runer.php";
     //$process_id = wing_create_process( $command, __DIR__."\\process_output.log");
     $process_id = wing_create_process_ex(__DIR__."/wing_create_process_runer.php",__DIR__."\\process_output.log");
-    //wing_create_process_ex×¨ÊôphpÎÄ¼şµÄ´´½¨½ø³Ì·½Ê½ ¼´°ÑphpÎÄ¼ş×÷ÎªÒ»¸öµ¥¶ÀµÄ½ø³ÌÖĞÖ´ĞĞ
-    echo "½ø³Ìid:",$process_id,"\r\n";
+    //wing_create_process_exä¸“å±phpæ–‡ä»¶çš„åˆ›å»ºè¿›ç¨‹æ–¹å¼ å³æŠŠphpæ–‡ä»¶ä½œä¸ºä¸€ä¸ªå•ç‹¬çš„è¿›ç¨‹ä¸­æ‰§è¡Œ
+    echo "è¿›ç¨‹id:",$process_id,"\r\n";
 	
-    //wing_process_kill( $process_id ); //¿ÉÒÔÊÇÓÃÕâ¸öapiÉ±ËÀÕıÔÚÔËĞĞµÄ½ø³Ì
+    //wing_process_kill( $process_id ); //å¯ä»¥æ˜¯ç”¨è¿™ä¸ªapiæ€æ­»æ­£åœ¨è¿è¡Œçš„è¿›ç¨‹
 
-    /*if( com_find_process( $command ) ) { //ÎªÁË²âÊÔÕâ¶Î´úÂë ¿ÉÒÔÈ¥µô wing_process_killµÄ×¢ÊÍ
-    //½¨ÒéÊ¹ÓÃÕâÖÖ·½Ê½ÅĞ¶Ï½ø³ÌÊÇ·ñÕıÔÚÔËĞĞ ¿É¿¿
-    echo $process_id,"ÕıÔÚÔËĞĞ\r\n";
+    /*if( com_find_process( $command ) ) { //ä¸ºäº†æµ‹è¯•è¿™æ®µä»£ç  å¯ä»¥å»æ‰ wing_process_killçš„æ³¨é‡Š
+    //å»ºè®®ä½¿ç”¨è¿™ç§æ–¹å¼åˆ¤æ–­è¿›ç¨‹æ˜¯å¦æ­£åœ¨è¿è¡Œ å¯é 
+    echo $process_id,"æ­£åœ¨è¿è¡Œ\r\n";
     }else{
-    echo $process_id,"Î´ÔËĞĞ\r\n";
+    echo $process_id,"æœªè¿è¡Œ\r\n";
     }*/
 
     //sleep(60);
-    //²é¿´ÒıÓÃ¼ÆÊıÆ÷
-    echo "ÒıÓÃ¼ÆÊı",wing_query_object( $handle ),"\r\n";
+    //æŸ¥çœ‹å¼•ç”¨è®¡æ•°å™¨
+    echo "å¼•ç”¨è®¡æ•°",wing_query_object( $handle ),"\r\n";
 
 
-    //ÕâÖÖ·½·¨Ò²ºÜ¿É¿¿ ²»¹ıÓĞĞ©½ø³ÌÓÉÓÚ°²È«È¨ÏŞµÄÔ­Òò ¿ÉÄÜÎŞ·¨Õı³£»ñÈ¡ Ôì³ÉÊ§°Ü Õâ¸öÊ±ºòcomÊÇÒ»¸ö²»´íµÄÑ¡Ôñ
+    //è¿™ç§æ–¹æ³•ä¹Ÿå¾ˆå¯é  ä¸è¿‡æœ‰äº›è¿›ç¨‹ç”±äºå®‰å…¨æƒé™çš„åŸå›  å¯èƒ½æ— æ³•æ­£å¸¸è·å– é€ æˆå¤±è´¥ è¿™ä¸ªæ—¶å€™comæ˜¯ä¸€ä¸ªä¸é”™çš„é€‰æ‹©
     $process_command = wing_query_process( "wing_create_process_runer.php" ) ;
     var_dump( $process_command );
     if( is_array( $process_command) && count( $process_command) > 0 ) {
-    echo $process_id,"ÕıÔÚÔËĞĞ\r\n";
+    echo $process_id,"æ­£åœ¨è¿è¡Œ\r\n";
     }
 
 
 
-    $wait_code = wing_process_wait( $process_id, WING_INFINITE ); //ÓÀ²»³¬Ê±µÈ´ı×Ó½ø³ÌÍË³ö µÚ¶ş¸ö²ÎÊıÎª¿ÉÑ¡²ÎÊı Ä¬ÈÏÎªWING_INFINITE
+    $wait_code = wing_process_wait( $process_id, WING_INFINITE ); //æ°¸ä¸è¶…æ—¶ç­‰å¾…å­è¿›ç¨‹é€€å‡º ç¬¬äºŒä¸ªå‚æ•°ä¸ºå¯é€‰å‚æ•° é»˜è®¤ä¸ºWING_INFINITE
     switch( $wait_code ) {
     case WING_ERROR_FAILED :
-            echo "µÈ´ıÊ§°Ü\r\n";
+            echo "ç­‰å¾…å¤±è´¥\r\n";
         break;
 
     case WING_WAIT_ABANDONED :
-            echo 'Ã»ÓĞÊÍ·Åmutex£¨µ±hHandleÎªmutexÊ±£¬Èç¹ûÓµÓĞmutexµÄÏß³ÌÔÚ½áÊøÊ±Ã»ÓĞÊÍ·ÅºËĞÄ¶ÔÏó»áÒı·¢´Ë·µ»ØÖµ¡££©\r\n';
+            echo 'æ²¡æœ‰é‡Šæ”¾mutexï¼ˆå½“hHandleä¸ºmutexæ—¶ï¼Œå¦‚æœæ‹¥æœ‰mutexçš„çº¿ç¨‹åœ¨ç»“æŸæ—¶æ²¡æœ‰é‡Šæ”¾æ ¸å¿ƒå¯¹è±¡ä¼šå¼•å‘æ­¤è¿”å›å€¼ã€‚ï¼‰\r\n';
         break;
 
-    case WING_WAIT_TIMEOUT://½öµ±wing_process_waitµÚ¶ş¸ö²ÎÊı²»Îª WING_INFINITEÓĞĞ§
-        echo "µÈ´ı³¬Ê±\r\n";
+    case WING_WAIT_TIMEOUT://ä»…å½“wing_process_waitç¬¬äºŒä¸ªå‚æ•°ä¸ä¸º WING_INFINITEæœ‰æ•ˆ
+        echo "ç­‰å¾…è¶…æ—¶\r\n";
         break;
     
     default:
-        echo "½ø³ÌÍË³öÂë£º",$wait_code,"\r\n"; //ÔÚ×Ó½ø³Ìµ÷ÓÃexitÊ±´«ÈëµÄ²ÎÊı
+        echo "è¿›ç¨‹é€€å‡ºç ï¼š",$wait_code,"\r\n"; //åœ¨å­è¿›ç¨‹è°ƒç”¨exitæ—¶ä¼ å…¥çš„å‚æ•°
     }
 
 
-    //²é¿´ÒıÓÃ¼ÆÊıÆ÷ ±È×Ó½ø³ÌÍË³öÖ®Ç°Ğ¡ÁË1 Ò²¿ÉÒÔÍ¨¹ıÕâÖÖ·½Ê½È¥ÅĞ¶Ï×Ó½ø³ÌÊÇ·ñ»¹ÔÚÔËĞĞ~
-    echo "ÒıÓÃ¼ÆÊı",wing_query_object( $handle ),"\r\n";
-    //wing_query_object ÎŞ·¨Ê¶±ğ$handleÊÇ·ñÓĞĞ§ ÇëÔÚwing_close_mutexµ÷ÓÃÇ°Ê¹ÓÃ´Ëº¯Êı
+    //æŸ¥çœ‹å¼•ç”¨è®¡æ•°å™¨ æ¯”å­è¿›ç¨‹é€€å‡ºä¹‹å‰å°äº†1 ä¹Ÿå¯ä»¥é€šè¿‡è¿™ç§æ–¹å¼å»åˆ¤æ–­å­è¿›ç¨‹æ˜¯å¦è¿˜åœ¨è¿è¡Œ~
+    echo "å¼•ç”¨è®¡æ•°",wing_query_object( $handle ),"\r\n";
+    //wing_query_object æ— æ³•è¯†åˆ«$handleæ˜¯å¦æœ‰æ•ˆ è¯·åœ¨wing_close_mutexè°ƒç”¨å‰ä½¿ç”¨æ­¤å‡½æ•°
 
     wing_close_mutex($handle);
-    $handle = 0; //¼Ç×¡ closeÖ®ºó $handle=0 ÇåÀí ºÜÖØÒª ·ÀÖ¹ºóÃæ ±»ÎóÓÃ
+    $handle = 0; //è®°ä½ closeä¹‹å $handle=0 æ¸…ç† å¾ˆé‡è¦ é˜²æ­¢åé¢ è¢«è¯¯ç”¨
 
 
 ### wing_process_kill
     wing_process_kill( $process_id );
-	Ç¿ÖÆÖÕÖ¹Ò»¸ö½ø³Ì£¬ºÜ±©Á¦µÄ×ö·¨£¬Êµ¼ÊÓ¦ÓÃĞèÒª¿¼ÂÇÒ»Ğ©ÊÂÎñĞÔµÄÎÊÌâ£¬·ÀÖ¹Êı¾İ¶ªÊ§
+	å¼ºåˆ¶ç»ˆæ­¢ä¸€ä¸ªè¿›ç¨‹ï¼Œå¾ˆæš´åŠ›çš„åšæ³•ï¼Œå®é™…åº”ç”¨éœ€è¦è€ƒè™‘ä¸€äº›äº‹åŠ¡æ€§çš„é—®é¢˜ï¼Œé˜²æ­¢æ•°æ®ä¸¢å¤±
 
 ###wing_get_current_process_id	
     $current_process_id = wing_get_current_process_id();
-	»ñÈ¡µ±Ç°½ø³Ìid
+	è·å–å½“å‰è¿›ç¨‹id
 
 ### wing_query_object	
     $quote_times = wing_query_object( $handle );
-	»ñÈ¡¶ÔÏó¾ä±úµÄÒıÓÃ´ÎÊı
+	è·å–å¯¹è±¡å¥æŸ„çš„å¼•ç”¨æ¬¡æ•°
 
 ### wing_create_mutex	
     $handle = wing_create_mutex() ;
-	´´½¨Ò»¸ö»¥³âÄÚºË¶ÔÏó
+	åˆ›å»ºä¸€ä¸ªäº’æ–¥å†…æ ¸å¯¹è±¡
 
 ### wing_close_mutex	
 	wing_close_mutex($handle);
-	¹Ø±ÕÒ»¸ö»¥³âÄÚºË¶ÔÏó
+	å…³é—­ä¸€ä¸ªäº’æ–¥å†…æ ¸å¯¹è±¡
 
 ### wing_query_process	
     $process_info = wing_query_process( $key_word );
-	²éÑ¯ÏµÍ³½ø³Ì
+	æŸ¥è¯¢ç³»ç»Ÿè¿›ç¨‹
 
 ### wing_get_env
     $env = wing_get_env($key);
-	»ñÈ¡»·¾³±äÁ¿
+	è·å–ç¯å¢ƒå˜é‡
 
 ### wing_set_env	
     wing_set_env( $key, $value );
-	ÉèÖÃ»·¾³±äÁ¿
+	è®¾ç½®ç¯å¢ƒå˜é‡
 	
 ### wing_get_command_path
     $path = wing_get_command_path( $aommand );
-	»ñÈ¡ÃüÁîËùÔÚµÄÍêÕûÂ·¾¶
+	è·å–å‘½ä»¤æ‰€åœ¨çš„å®Œæ•´è·¯å¾„
 
 ### wing_get_command_line	
     $command_line = wing_get_command_line();
-	»ñÈ¡Æô¶¯ÃüÁî
+	è·å–å¯åŠ¨å‘½ä»¤
 
 ### wing_override_function	
     wing_override_function($func,$param,$code);
-	ÖØĞ´ÏµÍ³º¯Êı£¬Èç£ºwing_override_function("header",'$header','global $http; $http->setHeaders($header);');
-	ÖØĞ´ÁËÏµÍ³µÄheaderº¯Êı£¬header±»ÖØĞ´Îª²ÎÊıÎª$header£¬º¯ÊıµÄ¾ßÌåÊµÏÖÎªglobal $http; $http->setHeaders($header);£¬
-	¼´ function header( $header ){global $http; $http->setHeaders($header);}
+	é‡å†™ç³»ç»Ÿå‡½æ•°ï¼Œå¦‚ï¼šwing_override_function("header",'$header','global $http; $http->setHeaders($header);');
+	é‡å†™äº†ç³»ç»Ÿçš„headerå‡½æ•°ï¼Œheaderè¢«é‡å†™ä¸ºå‚æ•°ä¸º$headerï¼Œå‡½æ•°çš„å…·ä½“å®ç°ä¸ºglobal $http; $http->setHeaders($header);ï¼Œ
+	å³ function header( $header ){global $http; $http->setHeaders($header);}
 
 ### wing_windows_send_msg	
     wing_windows_send_msg($title,$msg);
-	¿ç½ø³Ì¸ø´°Ìå³ÌĞò·¢ËÍÏûÏ¢£¬ÊµÏÖÔ­ÀíÎªwindowsµÄcopydata
+	è·¨è¿›ç¨‹ç»™çª—ä½“ç¨‹åºå‘é€æ¶ˆæ¯ï¼Œå®ç°åŸç†ä¸ºwindowsçš„copydata
 
 ### wing_windows_version	
     wing_windows_version();
-	»ñÈ¡windowsµÄÏµÍ³°æ±¾
+	è·å–windowsçš„ç³»ç»Ÿç‰ˆæœ¬
 	$version = wing_windows_version();
 	switch( $version ) {
 		case WING_WINDOWS_ANCIENT:      echo "windows ancient\r\n";break;
